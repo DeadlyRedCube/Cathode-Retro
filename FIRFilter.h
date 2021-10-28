@@ -266,7 +266,7 @@ public:
       //}
 
       // To facilitate shifting these around for the following multiplies without having issues with moving data between SIMD lanes, build an additional vector that is the inside 
-      __m256 innerInput = _mm256_castsi256_ps(_mm256_permute2x128_si256(_mm256_castps_si256(firstInput), _mm256_castps_si256(secondInput), 0x21));
+      __m256 innerInput = _mm256_permute2f128_ps(firstInput, secondInput, 0x21);
 
       ASSERT(fc[0] >= -1.0f && fc[0] <= 1.0f);
       ASSERT(fc[1] >= -1.0f && fc[1] <= 1.0f);
@@ -322,7 +322,7 @@ public:
       {
         auto fc = fcStart;
         auto input = inputStart;
-        __m256 firstInput = _mm256_set1_ps(0.0f); // These first sets start with an initial set of zeros
+        __m256 firstInput = _mm256_setzero_ps(); // These first sets start with an initial set of zeros
         __m256 accumulator = _mm256_setzero_ps();
 
         for (u32 filterSet = filterStartSet; filterSet < filterSetCount; filterSet++)
