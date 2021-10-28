@@ -156,14 +156,18 @@
     <ClCompile Include="ReadWicTexture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AlignedVector.h" />
     <ClInclude Include="BaseTypes.h" />
     <ClInclude Include="ButterworthIIR.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="Debug.h" />
+    <ClInclude Include="FIRFilter.h" />
     <ClInclude Include="List.h" />
     <ClInclude Include="MacroHelper.h" />
+    <ClInclude Include="MathHelpers.h" />
     <ClInclude Include="Mem.h" />
     <ClInclude Include="ReadWicTexture.h" />
+    <ClInclude Include="SIMD.h" />
     <ClInclude Include="SP.h" />
     <ClInclude Include="WindowsInc.h" />
   </ItemGroup>

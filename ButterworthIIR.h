@@ -362,8 +362,8 @@ namespace ButterworthIIR
       }
 
       // Pad out the zero array with -1s (zeros at infinity, basically) until there are as many as there are poles (not pole pairs)
-      unsigned int zeroCount = polePairs.size() * 2 + (hasOddPole ? 1 : 0);
-      for (unsigned int i = zeros.size(); i < zeroCount; i++)
+      size_t zeroCount = polePairs.size() * 2 + (hasOddPole ? 1 : 0);
+      for (size_t i = zeros.size(); i < zeroCount; i++)
       {
         zeros.push_back(-1.0);
       }
