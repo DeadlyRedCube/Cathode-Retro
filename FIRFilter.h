@@ -226,7 +226,62 @@ public:
   }
 
 
-  void ProcessAvx2_2(const AlignedVector<f32> &valuesIn, AlignedVector<f32> *pValuesOut) const
+  void Process(const AlignedVector<f32> &valuesIn, AlignedVector<f32> *pValuesOut) const
+  {
+    switch (k_maxInstructionSet)
+    {
+    case SIMDInstructionSet::AVX:
+      ProcessAvx<false>(valuesIn, pValuesOut);
+      return;
+
+    case SIMDInstructionSet::AVX2:
+      ProcessAvx<true>(valuesIn, pValuesOut);
+      return;
+
+    case SIMDInstructionSet::None:
+      break;
+    }
+
+    for (u32 i = 0; i < valuesIn.size(); i++)
+    {
+      (*pValuesOut)[i] = ProcessOneElement(valuesIn.data(), u32(valuesIn.size()), i);
+    }
+  }
+
+  f32 ProcessOneElement(const f32 *values, u32 valueArrayLength, u32 centerInputIndex) const
+  {
+    u32 halfLength = (Length() - 1) / 2;
+    u32 startFilterIndex = 0;
+    u32 startArrayIndex;
+    if (centerInputIndex < halfLength)
+    {
+      // We have a center early enough in the array that we have to clamp to the edge (we assume all values before the array are zeroes)
+      startArrayIndex = 0;
+      startFilterIndex = halfLength - centerInputIndex;
+    }
+    else
+    {
+      // We can use the whole front of the filter, so just start at the corresponding left-hand input
+      startArrayIndex = centerInputIndex - halfLength;
+    }
+
+    // End the processing at the end of the filter or the end of the input, whichever comes first
+    u32 endArrayIndex = std::min(valueArrayLength, centerInputIndex + halfLength + 1);
+    u32 count = endArrayIndex - startArrayIndex;
+    ASSERT(count <= Length());
+
+    f32 result = 0.0f;
+    for (u32 i = 0; i < count; i++)
+    {
+      result += values[i + startArrayIndex] * coefficients[i + startFilterIndex + k_initialZeroPadding];
+    }
+
+    return result;
+  }
+
+protected:
+template <bool UseAVX2>
+  void ProcessAvx(const AlignedVector<f32> &valuesIn, AlignedVector<f32> *pValuesOut) const
   {
     // This implementation is based off of the paper "Efficient Vectorization of the FIR Filter"  
     //  (https://aes.tu-berlin.de/fileadmin/fg196/publication/old-juurlink/efficient_vectorization_of_the_fir_filter.pdf)
@@ -282,33 +337,105 @@ public:
 
       coeff = _mm256_broadcast_ss(&fc[1]);
       // Combine our two lane-mixed input values (innerInput and firstInput) into effectively i[1], i[2], i[3], i[4], i[5], i[6], i[7], i[8]
-      __m256 mixedInput = _mm256_castsi256_ps(_mm256_alignr_epi8(_mm256_castps_si256(innerInput), _mm256_castps_si256(firstInput), 4));
+      __m256 mixedInput;
+      if constexpr (UseAVX2)
+      {
+        mixedInput = _mm256_castsi256_ps(_mm256_alignr_epi8(_mm256_castps_si256(innerInput), _mm256_castps_si256(firstInput), 4));
+      }
+      else
+      {
+        // AVX1 is a little more complex (but only slightly more expensive)
+        __m256 tmp = _mm256_permute_ps(firstInput, 0b00111001);     // [a b c d e f g h] -> [b c d a f g h e]
+        mixedInput = _mm256_permute_ps(innerInput, 0b00111001);     // [e f g h i j k l] -> [f g h e j k l i]
+        mixedInput = _mm256_blend_ps(tmp, mixedInput, 0b10001000);  // -> [b c d e f g h i]
+      }
+
+      [[maybe_unused]] __m256 doubleFuck =  _mm256_castsi256_ps(_mm256_alignr_epi8(_mm256_castps_si256(innerInput), _mm256_castps_si256(firstInput), 4));
       accumulator = _mm256_fmadd_ps(coeff, mixedInput, accumulator);
 
       coeff = _mm256_broadcast_ss(&fc[2]);
       // Mix the next shift up (i2, i3, i4, i5, i6, i7, i8, i9)
-      mixedInput = _mm256_castsi256_ps(_mm256_alignr_epi8(_mm256_castps_si256(innerInput), _mm256_castps_si256(firstInput), 8));
+      if constexpr (UseAVX2)
+      {
+        mixedInput = _mm256_castsi256_ps(_mm256_alignr_epi8(_mm256_castps_si256(innerInput), _mm256_castps_si256(firstInput), 8));
+      }
+      else
+      {
+        __m256 tmp = _mm256_permute_ps(firstInput, 0b01001110);     // [a b c d e f g h] -> [c d a b g h e f]
+        mixedInput = _mm256_permute_ps(innerInput, 0b01001110);     // [e f g h i j k l] -> [g h e f k l i j]
+        mixedInput = _mm256_blend_ps(tmp, mixedInput, 0b11001100);  // -> [c d e f g h i j]
+      }
+
+      doubleFuck =  _mm256_castsi256_ps(_mm256_alignr_epi8(_mm256_castps_si256(innerInput), _mm256_castps_si256(firstInput), 8));
+
       accumulator = _mm256_fmadd_ps(coeff, mixedInput, accumulator);
 
       coeff = _mm256_broadcast_ss(&fc[3]);
-      mixedInput = _mm256_castsi256_ps(_mm256_alignr_epi8(_mm256_castps_si256(innerInput), _mm256_castps_si256(firstInput), 12));
+      if constexpr (UseAVX2)
+      {
+        mixedInput = _mm256_castsi256_ps(_mm256_alignr_epi8(_mm256_castps_si256(innerInput), _mm256_castps_si256(firstInput), 12));
+      }
+      else
+      {
+        __m256 tmp = _mm256_permute_ps(firstInput, 0b10010011);     // [a b c d e f g h] -> [d a b c h e f g]
+        mixedInput = _mm256_permute_ps(innerInput, 0b10010011);     // [e f g h i j k l] -> [h e f g l i j k]
+        mixedInput = _mm256_blend_ps(tmp, mixedInput, 0b11101110);  // -> [d e f g h i j k]
+      }
+
+      doubleFuck =  _mm256_castsi256_ps(_mm256_alignr_epi8(_mm256_castps_si256(innerInput), _mm256_castps_si256(firstInput), 12));
+
       accumulator = _mm256_fmadd_ps(coeff, mixedInput, accumulator);
 
       coeff = _mm256_broadcast_ss(&fc[4]);
-      mixedInput = _mm256_castsi256_ps(_mm256_alignr_epi8(_mm256_castps_si256(innerInput), _mm256_castps_si256(firstInput), 16));
-      accumulator = _mm256_fmadd_ps(coeff, mixedInput, accumulator);
+      accumulator = _mm256_fmadd_ps(coeff, innerInput, accumulator);
 
       // now we have to switch to shifting between the inner input and the second one to keep the shifts going
       coeff = _mm256_broadcast_ss(&fc[5]);
-      mixedInput = _mm256_castsi256_ps(_mm256_alignr_epi8(_mm256_castps_si256(secondInput), _mm256_castps_si256(innerInput), 4));
+      if constexpr (UseAVX2)
+      {
+        mixedInput = _mm256_castsi256_ps(_mm256_alignr_epi8(_mm256_castps_si256(secondInput), _mm256_castps_si256(innerInput), 4));
+      }
+      else
+      {
+        __m256 tmp = _mm256_permute_ps(innerInput,  0b00111001);    // [e f g h i j k l] -> [f g h e j k l i]
+        mixedInput = _mm256_permute_ps(secondInput, 0b00111001);    // [i j k l m n o p] -> [j k l i n o p m]
+        mixedInput = _mm256_blend_ps(tmp, mixedInput, 0b10001000);  // -> [f g h i j k l m]
+      }
+
+      doubleFuck =  _mm256_castsi256_ps(_mm256_alignr_epi8(_mm256_castps_si256(secondInput), _mm256_castps_si256(innerInput), 4));
+
       accumulator = _mm256_fmadd_ps(coeff, mixedInput, accumulator);
 
       coeff = _mm256_broadcast_ss(&fc[6]);
-      mixedInput = _mm256_castsi256_ps(_mm256_alignr_epi8(_mm256_castps_si256(secondInput), _mm256_castps_si256(innerInput), 8));
+      if constexpr (UseAVX2)
+      {
+        mixedInput = _mm256_castsi256_ps(_mm256_alignr_epi8(_mm256_castps_si256(secondInput), _mm256_castps_si256(innerInput), 8));
+      }
+      else
+      {
+        __m256 tmp = _mm256_permute_ps(innerInput,  0b01001110);    // [e f g h i j k l] -> [g h e f k l i j]
+        mixedInput = _mm256_permute_ps(secondInput, 0b01001110);    // [i j k l m n o p] -> [k l i j o p m n]
+        mixedInput = _mm256_blend_ps(tmp, mixedInput, 0b11001100);  // -> [g h i j k l m n]
+      }
+
+      doubleFuck =  _mm256_castsi256_ps(_mm256_alignr_epi8(_mm256_castps_si256(secondInput), _mm256_castps_si256(innerInput), 8));
+
       accumulator = _mm256_fmadd_ps(coeff, mixedInput, accumulator);
 
       coeff = _mm256_broadcast_ss(&fc[7]);
-      mixedInput = _mm256_castsi256_ps(_mm256_alignr_epi8(_mm256_castps_si256(secondInput), _mm256_castps_si256(innerInput), 12));
+      if constexpr (UseAVX2)
+      {
+        mixedInput = _mm256_castsi256_ps(_mm256_alignr_epi8(_mm256_castps_si256(secondInput), _mm256_castps_si256(innerInput), 12));
+      }
+      else
+      {
+        __m256 tmp = _mm256_permute_ps(innerInput,  0b10010011);    // [e f g h i j k l] -> [h e f g l i j k]
+        mixedInput = _mm256_permute_ps(secondInput, 0b10010011);    // [i j k l m n o p] -> [l i j k p m n o]
+        mixedInput = _mm256_blend_ps(tmp, mixedInput, 0b11101110);  // -> [e f g h i j k l]
+      }
+
+      doubleFuck =  _mm256_castsi256_ps(_mm256_alignr_epi8(_mm256_castps_si256(secondInput), _mm256_castps_si256(innerInput), 12));
+
       accumulator = _mm256_fmadd_ps(coeff, mixedInput, accumulator);      
 
       return accumulator;
@@ -400,47 +527,6 @@ public:
     _mm256_store_ps(output, accumulator);
   }
 
-
-  void Process(const AlignedVector<f32> &valuesIn, AlignedVector<f32> *pValuesOut) const
-  {
-    for (u32 i = 0; i < valuesIn.size(); i++)
-    {
-      (*pValuesOut)[i] = ProcessOneElement(valuesIn.data(), u32(valuesIn.size()), i);
-    }
-  }
-
-  f32 ProcessOneElement(const f32 *values, u32 valueArrayLength, u32 centerInputIndex) const
-  {
-    u32 halfLength = (Length() - 1) / 2;
-    u32 startFilterIndex = 0;
-    u32 startArrayIndex;
-    if (centerInputIndex < halfLength)
-    {
-      // We have a center early enough in the array that we have to clamp to the edge (we assume all values before the array are zeroes)
-      startArrayIndex = 0;
-      startFilterIndex = halfLength - centerInputIndex;
-    }
-    else
-    {
-      // We can use the whole front of the filter, so just start at the corresponding left-hand input
-      startArrayIndex = centerInputIndex - halfLength;
-    }
-
-    // End the processing at the end of the filter or the end of the input, whichever comes first
-    u32 endArrayIndex = std::min(valueArrayLength, centerInputIndex + halfLength + 1);
-    u32 count = endArrayIndex - startArrayIndex;
-    ASSERT(count <= Length());
-
-    f32 result = 0.0f;
-    for (u32 i = 0; i < count; i++)
-    {
-      result += values[i + startArrayIndex] * coefficients[i + startFilterIndex + k_initialZeroPadding];
-    }
-
-    return result;
-  }
-
-protected:
   std::vector<f32, AlignAllocator<f32>> coefficients;
   u32 actualFilterLength;
 };

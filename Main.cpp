@@ -343,8 +343,7 @@ void GenerateNTSCFilters(
 void SeparateLumaAndChroma(const FIRFilter &lumaFilter, const FIRFilter &chromaFilter, ButterworthIIR::Filter &, const AlignedVector<f32> &compositeSignalIn, AlignedVector<f32> *lumaOut, AlignedVector<f32> *chromaOut)
 {
   // Low pass away the chroma data
-  lumaFilter.ProcessAvx2_2(compositeSignalIn, lumaOut);
-  //chromaFilter.ProcessAvx2_2(compositeSignalIn, chromaOut);
+  lumaFilter.Process(compositeSignalIn, lumaOut);
   chromaFilter.Process(compositeSignalIn, chromaOut);
 }
 
