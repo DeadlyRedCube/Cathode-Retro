@@ -1,8 +1,5 @@
 #pragma once
 
-#include "Common.h"
-#include "MacroHelper.h"
-
 #ifdef ASSERT
 #undef ASSERT
 #endif
@@ -13,11 +10,11 @@
 #undef TRACE
 #endif
 
-#define ASSERTS_ENABLED (DEVFUNCTIONS)
-#define DASSERTS_ENABLED (DEBUG)
+#define ASSERTS_ENABLED (defined (_DEBUG))
+#define DASSERTS_ENABLED (defined (_DEBUG))
 
-#if WINDOWS
-namespace ddbg
+#if defined (_WINDOWS)
+namespace NTSC::ddbg
 {
 	enum class DialogResult
 	{
@@ -30,7 +27,7 @@ namespace ddbg
 }
 
 #define ERROR_DIALOG(title, file, line, allButtons, condition, ...)    \
-        ddbg::AssertTaskDialog(title, file, line, allButtons, #condition)
+        ::NTSC::ddbg::AssertTaskDialog(title, file, line, allButtons, #condition)
 
 #if ASSERTS_ENABLED        
 #define ASSERT(x, ...)                                                                          \
@@ -40,9 +37,9 @@ namespace ddbg
             {                                                                                           \
                 switch(ERROR_DIALOG(L"Assertion Failed", __FILE__, __LINE__, true, x, __VA_ARGS__))  \
                 {                                                                                       \
-                case ddbg::DialogResult::Ignore:                                                        \
+                case ::NTSC::ddbg::DialogResult::Ignore:                                                        \
                     break;                                                                              \
-                case ddbg::DialogResult::IgnoreAlways:                                                  \
+                case ::NTSC::ddbg::DialogResult::IgnoreAlways:                                                  \
                     ___ignoreAlways = true;                                                             \
                     break;                                                                              \
                 default:                                                                                \
@@ -51,7 +48,7 @@ namespace ddbg
                 }                                                                                       \
             }                                                                                           \
         }
-#define TRACE(condition, str, ...) { auto trace_condition = (condition); if (trace_condition) { ddbg::Trace(Str::Format(str, __VA_ARGS__).CharPtr()); } }
+#define TRACE(condition, str, ...) { auto trace_condition = (condition); if (trace_condition) { ::NTSC::ddbg::Trace(Str::Format(str, __VA_ARGS__).CharPtr()); } }
 #define IF_ASSERTS_ENABLED(...) __VA_ARGS__
 #else 
 #define ASSERT(...)
@@ -75,8 +72,8 @@ namespace ddbg
 #endif
 
 // Checks for memory leaks
-#if DEVFUNCTIONS
-#if WINDOWS
+#if defined(_DEBUG)
+#if defined(_WINDOWS)
 #ifndef NO_OVERRIDE_NEW
 #define _CRTDBG_MAP_ALLOC
 #pragma warning (push)

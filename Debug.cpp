@@ -8,14 +8,14 @@
 #pragma comment(lib, "comctl32.lib")
 #pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
-#if WINDOWS
+#if defined (_WINDOWS)
 #define _CRTDBG_MAP_ALLOC
 #include "WindowsInc.h"
 #include <Commctrl.h>
 #include <crtdbg.h>
 #endif
 
-#if DEVFUNCTIONS && WINDOWS
+#if defined (_DEBUG) && defined (_WINDOWS)
 void InitDebugger()
 {
 	InitCommonControls();
@@ -23,9 +23,9 @@ void InitDebugger()
 }
 #endif
 
-namespace ddbg
+namespace NTSC::ddbg
 {
-#if WINDOWS
+#if defined (_WINDOWS)
 
 	DialogResult AssertTaskDialog(const wchar_t * title, const char *file, int line, bool allButtons, const char * message)
 	{
@@ -36,7 +36,7 @@ namespace ddbg
 		{
 			fileNoDir = file;
 		}
-		swprintf_s(content, ArrayLength(content), L"Failure detected in \"%S\", line %d", fileNoDir, line);
+		swprintf_s(content, NTSC::ArrayLength(content), L"Failure detected in \"%S\", line %d", fileNoDir, line);
 
 		TASKDIALOGCONFIG config;
 		ZeroMemory(&config, sizeof(config));

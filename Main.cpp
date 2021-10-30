@@ -1,5 +1,3 @@
-#include "Common.h"
-
 #include "WindowsInc.h"
 
 #include <chrono>
@@ -25,7 +23,6 @@
 #include "Mem.h"
 
 #include "SP.h"
-#include "List.h"
 #include "ReadWicTexture.h"
 
 #include <algorithm>
@@ -43,6 +40,8 @@
 #define MAX_LOADSTRING 100
 
 HWND window;
+
+using namespace NTSC;
 
 
 static constexpr f32 k_artifactHue = 0.0f;
@@ -392,8 +391,8 @@ void ProcessForNTSC(const std::vector<u32> &pixelsIn, u32 widthIn, u32 heightIn,
 
     for (u32 x = 0; x < lineArraySize; x++)
     {
-      sinTable[x] = SinPi(2.0f * phase + k_artifactHue);
-      cosTable[x] = CosPi(2.0f * phase + k_artifactHue);
+      sinTable[x] = Math::SinPi(2.0f * phase + k_artifactHue);
+      cosTable[x] = Math::CosPi(2.0f * phase + k_artifactHue);
 
       phase += phaseIncrement;
     }
@@ -426,8 +425,8 @@ void ProcessForNTSC(const std::vector<u32> &pixelsIn, u32 widthIn, u32 heightIn,
   std::chrono::high_resolution_clock c;
   auto start = c.now();
 
-  [[maybe_unused]] auto sinDecodeHue = SinPi(k_decodeHue);
-  [[maybe_unused]] auto cosDecodeHue = CosPi(k_decodeHue);
+  [[maybe_unused]] auto sinDecodeHue = Math::SinPi(k_decodeHue);
+  [[maybe_unused]] auto cosDecodeHue = Math::CosPi(k_decodeHue);
 
   // for (u32 iteration = 0; iteration < 1000; iteration++)
   {
@@ -829,8 +828,7 @@ void CompileShader(const char *shaderText, const char *entryPoint, const char *c
 
   if (FAILED(hr))
   {
-    const char * except = (const char *)errors->GetBufferPointer();
-    UNUSED_VAR(except);
+    [[maybe_unused]] const char * except = (const char *)errors->GetBufferPointer();
     ASSERT(false);
   }
 
@@ -848,7 +846,7 @@ bool StringEquals(const wchar_t *a, const wchar_t *b)
 }
 
 
-int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
+int APIENTRY wWinMain(HINSTANCE hInstance, [[maybe_unused]] HINSTANCE hPrevInstance, [[maybe_unused]] LPWSTR lpCmdLine, int nCmdShow)
 {
   CoInitialize(nullptr);
 
@@ -858,8 +856,6 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
   vertices[1] = {500, 100, 1, 0};
   vertices[2] = {500, 800, 1, 1};
   vertices[3] = {100, 800, 0, 1};
-  UNUSED_VAR(hPrevInstance);
-  UNUSED_VAR(lpCmdLine);
 
   HMONITOR primaryMon = MonitorFromPoint({0, 0}, MONITOR_DEFAULTTOPRIMARY);
   MONITORINFO info;

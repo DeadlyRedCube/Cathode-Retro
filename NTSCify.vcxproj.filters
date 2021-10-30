@@ -38,19 +38,10 @@
     <ClInclude Include="BaseTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Common.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MacroHelper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Mem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WindowsInc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="List.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ButterworthIIR.h">

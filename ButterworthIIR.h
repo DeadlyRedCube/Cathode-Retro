@@ -4,7 +4,7 @@
 #include <complex>
 #include <vector>
 
-namespace ButterworthIIR
+namespace NTSC::ButterworthIIR
 {
   template <typename t_type>
   static constexpr t_type k_pi = t_type(3.1415926535897932384626433832795028841971);
