@@ -1,7 +1,8 @@
 #pragma once
 
-#include "BaseTypes.h"
 #include "AlignedVector.h"
+#include "BaseTypes.h"
+#include "Debug.h"
 #include "MathHelpers.h"
 
 
@@ -352,7 +353,6 @@ namespace NTSC
           mixedInput = _mm256_blend_ps(tmp, mixedInput, 0b10001000);  // -> [b c d e f g h i]
         }
 
-        [[maybe_unused]] __m256 doubleFuck =  _mm256_castsi256_ps(_mm256_alignr_epi8(_mm256_castps_si256(innerInput), _mm256_castps_si256(firstInput), 4));
         accumulator = _mm256_fmadd_ps(coeff, mixedInput, accumulator);
 
         coeff = _mm256_broadcast_ss(&fc[2]);
@@ -368,8 +368,6 @@ namespace NTSC
           mixedInput = _mm256_blend_ps(tmp, mixedInput, 0b11001100);  // -> [c d e f g h i j]
         }
 
-        doubleFuck =  _mm256_castsi256_ps(_mm256_alignr_epi8(_mm256_castps_si256(innerInput), _mm256_castps_si256(firstInput), 8));
-
         accumulator = _mm256_fmadd_ps(coeff, mixedInput, accumulator);
 
         coeff = _mm256_broadcast_ss(&fc[3]);
@@ -383,8 +381,6 @@ namespace NTSC
           mixedInput = _mm256_permute_ps(innerInput, 0b10010011);     // [e f g h i j k l] -> [h e f g l i j k]
           mixedInput = _mm256_blend_ps(tmp, mixedInput, 0b11101110);  // -> [d e f g h i j k]
         }
-
-        doubleFuck =  _mm256_castsi256_ps(_mm256_alignr_epi8(_mm256_castps_si256(innerInput), _mm256_castps_si256(firstInput), 12));
 
         accumulator = _mm256_fmadd_ps(coeff, mixedInput, accumulator);
 
@@ -404,8 +400,6 @@ namespace NTSC
           mixedInput = _mm256_blend_ps(tmp, mixedInput, 0b10001000);  // -> [f g h i j k l m]
         }
 
-        doubleFuck =  _mm256_castsi256_ps(_mm256_alignr_epi8(_mm256_castps_si256(secondInput), _mm256_castps_si256(innerInput), 4));
-
         accumulator = _mm256_fmadd_ps(coeff, mixedInput, accumulator);
 
         coeff = _mm256_broadcast_ss(&fc[6]);
@@ -420,8 +414,6 @@ namespace NTSC
           mixedInput = _mm256_blend_ps(tmp, mixedInput, 0b11001100);  // -> [g h i j k l m n]
         }
 
-        doubleFuck =  _mm256_castsi256_ps(_mm256_alignr_epi8(_mm256_castps_si256(secondInput), _mm256_castps_si256(innerInput), 8));
-
         accumulator = _mm256_fmadd_ps(coeff, mixedInput, accumulator);
 
         coeff = _mm256_broadcast_ss(&fc[7]);
@@ -435,8 +427,6 @@ namespace NTSC
           mixedInput = _mm256_permute_ps(secondInput, 0b10010011);    // [i j k l m n o p] -> [l i j k p m n o]
           mixedInput = _mm256_blend_ps(tmp, mixedInput, 0b11101110);  // -> [e f g h i j k l]
         }
-
-        doubleFuck =  _mm256_castsi256_ps(_mm256_alignr_epi8(_mm256_castps_si256(secondInput), _mm256_castps_si256(innerInput), 12));
 
         accumulator = _mm256_fmadd_ps(coeff, mixedInput, accumulator);      
 
