@@ -204,6 +204,7 @@ void ProcessForNTSC(const std::vector<u32> &pixelsIn, u32 widthIn, u32 heightIn,
         chromaScanline,
         0.0f, // hue
         1.0f, // saturation
+        0.6f, // sharpness
         pixelsOut->data() + y * context.OutputTexelCount());
       
       context.EndScanline();

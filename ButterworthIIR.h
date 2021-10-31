@@ -140,21 +140,21 @@ namespace NTSC::ButterworthIIR
       { return float(Process(double(input))); }
 
     template <typename AllocA, typename AllocB>
-    void Process(const std::vector<float, AllocA> &samplesIn, std::vector<float, AllocB> *pSamplesOut)
+    void Process(const std::vector<float, AllocA> &samplesIn, size_t count, std::vector<float, AllocB> *pSamplesOut)
     { 
       for (u32 i = 0; i < latency; i++)
       {
         Process(samplesIn[i]);
       }
 
-      for (u32 i = 0; i < samplesIn.size() - latency; i++) 
+      for (u32 i = 0; i < count - latency; i++)
       { 
         (*pSamplesOut)[i] = Process(samplesIn[i + latency]); 
       } 
 
       for (u32 i = 0; i < latency; i++)
       {
-        (*pSamplesOut)[samplesIn.size() - latency + i] = Process(0.0f);
+        (*pSamplesOut)[count - latency + i] = Process(0.0f);
       }
     }
 

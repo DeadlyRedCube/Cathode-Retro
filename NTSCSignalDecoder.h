@@ -23,7 +23,8 @@ namespace NTSC
       u32 outTexelCount = genInfo.inputScanlinePixelCount * genInfo.outputOversampleAmount;
       qData.resize(Math::AlignInt(outTexelCount, k_maxFloatAlignment));
       iData.resize(Math::AlignInt(outTexelCount, k_maxFloatAlignment));
-      scratch.resize(Math::AlignInt(outTexelCount, k_maxFloatAlignment));
+      rgbs.resize(Math::AlignInt(outTexelCount * 3, outTexelCount * 3));
+      scratch.resize(Math::AlignInt(outTexelCount * 3, k_maxFloatAlignment));
     }
 
     void DecodeScanlineToARGB(
@@ -32,6 +33,7 @@ namespace NTSC
       const AlignedVector<f32> &chromaSignal,
       f32 hue,
       f32 saturation,
+      f32 sharpness,
       u32 *rgbOut)
     {
       if (hue != lastHue)
@@ -59,7 +61,7 @@ namespace NTSC
           scratch[x] = chromaSignal[x] * cos;
         }
 
-        demodulateFilter.Process(scratch, &qData);
+        demodulateFilter.Process(scratch, context.OutputTexelCount(), &qData);
       }
 
       // Reset history again - the two demodulations are independent from a history standpoint (as are the scanlines)
@@ -72,7 +74,7 @@ namespace NTSC
           scratch[x] = chromaSignal[x] * sin; // -SinPi(2.0f * phase + k_artifactHue + k_decodeHue);
         }
 
-        demodulateFilter.Process(scratch, &iData);
+        demodulateFilter.Process(scratch, context.OutputTexelCount(), &iData);
       }
 
       for (u32 x = 0; x < context.OutputTexelCount(); x++)
@@ -87,14 +89,54 @@ namespace NTSC
         f32 g = Y - i * 0.274788f - q * 0.635691f;
         f32 b = Y - i * 1.108545f + q * 1.7090047f;
 
+        rgbs[x * 3 + 0] = r;
+        rgbs[x * 3 + 1] = g;
+        rgbs[x * 3 + 2] = b;
+      }
+
+      if (sharpness != 0.0f)
+      {
+        f32 blurSide = -sharpness / 3.0f;
+        f32 center = 1.0f - 2.0f * blurSide;
+        u32 blurStep = context.GenInfo().outputOversampleAmount;
+
+        std::swap(scratch, rgbs);
+
+        for (u32 x = 0; x < blurStep; x++)
+        {
+          for (u32 i = 0; i < 3; i++)
+          {
+            rgbs[x*3 + i] = scratch[x*3 + i] * center + scratch[(x+blurStep)*3 + i] * blurSide;
+          }
+        }
+
+        for (u32 x = blurStep; x < context.OutputTexelCount() - blurStep; x++)
+        {
+          for (u32 i = 0; i < 3; i++)
+          {
+            rgbs[x*3 + i] = scratch[x*3 + i] * center + scratch[(x-blurStep)*3 + i] * blurSide + scratch[(x+blurStep)*3 + i] * blurSide;
+          }
+        }
+
+        for (u32 x = context.OutputTexelCount() - blurStep; x < context.OutputTexelCount(); x++)
+        {
+          for (u32 i = 0; i < 3; i++)
+          {
+            rgbs[x*3 + i] = scratch[x*3 + i] * center + scratch[(x-blurStep)*3 + i] * blurSide;
+          }
+        }
+      }
+
+      for (u32 x = 0; x < context.OutputTexelCount(); x++)
+      {
         // Convert to 8-bit and output
-        r = std::floor(std::clamp(r * 255.0f, 0.0f, 255.0f));
-        g = std::floor(std::clamp(g * 255.0f, 0.0f, 255.0f));
-        b = std::floor(std::clamp(b * 255.0f, 0.0f, 255.0f));
+        auto r = std::floor(std::clamp(rgbs[x * 3 + 0] * 255.0f, 0.0f, 255.0f));
+        auto g = std::floor(std::clamp(rgbs[x * 3 + 1] * 255.0f, 0.0f, 255.0f));
+        auto b = std::floor(std::clamp(rgbs[x * 3 + 2] * 255.0f, 0.0f, 255.0f));
 
         u32 abgr = 0xFF000000 | (u32(r)) | (u32(g) << 8) | (u32(b) << 16);
         rgbOut[x] = abgr;
-      }      
+      }
     }
 
   private:
@@ -102,6 +144,7 @@ namespace NTSC
     AlignedVector<f32> qData;
     AlignedVector<f32> iData;
     AlignedVector<f32> scratch;
+    AlignedVector<f32> rgbs;
     f32 lastHue = 0.0f;
     f32 cosHue = 1.0f;
     f32 sinHue = 0.0f;
