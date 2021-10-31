@@ -24,6 +24,9 @@
     <ClCompile Include="Debug.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="NTSCLowBandpassYCSeparator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ReadWicTexture.h">
@@ -57,6 +60,30 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MathHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NTSCGeneratorBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NTSCContext.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NTSCRGBGenerator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WangHash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NTSCYCSeparatorBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NTSCLowBandpassYCSeparator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NTSCData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NTSCSignalDecoder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

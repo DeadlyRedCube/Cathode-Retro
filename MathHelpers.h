@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmath>
+
 namespace NTSC::Math
 {
   template <typename IntT>
@@ -75,7 +77,7 @@ namespace NTSC::Math
       // So the coefficients for this taylor series are the same terms for SinPi(x) except with one less pi factored in.
       // Our actual taylor series looks like 1 - x^2 * (pi^2 / 3!) + x^4 * (pi^4 / 5!) + x^6 * (pi^6 / 7!) + ...
 
-      // I'm also using one less term here than above because we're so close to 0 that our accuracy is already fine by 9 terms.
+      // I'm also using less terms here than above because we're so close to 0 that our accuracy is already fine by 9 terms.
       static constexpr f32 k_coef3 = -1.644934067e+00f; // -pi^2 / 3!
       static constexpr f32 k_coef5 = 8.117424253e-01f;  //  pi^4 / 5!
       static constexpr f32 k_coef7 = -1.907518241e-01f; // -pi^6 / 7!

@@ -34,8 +34,10 @@
 #pragma comment(lib, "shlwapi.lib")
 #pragma comment(lib, "windowscodecs.lib")
 
-#include "ButterworthIIR.h"
-#include "FIRFilter.h"
+#include "NTSCContext.h"
+#include "NTSCRGBGenerator.h"
+#include "NTSCLowBandpassYCSeparator.h"
+#include "NTSCSignalDecoder.h"
 
 #define MAX_LOADSTRING 100
 
@@ -44,12 +46,9 @@ HWND window;
 using namespace NTSC;
 
 
-static constexpr f32 k_artifactHue = 0.0f;
-static constexpr f32 k_decodeHue = 0.0f;
-
 SP<ID3D11Device> device;
 SP<IDXGISwapChain> swapChain;
-SP<ID3D11DeviceContext> context;
+SP<ID3D11DeviceContext> deviceContext;
 SP<ID3D11Texture2D> backbuffer;
 SP<ID3D11RenderTargetView> backbufferView;
 SP<ID3D11RasterizerState> rasterState;
@@ -115,23 +114,6 @@ SP<ID3D11Texture2D> displayTexture;
 SP<ID3D11ShaderResourceView> displaySRV;
 
 
-struct GeneratorInfo
-{
-  s32 pixelsPerLine;
-  f32 colorCyclesPerPixel;
-  s32 initialPhaseTableIndex;
-  s32 phaseTableIndexIncrementPerLine;
-  s32 phaseTableIndexIncrementPerFrame;
-  u32 phaseTableCount;
-};
-
-GeneratorInfo NESandSNESGeneratorInfo = { 256, 2.0f/3.0f, 0, 1, 2, 3 };
-GeneratorInfo CGA320GeneratorInfo = { 320, 1.0f/2.0f, 1, 0, 0, 2 };
-GeneratorInfo CGA640GeneratorInfo = { 640, 1.0f/4.0f, 1, 0, 0, 2 };
-
-GeneratorInfo genToUse = NESandSNESGeneratorInfo;
-
-
 void SetZoom(float zoomIn)
 {
   if (displayTexture == nullptr)
@@ -169,334 +151,65 @@ void SetZoom(float zoomIn)
     zoom = zoomIn;
   }
 }
-
-struct LineGeneratorInfo
-{
-  u32 widthInPixels;
-  f32 colorBurstCycleCountPerPixel; // for NES this is 2/3
-  u32 outputSamplesPerPixel;
-};
-
-
-f32 WangHashAndXorShift(u32 seed)
-{
-  // wang hash
-  seed = (seed ^ 61) ^ (seed >> 16);
-  seed *= 9;
-  seed = seed ^ (seed >> 4);
-  seed *= 0x27d4eb2d;
-  seed = seed ^ (seed >> 15);
-
-  // xorshift
-  seed ^= (seed << 13);
-  seed ^= (seed >> 17);
-  seed ^= (seed << 5);
-  return f32(f64(seed) * (1.0 / 4294967296.0));
-}
-
-
-#if 0
-struct CGAColorMapping
-{
-  u8 oldR;
-  u8 oldG;
-  u8 oldB;
-  
-  u8 newR;
-  u8 newG;
-  u8 newB;
-};
-
-const CGAColorMapping OldCGAemap[] =
-{
-  {   0,   0,   0,     0,   0,   0, },
-  {   0,   0, 170,    75,  65, 251, },
-  {   0, 170,   0,    43, 139,   0, },
-  {   0, 170, 170,     0, 140,  65, },
-  { 170,   0,   0,   175,  35, 114, },
-  { 170,   0, 170,   130,  36, 226, },
-  { 170,  85,   0,   101, 110,   0, },
-  { 170, 170, 170,   183, 187, 181, },
-  {  85,  85,  85,    71,  68,  72, },
-  {  85,  85, 255,   145, 135, 255, },
-  {  85, 255,  85,   114, 209,  22, },
-  {  85, 255, 255,    69, 210, 136, },
-  { 255,  85,  85,   245, 105, 184, },
-  { 255,  85, 255,   200, 106, 255, },
-  { 255, 255,  85,   171, 180,   0, },
-  { 255, 255, 255,   253, 255, 251, }
-};
-#endif
-
-void ProcessRGBToNTSCLine(
-  [[maybe_unused]] const u32 *linePixelsIn, 
-  const LineGeneratorInfo &info, 
-  const AlignedVector<f32> &sinTable,
-  const AlignedVector<f32> &cosTable,
-  AlignedVector<f32> *lumaSignalOut, 
-  AlignedVector<f32> *chromaSignalOut, 
-  [[maybe_unused]] u32 yCoord)
-{
-  ASSERT(lumaSignalOut->size() == info.widthInPixels * info.outputSamplesPerPixel);
-  ASSERT(lumaSignalOut->size() == chromaSignalOut->size());
-  s32 phaseIndex = 0;
-
-  f32 *lumaSignalDst = lumaSignalOut->data();
-  f32 *chromaSignalDst = chromaSignalOut->data();
-  for (u32 x = 0; x < info.widthInPixels; x++) // PER PIXEL
-  {
-    u32 abgr = linePixelsIn[x];
-
-    u8 r8 = u8(abgr & 0x000000FF);
-    u8 g8 = u8((abgr & 0x0000FF00) >> 8);
-    u8 b8 = u8((abgr & 0x00FF0000) >> 16);
-
-#if 0
-    {
-      s32 nearestI = -1;
-      f32 difference = std::numeric_limits<f32>::max();
-      for (u32 i = 0; i < 16; i++)
-      {
-        f32 dr = f32(r8) - f32(OldCGAemap[i].oldR);
-        f32 dg = f32(g8) - f32(OldCGAemap[i].oldG);
-        f32 db = f32(b8) - f32(OldCGAemap[i].oldB);
-
-        f32 d = dr * dr + dg * dg + db * db;
-        if (d < difference)
-        {
-          difference = d;
-          nearestI = i;
-        }
-      }
-
-      r8 = OldCGAemap[nearestI].newR;
-      g8 = OldCGAemap[nearestI].newG;
-      b8 = OldCGAemap[nearestI].newB;
-    }
-#endif
-
-    f32 r = f32(r8) / 255.0f;
-    f32 g = f32(g8) / 255.0f;
-    f32 b = f32(b8)/ 255.0f;
-    
-    // Convert RGB to YIQ
-    [[maybe_unused]] f32 y = 0.3000f * r + 0.5900f * g + 0.1100f * b;
-    [[maybe_unused]] f32 i = 0.5990f * r - 0.2773f * g - 0.3217f * b;
-    [[maybe_unused]] f32 q = 0.2130f * r - 0.5251f * g + 0.3121f * b;
-
-    //q *= 0.72f;
-    //y *= 0.28f;
-    // Generate the signal for this pixel into the output
-
-    //u32 waveLength = u32(std::round(f32(info.outputSamplesPerPixel) / info.colorBurstCycleCountPerPixel));
-    //u32 halfWaveLength = waveLength / 2;
-    //ASSERT((waveLength & 3) == 0);
-    for (u32 s = 0; s < info.outputSamplesPerPixel; s++)
-    {
-      *lumaSignalDst = y; // + (WangHashAndXorShift(yCoord * info.widthInPixels + x) - 0.5f) * 0.05f;
-      *chromaSignalDst = -sinTable[phaseIndex] * i + cosTable[phaseIndex] * q; // SinPi(2.0f * phase + k_artifactHue) * i + CosPi(2.0f * phase + k_artifactHue) * q;
-      lumaSignalDst++;
-      chromaSignalDst++;
-      phaseIndex++;
-    }
-  }
-}
-
-
-void GenerateNTSCFilters(
-  f32 colorBurstCycleCountPerOutputSample,
-  [[maybe_unused]] f32 colorBurstCycleFrequency,
-  [[maybe_unused]] f32 upperMaxFrequency,
-  FIRFilter *lumaFilterOut,
-  FIRFilter *chromaFilterOut,
-  ButterworthIIR::Filter *chromaFilterIIROut,
-  FIRFilter *chromaDemodulateLowPassOut,
-  ButterworthIIR::Filter *chromaDemodulateIIROut)
-{
-  *lumaFilterOut = FIRFilter::CreateLowPass(colorBurstCycleCountPerOutputSample);
-  *chromaFilterOut = FIRFilter::Convolve(
-    FIRFilter::CreateHighPass(
-      colorBurstCycleCountPerOutputSample,
-      2.5f * colorBurstCycleCountPerOutputSample / colorBurstCycleFrequency),
-    FIRFilter::CreateLowPass(colorBurstCycleCountPerOutputSample, 6.0f * colorBurstCycleCountPerOutputSample / colorBurstCycleFrequency));
-
-  *chromaFilterIIROut = ButterworthIIR::Filter::CreateBandPass(
-    3,
-    3.0f * colorBurstCycleCountPerOutputSample / colorBurstCycleCountPerOutputSample * 2.0f,
-    4.0f * colorBurstCycleCountPerOutputSample / colorBurstCycleCountPerOutputSample * 2.0f);
-  
-  *chromaDemodulateLowPassOut = FIRFilter::CreateLowPass(1.5f * colorBurstCycleCountPerOutputSample, 2.0f * colorBurstCycleCountPerOutputSample);
-
-  auto lowFreq = (colorBurstCycleCountPerOutputSample * 2.0f) * 2.5f / 3.58f;
-  auto highFreq = (colorBurstCycleCountPerOutputSample * 2.0f) * 4.0f / 3.58f;
-
-  *chromaFilterIIROut = ButterworthIIR::Filter::CreateBandPass(2, lowFreq, highFreq);
-
-  *chromaDemodulateIIROut = ButterworthIIR::Filter::CreateLowPass(3, 1.2f * colorBurstCycleCountPerOutputSample);
-  //*chromaDemodulateIIROut = ButterworthIIR::Filter::CreateLowPass(2, colorBurstCycleCountPerOutputSample * 0.3f);
-
-  chromaFilterIIROut->MeasureLatency();
-  chromaDemodulateIIROut->MeasureLatency();
-}
-  
-void SeparateLumaAndChroma(const FIRFilter &lumaFilter, const FIRFilter &chromaFilter, ButterworthIIR::Filter &, const AlignedVector<f32> &compositeSignalIn, AlignedVector<f32> *lumaOut, AlignedVector<f32> *chromaOut)
-{
-  // Low pass away the chroma data
-  lumaFilter.Process(compositeSignalIn, lumaOut);
-  chromaFilter.Process(compositeSignalIn, chromaOut);
-}
-
-
 void ProcessForNTSC(const std::vector<u32> &pixelsIn, u32 widthIn, u32 heightIn, std::vector<u32> *pixelsOut, u32 *pWidthOut, u32 *pHeightOut, f32 *pAspectAdjustOut)
 {
-  const LineGeneratorInfo lineInfo = 
-  {
-    widthIn,
-    genToUse.colorCyclesPerPixel,
-    //genToUse.initialPhaseOffsetX,
-    3,    // outputSamplesPerPixel
-  };
+  auto genInfo = NTSC::NESandSNES240pGenerationInfo;
+  genInfo.inputScanlinePixelCount = widthIn;
 
-  FIRFilter lumaFilter;
-  FIRFilter chromaFilter;
-  FIRFilter chromaDemodulateLowPass;
-  ButterworthIIR::Filter chromaIIR;
-  ButterworthIIR::Filter chromaDemodulateIIR;
-  GenerateNTSCFilters(
-    lineInfo.colorBurstCycleCountPerPixel / f32(lineInfo.outputSamplesPerPixel),
-    315.0f / 88.0f,
-    4.5f,
-    &lumaFilter,
-    &chromaFilter,
-    &chromaIIR,
-    &chromaDemodulateLowPass,
-    &chromaDemodulateIIR);
+  auto context = NTSC::Context(genInfo);
+  auto generator = NTSC::RGBGenerator();
+  auto YCSeparator = NTSC::LowbandpassYCSeparator(genInfo);
+  auto decoder = NTSC::SignalDecoder(genInfo);
 
-  pixelsOut->resize(widthIn * lineInfo.outputSamplesPerPixel * heightIn);
+  pixelsOut->resize(context.OutputTexelCount() * heightIn);
 
-  u32 lineArraySize = widthIn * lineInfo.outputSamplesPerPixel;
-
-  std::vector<AlignedVector<f32>> sinTables;
-  std::vector<AlignedVector<f32>> cosTables;
-
-  for (u32 i = 0; i < genToUse.phaseTableCount; i++)
-  {
-    AlignedVector<f32> sinTable;
-    AlignedVector<f32> cosTable;
-    f32 phase = f32(i) / f32(genToUse.phaseTableCount);
-    f32 phaseIncrement = lineInfo.colorBurstCycleCountPerPixel / f32(lineInfo.outputSamplesPerPixel);
-
-    sinTable.resize(lineArraySize);
-    cosTable.resize(lineArraySize);
-
-    for (u32 x = 0; x < lineArraySize; x++)
-    {
-      sinTable[x] = Math::SinPi(2.0f * phase + k_artifactHue);
-      cosTable[x] = Math::CosPi(2.0f * phase + k_artifactHue);
-
-      phase += phaseIncrement;
-    }
-
-    sinTables.push_back(std::move(sinTable));
-    cosTables.push_back(std::move(cosTable));
-  }
-
-  AlignedVector<f32> lineArray;
-  AlignedVector<f32> lineChromaArray;
-  lineArray.resize(lineArraySize);
-  lineChromaArray.resize(lineArraySize);
-
-  *pWidthOut = lineArraySize;
+  
+  *pWidthOut = context.OutputTexelCount();
   *pHeightOut = heightIn;
-  *pAspectAdjustOut = f32(lineInfo.outputSamplesPerPixel) * 7.0f / 8.0f; // !!!
-
-  AlignedVector<f32> yData;
-  yData.resize(lineArraySize);
-
-  AlignedVector<f32> chromaPassData;
-  chromaPassData.resize(lineArraySize);
-
-  AlignedVector<f32> qPassData;
-  qPassData.resize(lineArraySize);
-
-  AlignedVector<f32> iPassData;
-  iPassData.resize(lineArraySize);
+  *pAspectAdjustOut = f32(genInfo.outputOversampleAmount) * 7.0f / 8.0f; // !!!
 
   std::chrono::high_resolution_clock c;
   auto start = c.now();
 
-  [[maybe_unused]] auto sinDecodeHue = Math::SinPi(k_decodeHue);
-  [[maybe_unused]] auto cosDecodeHue = Math::CosPi(k_decodeHue);
+  AlignedVector<f32> compositeScanline;
+  compositeScanline.resize(Math::AlignInt(context.OutputTexelCount(), k_maxFloatAlignment));
+  AlignedVector<f32> scanlineScratch;
+  scanlineScratch.resize(Math::AlignInt(context.OutputTexelCount(), k_maxFloatAlignment));
+  AlignedVector<f32> lumaScanline;
+  lumaScanline.resize(Math::AlignInt(context.OutputTexelCount(), k_maxFloatAlignment));
+  AlignedVector<f32> chromaScanline;
+  chromaScanline.resize(Math::AlignInt(context.OutputTexelCount(), k_maxFloatAlignment));
 
   // for (u32 iteration = 0; iteration < 1000; iteration++)
   {
-    s32 phaseTableIndex = genToUse.initialPhaseTableIndex; // !!! Per-frame initial index goes here
+    context.StartFrame();
     for (u32 y = 0; y < heightIn; y++)
     {
-      auto &sinTable = sinTables[phaseTableIndex];
-      auto &cosTable = cosTables[phaseTableIndex];
-      // Generate the luma and chroma data from the RGB line
-      ProcessRGBToNTSCLine(pixelsIn.data() + widthIn*y, lineInfo, sinTable, cosTable, &lineArray, &lineChromaArray, y);
-      for (u32 x = 0; x < lineArraySize; x++)
-      {
-        // Combine the two into a single signal, like composite video
-        lineArray[x] += lineChromaArray[x];
-      }
+      generator.ProcessScanlineToComposite(
+        pixelsIn.data() + y * widthIn,
+        context,
+        0.0f, // noise scale
+        &compositeScanline,
+        &scanlineScratch);
 
+      YCSeparator.Separate(
+        context,
+        compositeScanline,
+        &lumaScanline,
+        &chromaScanline);
 
-      // Now that we did that, pull them immediately back apart because it's funny
-      SeparateLumaAndChroma(lumaFilter, chromaFilter, chromaIIR, lineArray, &yData, &chromaPassData);
-
-      chromaDemodulateIIR.ResetHistory();
-      {
-        for (u32 x = 0; x < lineArraySize; x++)
-        {
-          // Cos([2*phase + artifactHue] + decodeHue) -> Cos(A + decodeHue) -> Cos(A)*Cos(decodeHue) - Sin(A)*Sin(DecodeHue);
-          f32 co = cosTable[x] * cosDecodeHue - sinTable[x] * sinDecodeHue;
-           lineArray[x] = chromaPassData[x] * co;
-        }
-
-        //chromaDemodulateLowPass.ProcessAvx2(lineArray, &qPassData);
-        chromaDemodulateIIR.Process(lineArray, &qPassData);
-      }
-
-      chromaDemodulateIIR.ResetHistory();
-      {
-        for (u32 x = 0; x < lineArraySize; x++)
-        {
-          // Sin([2*phase + artifactHue] + decodeHue) -> Sin(A + decodeHue) -> Sin(A)*Cos(decodeHue) + Cos(A)*Sin(DecodeHue);
-          f32 si = -(sinTable[x] * cosDecodeHue + cosTable[x] * sinDecodeHue);
-           lineArray[x] = chromaPassData[x] * si; // -SinPi(2.0f * phase + k_artifactHue + k_decodeHue);
-        }
-
-        //chromaDemodulateLowPass.ProcessAvx2(lineArray, &iPassData);
-        chromaDemodulateIIR.Process(lineArray, &iPassData);
-      }
-
-      for (u32 x = 0; x < lineArraySize; x++)
-      {
-        [[maybe_unused]] f32 Y = yData[x];
-        [[maybe_unused]] f32 i = iPassData[x] * 2.0f;
-        [[maybe_unused]] f32 q = qPassData[x] * 2.0f;
-
-        //i = 0;
-        //q = 0;
-
-        f32 r = Y + i * 0.946882f + q * 0.623557f; //std::abs(qPassData[x]);
-        f32 g = Y - i * 0.274788f - q * 0.635691f; //std::abs(qPassData[x]);
-        f32 b = Y - i * 1.108545f + q * 1.7090047f; //std::abs(qPassData[x]);
-
-        r = std::floor(std::clamp(r * 255.0f, 0.0f, 255.0f));
-        g = std::floor(std::clamp(g * 255.0f, 0.0f, 255.0f));
-        b = std::floor(std::clamp(b * 255.0f, 0.0f, 255.0f));
-
-        u32 abgr = 0xFF000000 | (u32(r)) | (u32(g) << 8) | (u32(b) << 16);
-        (*pixelsOut)[y * lineArraySize + x] = abgr;
-      }
-
-      phaseTableIndex = (phaseTableIndex + genToUse.phaseTableIndexIncrementPerLine) % genToUse.phaseTableCount;
+      decoder.DecodeScanlineToARGB(
+        context,
+        lumaScanline,
+        chromaScanline,
+        0.0f, // hue
+        1.0f, // saturation
+        pixelsOut->data() + y * context.OutputTexelCount());
+      
+      context.EndScanline();
     }
   }
+
   auto end = c.now();
 
   auto time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
@@ -717,7 +430,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       }
 
       float black[] = {0.0f, 0.0f, 0.0f, 0.0f};
-      context->ClearRenderTargetView(backbufferView, black);
+      deviceContext->ClearRenderTargetView(backbufferView, black);
 
 
       if (displayTexture != nullptr)
@@ -754,13 +467,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         D3D11_MAP mapType = D3D11_MAP_WRITE_DISCARD;
         D3D11_MAPPED_SUBRESOURCE subres;
-        context->Map(vb, 0, mapType, 0, &subres);
+        deviceContext->Map(vb, 0, mapType, 0, &subres);
         auto vbData = reinterpret_cast<Vertex*>(subres.pData);
         vbData[0] = {posX,         posY,         0, 0};
         vbData[1] = {posX + drawW, posY,         1, 0};
         vbData[2] = {posX + drawW, posY + drawH, 1, 1};
         vbData[3] = {posX,         posY + drawH, 0, 1};
-        context->Unmap(vb, 0);
+        deviceContext->Unmap(vb, 0);
 
         D3D11_VIEWPORT vp;
         vp.TopLeftX = 0;
@@ -769,25 +482,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         vp.Height = float(screenHeight);
         vp.MinDepth = 0.0f;
         vp.MaxDepth = 1.0f;
-        context->OMSetRenderTargets(1, backbufferView.ConstAddress(), nullptr);
-        context->RSSetViewports(1, &vp);
+        deviceContext->OMSetRenderTargets(1, backbufferView.ConstAddress(), nullptr);
+        deviceContext->RSSetViewports(1, &vp);
 
         u32 stride = sizeof(Vertex);
         u32 offsets = 0;
-        context->IASetVertexBuffers(0, 1, vb.ConstAddress(), &stride, &offsets);
-        context->IASetIndexBuffer(ib, DXGI_FORMAT_R16_UINT, 0);
-        context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        context->OMSetBlendState(blendState, black, 0xffffffff);
-        context->OMSetDepthStencilState(depthState, 0);
-        context->RSSetState(rasterState);
-        context->VSSetShader(vs, nullptr, 0);
-        context->PSSetShader(ps, nullptr, 0);
-        context->IASetInputLayout(inputLayout);
+        deviceContext->IASetVertexBuffers(0, 1, vb.ConstAddress(), &stride, &offsets);
+        deviceContext->IASetIndexBuffer(ib, DXGI_FORMAT_R16_UINT, 0);
+        deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        deviceContext->OMSetBlendState(blendState, black, 0xffffffff);
+        deviceContext->OMSetDepthStencilState(depthState, 0);
+        deviceContext->RSSetState(rasterState);
+        deviceContext->VSSetShader(vs, nullptr, 0);
+        deviceContext->PSSetShader(ps, nullptr, 0);
+        deviceContext->IASetInputLayout(inputLayout);
 
-        context->PSSetSamplers(0, 1, sampler.ConstAddress());
-        context->PSSetShaderResources(0, 1, displaySRV.ConstAddress());
+        deviceContext->PSSetSamplers(0, 1, sampler.ConstAddress());
+        deviceContext->PSSetShaderResources(0, 1, displaySRV.ConstAddress());
 
-        context->DrawIndexed(6, 0, 0);
+        deviceContext->DrawIndexed(6, 0, 0);
       }
       swapChain->Present(0, 0);
     }
@@ -939,7 +652,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, [[maybe_unused]] HINSTANCE hPrevInsta
     swapChain.Address(),
     device.Address(),
     nullptr,
-    context.Address());
+    deviceContext.Address());
 
   swapChain->GetBuffer(0,  __uuidof(backbuffer.Ptr()), reinterpret_cast<void**>(backbuffer.Address()));
   device->CreateRenderTargetView(backbuffer, nullptr, backbufferView.Address());

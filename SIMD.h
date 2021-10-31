@@ -21,6 +21,7 @@ namespace NTSC
 
     auto idCount = cpuInfo[0];
 
+    // Read some seemingly-arbitrary bits of __cpuid output to determine SIMD support
     SIMDInstructionSet set = SIMDInstructionSet::None;
     if (idCount >= 1)
     {

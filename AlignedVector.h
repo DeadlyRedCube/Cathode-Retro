@@ -6,6 +6,7 @@
 
 namespace NTSC
 {
+  // A simple allocator for std::vector to use to allocate memory aligned to our max SIMD alignment
   template <typename Type>
   class AlignAllocator
   {

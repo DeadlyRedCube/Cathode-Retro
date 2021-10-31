@@ -157,6 +157,7 @@
   <ItemGroup>
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="NTSCLowBandpassYCSeparator.cpp" />
     <ClCompile Include="ReadWicTexture.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -165,8 +166,16 @@
     <ClInclude Include="ButterworthIIR.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="FIRFilter.h" />
+    <ClInclude Include="NTSCSignalDecoder.h" />
+    <ClInclude Include="NTSCData.h" />
+    <ClInclude Include="NTSCLowBandpassYCSeparator.h" />
+    <ClInclude Include="NTSCYCSeparatorBase.h" />
+    <ClInclude Include="WangHash.h" />
     <ClInclude Include="MathHelpers.h" />
     <ClInclude Include="Mem.h" />
+    <ClInclude Include="NTSCContext.h" />
+    <ClInclude Include="NTSCGeneratorBase.h" />
+    <ClInclude Include="NTSCRGBGenerator.h" />
     <ClInclude Include="ReadWicTexture.h" />
     <ClInclude Include="SIMD.h" />
     <ClInclude Include="SP.h" />
