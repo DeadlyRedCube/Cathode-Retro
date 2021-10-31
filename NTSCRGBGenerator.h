@@ -2,18 +2,16 @@
 
 #include "Debug.h"
 #include "NTSCGeneratorBase.h"
-#include "WangHash.h"
 
 namespace NTSC
 {
   // Takes a 32-bit signal (0x--BBGGRR) and turns it into an NTSC luma and chroma signal
   class RGBGenerator : public GeneratorBase
   {
-  public:
-    void ProcessScanlineToLumaAndChroma(
+  protected:
+    void ProcessScanlineToLumaAndChromaInternal(
       const void *inputPixels,
       const Context &context,
-      f32 noiseScale,
       AlignedVector<f32> *lumaSignalOut,
       AlignedVector<f32> *chromaSignalOut) override final
     {
@@ -22,8 +20,6 @@ namespace NTSC
       auto &&cosTable = context.CosTable();
 
       const u32 *rgbPixels = static_cast<const u32 *>(inputPixels);
-      ASSERT(lumaSignalOut->size() == gen.inputScanlinePixelCount * gen.outputOversampleAmount);
-      ASSERT(lumaSignalOut->size() == chromaSignalOut->size());
       s32 phaseIndex = 0;
 
       f32 *lumaSignalDst = lumaSignalOut->data();
@@ -49,8 +45,8 @@ namespace NTSC
         // Generate the signal for this pixel into the output
         for (u32 s = 0; s < gen.outputOversampleAmount; s++)
         {
-          // Luma signal is easy: it's just the y component (plus any noise we want to add)
-          *lumaSignalDst = y + (WangHashAndXorShift(context.ScanlineIndex() * gen.inputScanlinePixelCount + x) - 0.5f) * noiseScale;
+          // Luma signal is easy: it's just the y component
+          *lumaSignalDst = y;
 
           // Chroma signal requires modulating i and q with our carrier waves (it's a QAM encoding) and summing them
           *chromaSignalDst = -sinTable[phaseIndex] * i + cosTable[phaseIndex] * q;
