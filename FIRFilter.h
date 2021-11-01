@@ -229,23 +229,23 @@ namespace NTSC
     }
 
 
-    void Process(const AlignedVector<f32> &valuesIn, AlignedVector<f32> *pValuesOut) const
+    void Process(const AlignedVector<f32> &valuesIn, size_t count, AlignedVector<f32> *pValuesOut) const
     {
       switch (k_maxInstructionSet)
       {
       case SIMDInstructionSet::AVX:
-        ProcessAvx<false>(valuesIn, pValuesOut);
+        ProcessAvx<false>(valuesIn, count, pValuesOut);
         return;
 
       case SIMDInstructionSet::AVX2:
-        ProcessAvx<true>(valuesIn, pValuesOut);
+        ProcessAvx<true>(valuesIn, count, pValuesOut);
         return;
 
       case SIMDInstructionSet::None:
         break;
       }
 
-      for (u32 i = 0; i < valuesIn.size(); i++)
+      for (u32 i = 0; i < count; i++)
       {
         (*pValuesOut)[i] = ProcessOneElement(valuesIn.data(), u32(valuesIn.size()), i);
       }
@@ -284,7 +284,7 @@ namespace NTSC
 
   protected:
   template <bool UseAVX2>
-    void ProcessAvx(const AlignedVector<f32> &valuesIn, AlignedVector<f32> *pValuesOut) const
+    void ProcessAvx(const AlignedVector<f32> &valuesIn, size_t count, AlignedVector<f32> *pValuesOut) const
     {
       // This implementation is based off of the paper "Efficient Vectorization of the FIR Filter"  
       //  (https://aes.tu-berlin.de/fileadmin/fg196/publication/old-juurlink/efficient_vectorization_of_the_fir_filter.pdf)
@@ -462,7 +462,7 @@ namespace NTSC
         }
       }
 
-      u32 inputEndSet = u32(valuesIn.size()/k_setSize) - 1; // !!! If I pad the ending up to a set size then add an extra set size, the -1 goes away
+      u32 inputEndSet = u32(Math::AlignInt(count, k_setSize)/k_setSize) - 1; // !!! If I pad the ending up to a set size then add an extra set size, the -1 goes away
       u32 remainingInputSetCount = inputEndSet; // Because we have to read the input "before" the first sample we count them all as valid
       for (u32 inputSet = firstFullSet; inputSet < inputEndSet; inputSet++)
       {

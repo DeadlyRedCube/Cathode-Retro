@@ -25,7 +25,7 @@ namespace NTSC
     AlignedVector<f32> *chromaSignalOut)
   {
     // Run each of our two filters to pull the two signals apart
-    lumaFilter.Process(compositeIn, lumaSignalOut);
-    chromaFilter.Process(compositeIn, chromaSignalOut);
+    lumaFilter.Process(compositeIn, context.OutputTexelCount(), lumaSignalOut);
+    chromaFilter.Process(compositeIn, context.OutputTexelCount(), chromaSignalOut);
   }
 }

@@ -11,13 +11,29 @@ namespace NTSC
   class SignalDecoder
   {
   public:
-    SignalDecoder(const GenerationInfo &genInfo)
+    enum class FilterType
+    {
+      IIR,
+      FIR
+    };
+
+    SignalDecoder(const GenerationInfo &genInfo, FilterType filterTypeIn = FilterType::IIR)
     {
       f32 colorBurstCycleCountPerOutputSample = genInfo.colorCyclesPerInputPixel / f32(genInfo.outputOversampleAmount);
+      filterType = filterTypeIn;
 
       // Our demodulation filter is a low pass IIR. Make sure to have it get the latency
-      demodulateFilter = ButterworthIIR::Filter::CreateLowPass(3, 1.2f * colorBurstCycleCountPerOutputSample);
-      demodulateFilter.MeasureLatency();
+      switch (filterType)
+      {
+      case FilterType::IIR:
+        demodulateFilterIIR = ButterworthIIR::Filter::CreateLowPass(3, 1.2f * colorBurstCycleCountPerOutputSample);
+        demodulateFilterIIR.MeasureLatency();
+        break;
+
+      case FilterType::FIR:
+        demodulateFilterFIR = FIRFilter::CreateLowPass(1.5f * colorBurstCycleCountPerOutputSample, 2.0f * colorBurstCycleCountPerOutputSample); 
+        break;
+      }
 
       // We need some buffers for this processing as well
       u32 outTexelCount = genInfo.inputScanlinePixelCount * genInfo.outputOversampleAmount;
@@ -51,30 +67,52 @@ namespace NTSC
       //  that are off from each other by 90 degrees (hey, just like cos and sin!). And since we know the phase of the intended wav, we can 
       //  multiplying the chroma wav by each of sin and cos of the chroma signal (off by 90 degrees, in phase with the signal we expect), and
       //  then low-passing that to get the actual q/i data (q and i are then used to decode the color)
-      demodulateFilter.ResetHistory();
+      if (filterType == FilterType::IIR)
       {
-        for (u32 x = 0; x < context.OutputTexelCount(); x++)
-        {
-          // Thanks to sin/cos identities we can combine our sin/cos tables with our decode hue:
-          //  Cos([2*phase + artifactHue] + decodeHue) -> Cos(A + decodeHue) -> Cos(A)*Cos(decodeHue) - Sin(A)*Sin(DecodeHue);
-          f32 cos = cosTable[x] * cosHue - sinTable[x] * sinHue;
-          scratch[x] = chromaSignal[x] * cos;
-        }
+        demodulateFilterIIR.ResetHistory();
+      }
 
-        demodulateFilter.Process(scratch, context.OutputTexelCount(), &qData);
+      for (u32 x = 0; x < context.OutputTexelCount(); x++)
+      {
+        // Thanks to sin/cos identities we can combine our sin/cos tables with our decode hue:
+        //  Cos([2*phase + artifactHue] + decodeHue) -> Cos(A + decodeHue) -> Cos(A)*Cos(decodeHue) - Sin(A)*Sin(DecodeHue);
+        f32 cos = cosTable[x] * cosHue - sinTable[x] * sinHue;
+        scratch[x] = chromaSignal[x] * cos;
+      }
+
+      switch (filterType)
+      {
+      case FilterType::IIR:
+        demodulateFilterIIR.Process(scratch, context.OutputTexelCount(), &qData);
+        break;
+
+      case FilterType::FIR:
+        demodulateFilterFIR.Process(scratch, context.OutputTexelCount(), &qData);
+        break;
       }
 
       // Reset history again - the two demodulations are independent from a history standpoint (as are the scanlines)
-      demodulateFilter.ResetHistory();
+      if (filterType == FilterType::IIR)
       {
-        for (u32 x = 0; x < context.OutputTexelCount(); x++)
-        {
-          // Sin([2*phase + artifactHue] + decodeHue) -> Sin(A + decodeHue) -> Sin(A)*Cos(decodeHue) + Cos(A)*Sin(DecodeHue);
-          f32 sin = -(sinTable[x] * cosHue + cosTable[x] * sinHue);
-          scratch[x] = chromaSignal[x] * sin; // -SinPi(2.0f * phase + k_artifactHue + k_decodeHue);
-        }
+        demodulateFilterIIR.ResetHistory();
+      }
 
-        demodulateFilter.Process(scratch, context.OutputTexelCount(), &iData);
+      for (u32 x = 0; x < context.OutputTexelCount(); x++)
+      {
+        // Sin([2*phase + artifactHue] + decodeHue) -> Sin(A + decodeHue) -> Sin(A)*Cos(decodeHue) + Cos(A)*Sin(DecodeHue);
+        f32 sin = -(sinTable[x] * cosHue + cosTable[x] * sinHue);
+        scratch[x] = chromaSignal[x] * sin; // -SinPi(2.0f * phase + k_artifactHue + k_decodeHue);
+      }
+
+      switch (filterType)
+      {
+      case FilterType::IIR:
+        demodulateFilterIIR.Process(scratch, context.OutputTexelCount(), &iData);
+        break;
+
+      case FilterType::FIR:
+        demodulateFilterFIR.Process(scratch, context.OutputTexelCount(), &iData);
+        break;
       }
 
       for (u32 x = 0; x < context.OutputTexelCount(); x++)
@@ -140,7 +178,10 @@ namespace NTSC
     }
 
   private:
-    ButterworthIIR::Filter demodulateFilter;
+    ButterworthIIR::Filter demodulateFilterIIR;
+    FIRFilter demodulateFilterFIR;
+    FilterType filterType;
+
     AlignedVector<f32> qData;
     AlignedVector<f32> iData;
     AlignedVector<f32> scratch;
