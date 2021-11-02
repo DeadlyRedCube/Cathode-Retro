@@ -68,6 +68,8 @@ public:
     outputTexelCount = generationInfo.inputScanlinePixelCount * generationInfo.outputOversampleAmount;
     genInfo = generationInfo;
 
+    frameStartPhaseIndex = genInfo.initialPhaseStateIndex;
+
     u32 tableSize = Math::AlignInt(outputTexelCount, k_maxFloatAlignment);
 
     // Generate the sin/cos tables
