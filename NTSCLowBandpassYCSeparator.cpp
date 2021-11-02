@@ -5,7 +5,7 @@ namespace NTSC
 {
   LowbandpassYCSeparator::LowbandpassYCSeparator(const GenerationInfo &genInfo)
   {
-    f32 colorBurstCyclePerOutputSample = genInfo.colorCyclesPerInputPixel / f32(genInfo.outputOversampleAmount);
+    f32 colorBurstCyclePerOutputSample = f32(genInfo.colorCyclesPerInputPixel) / f32(genInfo.outputOversampleAmount);
 
     // The luma filter is a simple lowpass filter that cuts everything off above our color frequency
     lumaFilter = FIRFilter::CreateLowPass(colorBurstCyclePerOutputSample);

@@ -11,6 +11,25 @@ namespace NTSC::Math
   template <typename Type>
   static constexpr Type k_pi = Type(3.1415926535897932384626433832795028841971);
 
+  template <typename IntType>
+  inline IntType GreatestCommonDenominator(IntType a, IntType b)
+  {
+    while (a != 0)
+    {
+      b = b % a;
+      std::swap(a, b);
+    }
+
+    return b;
+  }
+
+  
+  template <typename IntType>
+  inline IntType LeastCommonMultiple(IntType a, IntType b)
+  {
+    return (a * b) / GreatestCommonDenominator(a, b);
+  }
+
 
   inline f32 SinPi(f32 x)
   {

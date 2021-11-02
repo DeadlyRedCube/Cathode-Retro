@@ -9,29 +9,71 @@ namespace NTSC
 {
 
 
+struct Fractionish // It's not exactly a fraction because the numerator can be a float, so it's only fraction-ish
+{
+  constexpr Fractionish() = default;
+  constexpr Fractionish(f32 num, u32 den = 1)
+    : numerator(num)
+    , denominator(den)
+    { } 
+
+  Fractionish operator + (const Fractionish &b) const
+  {
+    ASSERT(denominator == b.denominator);
+    return {numerator + b.numerator, denominator};
+  }
+
+  Fractionish &operator += (const Fractionish &b)
+    { ASSERT(denominator == b.denominator); numerator += b.numerator; return *this; }
+
+  explicit operator f32() const
+    { return numerator / f32(denominator); }
+
+  void ModWithDenominator()
+  {
+    numerator = std::fmod(numerator, f32(denominator));
+  }
+
+  void SetDenominator(u32 newDen)
+  {
+    if ((newDen % denominator) == 0)
+    {
+      u32 mult = newDen / denominator;
+      numerator *= f32(mult);
+    }
+    else
+    {
+      numerator *= f32(newDen) / f32(denominator);
+    }
+
+    denominator = newDen;
+  }
+
+  f32 numerator = 0.0f;   // Numerator is allowed to be negative and non-integral.
+  u32 denominator = 1;    // Denominator needs to be integral. The whole point is to avoid float error on, say, fractions of 3.
+};
+
 struct GenerationInfo
 {
   u32 inputScanlinePixelCount;                    // How many input pixels there are per scanline
-  
   u32 outputOversampleAmount;                     // How many texels of output there are per pixel of input
-  f32 colorCyclesPerInputPixel;                   // How many NTSC color subcarrier wave cycles there are per input pixel (usually < 1)
-  u32 phaseStateCount;                            // How many different phase states there are for a given scanline
-  u32 initialPhaseStateIndex;                     // Which phase state the first frame starts on
-  u32 phaseStateIndexIncrementPerLine;            // How much to add to the phase state index every scanline
-  u32 phaseStateIndexIncrementPerFrame;           // How much to add to the frame's starting phase state index per frame
+
+  Fractionish colorCyclesPerInputPixel;           // How many cycles of the NTSC color subcarrier per input pixel (usually <= 1)
+  Fractionish initialFramePhase;                  // The phase that the first frame starts at
+  Fractionish perLinePhaseIncrement;              // How much the phase changes per scanline
+  Fractionish perFramePhaseIncrement;             // How much the phase changes per frame
 };
 
 
 constexpr GenerationInfo NESandSNES240pGenerationInfo = 
 { 
   256,              // NES has 256 horizontal pixels
-
   4,                // The NES needs at least this many output texels per pixel to get all the phases it can generate
-  2.0f/3.0f,        // Every NES pixel covers 2/3rds of a color wave
-  3,                // NES has three distinct phase states it can land in thanks to its 2/3-wave-per-pixel timing
+
+  {2.0f, 3},        // Every NES pixel covers 2/3rds of a color wave
   0,                // This doesn't REALLY matter, any value works here, so might as well start at 0.
-  1,                // Every line we move by 1/3rd of a color wave, which is 1 phase state
-  2,                // Every successive frame is 2 phase states off from the one before.
+  {1.0f, 3},        // Every line we move by 1/3rd of a color wave, which is 1 phase state
+  {1.0f, 3},        // Every successive frame is 2 phase states off from the one before.
 };
 
 
@@ -39,9 +81,9 @@ constexpr GenerationInfo PC320GenerationInfo =
 { 
   320,              // PC 320 width mode has (of course) 320 pixels of width
   2,                // Oversample the output 2x
-  1.0f/2.0f,        // EVery PC pixel is exactly half of a color subcarrier wave 
-  2,                // PC really just has one phase state (starting halfway through the wave each frame) but I used too because of the "halfway" thing
-  1,                // Always start halfway through the phase wave.
+
+  0.5f,             // Every PC pixel is exactly half of a color subcarrier wave
+  0.5f,             // Always start halfway through the phase wave.
   0,                // Every line has the same starting phase as every other line
   0                 // Every frame, same
 };
@@ -51,9 +93,9 @@ constexpr GenerationInfo PC640GenerationInfo =
 { 
   640,              // PC 640 has twice the horizontal resolution as its 320 mode.
   1,                // Don't even need to oversample the output for this one
-  1.0f/4.0f,        // Because it has twice the resolution, each pixel covers half of what a PC 320 pixel covers (1/4 wave)
-  2,                // These values are identical to PC 320
-  1,                // ...
+
+  0.25f,            // Because it has twice the resolution, each pixel covers half of what a PC 320 pixel covers (1/4 wave)
+  0.5f,             // These values are identical to PC320
   0,                // ...
   0,                // ...
 };
@@ -68,21 +110,27 @@ public:
     outputTexelCount = generationInfo.inputScanlinePixelCount * generationInfo.outputOversampleAmount;
     genInfo = generationInfo;
 
-    frameStartPhaseIndex = genInfo.initialPhaseStateIndex;
+    // Figure out the least common multiple of the denominators (the least common denominator) and update our fractions
+    u32 leastCommonMultiple = Math::LeastCommonMultiple(genInfo.colorCyclesPerInputPixel.denominator, genInfo.initialFramePhase.denominator);
+    leastCommonMultiple = Math::LeastCommonMultiple(leastCommonMultiple, genInfo.perLinePhaseIncrement.denominator);
+    leastCommonMultiple = Math::LeastCommonMultiple(leastCommonMultiple, genInfo.perFramePhaseIncrement.denominator);
+
+    genInfo.colorCyclesPerInputPixel.SetDenominator(leastCommonMultiple);
+    genInfo.initialFramePhase.SetDenominator(leastCommonMultiple);
+    genInfo.perLinePhaseIncrement.SetDenominator(leastCommonMultiple);
+    genInfo.perFramePhaseIncrement.SetDenominator(leastCommonMultiple);
+
+    frameStartPhase = genInfo.initialFramePhase;
 
     u32 tableSize = Math::AlignInt(outputTexelCount, k_maxFloatAlignment);
 
     // Generate the sin/cos tables
-    for (u32 i = 0; i < generationInfo.phaseStateCount; i++)
     {
       // Each phase state starts with the next phase
-      f32 phase = f32(i) / f32(generationInfo.phaseStateCount);
+      f32 phase = 0.0f;
 
       // We increment phase a little bit per each output texel
-      f32 phaseIncrement = generationInfo.colorCyclesPerInputPixel / f32(generationInfo.outputOversampleAmount);
-
-      AlignedVector<f32> sinTable;
-      AlignedVector<f32> cosTable;
+      f32 phaseIncrement = f32(generationInfo.colorCyclesPerInputPixel) / f32(generationInfo.outputOversampleAmount);
 
       sinTable.resize(tableSize);
       cosTable.resize(tableSize);
@@ -94,42 +142,43 @@ public:
 
         phase += phaseIncrement;
       }
-
-      sinTables.push_back(std::move(sinTable));
-      cosTables.push_back(std::move(cosTable));
     }
   }
 
-  void StartFrame(s32 phaseIndex = -1)
+  void StartFrame(Fractionish startPhase = -1)
   {
-    if (phaseIndex >= 0)
+    if (startPhase.numerator >= 0)
     {
+      u32 lcm = Math::LeastCommonMultiple(startPhase.denominator, frameStartPhase.denominator);
+      ASSERT(lcm == frameStartPhase.denominator);
+      startPhase.SetDenominator(lcm);
+
       // If we passed in an explicit phase index, use it
-      frameStartPhaseIndex = u32(phaseIndex);
+      frameStartPhase = startPhase;
     }
     else
     {
       // Otherwise increment it according to our generation info
-      frameStartPhaseIndex = (frameStartPhaseIndex + genInfo.phaseStateIndexIncrementPerFrame) % genInfo.phaseStateCount;
+      frameStartPhase += genInfo.perFramePhaseIncrement;
+      frameStartPhase.ModWithDenominator();
     }
 
     // Start the first line at the desired phase index
-    currentLinePhaseIndex = frameStartPhaseIndex;
+    currentLinePhase = frameStartPhase;
     scanlineIndex = 0;
+    linePhaseSin = Math::SinPi(2.0f * f32(currentLinePhase));
+    linePhaseCos = Math::CosPi(2.0f * f32(currentLinePhase));
   }
 
   void EndScanline()
   { 
     // Increment our scanline phase and counter
-    currentLinePhaseIndex = (currentLinePhaseIndex + genInfo.phaseStateIndexIncrementPerLine) % genInfo.phaseStateCount; 
+    currentLinePhase += genInfo.perLinePhaseIncrement;
+    currentLinePhase.ModWithDenominator();
     scanlineIndex++; 
+    linePhaseSin = Math::SinPi(2.0f * f32(currentLinePhase));
+    linePhaseCos = Math::CosPi(2.0f * f32(currentLinePhase));
   }
-
-  const AlignedVector<f32> &SinTable() const
-    { return sinTables[currentLinePhaseIndex]; }
-
-  const AlignedVector<f32> &CosTable() const
-    { return cosTables[currentLinePhaseIndex]; }
 
   u32 OutputTexelCount() const
     { return outputTexelCount; }
@@ -140,14 +189,23 @@ public:
   const GenerationInfo &GenInfo() const
     { return genInfo; }
 
+  f32 Sin(u32 x) const
+    { return sinTable[x] * linePhaseCos + cosTable[x] * linePhaseSin; } // sin(a + b) where "a" is current pixel phase (via x and the lookup) and "b" is our line phase
+
+  f32 Cos(u32 x) const
+    { return cosTable[x] * linePhaseCos - sinTable[x] * linePhaseSin; } // cos(a + b) where "a" is current pixel phase (via x and the lookup) and "b" is our line phase
+
 protected:
   GenerationInfo genInfo;
-  u32 frameStartPhaseIndex = 0;
-  u32 currentLinePhaseIndex = 0;
+  Fractionish frameStartPhase = 0;
+  Fractionish currentLinePhase = 0;
   u32 outputTexelCount = 0;
   u32 scanlineIndex = 0;
-  std::vector<AlignedVector<f32>> sinTables;
-  std::vector<AlignedVector<f32>> cosTables;
+  AlignedVector<f32> sinTable;
+  AlignedVector<f32> cosTable;
+
+  f32 linePhaseSin = 0.0f;
+  f32 linePhaseCos = 1.0f;
 };
 
 

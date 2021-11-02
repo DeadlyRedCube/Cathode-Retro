@@ -19,7 +19,7 @@ namespace NTSC
 
     SignalDecoder(const GenerationInfo &genInfo, FilterType filterTypeIn = FilterType::IIR)
     {
-      f32 colorBurstCycleCountPerOutputSample = genInfo.colorCyclesPerInputPixel / f32(genInfo.outputOversampleAmount);
+      f32 colorBurstCycleCountPerOutputSample = f32(genInfo.colorCyclesPerInputPixel) / f32(genInfo.outputOversampleAmount);
       filterType = filterTypeIn;
 
       // Our demodulation filter is a low pass IIR. Make sure to have it get the latency
@@ -60,9 +60,6 @@ namespace NTSC
         sinHue = Math::SinPi(hue);
       }
 
-      auto &&sinTable = context.SinTable();
-      auto &&cosTable = context.CosTable();
-
       // The color signal, ultimately, is encoded as QAM (Quadrature Amplitude Modulation). There are two waves of data at the same frequency
       //  that are off from each other by 90 degrees (hey, just like cos and sin!). And since we know the phase of the intended wav, we can 
       //  multiplying the chroma wav by each of sin and cos of the chroma signal (off by 90 degrees, in phase with the signal we expect), and
@@ -76,7 +73,7 @@ namespace NTSC
       {
         // Thanks to sin/cos identities we can combine our sin/cos tables with our decode hue:
         //  Cos([2*phase + artifactHue] + decodeHue) -> Cos(A + decodeHue) -> Cos(A)*Cos(decodeHue) - Sin(A)*Sin(DecodeHue);
-        f32 cos = cosTable[x] * cosHue - sinTable[x] * sinHue;
+        f32 cos = context.Cos(x) * cosHue - context.Sin(x) * sinHue;
         scratch[x] = chromaSignal[x] * cos;
       }
 
@@ -100,7 +97,7 @@ namespace NTSC
       for (u32 x = 0; x < context.OutputTexelCount(); x++)
       {
         // Sin([2*phase + artifactHue] + decodeHue) -> Sin(A + decodeHue) -> Sin(A)*Cos(decodeHue) + Cos(A)*Sin(DecodeHue);
-        f32 sin = -(sinTable[x] * cosHue + cosTable[x] * sinHue);
+        f32 sin = -(context.Sin(x) * cosHue + context.Cos(x) * sinHue);
         scratch[x] = chromaSignal[x] * sin; // -SinPi(2.0f * phase + k_artifactHue + k_decodeHue);
       }
 

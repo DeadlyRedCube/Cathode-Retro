@@ -16,8 +16,6 @@ namespace NTSC
       AlignedVector<f32> *chromaSignalOut) override final
     {
       auto &&gen = context.GenInfo();
-      auto &&sinTable = context.SinTable();
-      auto &&cosTable = context.CosTable();
 
       const u32 *rgbPixels = static_cast<const u32 *>(inputPixels);
       s32 phaseIndex = 0;
@@ -49,7 +47,7 @@ namespace NTSC
           *lumaSignalDst = y;
 
           // Chroma signal requires modulating i and q with our carrier waves (it's a QAM encoding) and summing them
-          *chromaSignalDst = -sinTable[phaseIndex] * i + cosTable[phaseIndex] * q;
+          *chromaSignalDst = -context.Sin(phaseIndex) * i + context.Cos(phaseIndex) * q;
 
           lumaSignalDst++;
           chromaSignalDst++;
