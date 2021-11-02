@@ -57,6 +57,7 @@ struct GenerationInfo
 {
   u32 inputScanlinePixelCount;                    // How many input pixels there are per scanline
   u32 outputOversampleAmount;                     // How many texels of output there are per pixel of input
+  f32 pixelAspectRatio;                           // width/height of a pixel for the given display mode
 
   Fractionish colorCyclesPerInputPixel;           // How many cycles of the NTSC color subcarrier per input pixel (usually <= 1)
   Fractionish initialFramePhase;                  // The phase that the first frame starts at
@@ -69,11 +70,38 @@ constexpr GenerationInfo NESandSNES240pGenerationInfo =
 { 
   256,              // NES has 256 horizontal pixels
   4,                // The NES needs at least this many output texels per pixel to get all the phases it can generate
+  8.0f / 7.0f,      // NES/SNES pixels are 8:7
 
   {2.0f, 3},        // Every NES pixel covers 2/3rds of a color wave
   0,                // This doesn't REALLY matter, any value works here, so might as well start at 0.
-  {1.0f, 3},        // Every line we move by 1/3rd of a color wave, which is 1 phase state
-  {1.0f, 3},        // Every successive frame is 2 phase states off from the one before.
+  {1.0f, 3},        // Every line we move by 1/3rd of a color wave
+  {2.0f, 3},        // Every successive frame is 2/3rds of a phase off from the previous one
+};
+
+
+constexpr GenerationInfo Genesis256WideGenerationInfo = 
+{ 
+  256,              // This Genesis mode has 256 horizontal pixels
+  2,                // Oversample!
+  8.0f / 7.0f,      // This mode the pixels are 8:7, just like NES/SNES
+
+  {2.0f, 3},        // Every pixel covers 2/3rds of a color wave
+  0,                // This doesn't REALLY matter, any value works here, so might as well start at 0.
+  0,                // Line phases for Genesis 256 are constant (I think)
+  0.5f,             // Every successive frame is a half a phase off (I think, again)
+};
+
+
+constexpr GenerationInfo Genesis320WideGenerationInfo = 
+{ 
+  320,              // NES has 256 horizontal pixels
+  2,                // Oversample!
+  6.4f / 7.0f,      // The aspect ratio of the screen of this mode is the same as the 256-wide mode, so (8 * 256 / 320):7 is the pixel aspect
+
+  {8.0f, 15},       // Every Genesis pixel covers just a liiitle more than half a wavelength (but less than a pixel at 256-wide does, since more pixels) 1.6/3 == 8/15
+  0,                // This doesn't REALLY matter, any value works here, so might as well start at 0.
+  0,                // Line phases for Genesis 256 are constant
+  0.5f,             // Every successive frame is a half a phase off 
 };
 
 
@@ -81,6 +109,7 @@ constexpr GenerationInfo PC320GenerationInfo =
 { 
   320,              // PC 320 width mode has (of course) 320 pixels of width
   2,                // Oversample the output 2x
+  1.0f,             // by default we treat 320-wide mode as having square pixels
 
   0.5f,             // Every PC pixel is exactly half of a color subcarrier wave
   0.5f,             // Always start halfway through the phase wave.
@@ -93,6 +122,7 @@ constexpr GenerationInfo PC640GenerationInfo =
 { 
   640,              // PC 640 has twice the horizontal resolution as its 320 mode.
   1,                // Don't even need to oversample the output for this one
+  1.0f,             // by default we treat 640-wide mode as having square pixels
 
   0.25f,            // Because it has twice the resolution, each pixel covers half of what a PC 320 pixel covers (1/4 wave)
   0.5f,             // These values are identical to PC320

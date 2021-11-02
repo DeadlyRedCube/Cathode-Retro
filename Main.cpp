@@ -166,7 +166,7 @@ void ProcessForNTSC(const std::vector<u32> &pixelsIn, u32 widthIn, u32 heightIn,
   
   *pWidthOut = context.OutputTexelCount();
   *pHeightOut = heightIn;
-  *pAspectAdjustOut = f32(genInfo.outputOversampleAmount) * 7.0f / 8.0f; // !!!
+  *pAspectAdjustOut = f32(genInfo.outputOversampleAmount) / genInfo.pixelAspectRatio;
 
   std::chrono::high_resolution_clock c;
   auto start = c.now();
@@ -202,7 +202,7 @@ void ProcessForNTSC(const std::vector<u32> &pixelsIn, u32 widthIn, u32 heightIn,
         context,
         lumaScanline,
         chromaScanline,
-        0.0f, // hue
+        0.0f, // hue   // !!! 0.2f is approximately the right hue for CGA-from-RGB. Do I need to bake that in?
         1.0f, // saturation
         0.6f, // sharpness
         pixelsOut->data() + y * context.OutputTexelCount());
