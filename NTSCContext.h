@@ -62,20 +62,22 @@ struct GenerationInfo
   Fractionish colorCyclesPerInputPixel;           // How many cycles of the NTSC color subcarrier per input pixel (usually <= 1)
   Fractionish initialFramePhase;                  // The phase that the first frame starts at
   Fractionish perLinePhaseIncrement;              // How much the phase changes per scanline
-  Fractionish perFramePhaseIncrement;             // How much the phase changes per frame
+  Fractionish perEvenFramePhaseIncrement;         // How much the phase changes per even frame
+  Fractionish perOddFramePhaseIncrement;          // How much the phase changes per odd frame
 };
 
 
 constexpr GenerationInfo NESandSNES240pGenerationInfo = 
 { 
   256,              // NES has 256 horizontal pixels
-  4,                // The NES needs at least this many output texels per pixel to get all the phases it can generate
+  8,                // The NES needs at least this many output texels per pixel to get all the phases it can generate
   8.0f / 7.0f,      // NES/SNES pixels are 8:7
 
   {2.0f, 3},        // Every NES pixel covers 2/3rds of a color wave
   0,                // This doesn't REALLY matter, any value works here, so might as well start at 0.
   {1.0f, 3},        // Every line we move by 1/3rd of a color wave
   {2.0f, 3},        // Every successive frame is 2/3rds of a phase off from the previous one
+  {1.0f, 3},        // Every successive frame is 2/3rds of a phase off from the previous one
 };
 
 
@@ -134,6 +136,7 @@ constexpr GenerationInfo PC640GenerationInfo =
 class Context
 {
 public:
+  Context() = default;
   explicit Context(const GenerationInfo &generationInfo)
   {
     // We have one output texel per "outputOversampleAmount" input pixels.
@@ -143,12 +146,14 @@ public:
     // Figure out the least common multiple of the denominators (the least common denominator) and update our fractions
     u32 leastCommonMultiple = Math::LeastCommonMultiple(genInfo.colorCyclesPerInputPixel.denominator, genInfo.initialFramePhase.denominator);
     leastCommonMultiple = Math::LeastCommonMultiple(leastCommonMultiple, genInfo.perLinePhaseIncrement.denominator);
-    leastCommonMultiple = Math::LeastCommonMultiple(leastCommonMultiple, genInfo.perFramePhaseIncrement.denominator);
+    leastCommonMultiple = Math::LeastCommonMultiple(leastCommonMultiple, genInfo.perEvenFramePhaseIncrement.denominator);
+    leastCommonMultiple = Math::LeastCommonMultiple(leastCommonMultiple, genInfo.perOddFramePhaseIncrement.denominator);
 
     genInfo.colorCyclesPerInputPixel.SetDenominator(leastCommonMultiple);
     genInfo.initialFramePhase.SetDenominator(leastCommonMultiple);
     genInfo.perLinePhaseIncrement.SetDenominator(leastCommonMultiple);
-    genInfo.perFramePhaseIncrement.SetDenominator(leastCommonMultiple);
+    genInfo.perEvenFramePhaseIncrement.SetDenominator(leastCommonMultiple);
+    genInfo.perOddFramePhaseIncrement.SetDenominator(leastCommonMultiple);
 
     frameStartPhase = genInfo.initialFramePhase;
 
@@ -185,11 +190,13 @@ public:
 
       // If we passed in an explicit phase index, use it
       frameStartPhase = startPhase;
+      frameCount = 0;
     }
     else
     {
+      frameCount++;
       // Otherwise increment it according to our generation info
-      frameStartPhase += genInfo.perFramePhaseIncrement;
+      frameStartPhase += (frameCount & 1) ? genInfo.perOddFramePhaseIncrement : genInfo.perEvenFramePhaseIncrement;
       frameStartPhase.ModWithDenominator();
     }
 
@@ -231,6 +238,7 @@ protected:
   Fractionish currentLinePhase = 0;
   u32 outputTexelCount = 0;
   u32 scanlineIndex = 0;
+  u32 frameCount = 0;
   AlignedVector<f32> sinTable;
   AlignedVector<f32> cosTable;
 

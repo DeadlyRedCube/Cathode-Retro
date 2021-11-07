@@ -112,6 +112,7 @@ struct Vertex
 Vertex vertices[4];
 SP<ID3D11Texture2D> displayTexture;
 SP<ID3D11ShaderResourceView> displaySRV;
+NTSC::GenerationInfo generationInfo = NTSC::NESandSNES240pGenerationInfo;
 
 
 void SetZoom(float zoomIn)
@@ -151,74 +152,93 @@ void SetZoom(float zoomIn)
     zoom = zoomIn;
   }
 }
-void ProcessForNTSC(const std::vector<u32> &pixelsIn, u32 widthIn, u32 heightIn, std::vector<u32> *pixelsOut, u32 *pWidthOut, u32 *pHeightOut, f32 *pAspectAdjustOut)
+
+
+struct ProcessContext
 {
-  auto genInfo = NTSC::NESandSNES240pGenerationInfo;
-  genInfo.inputScanlinePixelCount = widthIn;
+  NTSC::Context context;
+  std::unique_ptr<NTSC::GeneratorBase> generator;
+  std::unique_ptr<NTSC::YCSeparatorBase> YCSeparator;
+  std::unique_ptr<NTSC::SignalDecoder> decoder;
+  AlignedVector<f32> compositeScanline;
+  AlignedVector<f32> scanlineScratch;
+  AlignedVector<f32> lumaScanline;
+  AlignedVector<f32> chromaScanline;
+};
 
-  auto context = NTSC::Context(genInfo);
-  auto generator = NTSC::RGBGenerator();
-  auto YCSeparator = NTSC::LowbandpassYCSeparator(genInfo);
-  auto decoder = NTSC::SignalDecoder(genInfo);
 
-  pixelsOut->resize(context.OutputTexelCount() * heightIn);
+void ProcessForNTSC(
+  ProcessContext &procCtx,
+  const std::vector<u32> &pixelsIn, 
+  u32 widthIn, 
+  u32 heightIn, 
+  std::vector<u32> *pixelsOut, 
+  u32 *pWidthOut, 
+  u32 *pHeightOut, 
+  f32 *pAspectAdjustOut)
+{
+  pixelsOut->resize(procCtx.context.OutputTexelCount() * heightIn);
 
   
-  *pWidthOut = context.OutputTexelCount();
+  *pWidthOut = procCtx.context.OutputTexelCount();
   *pHeightOut = heightIn;
-  *pAspectAdjustOut = f32(genInfo.outputOversampleAmount) / genInfo.pixelAspectRatio;
+  *pAspectAdjustOut = f32(procCtx.context.GenInfo().outputOversampleAmount) / procCtx.context.GenInfo().pixelAspectRatio;
 
-  std::chrono::high_resolution_clock c;
-  auto start = c.now();
+  //std::chrono::high_resolution_clock c;
+  //auto start = c.now();
 
-  AlignedVector<f32> compositeScanline;
-  compositeScanline.resize(Math::AlignInt(context.OutputTexelCount(), k_maxFloatAlignment));
-  AlignedVector<f32> scanlineScratch;
-  scanlineScratch.resize(Math::AlignInt(context.OutputTexelCount(), k_maxFloatAlignment));
-  AlignedVector<f32> lumaScanline;
-  lumaScanline.resize(Math::AlignInt(context.OutputTexelCount(), k_maxFloatAlignment));
-  AlignedVector<f32> chromaScanline;
-  chromaScanline.resize(Math::AlignInt(context.OutputTexelCount(), k_maxFloatAlignment));
+  procCtx.compositeScanline.resize(Math::AlignInt(procCtx.context.OutputTexelCount(), k_maxFloatAlignment));
+  procCtx.scanlineScratch.resize(Math::AlignInt(procCtx.context.OutputTexelCount(), k_maxFloatAlignment));
+  procCtx.lumaScanline.resize(Math::AlignInt(procCtx.context.OutputTexelCount(), k_maxFloatAlignment));
+  procCtx.chromaScanline.resize(Math::AlignInt(procCtx.context.OutputTexelCount(), k_maxFloatAlignment));
 
   // for (u32 iteration = 0; iteration < 1000; iteration++)
   {
-    context.StartFrame();
+    procCtx.context.StartFrame();
     for (u32 y = 0; y < heightIn; y++)
     {
-      generator.ProcessScanlineToComposite(
+      procCtx.generator->ProcessScanlineToComposite(
         pixelsIn.data() + y * widthIn,
-        context,
+        procCtx.context,
         0.0f, // noise scale
-        &compositeScanline,
-        &scanlineScratch);
+        &procCtx.compositeScanline,
+        &procCtx.scanlineScratch);
 
-      YCSeparator.Separate(
-        context,
-        compositeScanline,
-        &lumaScanline,
-        &chromaScanline);
+      procCtx.YCSeparator->Separate(
+        procCtx.context,
+        procCtx.compositeScanline,
+        &procCtx.lumaScanline,
+        &procCtx.chromaScanline);
 
-      decoder.DecodeScanlineToARGB(
-        context,
-        lumaScanline,
-        chromaScanline,
+      procCtx.decoder->DecodeScanlineToARGB(
+        procCtx.context,
+        procCtx.lumaScanline,
+        procCtx.chromaScanline,
         0.0f, // hue   // !!! 0.2f is approximately the right hue for CGA-from-RGB. Do I need to bake that in?
         1.0f, // saturation
-        0.6f, // sharpness
-        pixelsOut->data() + y * context.OutputTexelCount());
+        0.0f, // sharpness
+        pixelsOut->data() + y * procCtx.context.OutputTexelCount());
       
-      context.EndScanline();
+      procCtx.context.EndScanline();
     }
   }
 
-  auto end = c.now();
+  //auto end = c.now();
 
-  auto time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-  char buffer[512];
-  sprintf_s(buffer, "%" PRId64 "\n", time);
-  OutputDebugStringA(buffer);
+  //auto time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+  //char buffer[512];
+  //sprintf_s(buffer, "%" PRId64 "\n", time);
+  //OutputDebugStringA(buffer);
 }
 
+
+struct LoadedTexture {
+  u32 width = 0;
+  u32 height = 0;
+  std::vector<u32> data;
+};
+
+LoadedTexture loadedTexture;
 
 void LoadTexture(wchar_t *path)
 {
@@ -233,29 +253,10 @@ void LoadTexture(wchar_t *path)
   u32 height;
   ReadWicTexture(path, &dataFromTex, &width, &height);
 
-  std::vector<u32> dataFromNTSC;
-  ProcessForNTSC(dataFromTex, width, height, &dataFromNTSC, &width, &height, &aspectAdjust);
-  // aspectAdjust = 1; // !!!
+  loadedTexture.width = width;
+  loadedTexture.height = height;
+  loadedTexture.data = std::move(dataFromTex);
 
-  D3D11_TEXTURE2D_DESC desc;
-  ZeroType(&desc);
-  desc.Width = width;
-  desc.Height = height;
-  desc.MipLevels = 1;
-  desc.ArraySize = 1;
-  desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-  desc.SampleDesc.Count = 1;
-  desc.Usage = D3D11_USAGE_DEFAULT;
-  desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-
-  D3D11_SUBRESOURCE_DATA resDat;
-  ZeroType(&resDat);
-  resDat.pSysMem = dataFromNTSC.data();
-  resDat.SysMemPitch = width * sizeof(u32);
-  device->CreateTexture2D(&desc, &resDat, displayTexture.Address());
-  device->CreateShaderResourceView(displayTexture, nullptr, displaySRV.Address());
-
-  SetZoom(autoZoom ? 0.0f : 1.0f);
 }
 
 
@@ -335,8 +336,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         if (GetOpenFileName(&ofn))
         {
           LoadTexture(filename);
-          InvalidateRect(window, nullptr, true);
-          UpdateWindow(window);
         }
       }
       break;
@@ -351,8 +350,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         zoom = 1;
       }
       SetZoom(zoom);
-      InvalidateRect(window, nullptr, true);
-      UpdateWindow(hWnd);
       break;
 
     case VK_SUBTRACT:
@@ -361,20 +358,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         zoom = f32(s32(zoom - 1));
       }
       SetZoom(zoom);
-      InvalidateRect(window, nullptr, true);
-      UpdateWindow(hWnd);
       break;
 
     case VK_DIVIDE:
       SetZoom(0);
-      InvalidateRect(window, nullptr, true);
-      UpdateWindow(hWnd);
       break;
 
     case VK_MULTIPLY:
       SetZoom(1);
-      InvalidateRect(window, nullptr, true);
-      UpdateWindow(hWnd);
       break;
 
     case VK_ESCAPE:
@@ -421,91 +412,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       }
     }
     break;
-
-  case WM_PAINT:
-    {
-      PAINTSTRUCT paintst;
-      if (BeginPaint(hWnd, &paintst))
-      {
-        EndPaint(hWnd, &paintst);
-      }
-
-      float black[] = {0.0f, 0.0f, 0.0f, 0.0f};
-      deviceContext->ClearRenderTargetView(backbufferView, black);
-
-
-      if (displayTexture != nullptr)
-      {
-        D3D11_TEXTURE2D_DESC desc;
-        displayTexture->GetDesc(&desc);
-
-        f32 drawW = f32(desc.Width) * zoom / aspectAdjust;
-        f32 drawH = f32(desc.Height) * zoom;
-        f32 panXRemainder = std::max(0.0f, drawW - f32(screenWidth));
-        f32 panYRemainder = std::max(0.0f, drawH - f32(screenHeight));
-
-        f32 posX = -panX * panXRemainder;
-        f32 posY = -panY * panYRemainder;
-
-        if (panXRemainder == 0)
-        {
-          posX = (f32(screenWidth) - drawW) * 0.5f;
-        }
-        if (panYRemainder == 0)
-        {
-          posY = (f32(screenHeight) - drawH) * 0.5f;
-        }
-
-        posX /= f32(screenWidth);
-        posY /= f32(screenHeight);
-        drawW /= f32(screenWidth);
-        drawH /= f32(screenHeight);
-
-        posX = posX*2-1;
-        posY = -posY*2+1;
-        drawW = drawW*2;
-        drawH = -drawH*2;
-
-        D3D11_MAP mapType = D3D11_MAP_WRITE_DISCARD;
-        D3D11_MAPPED_SUBRESOURCE subres;
-        deviceContext->Map(vb, 0, mapType, 0, &subres);
-        auto vbData = reinterpret_cast<Vertex*>(subres.pData);
-        vbData[0] = {posX,         posY,         0, 0};
-        vbData[1] = {posX + drawW, posY,         1, 0};
-        vbData[2] = {posX + drawW, posY + drawH, 1, 1};
-        vbData[3] = {posX,         posY + drawH, 0, 1};
-        deviceContext->Unmap(vb, 0);
-
-        D3D11_VIEWPORT vp;
-        vp.TopLeftX = 0;
-        vp.TopLeftY = 0;
-        vp.Width = float(screenWidth);
-        vp.Height = float(screenHeight);
-        vp.MinDepth = 0.0f;
-        vp.MaxDepth = 1.0f;
-        deviceContext->OMSetRenderTargets(1, backbufferView.ConstAddress(), nullptr);
-        deviceContext->RSSetViewports(1, &vp);
-
-        u32 stride = sizeof(Vertex);
-        u32 offsets = 0;
-        deviceContext->IASetVertexBuffers(0, 1, vb.ConstAddress(), &stride, &offsets);
-        deviceContext->IASetIndexBuffer(ib, DXGI_FORMAT_R16_UINT, 0);
-        deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        deviceContext->OMSetBlendState(blendState, black, 0xffffffff);
-        deviceContext->OMSetDepthStencilState(depthState, 0);
-        deviceContext->RSSetState(rasterState);
-        deviceContext->VSSetShader(vs, nullptr, 0);
-        deviceContext->PSSetShader(ps, nullptr, 0);
-        deviceContext->IASetInputLayout(inputLayout);
-
-        deviceContext->PSSetSamplers(0, 1, sampler.ConstAddress());
-        deviceContext->PSSetShaderResources(0, 1, displaySRV.ConstAddress());
-
-        deviceContext->DrawIndexed(6, 0, 0);
-      }
-      swapChain->Present(0, 0);
-    }
-    return 0;
 
   case WM_DESTROY:
     PostQuitMessage(0);
@@ -615,7 +521,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, [[maybe_unused]] HINSTANCE hPrevInsta
 
   DXGI_SWAP_CHAIN_DESC swapDesc;
   ZeroMemory(&swapDesc, sizeof(swapDesc));
-  swapDesc.BufferCount = 1;
+  swapDesc.BufferCount = 2;
   swapDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
   swapDesc.OutputWindow = hWnd;
   swapDesc.Windowed = true;
@@ -757,12 +663,161 @@ int APIENTRY wWinMain(HINSTANCE hInstance, [[maybe_unused]] HINSTANCE hPrevInsta
     SetWindowLongPtr(hWnd, GWL_STYLE, WS_POPUP | WS_VISIBLE);
   }
 
+  u32 texWidth = 0;
+  u32 texHeight = 0;
   MSG msg;
-  while (GetMessage(&msg, nullptr, 0, 0))
+  std::vector<u32> dataFromNTSC;
+
+  ProcessContext procCtx;
+  procCtx.context = NTSC::Context(generationInfo);
+  procCtx.generator = std::make_unique<NTSC::RGBGenerator>();
+  procCtx.YCSeparator = std::make_unique<NTSC::LowbandpassYCSeparator>(procCtx.context.GenInfo());
+  procCtx.decoder = std::make_unique<NTSC::SignalDecoder>(procCtx.context.GenInfo());
+  bool done = false;
+  do
   {
-    TranslateMessage(&msg);
-    DispatchMessage(&msg);
+    while(PeekMessage(&msg,NULL, 0, 0, PM_NOREMOVE))
+    {
+      if(!GetMessage(&msg, NULL, 0, 0))
+      {
+        done = true;
+        break;
+      }
+
+      TranslateMessage(&msg);
+      DispatchMessage(&msg);
+    }
+
+    float black[] = {0.0f, 0.0f, 0.0f, 0.0f};
+    deviceContext->ClearRenderTargetView(backbufferView, black);
+
+    if (loadedTexture.width != 0 && loadedTexture.height != 0)
+    {
+      u32 newWidth;
+      u32 newHeight;
+      ProcessForNTSC(
+        procCtx,
+        loadedTexture.data, 
+        loadedTexture.width, 
+        loadedTexture.height, 
+        &dataFromNTSC, 
+        &newWidth, 
+        &newHeight, 
+        &aspectAdjust);
+      
+      if (newWidth != texWidth || newHeight != texHeight)
+      {
+        texWidth = newWidth;
+        texHeight = newHeight;
+
+        D3D11_TEXTURE2D_DESC desc;
+        ZeroType(&desc);
+        desc.Width = texWidth;
+        desc.Height = texHeight;
+        desc.MipLevels = 1;
+        desc.ArraySize = 1;
+        desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+        desc.SampleDesc.Count = 1;
+        desc.Usage = D3D11_USAGE_DYNAMIC;
+        desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+        desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+        D3D11_SUBRESOURCE_DATA resDat;
+        ZeroType(&resDat);
+        resDat.pSysMem = dataFromNTSC.data();
+        resDat.SysMemPitch = texWidth * sizeof(u32);
+        device->CreateTexture2D(&desc, &resDat, displayTexture.Address());
+        device->CreateShaderResourceView(displayTexture, nullptr, displaySRV.Address());
+
+        SetZoom(autoZoom ? 0.0f : 1.0f);
+      }
+      else
+      {
+        D3D11_MAPPED_SUBRESOURCE map;
+        deviceContext->Map(displayTexture, 0, D3D11_MAP_WRITE_DISCARD, 0, &map);
+        auto output = static_cast<u32 *>(map.pData);
+        for (u32 y = 0; y < texHeight; y++)
+        {
+          memcpy(output, &dataFromNTSC[y * texWidth], texWidth * sizeof(u32));
+          output += map.RowPitch / sizeof(u32);
+        }
+
+        deviceContext->Unmap(displayTexture, 0);
+      }
+    }
+
+    if (displayTexture != nullptr)
+    {
+      D3D11_TEXTURE2D_DESC desc;
+      displayTexture->GetDesc(&desc);
+
+      f32 drawW = f32(desc.Width) * zoom / aspectAdjust;
+      f32 drawH = f32(desc.Height) * zoom;
+      f32 panXRemainder = std::max(0.0f, drawW - f32(screenWidth));
+      f32 panYRemainder = std::max(0.0f, drawH - f32(screenHeight));
+
+      f32 posX = -panX * panXRemainder;
+      f32 posY = -panY * panYRemainder;
+
+      if (panXRemainder == 0)
+      {
+        posX = (f32(screenWidth) - drawW) * 0.5f;
+      }
+      if (panYRemainder == 0)
+      {
+        posY = (f32(screenHeight) - drawH) * 0.5f;
+      }
+
+      posX /= f32(screenWidth);
+      posY /= f32(screenHeight);
+      drawW /= f32(screenWidth);
+      drawH /= f32(screenHeight);
+
+      posX = posX*2-1;
+      posY = -posY*2+1;
+      drawW = drawW*2;
+      drawH = -drawH*2;
+
+      D3D11_MAP mapType = D3D11_MAP_WRITE_DISCARD;
+      D3D11_MAPPED_SUBRESOURCE subres;
+      deviceContext->Map(vb, 0, mapType, 0, &subres);
+      auto vbData = reinterpret_cast<Vertex*>(subres.pData);
+      vbData[0] = {posX,         posY,         0, 0};
+      vbData[1] = {posX + drawW, posY,         1, 0};
+      vbData[2] = {posX + drawW, posY + drawH, 1, 1};
+      vbData[3] = {posX,         posY + drawH, 0, 1};
+      deviceContext->Unmap(vb, 0);
+
+      D3D11_VIEWPORT vp;
+      vp.TopLeftX = 0;
+      vp.TopLeftY = 0;
+      vp.Width = float(screenWidth);
+      vp.Height = float(screenHeight);
+      vp.MinDepth = 0.0f;
+      vp.MaxDepth = 1.0f;
+      deviceContext->OMSetRenderTargets(1, backbufferView.ConstAddress(), nullptr);
+      deviceContext->RSSetViewports(1, &vp);
+
+      u32 stride = sizeof(Vertex);
+      u32 offsets = 0;
+      deviceContext->IASetVertexBuffers(0, 1, vb.ConstAddress(), &stride, &offsets);
+      deviceContext->IASetIndexBuffer(ib, DXGI_FORMAT_R16_UINT, 0);
+      deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+      deviceContext->OMSetBlendState(blendState, black, 0xffffffff);
+      deviceContext->OMSetDepthStencilState(depthState, 0);
+      deviceContext->RSSetState(rasterState);
+      deviceContext->VSSetShader(vs, nullptr, 0);
+      deviceContext->PSSetShader(ps, nullptr, 0);
+      deviceContext->IASetInputLayout(inputLayout);
+
+      deviceContext->PSSetSamplers(0, 1, sampler.ConstAddress());
+      deviceContext->PSSetShaderResources(0, 1, displaySRV.ConstAddress());
+
+      deviceContext->DrawIndexed(6, 0, 0);
+    }
+    swapChain->Present(1, 0);
   }
+  while (!done);
 
   return int(msg.wParam);
 }

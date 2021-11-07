@@ -8,7 +8,7 @@ namespace NTSC
     f32 colorBurstCyclePerOutputSample = f32(genInfo.colorCyclesPerInputPixel) / f32(genInfo.outputOversampleAmount);
 
     // The luma filter is a simple lowpass filter that cuts everything off above our color frequency
-    lumaFilter = FIRFilter::CreateLowPass(colorBurstCyclePerOutputSample);
+    lumaFilter = FIRFilter::CreateLowPass(colorBurstCyclePerOutputSample * 3.0f / k_colorBurstFrequency);
 
     // The chroma filter is a bandpass filter, removing the signal above and below the color burst.
     chromaFilter = FIRFilter::Convolve(
