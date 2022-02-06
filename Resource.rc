@@ -1,0 +1,76 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "winres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE 9, 1
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE  
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE  
+BEGIN
+    "#include ""winres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE  
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (United States) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// RT_RCDATA
+//
+
+IDR_BASICVERTEXSHADER     RT_RCDATA               "Generated\\BasicVertexShader.vso"
+IDR_RGBTOLUMACHROMA       RT_RCDATA               "Generated\\RGBToLumaChroma.cso"
+IDR_LUMACHROMATOCOMPOSITE RT_RCDATA               "Generated\\LumaChromaToComposite.cso"
+IDR_SEPARATELUMACHROMA    RT_RCDATA               "Generated\\SeparateLumaChroma.cso"
+IDR_LUMACHROMATOYIQ       RT_RCDATA               "Generated\\LumaChromaToYIQ.cso"
+IDR_BLURIQ                RT_RCDATA               "Generated\\BlurIQ.cso"
+IDR_YIQTORGB              RT_RCDATA               "Generated\\YIQToRGB.cso"
+IDR_BLURRGB               RT_RCDATA               "Generated\\BlurRGB.cso"
+IDR_GENERATESHADOWMASK    RT_RCDATA               "Generated\\GenerateShadowMask.cso"
+IDR_DOWNSAMPLE2X          RT_RCDATA               "Generated\\Downsample2X.cso"
+IDR_RGBTOSCREEN           RT_RCDATA               "Generated\\RGBToScreen.pso"
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED

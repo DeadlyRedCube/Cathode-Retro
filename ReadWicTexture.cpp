@@ -1,7 +1,3 @@
-#include "BaseTypes.h"
-#include "Debug.h"
-#include "WindowsInc.h"
-
 #pragma warning (push)
 #pragma warning (disable: 4987 4623 4626 5027)
 #include <stdio.h>
@@ -14,46 +10,60 @@
 #include <wincodecsdk.h>
 #pragma warning (pop)
 
-#include "SP.h"
+#include "ComPtr.h"
 
 #include "ReadWicTexture.h"
 
-namespace NTSC
+#define CHECK_HRESULT(exp, opName) \
+  do \
+  { \
+    if (auto res = (exp); FAILED(res)) \
+    { \
+      char exceptionStr[1024]; \
+      sprintf_s(exceptionStr, "Failed to " opName ", result: %08x", uint32_t(res)); \
+      throw std::exception(exceptionStr); \
+    } \
+  } \
+  while (false)
+
+
+SimpleArray<uint32_t> ReadWicTexture(const wchar_t *inputPath, uint32_t *width, uint32_t *height)
 {
-  void ReadWicTexture(const wchar_t *inputPath, std::vector<u32> *colorData, u32 *width, u32 *height)
-  {
-      SP<IWICImagingFactory> imagingFactory;
-      HRESULT hr = CoCreateInstance(CLSID_WICImagingFactory, nullptr, CLSCTX_INPROC_SERVER, IID_IWICImagingFactory, (void**)imagingFactory.Address());
-      ASSERT(SUCCEEDED(hr));
+  ComPtr<IWICImagingFactory> imagingFactory;
+  CHECK_HRESULT(
+    CoCreateInstance(CLSID_WICImagingFactory, nullptr, CLSCTX_INPROC_SERVER, IID_IWICImagingFactory, (void**)imagingFactory.AddressForReplace()),
+    "Creating imaging factory");
 
-      SP<IWICBitmapDecoder> decoder;
-      SP<IWICBitmapFrameDecode> frameDecode;
-      SP<IWICFormatConverter> convertedFrame;
+  ComPtr<IWICBitmapDecoder> decoder;
+  ComPtr<IWICBitmapFrameDecode> frameDecode;
+  ComPtr<IWICFormatConverter> convertedFrame;
 
-      // Create a decoder for the given file
+  // Create a decoder for the given file
 
-      hr = imagingFactory->CreateDecoderFromFilename(inputPath, nullptr, GENERIC_READ, WICDecodeMetadataCacheOnDemand, decoder.Address());
-      ASSERT(SUCCEEDED(hr));
+  CHECK_HRESULT(
+    imagingFactory->CreateDecoderFromFilename(inputPath, nullptr, GENERIC_READ, WICDecodeMetadataCacheOnDemand, decoder.AddressForReplace()),
+    "Creating image decoder");
 
-      hr = decoder->GetFrame(0, frameDecode.Address());
-      ASSERT(SUCCEEDED(hr));
+  CHECK_HRESULT(decoder->GetFrame(0, frameDecode.AddressForReplace()), "Getting decoder frame");
 
-      frameDecode->GetSize(width, height);
+  frameDecode->GetSize(width, height);
 
-      hr = imagingFactory->CreateFormatConverter(convertedFrame.Address());
-      ASSERT(SUCCEEDED(hr));
-      hr = convertedFrame->Initialize(
-          frameDecode,
-          GUID_WICPixelFormat32bppRGBA,
-          WICBitmapDitherTypeNone,
-          nullptr,
-          0.0f,
-          WICBitmapPaletteTypeCustom);
-      ASSERT(SUCCEEDED(hr));
+  CHECK_HRESULT(imagingFactory->CreateFormatConverter(convertedFrame.AddressForReplace()), "creating format converter");
+  CHECK_HRESULT(
+    convertedFrame->Initialize(
+      frameDecode,
+      GUID_WICPixelFormat32bppRGBA,
+      WICBitmapDitherTypeNone,
+      nullptr,
+      0.0f,
+      WICBitmapPaletteTypeCustom),
+    "initializing converted frame");
 
-      u32 size = *width * *height;
-      colorData->resize(size);
-      hr = convertedFrame->CopyPixels(nullptr, *width * sizeof(u32), size * sizeof(u32), reinterpret_cast<u8*>(colorData->data()));
-      ASSERT(SUCCEEDED(hr));
-  }
+  uint32_t size = *width * *height;
+  SimpleArray<uint32_t> colorData(size);
+  CHECK_HRESULT(
+    convertedFrame->CopyPixels(nullptr, *width * sizeof(uint32_t), size * sizeof(uint32_t), reinterpret_cast<uint8_t*>(colorData.Ptr())),
+    "copying pixels");
+
+  return colorData;
 }
