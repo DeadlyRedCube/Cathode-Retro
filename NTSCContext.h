@@ -97,7 +97,7 @@ constexpr GenerationInfo Genesis256WideGenerationInfo =
 constexpr GenerationInfo Genesis320WideGenerationInfo = 
 { 
   320,              // NES has 256 horizontal pixels
-  2,                // Oversample!
+  8,                // Oversample!
   6.4f / 7.0f,      // The aspect ratio of the screen of this mode is the same as the 256-wide mode, so (8 * 256 / 320):7 is the pixel aspect
 
   {8.0f, 15},       // Every Genesis pixel covers just a liiitle more than half a wavelength (but less than a pixel at 256-wide does, since more pixels) 1.6/3 == 8/15
@@ -196,7 +196,7 @@ public:
     {
       frameCount++;
       // Otherwise increment it according to our generation info
-      frameStartPhase += (frameCount & 1) ? genInfo.perOddFramePhaseIncrement : genInfo.perEvenFramePhaseIncrement;
+      // frameStartPhase += (frameCount & 1) ? genInfo.perOddFramePhaseIncrement : genInfo.perEvenFramePhaseIncrement;
       frameStartPhase.ModWithDenominator();
     }
 

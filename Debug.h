@@ -10,6 +10,8 @@
 #undef TRACE
 #endif
 
+#define DEBUG (defined (_DEBUG))
+
 #define ASSERTS_ENABLED (defined (_DEBUG))
 #define DASSERTS_ENABLED (defined (_DEBUG))
 

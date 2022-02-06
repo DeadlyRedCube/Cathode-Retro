@@ -86,5 +86,8 @@
     <ClInclude Include="NTSCSignalDecoder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SimpleYCSeparator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

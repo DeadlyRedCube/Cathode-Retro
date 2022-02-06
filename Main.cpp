@@ -10,7 +10,7 @@
 #include <immintrin.h>
 
 #pragma warning (push)
-#pragma warning (disable: 4668 4917 4365 4987 4623 4626 5027)
+#pragma warning (disable: 4668 4917 4365 4987 4623 4626 5027 4169 4234 4235)
 #include <d3d11.h>
 #include <dxgi.h>
 #include <d3dcompiler.h>
@@ -38,6 +38,7 @@
 #include "NTSCRGBGenerator.h"
 #include "NTSCLowBandpassYCSeparator.h"
 #include "NTSCSignalDecoder.h"
+#include "SimpleYCSeparator.h"
 
 #define MAX_LOADSTRING 100
 
@@ -112,7 +113,7 @@ struct Vertex
 Vertex vertices[4];
 SP<ID3D11Texture2D> displayTexture;
 SP<ID3D11ShaderResourceView> displaySRV;
-NTSC::GenerationInfo generationInfo = NTSC::NESandSNES240pGenerationInfo;
+NTSC::GenerationInfo generationInfo = Genesis320WideGenerationInfo; // NESandSNES240pGenerationInfo;
 
 
 void SetZoom(float zoomIn)
@@ -256,7 +257,6 @@ void LoadTexture(wchar_t *path)
   loadedTexture.width = width;
   loadedTexture.height = height;
   loadedTexture.data = std::move(dataFromTex);
-
 }
 
 
@@ -671,8 +671,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance, [[maybe_unused]] HINSTANCE hPrevInsta
   ProcessContext procCtx;
   procCtx.context = NTSC::Context(generationInfo);
   procCtx.generator = std::make_unique<NTSC::RGBGenerator>();
-  procCtx.YCSeparator = std::make_unique<NTSC::LowbandpassYCSeparator>(procCtx.context.GenInfo());
-  procCtx.decoder = std::make_unique<NTSC::SignalDecoder>(procCtx.context.GenInfo());
+  procCtx.YCSeparator = std::make_unique<NTSC::SimpleYCSeparator>(procCtx.context.GenInfo());
+  procCtx.decoder = std::make_unique<NTSC::SignalDecoder>(procCtx.context.GenInfo(), NTSC::SignalDecoder::FilterType::Simple);
   bool done = false;
   do
   {

@@ -92,6 +92,7 @@
       <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <DisableSpecificWarnings>4820; 4628; 4061; 4710; 4514; 4365; 4917; 4571;4711;4371;5039;5045</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -110,6 +111,7 @@
       <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <DisableSpecificWarnings>4820; 4628; 4061; 4710; 4514; 4365; 4917; 4571;4711;4371;5039;5045</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -128,6 +130,7 @@
       <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <DisableSpecificWarnings>4820; 4628; 4061; 4710; 4514; 4365; 4917; 4571;4711;4371;5039;5045</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -146,6 +149,7 @@
       <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <DisableSpecificWarnings>4820; 4628; 4061; 4710; 4514; 4365; 4917; 4571;4711;4371;5039;5045</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -170,6 +174,7 @@
     <ClInclude Include="NTSCData.h" />
     <ClInclude Include="NTSCLowBandpassYCSeparator.h" />
     <ClInclude Include="NTSCYCSeparatorBase.h" />
+    <ClInclude Include="SimpleYCSeparator.h" />
     <ClInclude Include="WangHash.h" />
     <ClInclude Include="MathHelpers.h" />
     <ClInclude Include="Mem.h" />
