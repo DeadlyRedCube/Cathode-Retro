@@ -2,6 +2,7 @@
 
 #include <algorithm>
 
+#include "SignalGeneration/ArtifactSettings.h"
 #include "SignalGeneration/Constants.h"
 #include "GraphicsDevice.h"
 #include "ProcessContext.h"
@@ -24,7 +25,7 @@ namespace NTSCify::SignalGeneration
     }
 
 
-    void Generate(GraphicsDevice *device, ID3D11ShaderResourceView *rgbSRV, ProcessContext *buffers, float initialFramePhase, float phaseIncrementPerScanline)
+    void Generate(GraphicsDevice *device, ID3D11ShaderResourceView *rgbSRV, ProcessContext *buffers, float initialFramePhase, float phaseIncrementPerScanline, const ArtifactSettings &artifactSettings)
     {
       auto context = device->Context();
 
@@ -39,9 +40,40 @@ namespace NTSCify::SignalGeneration
       device->DiscardAndUpdateBuffer(constantBuffer, &cd);
 
       // Update our scanline phases texture
+
+      // $TODO This can be done as a shader as well instead of using a dynamic texture
+      ID3D11ShaderResourceView *scanlinePhaseSRV;
+      ID3D11UnorderedAccessView *targetUAV;
+      if (artifactSettings.temporalArtifactReduction > 0.0f && prevFrameStartPhase != initialFramePhase)
       {
+        buffers->hasDoubledSignal = true;
+        scanlinePhaseSRV = buffers->scanlinePhasesTwoComponent.srv;
+        targetUAV = (buffers->signalType == SignalType::Composite) ? buffers->twoComponentTex.uav.Ptr() : buffers->fourComponentTex.uav.Ptr();
+
         D3D11_MAPPED_SUBRESOURCE map;
-        context->Map(buffers->scanlinePhasesTexture, 0, D3D11_MAP_WRITE_DISCARD, 0, &map);
+        context->Map(buffers->scanlinePhasesTwoComponent.texture, 0, D3D11_MAP_WRITE_DISCARD, 0, &map);
+        float *phaseTex = static_cast<float *>(map.pData);
+
+        float phaseA = initialFramePhase;
+        float phaseB = prevFrameStartPhase;
+        for (uint32_t i = 0; i < scanlineCount; i++)
+        {
+          phaseTex[i * 2 + 0] = phaseA;
+          phaseTex[i * 2 + 1] = phaseB;
+          phaseA += phaseIncrementPerScanline;
+          phaseB += phaseIncrementPerScanline;
+        }
+
+        context->Unmap(buffers->scanlinePhasesTwoComponent.texture, 0);
+      }
+      else
+      {
+        buffers->hasDoubledSignal = false;
+        scanlinePhaseSRV = buffers->scanlinePhasesOneComponent.srv;
+        targetUAV = (buffers->signalType == SignalType::Composite) ? buffers->oneComponentTex.uav.Ptr() : buffers->twoComponentTex.uav.Ptr();
+
+        D3D11_MAPPED_SUBRESOURCE map;
+        context->Map(buffers->scanlinePhasesOneComponent.texture, 0, D3D11_MAP_WRITE_DISCARD, 0, &map);
         float *phaseTex = static_cast<float *>(map.pData);
 
         float phase = initialFramePhase;
@@ -51,11 +83,11 @@ namespace NTSCify::SignalGeneration
           phase += phaseIncrementPerScanline;
         }
 
-        context->Unmap(buffers->scanlinePhasesTexture, 0);
+        context->Unmap(buffers->scanlinePhasesOneComponent.texture, 0);
       }
 
-      ID3D11ShaderResourceView *srv[] = {rgbSRV, buffers->scanlinePhasesSRV};
-      auto uav = (buffers->signalType == SignalType::Composite) ? buffers->oneComponentTex.uav.Ptr() : buffers->twoComponentTex.uav.Ptr();
+      ID3D11ShaderResourceView *srv[] = {rgbSRV, scanlinePhaseSRV};
+      auto uav = targetUAV;
       auto cb = constantBuffer.Ptr();
 
       context->CSSetShader(rgbToSVideoShader, nullptr, 0);
@@ -74,6 +106,8 @@ namespace NTSCify::SignalGeneration
       buffers->blackLevel = 0.0f;
       buffers->whiteLevel = 1.0f;
       buffers->saturationScale = 0.5f;
+
+      prevFrameStartPhase = initialFramePhase;
     }
 
   private:
@@ -90,5 +124,6 @@ namespace NTSCify::SignalGeneration
     uint32_t signalTextureWidth;
     ComPtr<ID3D11ComputeShader> rgbToSVideoShader;
     ComPtr<ID3D11Buffer> constantBuffer;
+    float prevFrameStartPhase = 0.0f;
   };
 }

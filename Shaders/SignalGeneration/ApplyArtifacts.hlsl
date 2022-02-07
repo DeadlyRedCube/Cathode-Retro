@@ -1,5 +1,5 @@
-Texture2D<float2>  g_sourceTexture : register(t0);
-RWTexture2D<float2> g_outputTexture : register(u0);
+Texture2D<float4>  g_sourceTexture : register(t0);
+RWTexture2D<float4> g_outputTexture : register(u0);
 
 cbuffer consts : register(b0)
 {
@@ -33,12 +33,12 @@ float WangHashAndXorShift(uint seed)
 void main(uint2 dispatchThreadID : SV_DispatchThreadID)
 {
   // Simple shader, just combine the two into a single composite signal
-  float2 lumaChroma = g_sourceTexture.Load(uint3(dispatchThreadID, 0));
+  float4 lumaChroma = g_sourceTexture.Load(uint3(dispatchThreadID, 0));
 
   if (g_ghostBrightness > 0)
   {
     int ghostDelta = 9;
-    float2 ghost = float2(0,0);
+    float4 ghost = (0).xxxx;
 
     float ghostSpreadScale2 = g_ghostSpreadScale * g_ghostSpreadScale;
     float ghostSpreadScale3 = ghostSpreadScale2 * g_ghostSpreadScale;
@@ -52,11 +52,9 @@ void main(uint2 dispatchThreadID : SV_DispatchThreadID)
 
     ghost /= (1 + g_ghostSpreadScale + ghostSpreadScale2 + ghostSpreadScale3 + ghostSpreadScale4);
 
-    ghost.y *= g_ghostSpreadScale;
-
     float ghostBrightness = 0.5;
     lumaChroma += ghost * g_ghostBrightness;
-    lumaChroma.x /= 1 + g_ghostBrightness;
+    lumaChroma /= 1 + g_ghostBrightness;
   }
 
   float noise = 0;

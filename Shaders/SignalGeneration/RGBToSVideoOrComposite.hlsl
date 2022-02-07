@@ -1,6 +1,6 @@
 Texture2D<float4> g_sourceTexture : register(t0);
-Texture2D<float> g_scanlinePhases : register(t1);
-RWTexture2D<float2> g_outputTexture : register(u0);
+Texture2D<float2> g_scanlinePhases : register(t1);
+RWTexture2D<float4> g_outputTexture : register(u0);
 
 cbuffer consts : register (b0)
 {
@@ -36,16 +36,23 @@ void main(int2 dispatchThreadID : SV_DispatchThreadID)
   float Q = YIQ.z;
 
   // Figure out where in the carrier wave we are
-  float scanlinePhase = g_scanlinePhases.Load(uint3(dispatchThreadID.y, 0, 0)).x;
-  float phase = scanlinePhase + dispatchThreadID.x / float(g_outputTexelsPerColorburstCycle);
+  float2 scanlinePhase = g_scanlinePhases.Load(uint3(dispatchThreadID.y, 0, 0));
+  float2 phase = scanlinePhase + dispatchThreadID.x / float(g_outputTexelsPerColorburstCycle);
 
   // Now we need to encode our IQ component in the carrier wave at the correct phase
-  float s, c;
+  float2 s, c;
   sincos(2.0 * pi * phase, s, c);
 
-  float luma = Y;
-  float chroma = -s * Q + c * I;
+  float2 luma = Y.xx;
+  float2 chroma = -s * Q + c * I;
 
   // If compositeBlend is 1, this is a composite output and we combine the whole signal into the one channel. Otherwise, use two.
-  g_outputTexture[dispatchThreadID] = float2(luma + g_compositeBlend * chroma, chroma);
+  if (g_compositeBlend > 0)
+  {
+    g_outputTexture[dispatchThreadID] = (luma + chroma).xyxy;
+  }
+  else
+  {
+    g_outputTexture[dispatchThreadID] = float4(luma, chroma).xzyw;
+  }
 }

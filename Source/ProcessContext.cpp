@@ -113,8 +113,16 @@ namespace NTSCify
       1,
       DXGI_FORMAT_R32_FLOAT,
       GraphicsDevice::TextureFlags::Dynamic,
-      &scanlinePhasesTexture,
-      &scanlinePhasesSRV);
+      &scanlinePhasesOneComponent.texture,
+      &scanlinePhasesOneComponent.srv);
+
+    device->CreateTexture2D(
+      scanlineCount,
+      1,
+      DXGI_FORMAT_R32G32_FLOAT,
+      GraphicsDevice::TextureFlags::Dynamic,
+      &scanlinePhasesTwoComponent.texture,
+      &scanlinePhasesTwoComponent.srv);
 
     device->CreateTexture2D(
       signalTextureWidth,

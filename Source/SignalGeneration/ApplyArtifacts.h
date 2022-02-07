@@ -40,8 +40,19 @@ namespace NTSCify::SignalGeneration
 
       device->DiscardAndUpdateBuffer(constantBuffer, &cd);
 
-      auto srv = ((buffers->signalType == SignalType::SVideo) ? buffers->twoComponentTex : buffers->oneComponentTex).srv.Ptr();
-      auto uav = ((buffers->signalType == SignalType::SVideo) ? buffers->twoComponentTexScratch : buffers->oneComponentTexScratch).uav.Ptr();
+      ID3D11ShaderResourceView *srv;
+      ID3D11UnorderedAccessView *uav;
+
+      if (buffers->hasDoubledSignal)
+      {
+        srv = ((buffers->signalType == SignalType::SVideo) ? buffers->fourComponentTex : buffers->twoComponentTex).srv.Ptr();
+        uav = ((buffers->signalType == SignalType::SVideo) ? buffers->fourComponentTexScratch : buffers->twoComponentTexScratch).uav.Ptr();
+      }
+      else
+      {
+        srv = ((buffers->signalType == SignalType::SVideo) ? buffers->twoComponentTex : buffers->oneComponentTex).srv.Ptr();
+        uav = ((buffers->signalType == SignalType::SVideo) ? buffers->twoComponentTexScratch : buffers->oneComponentTexScratch).uav.Ptr();
+      }
       auto cb = constantBuffer.Ptr();
 
       context->CSSetShader(applyArtifactsShader, nullptr, 0);
@@ -57,13 +68,27 @@ namespace NTSCify::SignalGeneration
       context->CSSetShaderResources(0, 1, &srv);
       noiseSeed = (noiseSeed + 1) % (60*60);
 
-      if (buffers->signalType == SignalType::SVideo)
+      if (buffers->hasDoubledSignal)
       {
-        std::swap(buffers->twoComponentTex, buffers->twoComponentTexScratch);
+        if (buffers->signalType == SignalType::SVideo)
+        {
+          std::swap(buffers->fourComponentTex, buffers->fourComponentTexScratch);
+        }
+        else
+        {
+          std::swap(buffers->twoComponentTex, buffers->twoComponentTexScratch);
+        }
       }
       else
       {
-        std::swap(buffers->oneComponentTex, buffers->oneComponentTexScratch);
+        if (buffers->signalType == SignalType::SVideo)
+        {
+          std::swap(buffers->twoComponentTex, buffers->twoComponentTexScratch);
+        }
+        else
+        {
+          std::swap(buffers->oneComponentTex, buffers->oneComponentTexScratch);
+        }
       }
     }
 

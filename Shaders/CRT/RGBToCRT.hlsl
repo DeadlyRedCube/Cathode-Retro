@@ -129,15 +129,8 @@ float4 main(PSInput input) : SV_TARGET
     
     float4 prevSourceColor = PrevTex.Sample(SamDefault, t);
 
-    // This is a hack, basically, around the fact that LCDs don't do the right thing for rapidly flickering things (i.e. for NES-style signal). This introduces some ghosting in motion but
-    //  it greatly smooths out the wiggle.
-    // Another way to do it would be to effectively run the same frame through twice at the two different phases and blend same-frame a certain percentage, which would smooth out the artifacts
-    // but lose the ghosting. 
-    // $TODO Do that - build 2x versions of as many of the shaders as possible
-    sourceColor = lerp(prevSourceColor, sourceColor, 0.5); 
-    
-    // This is the more correct phosphor decay line
-    // sourceColor max(prevSourceColor * g_phosphorDecay, sourceColor);
+    // If a phosphor hasn't decayed all the way keep its brightness
+    sourceColor = max(prevSourceColor * g_phosphorDecay, sourceColor);
   }
   
   shadowMaskT = shadowMaskT * 0.5 + 0.5;

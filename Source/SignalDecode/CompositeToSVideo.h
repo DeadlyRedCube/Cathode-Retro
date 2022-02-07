@@ -36,8 +36,8 @@ namespace NTSCify::SignalDecode
       device->DiscardAndUpdateBuffer(constantBuffer, &cd);
 
 
-      auto srv = buffers->oneComponentTex.srv.Ptr();
-      auto uav = buffers->twoComponentTex.uav.Ptr();
+      auto srv = buffers->hasDoubledSignal ? buffers->twoComponentTex.srv.Ptr() : buffers->oneComponentTex.srv.Ptr();
+      auto uav = buffers->hasDoubledSignal ? buffers->fourComponentTex.uav.Ptr() :  buffers->twoComponentTex.uav.Ptr();
       auto cb = constantBuffer.Ptr();
 
       context->CSSetShader(compositeToSVideoShader, nullptr, 0);

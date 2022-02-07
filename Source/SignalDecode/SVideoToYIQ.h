@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include "SignalDecode/TVKnobSettings.h"
+#include "SignalGeneration/ArtifactSettings.h"
 #include "GraphicsDevice.h"
 #include "ProcessContext.h"
 #include "resource.h"
@@ -26,7 +27,7 @@ namespace NTSCify::SignalDecode
     }
 
 
-    void Apply(GraphicsDevice *device, ProcessContext *buffers, const TVKnobSettings &knobSettings)
+    void Apply(GraphicsDevice *device, ProcessContext *buffers, const TVKnobSettings &knobSettings, const SignalGeneration::ArtifactSettings &artifactSettings)
     {
       auto context = device->Context();
 
@@ -38,11 +39,16 @@ namespace NTSCify::SignalDecode
         knobSettings.brightness,
         buffers->blackLevel,
         buffers->whiteLevel,
+        artifactSettings.temporalArtifactReduction,
       };
       device->DiscardAndUpdateBuffer(constantBuffer, &data);
 
-      ID3D11ShaderResourceView *srv[] = {buffers->twoComponentTex.srv, buffers->scanlinePhasesSRV};
-      auto uav = buffers->fourComponentTex.uav.Ptr();
+      ID3D11ShaderResourceView *srv[] = 
+      {
+        buffers->hasDoubledSignal ? buffers->fourComponentTex.srv : buffers->twoComponentTex.srv, 
+        buffers->hasDoubledSignal ? buffers->scanlinePhasesTwoComponent.srv : buffers->scanlinePhasesOneComponent.srv,
+      };
+      auto uav = buffers->fourComponentTexScratch.uav.Ptr();
       auto cb = constantBuffer.Ptr();
 
       context->CSSetShader(sVideoToYIQShader, nullptr, 0);
@@ -56,6 +62,8 @@ namespace NTSCify::SignalDecode
       uav = nullptr;
       context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
       context->CSSetShaderResources(0, UINT(k_arrayLength<decltype(srv)>), srv);
+
+      std::swap(buffers->fourComponentTex, buffers->fourComponentTexScratch);
     }
 
   private:
@@ -67,6 +75,7 @@ namespace NTSCify::SignalDecode
       float brightness;
       float blackLevel;
       float whiteLevel;
+      float temporalArtifactReduction;
     };
 
     uint32_t scanlineCount;

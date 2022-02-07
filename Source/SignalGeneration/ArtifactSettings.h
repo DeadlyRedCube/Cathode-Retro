@@ -11,6 +11,6 @@ namespace NTSCify::SignalGeneration
 
     float noiseStrength = 0.0f;             // How much noise is added to the signal
 
-    float temporalArtifactReduction = 1.0f; // 0.0f 
+    float temporalArtifactReduction = 1.0f; 
   };
 }

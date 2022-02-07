@@ -8,6 +8,12 @@ namespace NTSCify
   class ProcessContext
   {
   public:
+    struct TextureSet
+    {
+      ComPtr<ID3D11Texture2D> texture;
+      ComPtr<ID3D11ShaderResourceView> srv;
+    };
+
      // $TODO May not need these once I'm off compute
     struct TextureSetUAV
     {
@@ -24,6 +30,7 @@ namespace NTSCify
     uint32_t signalTextureWidth;
     uint32_t scanlineCount;
     size_t vertexSize;
+    bool hasDoubledSignal = false;
 
     // Set by signal generation
     float whiteLevel;
@@ -41,8 +48,8 @@ namespace NTSCify
 
     ComPtr<ID3D11VertexShader> vertexShader;
 
-    ComPtr<ID3D11Texture2D> scanlinePhasesTexture;
-    ComPtr<ID3D11ShaderResourceView> scanlinePhasesSRV;
+    TextureSet scanlinePhasesOneComponent;
+    TextureSet scanlinePhasesTwoComponent;
 
     TextureSetUAV oneComponentTex;
     TextureSetUAV oneComponentTexScratch;

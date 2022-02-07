@@ -1,5 +1,5 @@
-Texture2D<float1> g_sourceTexture : register(t0);
-RWTexture2D<float2> g_outputTexture : register(u0);
+Texture2D<float2> g_sourceTexture : register(t0);
+RWTexture2D<float4> g_outputTexture : register(u0);
 
 cbuffer consts : register(b0)
 {
@@ -17,7 +17,7 @@ void main(uint2 dispatchThreadID : SV_DispatchThreadID)
   
   // Average the luma samples
   // $TODO make this 2x as efficient by leaning on bilinear filtering instead of doing individual loads
-  float luma = 0.0f;
+  float2 luma = 0.0f;
   for (uint i = 0; i < g_samplesPerColorburstCycle; i++)
   {
     luma += g_sourceTexture.Load(uint3(uint2(leftX + i, 0) + dispatchThreadID, 0));
@@ -26,6 +26,6 @@ void main(uint2 dispatchThreadID : SV_DispatchThreadID)
   luma /= float(g_samplesPerColorburstCycle);
 
   // Now that we have our average luminance, that's our luma, and then subtract it from our center sample to get the separated chroma information.
-  float centerSample = g_sourceTexture.Load(uint3(dispatchThreadID, 0));
-  g_outputTexture[dispatchThreadID] = float2(luma, centerSample - luma);
+  float2 centerSample = g_sourceTexture.Load(uint3(dispatchThreadID, 0));
+  g_outputTexture[dispatchThreadID] = float4(luma, centerSample - luma).xzyw;
 }

@@ -257,6 +257,11 @@ int PASCAL WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 
       s_graphicsDevice->ClearBackbuffer();
 
+      NTSCify::SignalGeneration::ArtifactSettings artifactSettings;
+      artifactSettings.noiseStrength = 0.05f;
+      artifactSettings.ghostVisibility = 0.0f; //0.65f;
+
+
       if (loadedTexture != nullptr)
       {
         loadedTexture->rgbToSVideoOrComposite->Generate(
@@ -264,16 +269,14 @@ int PASCAL WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int)
           loadedTexture->srv,
           loadedTexture->processContext.get(),
           float(phase) / float(generationInfo.denominator),
-          float(generationInfo.phaseIncrementPerLine) / float(generationInfo.denominator));
+          float(generationInfo.phaseIncrementPerLine) / float(generationInfo.denominator),
+          artifactSettings);
 
         isEvenFrame = !isEvenFrame;
         phase = (phase + (isEvenFrame ? generationInfo.phaseIncrementPerEvenFrame : generationInfo.phaseIncrementPerOddFrame)) % generationInfo.denominator;
 
         {
-          NTSCify::SignalGeneration::ArtifactSettings options;
-          options.noiseStrength = 0.05f;
-          options.ghostVisibility = 0.0f; //0.65f;
-          loadedTexture->applyArtifacts->Apply(s_graphicsDevice.get(), loadedTexture->processContext.get(), options);
+          loadedTexture->applyArtifacts->Apply(s_graphicsDevice.get(), loadedTexture->processContext.get(), artifactSettings);
           loadedTexture->compositeToSVideo->Apply(s_graphicsDevice.get(), loadedTexture->processContext.get());
         }
 
@@ -285,7 +288,7 @@ int PASCAL WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int)
           info.tint = 0.0f;
           info.sharpness = 0.0f;
 
-          loadedTexture->sVideoToYIQ->Apply(s_graphicsDevice.get(), loadedTexture->processContext.get(), info);
+          loadedTexture->sVideoToYIQ->Apply(s_graphicsDevice.get(), loadedTexture->processContext.get(), info, artifactSettings);
           #if 0
             loadedTexture->blurIQ->Apply(s_graphicsDevice.get(), loadedTexture->ProcessContext.get());
           #endif
