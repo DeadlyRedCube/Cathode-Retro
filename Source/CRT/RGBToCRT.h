@@ -142,7 +142,7 @@ namespace NTSCify::CRT
       }
 
       {
-        ID3D11ShaderResourceView *res[] = {buffers->colorTexA.srv.Ptr(), prevFrameTex.srv.Ptr(), shadowMaskSRV.Ptr()};
+        ID3D11ShaderResourceView *res[] = {buffers->colorTex.srv.Ptr(), prevFrameTex.srv.Ptr(), shadowMaskSRV.Ptr()};
         context->PSSetShaderResources(0, UINT(k_arrayLength<decltype(res)>), res);
 
         ID3D11Buffer *cb[] = {constantBuffer};
@@ -154,7 +154,7 @@ namespace NTSCify::CRT
         context->PSSetShaderResources(0, UINT(k_arrayLength<decltype(res)>), res);
       }
 
-      std::swap(buffers->colorTexA, prevFrameTex);
+      std::swap(buffers->colorTex, prevFrameTex);
       noiseSeed = (noiseSeed + 1) % (60 * 60);
     }
 

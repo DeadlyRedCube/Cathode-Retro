@@ -33,8 +33,8 @@ namespace NTSCify::SignalDecode
       ConstantData data = { knobSettings.gamma };
       device->DiscardAndUpdateBuffer(constantBuffer, &data);
 
-      auto srv = buffers->fourComponentTexA.srv.Ptr();
-      auto uav = buffers->colorTexA.uav.Ptr();
+      auto srv = buffers->fourComponentTex.srv.Ptr();
+      auto uav = buffers->colorTex.uav.Ptr();
       auto cb = constantBuffer.Ptr();
 
       context->CSSetShader(yiqToRGBShader, nullptr, 0);

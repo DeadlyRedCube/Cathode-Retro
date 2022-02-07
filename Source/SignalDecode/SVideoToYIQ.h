@@ -41,8 +41,8 @@ namespace NTSCify::SignalDecode
       };
       device->DiscardAndUpdateBuffer(constantBuffer, &data);
 
-      ID3D11ShaderResourceView *srv[] = {buffers->twoComponentTexA.srv, buffers->scanlinePhasesSRV};
-      auto uav = buffers->fourComponentTexA.uav.Ptr();
+      ID3D11ShaderResourceView *srv[] = {buffers->twoComponentTex.srv, buffers->scanlinePhasesSRV};
+      auto uav = buffers->fourComponentTex.uav.Ptr();
       auto cb = constantBuffer.Ptr();
 
       context->CSSetShader(sVideoToYIQShader, nullptr, 0);

@@ -40,8 +40,8 @@ namespace NTSCify::SignalGeneration
 
       device->DiscardAndUpdateBuffer(constantBuffer, &cd);
 
-      auto srv = buffers->twoComponentTexA.srv.Ptr();
-      auto uav = buffers->twoComponentTexB.uav.Ptr();
+      auto srv = buffers->twoComponentTex.srv.Ptr();
+      auto uav = buffers->twoComponentTexScratch.uav.Ptr();
       auto cb = constantBuffer.Ptr();
 
       context->CSSetShader(applyArtifactsShader, nullptr, 0);
@@ -57,7 +57,7 @@ namespace NTSCify::SignalGeneration
       context->CSSetShaderResources(0, 1, &srv);
       noiseSeed = (noiseSeed + 1) % (60*60);
 
-      std::swap(buffers->twoComponentTexA, buffers->twoComponentTexB);
+      std::swap(buffers->twoComponentTexScratch, buffers->twoComponentTexScratch);
     }
 
   private:

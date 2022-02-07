@@ -119,71 +119,71 @@ namespace NTSCify
       scanlineCount,
       DXGI_FORMAT_R32_FLOAT,
       GraphicsDevice::TextureFlags::UAV,
-      &oneComponentTexA.texture,
-      &oneComponentTexA.srv,
-      &oneComponentTexA.uav);
+      &oneComponentTex.texture,
+      &oneComponentTex.srv,
+      &oneComponentTex.uav);
 
     device->CreateTexture2D(
       signalTextureWidth,
       scanlineCount,
       DXGI_FORMAT_R32_FLOAT,
       GraphicsDevice::TextureFlags::UAV,
-      &oneComponentTexB.texture,
-      &oneComponentTexB.srv,
-      &oneComponentTexB.uav);
+      &oneComponentTexScratch.texture,
+      &oneComponentTexScratch.srv,
+      &oneComponentTexScratch.uav);
 
     device->CreateTexture2D(
       signalTextureWidth,
       scanlineCount,
       DXGI_FORMAT_R32G32_FLOAT,
       GraphicsDevice::TextureFlags::UAV,
-      &twoComponentTexA.texture,
-      &twoComponentTexA.srv,
-      &twoComponentTexA.uav);
+      &twoComponentTex.texture,
+      &twoComponentTex.srv,
+      &twoComponentTex.uav);
 
     device->CreateTexture2D(
       signalTextureWidth,
       scanlineCount,
       DXGI_FORMAT_R32G32_FLOAT,
       GraphicsDevice::TextureFlags::UAV,
-      &twoComponentTexB.texture,
-      &twoComponentTexB.srv,
-      &twoComponentTexB.uav);
+      &twoComponentTexScratch.texture,
+      &twoComponentTexScratch.srv,
+      &twoComponentTexScratch.uav);
 
     device->CreateTexture2D(
       signalTextureWidth,
       scanlineCount,
       DXGI_FORMAT_R32G32B32A32_FLOAT,
       GraphicsDevice::TextureFlags::UAV,
-      &fourComponentTexA.texture,
-      &fourComponentTexA.srv,
-      &fourComponentTexA.uav);
+      &fourComponentTex.texture,
+      &fourComponentTex.srv,
+      &fourComponentTex.uav);
 
     device->CreateTexture2D(
       signalTextureWidth,
       scanlineCount,
       DXGI_FORMAT_R32G32B32A32_FLOAT,
       GraphicsDevice::TextureFlags::UAV,
-      &fourComponentTexB.texture,
-      &fourComponentTexB.srv,
-      &fourComponentTexB.uav);
+      &fourComponentTexScratch.texture,
+      &fourComponentTexScratch.srv,
+      &fourComponentTexScratch.uav);
 
     device->CreateTexture2D(
       signalTextureWidth,
       scanlineCount,
       DXGI_FORMAT_R8G8B8A8_UNORM,
       GraphicsDevice::TextureFlags::UAV,
-      &colorTexA.texture,
-      &colorTexA.srv,
-      &colorTexA.uav);
+      &colorTex.texture,
+      &colorTex.srv,
+      &colorTex.uav);
 
     device->CreateTexture2D(
       signalTextureWidth,
       scanlineCount,
       DXGI_FORMAT_R8G8B8A8_UNORM,
       GraphicsDevice::TextureFlags::UAV,
-      &colorTexB.texture,
-      &colorTexB.srv,
-      &colorTexB.uav);
+      &colorTexScratch.texture,
+      &colorTexScratch.srv,
+      &colorTexScratch.uav);
   }
 }

@@ -43,16 +43,16 @@ namespace NTSCify
     ComPtr<ID3D11Texture2D> scanlinePhasesTexture;
     ComPtr<ID3D11ShaderResourceView> scanlinePhasesSRV;
 
-    TextureSetUAV oneComponentTexA;
-    TextureSetUAV oneComponentTexB;
+    TextureSetUAV oneComponentTex;
+    TextureSetUAV oneComponentTexScratch;
 
-    TextureSetUAV twoComponentTexA;
-    TextureSetUAV twoComponentTexB;
+    TextureSetUAV twoComponentTex;
+    TextureSetUAV twoComponentTexScratch;
 
-    TextureSetUAV fourComponentTexA;
-    TextureSetUAV fourComponentTexB;
+    TextureSetUAV fourComponentTex;
+    TextureSetUAV fourComponentTexScratch;
 
-    TextureSetUAV colorTexA;
-    TextureSetUAV colorTexB;
+    TextureSetUAV colorTex;
+    TextureSetUAV colorTexScratch;
   };
 }

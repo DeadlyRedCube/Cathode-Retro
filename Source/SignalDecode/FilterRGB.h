@@ -35,8 +35,8 @@ namespace NTSCify::SignalDecode
         ConstantData data = { -knobSettings.sharpness, SignalGeneration::k_signalSamplesPerColorCycle };
         device->DiscardAndUpdateBuffer(constantBuffer, &data);
 
-        auto srv = buffers->colorTexA.srv.Ptr();
-        auto uav = buffers->colorTexB.uav.Ptr();
+        auto srv = buffers->colorTex.srv.Ptr();
+        auto uav = buffers->colorTexScratch.uav.Ptr();
         auto cb = constantBuffer.Ptr();
 
         context->CSSetShader(blurRGBShader, nullptr, 0);
@@ -51,7 +51,7 @@ namespace NTSCify::SignalDecode
         context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
         context->CSSetShaderResources(0, 1, &srv);
 
-        std::swap(buffers->colorTexA, buffers->colorTexB);
+        std::swap(buffers->colorTex, buffers->colorTexScratch);
       }
     }
 

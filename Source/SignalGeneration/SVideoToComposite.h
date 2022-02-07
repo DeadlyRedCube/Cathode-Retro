@@ -25,8 +25,8 @@ namespace NTSCify::SignalGeneration
     {
       auto context = device->Context();
 
-      auto srv = buffers->twoComponentTexA.srv.Ptr();
-      auto uav = buffers->oneComponentTexA.uav.Ptr();
+      auto srv = buffers->twoComponentTex.srv.Ptr();
+      auto uav = buffers->oneComponentTex.uav.Ptr();
 
       context->CSSetShader(sVideoToCompositeShader, nullptr, 0);
       context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
