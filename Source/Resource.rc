@@ -53,16 +53,17 @@ END
 //
 
 IDR_BASICVERTEXSHADER     RT_RCDATA               "Generated\\BasicVertexShader.vso"
-IDR_RGBTOLUMACHROMA       RT_RCDATA               "Generated\\RGBToLumaChroma.cso"
-IDR_LUMACHROMATOCOMPOSITE RT_RCDATA               "Generated\\LumaChromaToComposite.cso"
-IDR_SEPARATELUMACHROMA    RT_RCDATA               "Generated\\SeparateLumaChroma.cso"
-IDR_LUMACHROMATOYIQ       RT_RCDATA               "Generated\\LumaChromaToYIQ.cso"
-IDR_BLURIQ                RT_RCDATA               "Generated\\BlurIQ.cso"
-IDR_YIQTORGB              RT_RCDATA               "Generated\\YIQToRGB.cso"
-IDR_BLURRGB               RT_RCDATA               "Generated\\BlurRGB.cso"
-IDR_GENERATESHADOWMASK    RT_RCDATA               "Generated\\GenerateShadowMask.cso"
-IDR_DOWNSAMPLE2X          RT_RCDATA               "Generated\\Downsample2X.cso"
-IDR_RGBTOSCREEN           RT_RCDATA               "Generated\\RGBToScreen.pso"
+IDR_RGB_TO_SVIDEO         RT_RCDATA               "Generated\\RGBToSVideo.cso"
+IDR_APPLY_ARTIFACTS       RT_RCDATA               "Generated\\ApplyArtifacts.cso"
+IDR_SVIDEO_TO_COMPOSITE   RT_RCDATA               "Generated\\SVideoToComposite.cso"
+IDR_COMPOSITE_TO_SVIDEO   RT_RCDATA               "Generated\\CompositeToSVideo.cso"
+IDR_SVIDEO_TO_YIQ         RT_RCDATA               "Generated\\SVideoToYIQ.cso"
+IDR_BLUR_IQ               RT_RCDATA               "Generated\\BlurIQ.cso"
+IDR_YIQ_TO_RGB            RT_RCDATA               "Generated\\YIQToRGB.cso"
+IDR_FILTER_RGB            RT_RCDATA               "Generated\\FilterRGB.cso"
+IDR_GENERATE_SHADOW_MASK  RT_RCDATA               "Generated\\GenerateShadowMask.cso"
+IDR_DOWNSAMPLE_2X         RT_RCDATA               "Generated\\Downsample2X.cso"
+IDR_RGB_TO_CRT            RT_RCDATA               "Generated\\RGBToCRT.pso"
 
 
 #ifndef APSTUDIO_INVOKED

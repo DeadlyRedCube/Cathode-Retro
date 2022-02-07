@@ -7,6 +7,10 @@ cbuffer consts : register(b0)
 {
   uint g_samplesPerColorburstCycle;
   float g_tint;
+  float g_saturation;
+  float g_brightness;
+  float g_blackLevel;
+  float g_whiteLevel;
 }
 
 static const float pi = 3.1415926535897932384626433832795028841971f;
@@ -18,7 +22,7 @@ void main(uint2 dispatchThreadID : SV_DispatchThreadID)
 
   int leftX = -int((filterWidth - 1) / 2);
 
-  float relativePhase = g_scanlinePhases.Load(uint3(dispatchThreadID.y, 0, 0)).x; // + g_tint;
+  float relativePhase = g_scanlinePhases.Load(uint3(dispatchThreadID.y, 0, 0)).x + g_tint;
 
   // This is the chroma decode process, it's a QAM demodulation. 
   //  You multiply the chroma signal by a reference waveform and its quadrature (Basically, sin and cos at a given time) and then filter
@@ -36,8 +40,12 @@ void main(uint2 dispatchThreadID : SV_DispatchThreadID)
 
   IQ /= filterWidth;
 
-  // Sample luminance at our current location, we don't need to do any filtering to it at all.
   float Y = g_sourceTexture.Load(uint3(dispatchThreadID, 0)).x;
+
+  // Adjust our components, first Y to account for the signal's black/white level (and user-chosen brightness), then IQ for saturation (Which includes the
+  //  signal's saturation scale)
+  Y = (Y - g_blackLevel) / (g_whiteLevel - g_blackLevel) * g_brightness;
+  IQ *= g_saturation.xx;
 
   g_outputTexture[dispatchThreadID] = float4(Y, IQ, 1);
 }

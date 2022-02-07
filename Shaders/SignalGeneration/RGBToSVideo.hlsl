@@ -44,5 +44,5 @@ void main(int2 dispatchThreadID : SV_DispatchThreadID)
   float luma = Y;
   float chroma = -s * Q + c * I;
 
-  g_outputTexture[dispatchThreadID] = float2(luma, chroma * 2.0);
+  g_outputTexture[dispatchThreadID] = float2(luma, chroma);
 }

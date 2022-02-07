@@ -1,0 +1,151 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <FxCompile Include="Shaders\BasicVertexShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\Downsample2x.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\SignalDecode\BlurIQ.hlsl">
+      <Filter>Shaders\SignalDecode</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\SignalDecode\FilterRGB.hlsl">
+      <Filter>Shaders\SignalDecode</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\SignalDecode\YIQToRGB.hlsl">
+      <Filter>Shaders\SignalDecode</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\SignalGeneration\RGBToSVideo.hlsl">
+      <Filter>Shaders\SignalGeneration</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\SignalGeneration\SVideoToComposite.hlsl">
+      <Filter>Shaders\SignalGeneration</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\SignalGeneration\ApplyArtifacts.hlsl">
+      <Filter>Shaders\SignalGeneration</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\CRT\GenerateShadowMask.hlsl">
+      <Filter>Shaders\CRT</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\CRT\RGBToCRT.hlsl">
+      <Filter>Shaders\CRT</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\SignalDecode\SVideoToYIQ.hlsl">
+      <Filter>Shaders\SignalDecode</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\SignalDecode\CompositeToSVideo.hlsl">
+      <Filter>Shaders\SignalDecode</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\GraphicsDevice.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Main.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ProcessContext.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ReadWicTexture.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Util.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SimpleArray.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\resource.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ReadWicTexture.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GraphicsDevice.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ComPtr.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SignalGeneration\SourceSettings.h">
+      <Filter>Headers\SignalGeneration</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SignalGeneration\ArtifactSettings.h">
+      <Filter>Headers\SignalGeneration</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SignalGeneration\RGBToSVideo.h">
+      <Filter>Headers\SignalGeneration</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SignalGeneration\SVideoToComposite.h">
+      <Filter>Headers\SignalGeneration</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SignalDecode\TVKnobSettings.h">
+      <Filter>Headers\SignalDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SignalDecode\FilterRGB.h">
+      <Filter>Headers\SignalDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SignalDecode\SVideoToYIQ.h">
+      <Filter>Headers\SignalDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SignalDecode\YIQToRGB.h">
+      <Filter>Headers\SignalDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\CRT\RGBToCRT.h">
+      <Filter>Headers\CRT</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\CRT\ScreenSettings.h">
+      <Filter>Headers\CRT</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SignalDecode\CompositeToSVideo.h">
+      <Filter>Headers\SignalDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SignalGeneration\ApplyArtifacts.h">
+      <Filter>Headers\SignalGeneration</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SignalDecode\BlurIQ.h">
+      <Filter>Headers\SignalDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ProcessContext.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{9a2b1575-1771-46fb-8e10-f70bc658232e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source">
+      <UniqueIdentifier>{eaf8db2b-9155-4f27-9c8a-f61339dc8886}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{2046ac20-975b-42a8-b711-860bbd2da76c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\SignalGeneration">
+      <UniqueIdentifier>{2cac9f9c-45a1-4f13-bce1-77bb5321d5a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\SignalDecode">
+      <UniqueIdentifier>{0db5f7e4-3cda-438b-925c-7a483f22f58e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\CRT">
+      <UniqueIdentifier>{07d9ce3d-5c1a-43b7-89f0-d5945ff17438}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\SignalDecode">
+      <UniqueIdentifier>{1e9a9f5e-9893-4ca4-8fcd-c751982b8d9f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\CRT">
+      <UniqueIdentifier>{8a0a8191-82aa-4837-93df-05e08312e034}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\SignalGeneration">
+      <UniqueIdentifier>{e0b73a31-31a2-4150-a4c0-0c5e239955e6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Source\Resource.rc">
+      <Filter>Source</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

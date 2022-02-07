@@ -6,9 +6,6 @@ cbuffer consts : register(b0)
   uint g_samplesPerColorburstCycle;
 }
 
-static const float pi = 3.1415926535897932384626433832795028841971f;
-
-
 // Use a simple average (box filter) that is the same size as our color burst frequency to filter out the luminance from the chroma.
 //  Seriously I tried so many fancy filters and the box filter ended up being both the fastest as well as the most effective filter I could find. 
 //  So whatever, it may not be exactly what old hardware did but it looks REALLY close and it's way more efficient than an actual lowpass FIR or IIR.
