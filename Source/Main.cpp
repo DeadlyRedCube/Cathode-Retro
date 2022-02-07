@@ -268,8 +268,8 @@ int PASCAL WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 
         {
           NTSCify::SignalGeneration::ArtifactSettings options;
-          options.noiseStrength = 0.10f;
-          options.ghostVisibility = 0.65f;
+          options.noiseStrength = 0.025f;
+          options.ghostVisibility = 0.0f; //0.65f;
           loadedTexture->applyArtifacts->Apply(s_graphicsDevice.get(), loadedTexture->processContext.get(), options);
           loadedTexture->sVideoToComposite->Apply(s_graphicsDevice.get(), loadedTexture->processContext.get());
           loadedTexture->compositeToSVideo->Apply(s_graphicsDevice.get(), loadedTexture->processContext.get());

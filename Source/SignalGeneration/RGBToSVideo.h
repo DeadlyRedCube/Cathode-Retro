@@ -49,7 +49,7 @@ namespace NTSCify::SignalGeneration
       }
 
       ID3D11ShaderResourceView *srv[] = {rgbSRV, buffers->scanlinePhasesSRV};
-      auto uav = buffers->signalUAVTwoComponentA.Ptr();
+      auto uav = buffers->twoComponentTexA.uav.Ptr();
       auto cb = constantBuffer.Ptr();
 
       context->CSSetShader(rgbToSVideoShader, nullptr, 0);

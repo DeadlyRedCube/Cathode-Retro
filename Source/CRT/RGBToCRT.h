@@ -26,9 +26,9 @@ namespace NTSCify::CRT
         scanlineCount,
         DXGI_FORMAT_R8G8B8A8_UNORM,
         GraphicsDevice::TextureFlags::UAV,
-        &prevFrameTexture,
-        &prevFrameSRV,
-        &prevFrameUAV);
+        &prevFrameTex.texture,
+        &prevFrameTex.srv,
+        &prevFrameTex.uav);
 
       device->CreatePixelShader(IDR_RGB_TO_CRT, &rgbToScreenShader);
       device->CreateConstantBuffer(sizeof(RGBToScreenConstants), &constantBuffer);
@@ -142,7 +142,7 @@ namespace NTSCify::CRT
       }
 
       {
-        ID3D11ShaderResourceView *res[] = {buffers->signalSRVColorA.Ptr(), prevFrameSRV.Ptr(), shadowMaskSRV.Ptr()};
+        ID3D11ShaderResourceView *res[] = {buffers->colorTexA.srv.Ptr(), prevFrameTex.srv.Ptr(), shadowMaskSRV.Ptr()};
         context->PSSetShaderResources(0, UINT(k_arrayLength<decltype(res)>), res);
 
         ID3D11Buffer *cb[] = {constantBuffer};
@@ -154,10 +154,7 @@ namespace NTSCify::CRT
         context->PSSetShaderResources(0, UINT(k_arrayLength<decltype(res)>), res);
       }
 
-      std::swap(buffers->signalTextureColorA, prevFrameTexture);
-      std::swap(buffers->signalSRVColorA, prevFrameSRV);
-      std::swap(buffers->signalUAVColorA, prevFrameUAV);
-
+      std::swap(buffers->colorTexA, prevFrameTex);
       noiseSeed = (noiseSeed + 1) % (60 * 60);
     }
 
@@ -299,9 +296,7 @@ namespace NTSCify::CRT
     ComPtr<ID3D11Buffer> constantBuffer;
     ComPtr<ID3D11PixelShader> rgbToScreenShader;
   
-    ComPtr<ID3D11Texture2D> prevFrameTexture;
-    ComPtr<ID3D11ShaderResourceView> prevFrameSRV;
-    ComPtr<ID3D11UnorderedAccessView> prevFrameUAV;
+    ProcessContext::TextureSetUAV prevFrameTex;
 
     ComPtr<ID3D11Texture2D> shadowMaskTexture;
     ComPtr<ID3D11ShaderResourceView> shadowMaskSRV;

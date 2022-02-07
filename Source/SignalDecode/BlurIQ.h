@@ -46,8 +46,8 @@ namespace NTSCify::SignalDecode
       ConstantData data = { blurIQKernelSize };
       device->DiscardAndUpdateBuffer(constantBuffer, &data);
 
-      ID3D11ShaderResourceView *srv[] = {buffers->signalSRVFourComponentA, blurIQKernelSRV};
-      auto uav = buffers->signalUAVFourComponentB.Ptr();
+      ID3D11ShaderResourceView *srv[] = {buffers->fourComponentTexA.srv, blurIQKernelSRV};
+      auto uav = buffers->fourComponentTexB.uav.Ptr();
       auto cb = constantBuffer.Ptr();
 
       context->CSSetShader(blurIQShader, nullptr, 0);
@@ -64,9 +64,7 @@ namespace NTSCify::SignalDecode
       context->CSSetShaderResources(0, UINT(k_arrayLength<decltype(srv)>), srv);
 
       // Swap B -> A so that the output texture is on A
-      std::swap(buffers->signalTextureFourComponentA, buffers->signalTextureFourComponentB);
-      std::swap(buffers->signalUAVFourComponentA, buffers->signalUAVFourComponentB);
-      std::swap(buffers->signalSRVFourComponentA, buffers->signalSRVFourComponentB);
+      std::swap(buffers->fourComponentTexA, buffers->fourComponentTexB);
     }
 
 

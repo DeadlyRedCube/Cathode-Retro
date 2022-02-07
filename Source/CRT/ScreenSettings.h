@@ -28,6 +28,6 @@ namespace NTSCify::CRT
 
     float scanlineStrength = 0.5f;
 
-    float instabilityScale = 5.0f;
+    float instabilityScale = 0.0f;
   };
 }

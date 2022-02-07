@@ -8,6 +8,14 @@ namespace NTSCify
   class ProcessContext
   {
   public:
+     // $TODO May not need these once I'm off compute
+    struct TextureSetUAV
+    {
+      ComPtr<ID3D11Texture2D> texture;
+      ComPtr<ID3D11ShaderResourceView> srv;
+      ComPtr<ID3D11UnorderedAccessView> uav;
+    };
+
 
     ProcessContext(GraphicsDevice *device, uint32_t inputTextureWidth, uint32_t scanlineCount, uint32_t colorCyclesPerInputPixel, uint32_t phaseGenerationDenominator);
 
@@ -35,36 +43,16 @@ namespace NTSCify
     ComPtr<ID3D11Texture2D> scanlinePhasesTexture;
     ComPtr<ID3D11ShaderResourceView> scanlinePhasesSRV;
 
-    ComPtr<ID3D11Texture2D> signalTextureOneComponentA;
-    ComPtr<ID3D11ShaderResourceView> signalSRVOneComponentA;
-    ComPtr<ID3D11UnorderedAccessView> signalUAVOneComponentA; // $TODO May not need these once I'm off compute
+    TextureSetUAV oneComponentTexA;
+    TextureSetUAV oneComponentTexB;
 
-    ComPtr<ID3D11Texture2D> signalTextureOneComponentB;
-    ComPtr<ID3D11ShaderResourceView> signalSRVOneComponentB;
-    ComPtr<ID3D11UnorderedAccessView> signalUAVOneComponentB;
+    TextureSetUAV twoComponentTexA;
+    TextureSetUAV twoComponentTexB;
 
-    ComPtr<ID3D11Texture2D> signalTextureTwoComponentA;
-    ComPtr<ID3D11ShaderResourceView> signalSRVTwoComponentA;
-    ComPtr<ID3D11UnorderedAccessView> signalUAVTwoComponentA;
+    TextureSetUAV fourComponentTexA;
+    TextureSetUAV fourComponentTexB;
 
-    ComPtr<ID3D11Texture2D> signalTextureTwoComponentB;
-    ComPtr<ID3D11ShaderResourceView> signalSRVTwoComponentB;
-    ComPtr<ID3D11UnorderedAccessView> signalUAVTwoComponentB;
-
-    ComPtr<ID3D11Texture2D> signalTextureFourComponentA;
-    ComPtr<ID3D11ShaderResourceView> signalSRVFourComponentA;
-    ComPtr<ID3D11UnorderedAccessView> signalUAVFourComponentA;
-
-    ComPtr<ID3D11Texture2D> signalTextureFourComponentB;
-    ComPtr<ID3D11ShaderResourceView> signalSRVFourComponentB;
-    ComPtr<ID3D11UnorderedAccessView> signalUAVFourComponentB;
-
-    ComPtr<ID3D11Texture2D> signalTextureColorA;
-    ComPtr<ID3D11ShaderResourceView> signalSRVColorA;
-    ComPtr<ID3D11UnorderedAccessView> signalUAVColorA;
-
-    ComPtr<ID3D11Texture2D> signalTextureColorB;
-    ComPtr<ID3D11ShaderResourceView> signalSRVColorB;
-    ComPtr<ID3D11UnorderedAccessView> signalUAVColorB;
+    TextureSetUAV colorTexA;
+    TextureSetUAV colorTexB;
   };
 }
