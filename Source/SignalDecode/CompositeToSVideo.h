@@ -4,7 +4,7 @@
 
 #include "GraphicsDevice.h"
 #include "ProcessContext.h"
-#include "SignalGeneration/RGBToSVideo.h"
+#include "SignalGeneration/Constants.h"
 #include "resource.h"
 #include "Util.h"
 
@@ -25,6 +25,11 @@ namespace NTSCify::SignalDecode
 
     void Apply(GraphicsDevice *device, ProcessContext *buffers)
     {
+      if (buffers->signalType == SignalGeneration::SignalType::SVideo)
+      {
+        return;
+      }
+
       auto context = device->Context();
 
       ConstantData cd = { SignalGeneration::k_signalSamplesPerColorCycle };

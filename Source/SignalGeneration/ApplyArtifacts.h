@@ -31,17 +31,17 @@ namespace NTSCify::SignalGeneration
       ConstantData cd = 
       {
         options.ghostSpreadScale,
-        options.ghostVisibility * 0.5f,
+        options.ghostVisibility,
         noiseSeed,
-        options.noiseStrength * 0.5f,
+        options.noiseStrength,
         signalTextureWidth,
         scanlineCount,
       };
 
       device->DiscardAndUpdateBuffer(constantBuffer, &cd);
 
-      auto srv = buffers->twoComponentTex.srv.Ptr();
-      auto uav = buffers->twoComponentTexScratch.uav.Ptr();
+      auto srv = ((buffers->signalType == SignalType::SVideo) ? buffers->twoComponentTex : buffers->oneComponentTex).srv.Ptr();
+      auto uav = ((buffers->signalType == SignalType::SVideo) ? buffers->twoComponentTexScratch : buffers->oneComponentTexScratch).uav.Ptr();
       auto cb = constantBuffer.Ptr();
 
       context->CSSetShader(applyArtifactsShader, nullptr, 0);
@@ -57,7 +57,14 @@ namespace NTSCify::SignalGeneration
       context->CSSetShaderResources(0, 1, &srv);
       noiseSeed = (noiseSeed + 1) % (60*60);
 
-      std::swap(buffers->twoComponentTexScratch, buffers->twoComponentTexScratch);
+      if (buffers->signalType == SignalType::SVideo)
+      {
+        std::swap(buffers->twoComponentTex, buffers->twoComponentTexScratch);
+      }
+      else
+      {
+        std::swap(buffers->oneComponentTex, buffers->oneComponentTexScratch);
+      }
     }
 
   private:

@@ -4,10 +4,18 @@
 
 namespace NTSCify::SignalGeneration
 {
+  enum class SignalType
+  {
+    SVideo,
+    Composite,
+  };
+
   // This structure contains the settings used for the generation of the actual clean SVideo/composite signal, and represent the properties of the source of the 
   //  signal (i.e. the "machine" that is generating the signal)
   struct SourceSettings
   {
+    SignalType signalType = SignalType::Composite;
+
     // This is the common denominator of all phase generation values (kept as a fraction to maintain numerical precision, because in
     //  practice they're all rational values). So if the denominator is 3, a value of 1 would be 1/3rd of a color cycle, 2 would be 
     //  2/3rds, etc. 
@@ -36,6 +44,7 @@ namespace NTSCify::SignalGeneration
   // Timings for NES- and SNES-like video generation
   static constexpr SourceSettings k_NESLikeSourceSettings =
   {
+    SignalType::Composite,
     3,        // NES timings are all in multiples of 1/3rd 
     2,        // NES has 2/3rds of a color phase for every pixel (i.e. it has a 33% greater horizontal resolution than the color signal can represent)
     0,        // The starting phase of the NES doesn't really matter, so just pick 0
@@ -48,6 +57,7 @@ namespace NTSCify::SignalGeneration
   // Timings for CGA (And likely other PC board)-like video generation, 320px horizontal resolution
   static constexpr SourceSettings k_CGA320LikeSourceSettings =
   {
+    SignalType::Composite,
     2,        // CGA deals in multiples of 1/2
     1,        // Every pixel is half of a color subcarrier wave
     0,        // Start halfway into the phase ($TODO this could be wrong, check this when actually building a CGA-like signal generator)
@@ -60,6 +70,7 @@ namespace NTSCify::SignalGeneration
   // Timings for CGA (And likely other PC board)-like video generation, 640px horizontal resolution
   static constexpr SourceSettings k_CGA640LikeSourceSettings =
   {
+    SignalType::Composite,
     4,        // CGA deals in multiples of 1/2
     1,        // Every pixel is a quarter a color subcarrier wave
     2,        // Start halfway into the phase ($TODO this could be wrong, check this when actually building a CGA-like signal generator)

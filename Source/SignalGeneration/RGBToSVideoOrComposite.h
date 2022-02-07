@@ -2,35 +2,41 @@
 
 #include <algorithm>
 
+#include "SignalGeneration/Constants.h"
 #include "GraphicsDevice.h"
 #include "ProcessContext.h"
 #include "resource.h"
 #include "Util.h"
 
 
-//Takes an input rgb texture and converts it into a Luma/chroma texture located at signalUAVTwoComponentA.
 namespace NTSCify::SignalGeneration
 {
-  static constexpr uint32_t k_signalSamplesPerColorCycle = 8;
-
-  class RGBToSVideo
+  class RGBToSVideoOrComposite
   {
   public:
-    RGBToSVideo(GraphicsDevice *device, uint32_t rgbTextureWidth, uint32_t signalTextureWidthIn, uint32_t scanlineCountIn)
-    : scanlineCount(scanlineCountIn)
+    RGBToSVideoOrComposite(GraphicsDevice *device, uint32_t rgbTextureWidthIn, uint32_t signalTextureWidthIn, uint32_t scanlineCountIn)
+    : rgbTextureWidth(rgbTextureWidthIn)
+    , scanlineCount(scanlineCountIn)
     , signalTextureWidth(signalTextureWidthIn)
     {
       device->CreateConstantBuffer(sizeof(ConstantData), &constantBuffer);
-      device->CreateComputeShader(IDR_RGB_TO_SVIDEO, &rgbToSVideoShader);
-
-      ConstantData cd = { k_signalSamplesPerColorCycle, rgbTextureWidth, signalTextureWidth };
-      device->DiscardAndUpdateBuffer(constantBuffer, &cd);
+      device->CreateComputeShader(IDR_RGB_TO_SVIDEO_OR_COMPOSITE, &rgbToSVideoShader);
     }
 
 
     void Generate(GraphicsDevice *device, ID3D11ShaderResourceView *rgbSRV, ProcessContext *buffers, float initialFramePhase, float phaseIncrementPerScanline)
     {
       auto context = device->Context();
+
+      ConstantData cd = 
+      { 
+        k_signalSamplesPerColorCycle, 
+        rgbTextureWidth, 
+        signalTextureWidth,  
+        (buffers->signalType == SignalType::Composite) ? 1.0f : 0.0f,
+      };
+
+      device->DiscardAndUpdateBuffer(constantBuffer, &cd);
 
       // Update our scanline phases texture
       {
@@ -49,7 +55,7 @@ namespace NTSCify::SignalGeneration
       }
 
       ID3D11ShaderResourceView *srv[] = {rgbSRV, buffers->scanlinePhasesSRV};
-      auto uav = buffers->twoComponentTex.uav.Ptr();
+      auto uav = (buffers->signalType == SignalType::Composite) ? buffers->oneComponentTex.uav.Ptr() : buffers->twoComponentTex.uav.Ptr();
       auto cb = constantBuffer.Ptr();
 
       context->CSSetShader(rgbToSVideoShader, nullptr, 0);
@@ -76,8 +82,10 @@ namespace NTSCify::SignalGeneration
       uint32_t outputTexelsPerColorburstCycle;
       uint32_t inputWidth;
       uint32_t outputWidth;
+      float compositeBlend;
     };
 
+    uint32_t rgbTextureWidth;
     uint32_t scanlineCount;
     uint32_t signalTextureWidth;
     ComPtr<ID3D11ComputeShader> rgbToSVideoShader;

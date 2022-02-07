@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GraphicsDevice.h"
-
+#include "SignalGeneration/SourceSettings.h"
 
 namespace NTSCify
 {
@@ -17,9 +17,10 @@ namespace NTSCify
     };
 
 
-    ProcessContext(GraphicsDevice *device, uint32_t inputTextureWidth, uint32_t scanlineCount, uint32_t colorCyclesPerInputPixel, uint32_t phaseGenerationDenominator);
+    ProcessContext(GraphicsDevice *device, SignalGeneration::SignalType sigalType, uint32_t inputTextureWidth, uint32_t scanlineCount, uint32_t colorCyclesPerInputPixel, uint32_t phaseGenerationDenominator);
 
   // private:
+    SignalGeneration::SignalType signalType;
     uint32_t signalTextureWidth;
     uint32_t scanlineCount;
     size_t vertexSize;

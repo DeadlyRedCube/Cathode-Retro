@@ -8,6 +8,8 @@ cbuffer consts : register (b0)
 
   uint g_inputWidth;
   uint g_outputWidth;
+
+  float g_compositeBlend;
 }
 
 
@@ -44,5 +46,6 @@ void main(int2 dispatchThreadID : SV_DispatchThreadID)
   float luma = Y;
   float chroma = -s * Q + c * I;
 
-  g_outputTexture[dispatchThreadID] = float2(luma, chroma);
+  // If compositeBlend is 1, this is a composite output and we combine the whole signal into the one channel. Otherwise, use two.
+  g_outputTexture[dispatchThreadID] = float2(luma + g_compositeBlend * chroma, chroma);
 }

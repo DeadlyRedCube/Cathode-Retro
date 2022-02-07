@@ -3,9 +3,8 @@
 
 #include "CRT/RGBToCRT.h"
 #include "SignalGeneration/ApplyArtifacts.h"
-#include "SignalGeneration/RGBToSVideo.h"
+#include "SignalGeneration/RGBToSVideoOrComposite.h"
 #include "SignalGeneration/SourceSettings.h"
-#include "SignalGeneration/SVideoToComposite.h"
 #include "SignalDecode/BlurIQ.h"
 #include "SignalDecode/CompositeToSVideo.h"
 #include "SignalDecode/FilterRGB.h"
@@ -32,9 +31,8 @@ struct LoadedTexture
   ComPtr<ID3D11ShaderResourceView> srv;
 
   std::unique_ptr<NTSCify::ProcessContext> processContext;
-  std::unique_ptr<NTSCify::SignalGeneration::RGBToSVideo> rgbToSVideo;
+  std::unique_ptr<NTSCify::SignalGeneration::RGBToSVideoOrComposite> rgbToSVideoOrComposite;
   std::unique_ptr<NTSCify::SignalGeneration::ApplyArtifacts> applyArtifacts;
-  std::unique_ptr<NTSCify::SignalGeneration::SVideoToComposite> sVideoToComposite;
   std::unique_ptr<NTSCify::SignalDecode::CompositeToSVideo> compositeToSVideo;
   std::unique_ptr<NTSCify::SignalDecode::SVideoToYIQ> sVideoToYIQ;
   std::unique_ptr<NTSCify::SignalDecode::BlurIQ> blurIQ;
@@ -75,14 +73,19 @@ void LoadTexture(wchar_t *path)
     load->data.Ptr(),
     width * sizeof(uint32_t));
 
-  load->processContext = std::make_unique<NTSCify::ProcessContext>(s_graphicsDevice.get(), width, height, generationInfo.colorCyclesPerInputPixel, generationInfo.denominator);
-  load->rgbToSVideo = std::make_unique<NTSCify::SignalGeneration::RGBToSVideo>(
+  load->processContext = std::make_unique<NTSCify::ProcessContext>(
+    s_graphicsDevice.get(), 
+    generationInfo.signalType,
+    width, 
+    height, 
+    generationInfo.colorCyclesPerInputPixel, 
+    generationInfo.denominator);
+  load->rgbToSVideoOrComposite = std::make_unique<NTSCify::SignalGeneration::RGBToSVideoOrComposite>(
     s_graphicsDevice.get(),
     width,
     load->processContext->signalTextureWidth,
     height);
   load->applyArtifacts = std::make_unique<NTSCify::SignalGeneration::ApplyArtifacts>(s_graphicsDevice.get(), load->processContext->signalTextureWidth, height);
-  load->sVideoToComposite = std::make_unique<NTSCify::SignalGeneration::SVideoToComposite>(s_graphicsDevice.get(), load->processContext->signalTextureWidth, height);
   load->compositeToSVideo = std::make_unique<NTSCify::SignalDecode::CompositeToSVideo>(s_graphicsDevice.get(), load->processContext->signalTextureWidth, height);
   load->sVideoToYIQ = std::make_unique<NTSCify::SignalDecode::SVideoToYIQ>(s_graphicsDevice.get(), load->processContext->signalTextureWidth, height);
   load->blurIQ = std::make_unique<NTSCify::SignalDecode::BlurIQ>(s_graphicsDevice.get(), load->processContext->signalTextureWidth, height);
@@ -256,7 +259,7 @@ int PASCAL WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 
       if (loadedTexture != nullptr)
       {
-        loadedTexture->rgbToSVideo->Generate(
+        loadedTexture->rgbToSVideoOrComposite->Generate(
           s_graphicsDevice.get(),
           loadedTexture->srv,
           loadedTexture->processContext.get(),
@@ -268,10 +271,9 @@ int PASCAL WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 
         {
           NTSCify::SignalGeneration::ArtifactSettings options;
-          options.noiseStrength = 0.025f;
+          options.noiseStrength = 0.05f;
           options.ghostVisibility = 0.0f; //0.65f;
           loadedTexture->applyArtifacts->Apply(s_graphicsDevice.get(), loadedTexture->processContext.get(), options);
-          loadedTexture->sVideoToComposite->Apply(s_graphicsDevice.get(), loadedTexture->processContext.get());
           loadedTexture->compositeToSVideo->Apply(s_graphicsDevice.get(), loadedTexture->processContext.get());
         }
 

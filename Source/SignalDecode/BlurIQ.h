@@ -4,7 +4,7 @@
 
 #include "GraphicsDevice.h"
 #include "ProcessContext.h"
-#include "SignalGeneration/RGBToSVideo.h"
+#include "SignalGeneration/Constants.h"
 #include "resource.h"
 #include "Util.h"
 

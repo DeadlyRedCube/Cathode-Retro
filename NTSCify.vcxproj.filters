@@ -16,10 +16,7 @@
     <FxCompile Include="Shaders\SignalDecode\YIQToRGB.hlsl">
       <Filter>Shaders\SignalDecode</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\SignalGeneration\RGBToSVideo.hlsl">
-      <Filter>Shaders\SignalGeneration</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\SignalGeneration\SVideoToComposite.hlsl">
+    <FxCompile Include="Shaders\SignalGeneration\RGBToSVideoOrComposite.hlsl">
       <Filter>Shaders\SignalGeneration</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\SignalGeneration\ApplyArtifacts.hlsl">
@@ -77,10 +74,7 @@
     <ClInclude Include="Source\SignalGeneration\ArtifactSettings.h">
       <Filter>Headers\SignalGeneration</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SignalGeneration\RGBToSVideo.h">
-      <Filter>Headers\SignalGeneration</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\SignalGeneration\SVideoToComposite.h">
+    <ClInclude Include="Source\SignalGeneration\RGBToSVideoOrComposite.h">
       <Filter>Headers\SignalGeneration</Filter>
     </ClInclude>
     <ClInclude Include="Source\SignalDecode\TVKnobSettings.h">
@@ -112,6 +106,9 @@
     </ClInclude>
     <ClInclude Include="Source\ProcessContext.h">
       <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SignalGeneration\Constants.h">
+      <Filter>Headers\SignalGeneration</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

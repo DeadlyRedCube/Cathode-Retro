@@ -1,4 +1,4 @@
-#include "SignalGeneration/RGBToSVideo.h"
+#include "SignalGeneration/Constants.h"
 #include "ProcessContext.h"
 #include "resource.h"
 #include "Util.h"
@@ -14,11 +14,13 @@ namespace NTSCify
 
   ProcessContext::ProcessContext(
     GraphicsDevice *device, 
+    SignalGeneration::SignalType signalTypeIn,
     uint32_t inputTextureWidth, 
     uint32_t scanlineCountIn, 
     uint32_t colorCyclesPerInputPixel, 
     uint32_t phaseGenerationDenominator)
-  : signalTextureWidth(int32_t(std::ceil(float(inputTextureWidth * colorCyclesPerInputPixel * NTSCify::SignalGeneration::k_signalSamplesPerColorCycle) / float(phaseGenerationDenominator))))
+  : signalType(signalTypeIn)
+  , signalTextureWidth(int32_t(std::ceil(float(inputTextureWidth * colorCyclesPerInputPixel * NTSCify::SignalGeneration::k_signalSamplesPerColorCycle) / float(phaseGenerationDenominator))))
   , scanlineCount(scanlineCountIn)
   , vertexSize(sizeof(Vertex))
   {
