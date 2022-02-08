@@ -23,9 +23,9 @@ void main(int2 dispatchThreadID : SV_DispatchThreadID)
   float3 RGB = g_sourceTexture.Load(uint3(dispatchThreadID * float2(float(g_inputWidth) / float(g_outputWidth), 1), 0)).rgb; 
 
   float3x3 mat = float3x3(
-    0.1100, -0.3217,  0.3121,  // r
+    0.3000,  0.5990,  0.2130,  // r
     0.5900, -0.2773, -0.5251,  // g
-    0.3000,  0.5990,  0.2130); // b
+    0.1100, -0.3217,  0.3121); // b
 
   // Convert RGB to YIQ
   float3 YIQ = mul(RGB, mat);
@@ -44,7 +44,7 @@ void main(int2 dispatchThreadID : SV_DispatchThreadID)
   sincos(2.0 * pi * phase, s, c);
 
   float2 luma = Y.xx;
-  float2 chroma = -s * Q + c * I;
+  float2 chroma = s * I - c * Q;
 
   // If compositeBlend is 1, this is a composite output and we combine the whole signal into the one channel. Otherwise, use two.
   if (g_compositeBlend > 0)

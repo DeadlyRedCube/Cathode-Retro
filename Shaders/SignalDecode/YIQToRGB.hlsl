@@ -14,9 +14,9 @@ void main(uint2 dispatchThreadID : SV_DispatchThreadID)
 
   // Do the YIQ to RGB conversion and then gamma-adjust it
   float3x3 mat = float3x3(
-    1.0,        1.0,       1.0,     
-   -1.108545,  -0.274788,  0.946882,
-    1.7090047, -0.635691,  0.623557);
+    1.0,       1.0,       1.0,
+    0.946882, -0.274788, -1.108545,
+    0.623557, -0.635691,  1.7090047);
   float3 RGB = pow(saturate(mul(YIQ, mat)), g_gamma);
 
   g_outputTexture[dispatchThreadID] = float4(RGB, 1);

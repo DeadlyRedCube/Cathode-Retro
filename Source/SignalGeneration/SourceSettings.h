@@ -60,7 +60,7 @@ namespace NTSCify::SignalGeneration
     SignalType::Composite,
     2,        // CGA deals in multiples of 1/2
     1,        // Every pixel is half of a color subcarrier wave
-    0,        // Start halfway into the phase ($TODO this could be wrong, check this when actually building a CGA-like signal generator)
+    0,        // Start at phase 0
     0,        // The CGA doesn't change phase at all per line (or per frames)
     0,        //  ...
     0,        //  ...
@@ -73,7 +73,7 @@ namespace NTSCify::SignalGeneration
     SignalType::Composite,
     4,        // CGA deals in multiples of 1/2
     1,        // Every pixel is a quarter a color subcarrier wave
-    2,        // Start halfway into the phase ($TODO this could be wrong, check this when actually building a CGA-like signal generator)
+    0,        // Start at phase 0
     0,        // The CGA doesn't change phase at all per line (or per frames)
     0,        //  ...
     0,        //  ...

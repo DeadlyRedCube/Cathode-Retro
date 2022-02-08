@@ -36,7 +36,7 @@ void main(uint2 dispatchThreadID : SV_DispatchThreadID)
     float2 s, c;
     sincos(2.0 * pi * (float(leftX + i + dispatchThreadID.x) / g_samplesPerColorburstCycle + relativePhase), s, c);
 
-    IQ += chroma.xxyy * float4(c, -s).xzyw;
+    IQ += chroma.xxyy * float4(s, -c).xzyw;
   }
 
   IQ /= filterWidth;

@@ -39,7 +39,7 @@ namespace NTSCify::SignalDecode
         knobSettings.brightness,
         buffers->blackLevel,
         buffers->whiteLevel,
-        artifactSettings.temporalArtifactReduction,
+        buffers->hasDoubledSignal ? artifactSettings.temporalArtifactReduction : 0.0f,
       };
       device->DiscardAndUpdateBuffer(constantBuffer, &data);
 

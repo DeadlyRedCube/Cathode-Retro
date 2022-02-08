@@ -96,6 +96,7 @@ void LoadTexture(wchar_t *path)
   loadedTexture = std::move(load);
 }
 
+
 LRESULT FAR PASCAL WindowProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
 {
   switch( message )
@@ -237,7 +238,7 @@ int PASCAL WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 
     ShowWindow(s_hwnd, SW_NORMAL);
 
-    int32_t phase = 0;
+    int32_t phase = generationInfo.initialFramePhase;
     bool isEvenFrame = false;
 
     bool done = false;
