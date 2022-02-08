@@ -34,7 +34,7 @@ void main(uint2 dispatchThreadID : SV_DispatchThreadID)
   {
     float2 chroma = g_sourceTexture.Load(uint3(uint2(leftX + i, 0) + dispatchThreadID, 0)).yw;
     float2 s, c;
-    sincos(2.0 * pi * (float(leftX + i + dispatchThreadID.x) / g_samplesPerColorburstCycle + relativePhase), s, c);
+    sincos(2.0 * pi * (0.5 / float(g_samplesPerColorburstCycle) + float(leftX + i + dispatchThreadID.x) / g_samplesPerColorburstCycle + relativePhase), s, c);
 
     IQ += chroma.xxyy * float4(s, -c).xzyw;
   }
