@@ -20,7 +20,6 @@ static RECT s_oldWindowedRect;
 static std::unique_ptr<GraphicsDevice> s_graphicsDevice;
 
 
-
 struct LoadedTexture 
 {
   uint32_t width = 0;
@@ -52,6 +51,8 @@ void LoadTexture(wchar_t *path)
     loadedTexture = nullptr;
     return;
   }
+
+  // generationInfo.signalType = NTSCify::SignalGeneration::SignalType::SVideo;
 
   std::unique_ptr<LoadedTexture> load = std::make_unique<LoadedTexture>();
   uint32_t width;
@@ -225,8 +226,6 @@ static void DoInit( HINSTANCE hInstance )
 
 int PASCAL WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 {
-  auto kernel = CalculateGaussianKernel(25, 8.0f);
-
   CoInitialize(nullptr);
 
   try
@@ -261,6 +260,7 @@ int PASCAL WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int)
       NTSCify::SignalGeneration::ArtifactSettings artifactSettings;
       artifactSettings.noiseStrength = 0.05f;
       artifactSettings.ghostVisibility = 0.0f; //0.65f;
+      artifactSettings.temporalArtifactReduction = 1.0f;
 
 
       if (loadedTexture != nullptr)

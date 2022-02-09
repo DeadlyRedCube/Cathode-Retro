@@ -34,6 +34,12 @@
     <FxCompile Include="Shaders\SignalDecode\CompositeToSVideo.hlsl">
       <Filter>Shaders\SignalDecode</Filter>
     </FxCompile>
+    <FxCompile Include="Shaders\SignalGeneration\RGBToCGA.hlsl">
+      <Filter>Shaders\SignalGeneration</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\SignalGeneration\CGAToSVideoOrComposite.hlsl">
+      <Filter>Shaders\SignalGeneration</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\GraphicsDevice.cpp">
@@ -108,6 +114,9 @@
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="Source\SignalGeneration\Constants.h">
+      <Filter>Headers\SignalGeneration</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SignalGeneration\CGAToSVideoOrComposite.h">
       <Filter>Headers\SignalGeneration</Filter>
     </ClInclude>
   </ItemGroup>

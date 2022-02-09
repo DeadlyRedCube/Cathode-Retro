@@ -26,7 +26,7 @@ namespace NTSCify::CRT
 
     float phosphorDecay = 0.05f;
 
-    float scanlineStrength = 0.5f;
+    float scanlineStrength = 0.25f;
 
     float instabilityScale = 0.0f;
   };
