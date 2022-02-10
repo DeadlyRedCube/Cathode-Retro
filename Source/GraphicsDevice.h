@@ -23,6 +23,7 @@
   while (false)
 
 
+// A rather minimal wrapper around a D3D device and related functionality
 class GraphicsDevice
 {
 public:

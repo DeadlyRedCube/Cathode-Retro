@@ -26,6 +26,8 @@ namespace NTSCify::SignalGeneration
   };
 
 
+  // Converts a CGA signal to SVideo or Composite
+  // $TODO The shader itself doesn't currently work right - I tried to cheat it and it is still wrong and bad.
   template <CGAInputType inputType>
   class CGAToSVideoOrComposite
   {

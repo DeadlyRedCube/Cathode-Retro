@@ -5,7 +5,6 @@
 #include "SignalGeneration/ApplyArtifacts.h"
 #include "SignalGeneration/RGBToSVideoOrComposite.h"
 #include "SignalGeneration/SourceSettings.h"
-#include "SignalDecode/BlurIQ.h"
 #include "SignalDecode/CompositeToSVideo.h"
 #include "SignalDecode/FilterRGB.h"
 #include "SignalDecode/SVideoToYIQ.h"
@@ -34,7 +33,6 @@ struct LoadedTexture
   std::unique_ptr<NTSCify::SignalGeneration::ApplyArtifacts> applyArtifacts;
   std::unique_ptr<NTSCify::SignalDecode::CompositeToSVideo> compositeToSVideo;
   std::unique_ptr<NTSCify::SignalDecode::SVideoToYIQ> sVideoToYIQ;
-  std::unique_ptr<NTSCify::SignalDecode::BlurIQ> blurIQ;
   std::unique_ptr<NTSCify::SignalDecode::YIQToRGB> yiqToRGB;
   std::unique_ptr<NTSCify::SignalDecode::FilterRGB> filterRGB;
   std::unique_ptr<NTSCify::CRT::RGBToCRT> rgbToCRT;
@@ -89,7 +87,6 @@ void LoadTexture(wchar_t *path)
   load->applyArtifacts = std::make_unique<NTSCify::SignalGeneration::ApplyArtifacts>(s_graphicsDevice.get(), load->processContext->signalTextureWidth, height);
   load->compositeToSVideo = std::make_unique<NTSCify::SignalDecode::CompositeToSVideo>(s_graphicsDevice.get(), load->processContext->signalTextureWidth, height);
   load->sVideoToYIQ = std::make_unique<NTSCify::SignalDecode::SVideoToYIQ>(s_graphicsDevice.get(), load->processContext->signalTextureWidth, height);
-  load->blurIQ = std::make_unique<NTSCify::SignalDecode::BlurIQ>(s_graphicsDevice.get(), load->processContext->signalTextureWidth, height);
   load->yiqToRGB = std::make_unique<NTSCify::SignalDecode::YIQToRGB>(s_graphicsDevice.get(), load->processContext->signalTextureWidth, height);
   load->filterRGB = std::make_unique<NTSCify::SignalDecode::FilterRGB>(s_graphicsDevice.get(), load->processContext->signalTextureWidth, height);
   load->rgbToCRT = std::make_unique<NTSCify::CRT::RGBToCRT>(s_graphicsDevice.get(), width, load->processContext->signalTextureWidth, height);

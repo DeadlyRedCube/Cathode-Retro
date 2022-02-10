@@ -9,6 +9,7 @@
 
 namespace NTSCify::CRT
 {
+  // This class takes RGB data (either the input or SVideo/composite filtering final output) and draws it as if it were on a CRT screen
   class RGBToCRT
   {
   public:
@@ -39,34 +40,44 @@ namespace NTSCify::CRT
 
     void Render(
       GraphicsDevice *device, 
-      ProcessContext *buffers,
+      ProcessContext *processContext,
       const ScreenSettings &screenSettings)
     {
-      auto context = device->Context();
+      auto deviceContext = device->Context();
 
-      auto backbuffer = device->BackbufferTexture();
+      auto outputTarget = device->BackbufferTexture();
+      uint32_t outputTargetWidth;
+      uint32_t outputTargetHeight;
 
+      // Set our rendertarget to render to backbuffer.
+      // $TODO: Should probably make this take the target as a parameter since not everyone will be rendering to backbuffer
       {
         auto ptr = device->BackbufferView();
-        context->OMSetRenderTargets(1, &ptr, nullptr);
-      }
+        deviceContext->OMSetRenderTargets(1, &ptr, nullptr);
+        {
+          D3D11_TEXTURE2D_DESC desc;
+          outputTarget->GetDesc(&desc);
+          outputTargetWidth = desc.Width;
+          outputTargetHeight = desc.Height;
+        }
 
-      {
-        D3D11_TEXTURE2D_DESC desc;
-        backbuffer->GetDesc(&desc);
 
         D3D11_VIEWPORT vp;
         vp.TopLeftX = 0.0f;
         vp.TopLeftY = 0.0f;
-        vp.Width = float(desc.Width);
-        vp.Height = float(desc.Height);
+        vp.Width = float(outputTargetWidth);
+        vp.Height = float(outputTargetHeight);
         vp.MinDepth = 0.0f;
         vp.MaxDepth = 1.0f;
 
-        context->RSSetViewports(1, &vp);
+        deviceContext->RSSetViewports(1, &vp);
+      }
 
+      // Next up: Set up our shader constants
+      {
         RGBToScreenConstants data;
 
+        // Figure out how to adjust our viewed texture area for overscan
         float overscanSizeX = (inputImageWidth - float(screenSettings.overscanLeft + screenSettings.overscanRight));
         float overscanSizeY = (scanlineCount - float(screenSettings.overscanTop + screenSettings.overscanBottom));
 
@@ -76,34 +87,40 @@ namespace NTSCify::CRT
         data.overscanOffsetX = float(int32_t(screenSettings.overscanLeft - screenSettings.overscanRight)) / inputImageWidth * 0.5f;
         data.overscanOffsetY = float(int32_t(screenSettings.overscanTop - screenSettings.overscanBottom)) / scanlineCount * 0.5f;
 
+        // Figure out the aspect ratio of the output, given both our dimensions as well as the pixel aspect ratio in the screen settings.
         {
           float inputPixelRatio = screenSettings.inputPixelAspectRatio;
           const float k_aspect = inputPixelRatio * overscanSizeX / overscanSizeY;
-          if (float(desc.Width) > k_aspect * float(desc.Height))
+          if (float(outputTargetWidth) > k_aspect * float(outputTargetHeight))
           {
-            float desiredWidth = k_aspect * float(desc.Height);
-            data.viewScaleX = float(desc.Width) / desiredWidth;
+            float desiredWidth = k_aspect * float(outputTargetHeight);
+            data.viewScaleX = float(outputTargetWidth) / desiredWidth;
             data.viewScaleY = 1.0f;
           }
           else
           {
-            float desiredHeight = float(desc.Width) / k_aspect;
+            float desiredHeight = float(outputTargetWidth) / k_aspect;
             data.viewScaleX = 1.0f;
-            data.viewScaleY = float(desc.Height) / desiredHeight;
+            data.viewScaleY = float(outputTargetHeight) / desiredHeight;
           }
         }
 
+        // 
         data.distortionX = screenSettings.horizontalDistortion;
         data.distortionY = screenSettings.verticalDistortion;
         data.maskDistortionX = screenSettings.screenEdgeRoundingX + data.distortionX;
         data.maskDistortionY = screenSettings.screenEdgeRoundingY + data.distortionY;
         data.roundedCornerSize = screenSettings.cornerRounding;
 
-        // The values for shadowMaskScale were normalized against a 240-pixel-tall screen so just pretend it's ALWAYS that height for purposes
+        // The values for shadowMaskScale were initially normalized against a 240-pixel-tall screen so just pretend it's ALWAYS that height for purposes
         //  of scaling the shadow mask.
-        static constexpr float shadowMaskScaleNormalization = 240.0f * 1.4f;
+        static constexpr float shadowMaskScaleNormalization = 240.0f * 0.7f;
 
-        data.shadowMaskScaleX = float (inputImageWidth) / float(scanlineCount) * screenSettings.inputPixelAspectRatio * shadowMaskScaleNormalization * 0.45f * screenSettings.shadowMaskScale;
+        data.shadowMaskScaleX = float (inputImageWidth) / float(scanlineCount) 
+                              * screenSettings.inputPixelAspectRatio 
+                              * shadowMaskScaleNormalization 
+                              * 0.45f 
+                              * screenSettings.shadowMaskScale;
         data.shadowMaskScaleY = shadowMaskScaleNormalization * screenSettings.shadowMaskScale;
         data.shadowMaskStrength = screenSettings.shadowMaskStrength;
         data.phosphorDecay = screenSettings.phosphorDecay;
@@ -118,50 +135,55 @@ namespace NTSCify::CRT
         device->DiscardAndUpdateBuffer(constantBuffer, &data);
       }
 
-
+      // Now set up all the stuff we need to actually run the shader
       {
         float color[] = {0.0f, 0.0f, 0.0f, 0.0f};
-        context->OMSetBlendState(buffers->blendState, color, 0xFFFFFFFF);
-        context->RSSetState(buffers->rasterizerState);
-        context->IASetInputLayout(buffers->inputLayout);
-        context->VSSetShader(buffers->vertexShader, nullptr, 0);
-        context->PSSetShader(rgbToScreenShader, nullptr, 0);
-        context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        deviceContext->OMSetBlendState(processContext->blendState, color, 0xFFFFFFFF);
+        deviceContext->RSSetState(processContext->rasterizerState);
+        deviceContext->IASetInputLayout(processContext->inputLayout);
+        deviceContext->VSSetShader(processContext->vertexShader, nullptr, 0);
+        deviceContext->PSSetShader(rgbToScreenShader, nullptr, 0);
+        deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
         {
-          ID3D11SamplerState *st[] = {buffers->samplerStateClamp, buffers->samplerStateWrap};
-          context->PSSetSamplers(0, UINT(k_arrayLength<decltype(st)>), st);
+          ID3D11SamplerState *st[] = {processContext->samplerStateClamp, processContext->samplerStateWrap};
+          deviceContext->PSSetSamplers(0, UINT(k_arrayLength<decltype(st)>), st);
         }
 
         {
-          auto ptr = buffers->vertexBuffer.Ptr();
-          UINT stride = UINT(buffers->vertexSize);
+          auto ptr = processContext->vertexBuffer.Ptr();
+          UINT stride = UINT(processContext->vertexSize);
           UINT offsets = 0;
-          context->IASetVertexBuffers(0, 1, &ptr, &stride, &offsets);
+          deviceContext->IASetVertexBuffers(0, 1, &ptr, &stride, &offsets);
         }
       }
 
+      // Draw the actual output!
       {
-        ID3D11ShaderResourceView *res[] = {buffers->colorTex.srv.Ptr(), prevFrameTex.srv.Ptr(), shadowMaskSRV.Ptr()};
-        context->PSSetShaderResources(0, UINT(k_arrayLength<decltype(res)>), res);
+        ID3D11ShaderResourceView *res[] = {processContext->colorTex.srv.Ptr(), prevFrameTex.srv.Ptr(), shadowMaskSRV.Ptr()};
+        deviceContext->PSSetShaderResources(0, UINT(k_arrayLength<decltype(res)>), res);
 
         ID3D11Buffer *cb[] = {constantBuffer};
-        context->PSSetConstantBuffers(0, UINT(k_arrayLength<decltype(cb)>), cb);
+        deviceContext->PSSetConstantBuffers(0, UINT(k_arrayLength<decltype(cb)>), cb);
 
-        context->Draw(6, 0);
+        deviceContext->Draw(6, 0);
 
         ZeroType(&res);
-        context->PSSetShaderResources(0, UINT(k_arrayLength<decltype(res)>), res);
+        deviceContext->PSSetShaderResources(0, UINT(k_arrayLength<decltype(res)>), res);
       }
 
-      std::swap(buffers->colorTex, prevFrameTex);
+      // Swap the color texture we used with our previous frame texture so we have that ready for next time
+      std::swap(processContext->colorTex, prevFrameTex);
+
+      // Update our noise seed
       noiseSeed = (noiseSeed + 1) % (60 * 60);
     }
 
   protected:
+    // Generate the shadow mask texture we use for the CRT emulation
     void GenerateShadowMaskTexture(GraphicsDevice *device)
     {
-      // $TODO this texture could be pre-made and the one being generated here is WAY overkill for how large it shows up on-screen, but it does look nice!
+      // $TODO this texture could be pre-made and the one being generated here is WAY overkill for how tiny it shows up on-screen, but it does look nice!
       auto context = device->Context();
       static constexpr uint32_t k_size = 512;
       static constexpr uint32_t k_mipCount = 8;
@@ -175,6 +197,7 @@ namespace NTSCify::CRT
         &shadowMaskTexture,
         &shadowMaskSRV);
 
+      // First step is the generate the texture at the largest mip level
       {
         ComPtr<ID3D11ComputeShader> generateShadowMaskShader;
         device->CreateComputeShader(IDR_GENERATE_SHADOW_MASK, &generateShadowMaskShader);
@@ -221,7 +244,7 @@ namespace NTSCify::CRT
         context->CSSetConstantBuffers(0, 1, &cb);
       }
 
-      // Now it's generated so we need to generate the mips
+      // Now it's generated so we need to generate the mips by using our lanczos downsample
       ComPtr<ID3D11ComputeShader> downsampleShader;
       device->CreateComputeShader(IDR_DOWNSAMPLE_2X, &downsampleShader);
       for (uint32_t destMip = 1; destMip < k_mipCount; destMip++)
@@ -263,6 +286,7 @@ namespace NTSCify::CRT
       }
     }
 
+
     struct RGBToScreenConstants
     {
       float viewScaleX;             // Scale to get the correct aspect ratio of the image
@@ -284,9 +308,9 @@ namespace NTSCify::CRT
       float scanlineCount;          // How many scanlines there are
       float scanlineStrength;       // How strong the scanlines are (0 == none, 1 == whoa)
 
-      float signalTextureWidth;
-      int noiseSeed;
-      float instabilityScale;
+      float signalTextureWidth;     // The width (in texels) of the signal texture
+      int noiseSeed;                // A seed used to drive the distortion offset instability "wobble"
+      float instabilityScale;       // How much wobble there will be in the signal
     };
 
     uint32_t inputImageWidth;

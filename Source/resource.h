@@ -2,7 +2,7 @@
 // Microsoft Visual C++ generated include file.
 // Used by Resource.rc
 
-#define IDR_BASICVERTEXSHADER           101
+#define IDR_BASIC_VERTEX_SHADER         101
 #define IDR_RGB_TO_SVIDEO_OR_COMPOSITE  102
 #define IDR_APPLY_ARTIFACTS             103
 #define IDR_COMPOSITE_TO_SVIDEO         104

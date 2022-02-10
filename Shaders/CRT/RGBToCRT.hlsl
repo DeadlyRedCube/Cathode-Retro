@@ -50,6 +50,8 @@ float WangHashAndXorShift(uint seed)
   return float(seed) * (1.0 / 4294967296.0);
 }
 
+
+// Do a barrel distortion (and horizontal noise wobble) to a given texture coordinate
 float2 DistortCoordinates(float2 tex, float2 distortion, float noiseOffset)
 {
   static const float k_viewAspect = 16.0 / 9.0;
@@ -70,10 +72,10 @@ float2 DistortCoordinates(float2 tex, float2 distortion, float noiseOffset)
 
 float4 main(PSInput input) : SV_TARGET
 {
-  // Calculate a separate set of distorted coordinates, this for the outer mask.
+  // Calculate a separate set of distorted coordinates, this for the outer mask (which determines the masking off of extra-rounded screen edges)
   float2 maskT = DistortCoordinates(input.tex * g_viewScale, g_maskDistortion, 0);
 
-  // Apply instability
+  // Calculate the instability noise per scanline
   float noise = 0.0;
   {
     int scanlineIndex = int((input.tex.y * 0.5 + 0.5) * g_scanlineCount);
@@ -84,21 +86,24 @@ float4 main(PSInput input) : SV_TARGET
   // Distort the screen the correct amount and scale it to the correct aspect ratio, THEN scale it to make our overscan area the visible area.
   float2 shadowMaskT = DistortCoordinates(input.tex * g_viewScale, g_distortion, 0) * g_overscanScale + g_overscanOffset * 2.0;
 
-  float2 t           = DistortCoordinates(input.tex * g_viewScale, g_distortion, noise) * g_overscanScale + g_overscanOffset * 2.0;
+  // Now distort our actual texture coordinates, using our noise value, to get our texture into the correct space for display
+  float2 t = DistortCoordinates(input.tex * g_viewScale, g_distortion, noise) * g_overscanScale + g_overscanOffset * 2.0;
+  
+  // Do a little magic to sharpen up the interpolation between scanlines - a CRT (didn't really have any vertical smoothing, so we want to
+  //  make the centers of our texels a little more solid and do less bilinear blending vertically (just a little to simulate the softness of
+  //  the screen in general)
   {
     float scanlineIndex = (t.y * 0.5 + 0.5) * g_scanlineCount;
     float scanlineFrac = frac(scanlineIndex);
     scanlineIndex -= scanlineFrac;
     scanlineFrac -= 0.5;
     float signFrac = sign(scanlineFrac);
-    float ySharpening = 0.1; // Any value from [0, 0.5) should work here, larger means the vertical pixels are sharper
+    float ySharpening = 0.2; // Any value from [0, 0.5) should work here, larger means the vertical pixels are sharper
     scanlineFrac = sign(scanlineFrac) * saturate(abs(scanlineFrac) - ySharpening) * 0.5 / (0.5 - ySharpening);
 
     scanlineIndex += scanlineFrac + 0.5;
     t.y = float(scanlineIndex) / g_scanlineCount * 2 - 1;
   }
-
-
 
   // Calculate the signed distance to the edge of the "screen" taking the rounded corners into account.
   float edgeDist;
@@ -133,8 +138,6 @@ float4 main(PSInput input) : SV_TARGET
     sourceColor = max(prevSourceColor * g_phosphorDecay, sourceColor);
   }
   
-  shadowMaskT = shadowMaskT * 0.5 + 0.5;
-
   // Calculate the scanline multiplier
   float scanlineMultiplier;
   {
@@ -143,6 +146,7 @@ float4 main(PSInput input) : SV_TARGET
     scanlineMultiplier = (scanlineMultiplier * g_scanlineStrength) + 1.0 - g_scanlineStrength * 0.60;
   }
   
+  // Put it all together
   float4 shadowMaskColor = ((ShadowMaskTex.Sample(SamWrap, shadowMaskT * g_shadowMaskScale) - 0.15) * g_shadowMaskStrength + 1.0);
   return lerp((0.05).xxxx, sourceColor * scanlineMultiplier * shadowMaskColor, mul);
 }

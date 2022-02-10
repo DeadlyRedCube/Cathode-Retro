@@ -11,6 +11,7 @@
 
 namespace NTSCify::SignalDecode
 {
+  // Apply a blur or sharpen filter to an RGB texture
   class FilterRGB
   {
   public:
@@ -30,6 +31,7 @@ namespace NTSCify::SignalDecode
     {
       auto context = device->Context();
 
+      // We don't have to do anything if the sharpness is 0
       if (knobSettings.sharpness != 0)
       {
         ConstantData data = { -knobSettings.sharpness, SignalGeneration::k_signalSamplesPerColorCycle };

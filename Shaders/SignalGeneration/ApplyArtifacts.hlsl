@@ -29,12 +29,16 @@ float WangHashAndXorShift(uint seed)
 }
 
 
+// This shader applies ghosting and noise to an SVideo or Composite signal.
 [numthreads(8, 8, 1)]
 void main(uint2 dispatchThreadID : SV_DispatchThreadID)
 {
-  // Simple shader, just combine the two into a single composite signal
   float4 lumaChroma = g_sourceTexture.Load(uint3(dispatchThreadID, 0));
 
+  // $TODO This ghosting implementation isn't right, a better one would be to have an offset blurry pre-echo.
+  // Ghosting basically is what happens when a copy of your signal "skips" its intended path through the cable and mixes
+  //  in with your normal signal (like an EM leak of the signal) and is basically a pre-echo of the signal. So just 
+  //  take the signal and add a pre-echoed version of it (And scale the signal down to compensate)
   if (g_ghostBrightness > 0)
   {
     int ghostDelta = 9;
@@ -57,6 +61,7 @@ void main(uint2 dispatchThreadID : SV_DispatchThreadID)
     lumaChroma /= 1 + g_ghostBrightness;
   }
 
+  // Also add some noise for each texel.
   float noise = 0;
   noise = (WangHashAndXorShift((g_noiseSeed * g_scanlineCount + dispatchThreadID.y) * g_signalTextureWidth + dispatchThreadID.x) - 0.5) * g_noiseScale;
   g_outputTexture[dispatchThreadID] = lumaChroma + noise;

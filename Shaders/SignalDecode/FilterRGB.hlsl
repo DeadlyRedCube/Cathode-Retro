@@ -11,6 +11,7 @@ cbuffer consts : register(b0)
 [numthreads(8, 8, 1)]
 void main(uint2 dispatchThreadID : SV_DispatchThreadID )
 {
+  // Just a simple three-tap 1D filter.
   float blurSide = g_blurStrength / 3.0;
   float blurCenter = 1.0 - 2.0 * blurSide;
   float4 color = g_sourceTexture.Load(uint3(dispatchThreadID + int2(-g_blurStrength, 0), 0)) * blurSide

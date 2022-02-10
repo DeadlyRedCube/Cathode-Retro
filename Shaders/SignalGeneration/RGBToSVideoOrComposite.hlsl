@@ -15,6 +15,9 @@ cbuffer consts : register (b0)
 
 static const float pi = 3.1415926535897932384626433832795028841971f;
 
+// This shader takes an RGB image and turns it into either an SVideo or Composite signal (Based on whether g_compositeBlend is 0 or 1).
+//  We might also be generating a PAIR of these, using two different sets of phase inputs (if g_scanlinePhases is a two-component input),
+//  for purposes of temporal aliasing reduction.
 [numthreads(8, 8, 1)]
 void main(int2 dispatchThreadID : SV_DispatchThreadID)
 {

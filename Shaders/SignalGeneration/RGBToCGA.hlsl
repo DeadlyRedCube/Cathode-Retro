@@ -2,6 +2,8 @@ Texture2D<float4>  g_sourceTexture : register(t0);
 RWTexture2D<uint> g_outputTexture : register(u0);
 
 
+// This shader takes an RGB input texture and converts into a packed four-bit-per-pixel RGBI CGA image, by finding the
+//  closest RGBI-generated color to the input color and using that as its output color.
 static const float3 k_rgbColors[16] = 
 {
   float3(0,        0,        0),          // black

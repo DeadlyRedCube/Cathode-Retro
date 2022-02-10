@@ -7,10 +7,13 @@ cbuffer consts : register(b0)
 }
 
 
+// This shader just takes a texture that's in YIQ color space and converts it into RGB.
 [numthreads(8, 8, 1)]
 void main(uint2 dispatchThreadID : SV_DispatchThreadID)
 {
 	float3 YIQ = g_sourceTexture.Load(uint3(dispatchThreadID, 0)).rgb;
+
+  // $TODO: These values need to be gamma-adjusted since what is sent over NTSC is in a different gamma space than what is actually displayed.
 
   // Do the YIQ to RGB conversion and then gamma-adjust it
   float3x3 mat = float3x3(

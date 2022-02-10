@@ -7,9 +7,6 @@
     <FxCompile Include="Shaders\Downsample2x.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\SignalDecode\BlurIQ.hlsl">
-      <Filter>Shaders\SignalDecode</Filter>
-    </FxCompile>
     <FxCompile Include="Shaders\SignalDecode\FilterRGB.hlsl">
       <Filter>Shaders\SignalDecode</Filter>
     </FxCompile>
@@ -106,9 +103,6 @@
     </ClInclude>
     <ClInclude Include="Source\SignalGeneration\ApplyArtifacts.h">
       <Filter>Headers\SignalGeneration</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\SignalDecode\BlurIQ.h">
-      <Filter>Headers\SignalDecode</Filter>
     </ClInclude>
     <ClInclude Include="Source\ProcessContext.h">
       <Filter>Headers</Filter>

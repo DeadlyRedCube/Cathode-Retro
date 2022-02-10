@@ -9,7 +9,7 @@
 #define DEBUG_DEVICE 1
 
 
-
+// Load a resource from the current executable. Used because I packed the shaders into the RC like a weirdo
 static SimpleArray<uint8_t> LoadResourceBytes(int resourceId)
 {
   HRSRC resource = FindResourceW(GetModuleHandle(nullptr), MAKEINTRESOURCE(resourceId), L"RT_RCDATA");
@@ -155,6 +155,7 @@ void GraphicsDevice::CreateTexture2D(
 {
   CreateTexture2D(width, height, 1, format, flags, textureOut, srvOut, uavOut, initialDataTexels, initialDataPitch);
 }
+
 
 void GraphicsDevice::CreateConstantBuffer(size_t size, ComPtr<ID3D11Buffer> *bufferOut)
 {

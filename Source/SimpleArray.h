@@ -3,6 +3,7 @@
 #include <utility>
 
 
+// A simple "allocate once then forget about it" array structure.
 template <typename T>
 class SimpleArray
 {

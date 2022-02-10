@@ -22,9 +22,15 @@ namespace NTSCify
       ComPtr<ID3D11UnorderedAccessView> uav;
     };
 
+    ProcessContext(
+      GraphicsDevice *device, 
+      SignalGeneration::SignalType sigalType, 
+      uint32_t inputTextureWidth, 
+      uint32_t scanlineCount, 
+      uint32_t colorCyclesPerInputPixel, 
+      uint32_t phaseGenerationDenominator);
 
-    ProcessContext(GraphicsDevice *device, SignalGeneration::SignalType sigalType, uint32_t inputTextureWidth, uint32_t scanlineCount, uint32_t colorCyclesPerInputPixel, uint32_t phaseGenerationDenominator);
-
+    // $TODO stop cheating and do real access control for this thing
   // private:
     SignalGeneration::SignalType signalType;
     uint32_t signalTextureWidth;

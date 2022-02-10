@@ -52,7 +52,7 @@ END
 // RT_RCDATA
 //
 
-IDR_BASICVERTEXSHADER           RT_RCDATA               "Generated\\BasicVertexShader.vso"
+IDR_BASIC_VERTEX_SHADER         RT_RCDATA               "Generated\\BasicVertexShader.vso"
 IDR_RGB_TO_SVIDEO_OR_COMPOSITE  RT_RCDATA               "Generated\\RGBToSVideoOrComposite.cso"
 IDR_APPLY_ARTIFACTS             RT_RCDATA               "Generated\\ApplyArtifacts.cso"
 IDR_COMPOSITE_TO_SVIDEO         RT_RCDATA               "Generated\\CompositeToSVideo.cso"

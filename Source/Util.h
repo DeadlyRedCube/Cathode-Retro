@@ -27,6 +27,9 @@ constexpr auto EnumValue(T v)
 }
 
 
+// What follows is a bunch of template garbage to help deal with enum classes / flag enum classes
+
+
 // helper to test if a type is an enum class (vs. just an enum)
 template <typename Type, typename = Type>
 struct is_enum_class : public std::is_enum<Type>
@@ -105,9 +108,14 @@ constexpr Type &operator ^= (Type &a, Type b)
 }
 
 
+// Get the length of an array from its type
+
 template <typename T> size_t k_arrayLength = 0;
 template <typename T> size_t k_arrayLength<T &> = k_arrayLength<T>;
 template <typename T, size_t N> size_t k_arrayLength<T[N]> = N;
+
+
+// Functions to generate a gaussian kernel
 
 
 inline float Gaussian(float x, float sigma)

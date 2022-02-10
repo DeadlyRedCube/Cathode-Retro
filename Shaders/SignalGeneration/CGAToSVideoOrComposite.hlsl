@@ -14,6 +14,9 @@ cbuffer consts : register (b0)
   float g_compositeBlend;
 }
 
+
+// $TODO This is not great - I thought I could bypass the whole thing by just using measured CGA values from
+//  some sources, but it didn't actually work out how I wanted, so I'll have to find another way.
 static const float3 k_yiqOldCGA[16] =
 {
   float3(0.002039216, -0.000174118, 0.003283137),

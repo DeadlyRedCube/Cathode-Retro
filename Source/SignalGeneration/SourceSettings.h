@@ -6,9 +6,10 @@ namespace NTSCify::SignalGeneration
 {
   enum class SignalType
   {
-    SVideo,
-    Composite,
+    SVideo,       // Keep luma and chroma separate - meaning you get chroma modulation artifacting but not channel mixing artifacts.
+    Composite,    // Blend luma and chroma, necessitating a separation pass which will introduce channel mixing artifacts
   };
+
 
   // This structure contains the settings used for the generation of the actual clean SVideo/composite signal, and represent the properties of the source of the 
   //  signal (i.e. the "machine" that is generating the signal)
@@ -71,8 +72,8 @@ namespace NTSCify::SignalGeneration
   static constexpr SourceSettings k_CGA640LikeSourceSettings =
   {
     SignalType::Composite,
-    4,        // CGA deals in multiples of 1/2
-    1,        // Every pixel is a quarter a color subcarrier wave
+    4,        // CGA at 640 pixels wide deals in multiples of 1/4
+    1,        // Every pixel is a quarter a color subcarrier wave (half of the 320 span since we have twice the number of pixels)
     0,        // Start at phase 0
     0,        // The CGA doesn't change phase at all per line (or per frames)
     0,        //  ...

@@ -24,6 +24,7 @@ namespace NTSCify
   , scanlineCount(scanlineCountIn)
   , vertexSize(sizeof(Vertex))
   {
+    // Create the basic vertex buffer (just a square made of 6 vertices because it wasn't even worth dealing with an index buffer for a single quad)
     {
       Vertex data[]
       {
@@ -49,6 +50,7 @@ namespace NTSCify
       CHECK_HRESULT(device->D3DDevice()->CreateBuffer(&vbDesc, &initial, vertexBuffer.AddressForReplace()), "create vertex buffer");
     }
   
+    // Load our basic vertex shader, which can be reused for multiple pixel shaders
     {
       D3D11_INPUT_ELEMENT_DESC elements[] =
       { 
@@ -56,13 +58,14 @@ namespace NTSCify
       };
 
       device->CreateVertexShaderAndInputLayout(
-        IDR_BASICVERTEXSHADER, 
+        IDR_BASIC_VERTEX_SHADER, 
         elements,
         k_arrayLength<decltype(elements)>,
         &vertexShader, 
         &inputLayout);
     }
 
+    // Samplers!
     {
       D3D11_SAMPLER_DESC desc;
       ZeroType(&desc);
@@ -92,6 +95,7 @@ namespace NTSCify
       CHECK_HRESULT(device->D3DDevice()->CreateSamplerState(&desc, samplerStateWrap.AddressForReplace()), "create wrap sampler state");
     }
 
+    // Rasterizer/blend states!
     {
       D3D11_RASTERIZER_DESC desc;
       ZeroType(&desc);
@@ -108,6 +112,9 @@ namespace NTSCify
       CHECK_HRESULT(device->D3DDevice()->CreateBlendState(&desc, blendState.AddressForReplace()), "create blend state");
     }
 
+    // Create the two effectively 1D textures used to store the colorburst phases for each scanline (there are two, one for if we're just rendering
+    //  a single version of the frame, and another for if we're generating two variations of the frame with a different set of phases to reduce
+    //  temporal aliasing)
     device->CreateTexture2D(
       scanlineCount,
       1,
@@ -124,6 +131,7 @@ namespace NTSCify
       &scanlinePhasesTwoComponent.texture,
       &scanlinePhasesTwoComponent.srv);
 
+    // Now create our one-component (float1) signal textures
     device->CreateTexture2D(
       signalTextureWidth,
       scanlineCount,
@@ -142,6 +150,7 @@ namespace NTSCify
       &oneComponentTexScratch.srv,
       &oneComponentTexScratch.uav);
 
+    // Two-component (float2) signal textures
     device->CreateTexture2D(
       signalTextureWidth,
       scanlineCount,
@@ -160,6 +169,7 @@ namespace NTSCify
       &twoComponentTexScratch.srv,
       &twoComponentTexScratch.uav);
 
+    // Four-component (float4) signal textures
     device->CreateTexture2D(
       signalTextureWidth,
       scanlineCount,
@@ -178,6 +188,7 @@ namespace NTSCify
       &fourComponentTexScratch.srv,
       &fourComponentTexScratch.uav);
 
+    // Color (32-bit RGBA) textures
     device->CreateTexture2D(
       signalTextureWidth,
       scanlineCount,

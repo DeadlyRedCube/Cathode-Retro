@@ -11,6 +11,7 @@
 
 namespace NTSCify::SignalDecode
 {
+  // Take a composite input and break the luma and chroma back up so that it's "SVideo" (this is the NTSC luma/chroma separation process)
   class CompositeToSVideo
   {
   public:
@@ -23,41 +24,40 @@ namespace NTSCify::SignalDecode
     }
 
 
-    void Apply(GraphicsDevice *device, ProcessContext *buffers)
+    void Apply(GraphicsDevice *device, ProcessContext *processContext)
     {
-      if (buffers->signalType == SignalGeneration::SignalType::SVideo)
+      if (processContext->signalType == SignalGeneration::SignalType::SVideo)
       {
+        // We're actually already using SVideo so there's nothing to do here.
         return;
       }
 
-      auto context = device->Context();
+      auto deviceContext = device->Context();
 
       ConstantData cd = { SignalGeneration::k_signalSamplesPerColorCycle };
       device->DiscardAndUpdateBuffer(constantBuffer, &cd);
 
-
-      auto srv = buffers->hasDoubledSignal ? buffers->twoComponentTex.srv.Ptr() : buffers->oneComponentTex.srv.Ptr();
-      auto uav = buffers->hasDoubledSignal ? buffers->fourComponentTex.uav.Ptr() :  buffers->twoComponentTex.uav.Ptr();
+      auto srv = processContext->hasDoubledSignal ? processContext->twoComponentTex.srv.Ptr() : processContext->oneComponentTex.srv.Ptr();
+      auto uav = processContext->hasDoubledSignal ? processContext->fourComponentTex.uav.Ptr() :  processContext->twoComponentTex.uav.Ptr();
       auto cb = constantBuffer.Ptr();
 
-      context->CSSetShader(compositeToSVideoShader, nullptr, 0);
-      context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
-      context->CSSetConstantBuffers(0, 1, &cb);
-      context->CSSetShaderResources(0, 1, &srv);
+      deviceContext->CSSetShader(compositeToSVideoShader, nullptr, 0);
+      deviceContext->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
+      deviceContext->CSSetConstantBuffers(0, 1, &cb);
+      deviceContext->CSSetShaderResources(0, 1, &srv);
 
-
-      context->Dispatch((signalTextureWidth + 7) / 8, (scanlineCount + 7) / 8, 1);
+      deviceContext->Dispatch((signalTextureWidth + 7) / 8, (scanlineCount + 7) / 8, 1);
 
       srv = nullptr;
       uav = nullptr;
-      context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
-      context->CSSetShaderResources(0, 1, &srv);
+      deviceContext->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
+      deviceContext->CSSetShaderResources(0, 1, &srv);
     }
 
   private:
     struct ConstantData
     {
-      uint32_t outputTexelsPerColorburstCycle;
+      uint32_t outputTexelsPerColorburstCycle;        // This value should match SignalGeneration::k_signalSamplesPerColorCycle
     };
 
     uint32_t scanlineCount;

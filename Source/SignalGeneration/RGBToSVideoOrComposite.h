@@ -12,6 +12,10 @@
 
 namespace NTSCify::SignalGeneration
 {
+  // Take an RGB input texture (usually the output of the game or emulator) and convert it into either an SVideo (separate luma/chroma) or Composite
+  //  (a single combined channel) output. We will also, if temporalArtifactReduction is non-zero, generate a second signal into the output texture:
+  //  this represents the same /frame/ of data, but with a different starting phase, so that we can mix them together to reduce the flickering that
+  //  the output of NES-style timings will give you normally.
   class RGBToSVideoOrComposite
   {
   public:
@@ -40,7 +44,6 @@ namespace NTSCify::SignalGeneration
       device->DiscardAndUpdateBuffer(constantBuffer, &cd);
 
       // Update our scanline phases texture
-
       // $TODO This can be done as a shader as well instead of using a dynamic texture
       ID3D11ShaderResourceView *scanlinePhaseSRV;
       ID3D11UnorderedAccessView *targetUAV;
@@ -86,6 +89,7 @@ namespace NTSCify::SignalGeneration
         context->Unmap(buffers->scanlinePhasesOneComponent.texture, 0);
       }
 
+      // Now run the actual shader
       ID3D11ShaderResourceView *srv[] = {rgbSRV, scanlinePhaseSRV};
       auto uav = targetUAV;
       auto cb = constantBuffer.Ptr();
@@ -94,7 +98,6 @@ namespace NTSCify::SignalGeneration
       context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
       context->CSSetConstantBuffers(0, 1, &cb);
       context->CSSetShaderResources(0, UINT(k_arrayLength<decltype(srv)>), srv);
-
 
       context->Dispatch((signalTextureWidth + 7) / 8, (scanlineCount + 7) / 8, 1);
 
@@ -113,10 +116,10 @@ namespace NTSCify::SignalGeneration
   private:
     struct ConstantData
     {
-      uint32_t outputTexelsPerColorburstCycle;
-      uint32_t inputWidth;
-      uint32_t outputWidth;
-      float compositeBlend;
+      uint32_t outputTexelsPerColorburstCycle;        // This value should match SignalGeneration::k_signalSamplesPerColorCycle
+      uint32_t inputWidth;                            // The width of the input, in texels
+      uint32_t outputWidth;                           // The width of the output, in texels
+      float compositeBlend;                           // 0 if we're outputting to SVideo, 1 if it's composite
     };
 
     uint32_t rgbTextureWidth;

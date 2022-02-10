@@ -11,6 +11,7 @@
 
 namespace NTSCify::SignalDecode
 {
+  // This takes a YIQ input texture and converts its color space to be RGB.
   class YIQToRGB
   {
   public:
@@ -54,7 +55,7 @@ namespace NTSCify::SignalDecode
   private:
     struct ConstantData
     {
-      float gamma;
+      float gamma;        // The gamma to apply ($TODO I think this should go away)
     };
 
     uint32_t scanlineCount;

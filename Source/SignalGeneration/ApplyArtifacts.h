@@ -10,7 +10,7 @@
 
 namespace NTSCify::SignalGeneration
 {
-  //Takes a Luma/chroma texture located at signalUAVTwoComponentA and replaces it with one that has had the luma/chroma mixed then separated
+  // Apply any ghosting or noise that we want to the input (which might be an SVideo texture or it might be Composite)
   class ApplyArtifacts
   {
   public:
@@ -95,11 +95,18 @@ namespace NTSCify::SignalGeneration
   private:
     struct ConstantData
     {
+      // These parameters affect the ghosting. $TODO: Reimplement ghosting, what we have now is bad
       float ghostSpreadScale;
       float ghostBrightness;
+
+      // Noise strength and seed to adjust how much noise there is (And how to animate it)
       int32_t noiseSeed;
-      float noiseScale;
+      float noiseStrength;
+
+      // The width of the signal texture, in texels.
       uint32_t signalTextureWidth;
+
+      // How many scanlines there are to the signal
       uint32_t scanlineCount;
     };
 

@@ -2,7 +2,7 @@
 
 #include <utility>
 
-// Strong m_pointer - Used to hold COM objects
+// Strong m_pointer - Used to hold COM objects and auto-Release them when it goes out of scope.
 template <typename T>
 class ComPtr
 {
