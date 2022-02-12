@@ -1,5 +1,10 @@
+#include "../BoxFilter.hlsli"
+
+
 Texture2D<float2> g_sourceTexture : register(t0);
 RWTexture2D<float4> g_outputTexture : register(u0);
+
+sampler g_sampler : register(s0);
 
 cbuffer consts : register(b0)
 {
@@ -32,23 +37,8 @@ cbuffer consts : register(b0)
 [numthreads(8, 8, 1)]
 void main(uint2 dispatchThreadID : SV_DispatchThreadID)
 {
-  // Figure out where the left side of our box filter is (keeping it aligned to a texel boundary - this means our filter is actually off by 1/2 a
-  //  texel (since it's an even number of texels and thus doesn't have a true center texel), so we COULD make it more centered by doing one additional
-  //  sample at the end and having the end samples be half-intensity. $TODO Probably just go ahead and do this when you get around to bilinear filtering
-  //  the filter to make it more efficient
-  int leftX = -int((g_samplesPerColorburstCycle - 1) / 2);
-  
   // Average the luma samples
-  // $TODO make this 2x as efficient by leaning on bilinear filtering instead of doing individual loads
-  float2 luma = 0.0f;
-  for (uint i = 0; i < g_samplesPerColorburstCycle; i++)
-  {
-    luma += g_sourceTexture.Load(uint3(uint2(leftX + i, 0) + dispatchThreadID, 0));
-  }
-
-  luma /= float(g_samplesPerColorburstCycle);
-
-  // Now that we have our average signal value, that's our luma, and then subtract it from our center sample to get the isolated chroma information.
-  float2 centerSample = g_sourceTexture.Load(uint3(dispatchThreadID, 0));
+  float2 centerSample;
+  float2 luma = BoxFilter(g_sourceTexture, g_sampler, g_samplesPerColorburstCycle, dispatchThreadID, centerSample);
   g_outputTexture[dispatchThreadID] = float4(luma, centerSample - luma).xzyw;
 }

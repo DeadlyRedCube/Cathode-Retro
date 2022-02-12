@@ -37,6 +37,9 @@
     <FxCompile Include="Shaders\SignalGeneration\CGAToSVideoOrComposite.hlsl">
       <Filter>Shaders\SignalGeneration</Filter>
     </FxCompile>
+    <FxCompile Include="GeneratePhaseTexture.hlsl">
+      <Filter>Shaders\SignalGeneration</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\GraphicsDevice.cpp">
@@ -147,5 +150,13 @@
     <ResourceCompile Include="Source\Resource.rc">
       <Filter>Source</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\SignalGeneration\SampleFilter.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\BoxFilter.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -81,8 +81,7 @@ void main(int2 dispatchThreadID : SV_DispatchThreadID)
   // Figure out where in the carrier wave we are
   float2 scanlinePhase = g_scanlinePhases.Load(uint3(dispatchThreadID.y, 0, 0));
 
-  // Calculate the phase, and then offset by half a texel to account for the off-center nature of our IQ demodulate filter.
-  float2 phase = scanlinePhase + dispatchThreadID.x / float(g_outputTexelsPerColorburstCycle) + 0.5 / float(g_outputTexelsPerColorburstCycle);
+  float2 phase = scanlinePhase + dispatchThreadID.x / float(g_outputTexelsPerColorburstCycle);
 
   // Now we need to encode our IQ component in the carrier wave at the correct phase
   float2 s, c;

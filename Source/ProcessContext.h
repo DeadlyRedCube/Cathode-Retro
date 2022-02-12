@@ -54,8 +54,8 @@ namespace NTSCify
 
     ComPtr<ID3D11VertexShader> vertexShader;
 
-    TextureSet scanlinePhasesOneComponent;
-    TextureSet scanlinePhasesTwoComponent;
+    TextureSetUAV scanlinePhasesOneComponent;
+    TextureSetUAV scanlinePhasesTwoComponent;
 
     TextureSetUAV oneComponentTex;
     TextureSetUAV oneComponentTexScratch;

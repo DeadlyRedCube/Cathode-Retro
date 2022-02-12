@@ -36,27 +36,68 @@ void main(uint2 dispatchThreadID : SV_DispatchThreadID)
   //  things, which are too strong. 2x is much softer but not so large that you can really notice that it's extra.
   uint filterWidth = g_samplesPerColorburstCycle * 2;
 
-  int leftX = -int((filterWidth - 1) / 2);
-
   float2 relativePhase = g_scanlinePhases.Load(uint3(dispatchThreadID.y, 0, 0)) + g_tint;
 
   // This is the chroma decode process, it's a QAM demodulation. 
   //  You multiply the chroma signal by a reference waveform and its quadrature (Basically, sin and cos at a given time) and then filter
   //  out the chroma frequency (here done by a box filter (an average)). What you're left with are the approximate I and Q color space
   //  values for this part of the image.
-  float4 IQ = (0).xxxx;
-  for (uint i = 0; i < filterWidth; i++)
-  {
-    float2 chroma = g_sourceTexture.Load(uint3(uint2(leftX + i, 0) + dispatchThreadID, 0)).yw;
-    float2 s, c;
-    sincos(2.0 * pi * (0.5 / float(g_samplesPerColorburstCycle) + float(leftX + i + dispatchThreadID.x) / g_samplesPerColorburstCycle + relativePhase), s, c);
+  float4 centerSample = g_sourceTexture.Load(uint3(dispatchThreadID, 0));
+  float2 Y = centerSample.xz;
 
-    IQ += chroma.xxyy * float4(s, -c).xzyw;
+  // $TODO This could be made likely more efficient by basically doing two passes: one to generate a four-component texture with both sets of
+  //  sin and cos-multiplied chroma values, and then THIS shader to average them, which would allow doing half the samples in this pass
+  //  as we could take advantage of bilinear filtering.
+  float4 IQ;
+  {
+    float2 s, c;
+    sincos(2.0 * pi * (float(dispatchThreadID.x) / g_samplesPerColorburstCycle + relativePhase), s, c);
+    IQ = centerSample.yyww  * float4(s, -c).xzyw;
   }
 
-  IQ /= filterWidth;
+  {
+    int iterEnd = int((filterWidth - 1) / 2);
+    for (int i = 1; i <= iterEnd; i++)
+    {
+      {
+        uint2 coord = dispatchThreadID + uint2(i, 0);
+        float2 chroma = g_sourceTexture.Load(uint3(coord, 0)).yw;
+        float2 s, c;
+        sincos(2.0 * pi * (float(coord.x) / g_samplesPerColorburstCycle + relativePhase), s, c);
+        IQ += chroma.xxyy  * float4(s, -c).xzyw;
+      }
 
-  float2 Y = g_sourceTexture.Load(uint3(dispatchThreadID, 0)).xz;
+      {
+        uint2 coord = dispatchThreadID - uint2(i, 0);
+        float2 chroma = g_sourceTexture.Load(uint3(coord, 0)).yw;
+        float2 s, c;
+        sincos(2.0 * pi * (float(coord.x) / g_samplesPerColorburstCycle + relativePhase), s, c);
+        IQ += chroma.xxyy  * float4(s, -c).xzyw;
+      }
+    }
+
+    if ((filterWidth & 1) == 0)
+    {
+      // We have an odd remainder (because we have an even filter width), so sample 0.5x each endpoint
+      {
+        uint2 coord = dispatchThreadID + uint2(iterEnd + 1, 0);
+        float2 chroma = g_sourceTexture.Load(uint3(coord, 0)).yw;
+        float2 s, c;
+        sincos(2.0 * pi * (float(coord.x) / g_samplesPerColorburstCycle + relativePhase), s, c);
+        IQ += 0.5 * chroma.xxyy  * float4(s, -c).xzyw;
+      }
+
+      {
+        uint2 coord = dispatchThreadID - uint2(iterEnd + 1, 0);
+        float2 chroma = g_sourceTexture.Load(uint3(coord, 0)).yw;
+        float2 s, c;
+        sincos(2.0 * pi * (float(coord.x) / g_samplesPerColorburstCycle + relativePhase), s, c);
+        IQ += 0.5 * chroma.xxyy  * float4(s, -c).xzyw;
+      }
+    }
+
+    IQ /= filterWidth;
+  }
 
   // Adjust our components, first Y to account for the signal's black/white level (and user-chosen brightness), then IQ for saturation (Which includes the
   //  signal's saturation scale)

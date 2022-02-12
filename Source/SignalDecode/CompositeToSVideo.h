@@ -46,6 +46,11 @@ namespace NTSCify::SignalDecode
       deviceContext->CSSetConstantBuffers(0, 1, &cb);
       deviceContext->CSSetShaderResources(0, 1, &srv);
 
+      {
+        ID3D11SamplerState *st[] = {processContext->samplerStateClamp};
+        deviceContext->CSSetSamplers(0, UINT(k_arrayLength<decltype(st)>), st);
+      }
+
       deviceContext->Dispatch((signalTextureWidth + 7) / 8, (scanlineCount + 7) / 8, 1);
 
       srv = nullptr;

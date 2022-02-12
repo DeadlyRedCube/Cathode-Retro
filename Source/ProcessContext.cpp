@@ -119,17 +119,19 @@ namespace NTSCify
       scanlineCount,
       1,
       DXGI_FORMAT_R32_FLOAT,
-      GraphicsDevice::TextureFlags::Dynamic,
+      GraphicsDevice::TextureFlags::UAV,
       &scanlinePhasesOneComponent.texture,
-      &scanlinePhasesOneComponent.srv);
+      &scanlinePhasesOneComponent.srv,
+      &scanlinePhasesOneComponent.uav);
 
     device->CreateTexture2D(
       scanlineCount,
       1,
       DXGI_FORMAT_R32G32_FLOAT,
-      GraphicsDevice::TextureFlags::Dynamic,
+      GraphicsDevice::TextureFlags::UAV,
       &scanlinePhasesTwoComponent.texture,
-      &scanlinePhasesTwoComponent.srv);
+      &scanlinePhasesTwoComponent.srv,
+      &scanlinePhasesTwoComponent.uav);
 
     // Now create our one-component (float1) signal textures
     device->CreateTexture2D(

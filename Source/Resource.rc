@@ -65,6 +65,7 @@ IDR_DOWNSAMPLE_2X               RT_RCDATA               "Generated\\Downsample2X
 IDR_RGB_TO_CRT                  RT_RCDATA               "Generated\\RGBToCRT.pso"
 IDR_RGB_TO_CGA                  RT_RCDATA               "Generated\\RGBToCGA.cso"
 IDR_CGA_TO_SVIDEO_OR_COMPOSITE  RT_RCDATA               "Generated\\CGAToSVideoOrComposite.cso"
+IDR_GENERATE_PHASE_TEXTURE      RT_RCDATA               "Generated\\GeneratePhaseTexture.cso"
 
 
 #ifndef APSTUDIO_INVOKED

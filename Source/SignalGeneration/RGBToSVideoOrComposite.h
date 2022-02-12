@@ -24,8 +24,9 @@ namespace NTSCify::SignalGeneration
     , scanlineCount(scanlineCountIn)
     , signalTextureWidth(signalTextureWidthIn)
     {
-      device->CreateConstantBuffer(sizeof(ConstantData), &constantBuffer);
+      device->CreateConstantBuffer(std::max(sizeof(RGBToSVideoConstantData), sizeof(GeneratePhaseTextureConstantData)), &constantBuffer);
       device->CreateComputeShader(IDR_RGB_TO_SVIDEO_OR_COMPOSITE, &rgbToSVideoShader);
+      device->CreateComputeShader(IDR_GENERATE_PHASE_TEXTURE, &generatePhaseTextureShader);
     }
 
 
@@ -33,78 +34,76 @@ namespace NTSCify::SignalGeneration
     {
       auto context = device->Context();
 
-      ConstantData cd = 
-      { 
-        k_signalSamplesPerColorCycle, 
-        rgbTextureWidth, 
-        signalTextureWidth,  
-        (buffers->signalType == SignalType::Composite) ? 1.0f : 0.0f,
-      };
-
-      device->DiscardAndUpdateBuffer(constantBuffer, &cd);
-
-      // Update our scanline phases texture
-      // $TODO This can be done as a shader as well instead of using a dynamic texture
       ID3D11ShaderResourceView *scanlinePhaseSRV;
+      ID3D11UnorderedAccessView *scanlinePhaseUAV;
       ID3D11UnorderedAccessView *targetUAV;
       if (artifactSettings.temporalArtifactReduction > 0.0f && prevFrameStartPhase != initialFramePhase)
       {
         buffers->hasDoubledSignal = true;
         scanlinePhaseSRV = buffers->scanlinePhasesTwoComponent.srv;
+        scanlinePhaseUAV = buffers->scanlinePhasesTwoComponent.uav;
         targetUAV = (buffers->signalType == SignalType::Composite) ? buffers->twoComponentTex.uav.Ptr() : buffers->fourComponentTex.uav.Ptr();
-
-        D3D11_MAPPED_SUBRESOURCE map;
-        context->Map(buffers->scanlinePhasesTwoComponent.texture, 0, D3D11_MAP_WRITE_DISCARD, 0, &map);
-        float *phaseTex = static_cast<float *>(map.pData);
-
-        float phaseA = initialFramePhase;
-        float phaseB = prevFrameStartPhase;
-        for (uint32_t i = 0; i < scanlineCount; i++)
-        {
-          phaseTex[i * 2 + 0] = phaseA;
-          phaseTex[i * 2 + 1] = phaseB;
-          phaseA += phaseIncrementPerScanline;
-          phaseB += phaseIncrementPerScanline;
-        }
-
-        context->Unmap(buffers->scanlinePhasesTwoComponent.texture, 0);
       }
       else
       {
         buffers->hasDoubledSignal = false;
         scanlinePhaseSRV = buffers->scanlinePhasesOneComponent.srv;
+        scanlinePhaseUAV = buffers->scanlinePhasesOneComponent.uav;
         targetUAV = (buffers->signalType == SignalType::Composite) ? buffers->oneComponentTex.uav.Ptr() : buffers->twoComponentTex.uav.Ptr();
+      }
 
-        D3D11_MAPPED_SUBRESOURCE map;
-        context->Map(buffers->scanlinePhasesOneComponent.texture, 0, D3D11_MAP_WRITE_DISCARD, 0, &map);
-        float *phaseTex = static_cast<float *>(map.pData);
+      // Update our scanline phases texture
+      {
+        GeneratePhaseTextureConstantData cd = 
+        { 
+          initialFramePhase,
+          prevFrameStartPhase,
+          phaseIncrementPerScanline,
+          k_signalSamplesPerColorCycle,
+        };
 
-        float phase = initialFramePhase;
-        for (uint32_t i = 0; i < scanlineCount; i++)
-        {
-          phaseTex[i] = phase;
-          phase += phaseIncrementPerScanline;
-        }
+        device->DiscardAndUpdateBuffer(constantBuffer, &cd);
 
-        context->Unmap(buffers->scanlinePhasesOneComponent.texture, 0);
+        auto uav = scanlinePhaseUAV;
+        auto cb = constantBuffer.Ptr();
+        context->CSSetShader(generatePhaseTextureShader, nullptr, 0);
+        context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
+        context->CSSetConstantBuffers(0, 1, &cb);
+
+        context->Dispatch((scanlineCount + 7) / 8, 1, 1);
+
+        uav = nullptr;
+        context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
       }
 
       // Now run the actual shader
-      ID3D11ShaderResourceView *srv[] = {rgbSRV, scanlinePhaseSRV};
-      auto uav = targetUAV;
-      auto cb = constantBuffer.Ptr();
+      {
+        RGBToSVideoConstantData cd = 
+        { 
+          k_signalSamplesPerColorCycle, 
+          rgbTextureWidth, 
+          signalTextureWidth,  
+          (buffers->signalType == SignalType::Composite) ? 1.0f : 0.0f,
+        };
 
-      context->CSSetShader(rgbToSVideoShader, nullptr, 0);
-      context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
-      context->CSSetConstantBuffers(0, 1, &cb);
-      context->CSSetShaderResources(0, UINT(k_arrayLength<decltype(srv)>), srv);
+        device->DiscardAndUpdateBuffer(constantBuffer, &cd);
 
-      context->Dispatch((signalTextureWidth + 7) / 8, (scanlineCount + 7) / 8, 1);
+        ID3D11ShaderResourceView *srv[] = {rgbSRV, scanlinePhaseSRV};
+        auto uav = targetUAV;
+        auto cb = constantBuffer.Ptr();
 
-      ZeroType(srv, k_arrayLength<decltype(srv)>);
-      uav = nullptr;
-      context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
-      context->CSSetShaderResources(0, UINT(k_arrayLength<decltype(srv)>), srv);
+        context->CSSetShader(rgbToSVideoShader, nullptr, 0);
+        context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
+        context->CSSetConstantBuffers(0, 1, &cb);
+        context->CSSetShaderResources(0, UINT(k_arrayLength<decltype(srv)>), srv);
+
+        context->Dispatch((signalTextureWidth + 7) / 8, (scanlineCount + 7) / 8, 1);
+
+        ZeroType(srv, k_arrayLength<decltype(srv)>);
+        uav = nullptr;
+        context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
+        context->CSSetShaderResources(0, UINT(k_arrayLength<decltype(srv)>), srv);
+      }
 
       buffers->blackLevel = 0.0f;
       buffers->whiteLevel = 1.0f;
@@ -114,7 +113,7 @@ namespace NTSCify::SignalGeneration
     }
 
   private:
-    struct ConstantData
+    struct RGBToSVideoConstantData
     {
       uint32_t outputTexelsPerColorburstCycle;        // This value should match SignalGeneration::k_signalSamplesPerColorCycle
       uint32_t inputWidth;                            // The width of the input, in texels
@@ -122,10 +121,19 @@ namespace NTSCify::SignalGeneration
       float compositeBlend;                           // 0 if we're outputting to SVideo, 1 if it's composite
     };
 
+    struct GeneratePhaseTextureConstantData
+    {
+      float g_initialFrameStartPhase;                 // The phase at the start of the first scanline of this frame
+      float g_prevFrameStartPhase;                    // The phase at the start of the previous scanline of this frame (if relevant)
+      float g_phaseIncrementPerScanline;              // The amount to increment the phase each scanline
+      uint32_t g_samplesPerColorburstCycle;           // Should match k_signalSamplesPerColorCycle
+    };
+
     uint32_t rgbTextureWidth;
     uint32_t scanlineCount;
     uint32_t signalTextureWidth;
     ComPtr<ID3D11ComputeShader> rgbToSVideoShader;
+    ComPtr<ID3D11ComputeShader> generatePhaseTextureShader;
     ComPtr<ID3D11Buffer> constantBuffer;
     float prevFrameStartPhase = 0.0f;
   };

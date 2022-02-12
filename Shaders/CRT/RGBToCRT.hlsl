@@ -98,7 +98,7 @@ float4 main(PSInput input) : SV_TARGET
     scanlineIndex -= scanlineFrac;
     scanlineFrac -= 0.5;
     float signFrac = sign(scanlineFrac);
-    float ySharpening = 0.2; // Any value from [0, 0.5) should work here, larger means the vertical pixels are sharper
+    float ySharpening = 0.1; // Any value from [0, 0.5) should work here, larger means the vertical pixels are sharper
     scanlineFrac = sign(scanlineFrac) * saturate(abs(scanlineFrac) - ySharpening) * 0.5 / (0.5 - ySharpening);
 
     scanlineIndex += scanlineFrac + 0.5;
