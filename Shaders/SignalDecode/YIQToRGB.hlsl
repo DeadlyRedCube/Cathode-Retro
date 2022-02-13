@@ -1,6 +1,8 @@
 Texture2D<float4> g_sourceTexture : register(t0);
 RWTexture2D<float4> g_outputTexture : register(u0);
 
+sampler g_sampler : register(s0);
+
 cbuffer consts : register(b0)
 {
   float g_gamma;
@@ -11,7 +13,10 @@ cbuffer consts : register(b0)
 [numthreads(8, 8, 1)]
 void main(uint2 dispatchThreadID : SV_DispatchThreadID)
 {
-	float3 YIQ = g_sourceTexture.Load(uint3(dispatchThreadID, 0)).rgb;
+  float2 inputTexDim;
+  g_sourceTexture.GetDimensions(inputTexDim.x, inputTexDim.y);
+
+	float3 YIQ = g_sourceTexture.SampleLevel(g_sampler, (float2(dispatchThreadID) + 0.5) / inputTexDim, 0).rgb;
 
   // $TODO: These values need to be gamma-adjusted since what is sent over NTSC is in a different gamma space than what is actually displayed.
 

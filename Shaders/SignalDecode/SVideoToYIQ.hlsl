@@ -2,6 +2,7 @@ Texture2D<float4> g_sourceTexture : register(t0);
 Texture2D<float2> g_scanlinePhases : register(t1);
 RWTexture2D<float4> g_outputTexture : register(u0);
 
+sampler g_sampler : register(s0);
 
 cbuffer consts : register(b0)
 {
@@ -31,18 +32,21 @@ static const float pi = 3.1415926535897932384626433832795028841971f;
 [numthreads(8, 8, 1)]
 void main(uint2 dispatchThreadID : SV_DispatchThreadID)
 {
+  float2 inputTexDim;
+  g_sourceTexture.GetDimensions(inputTexDim.x, inputTexDim.y);
+
   // We're going to sample chroma at double our actual colorburst cycle to eliminate some deeply rough artifacting on the edges.
   //  In this case we're going to average by DOUBLE the color burst cycle - doing just a single cycle ends up with a LOT of edge artifacting on
   //  things, which are too strong. 2x is much softer but not so large that you can really notice that it's extra.
   uint filterWidth = g_samplesPerColorburstCycle * 2;
 
-  float2 relativePhase = g_scanlinePhases.Load(uint3(dispatchThreadID.y, 0, 0)) + g_tint;
+  float2 relativePhase = g_scanlinePhases.SampleLevel(g_sampler, float2(dispatchThreadID.y + 0.5, 0) / inputTexDim.y, 0) + g_tint;
 
   // This is the chroma decode process, it's a QAM demodulation. 
   //  You multiply the chroma signal by a reference waveform and its quadrature (Basically, sin and cos at a given time) and then filter
   //  out the chroma frequency (here done by a box filter (an average)). What you're left with are the approximate I and Q color space
   //  values for this part of the image.
-  float4 centerSample = g_sourceTexture.Load(uint3(dispatchThreadID, 0));
+  float4 centerSample = g_sourceTexture.SampleLevel(g_sampler, float2(dispatchThreadID + 0.5) / inputTexDim, 0);
   float2 Y = centerSample.xz;
 
   // $TODO This could be made likely more efficient by basically doing two passes: one to generate a four-component texture with both sets of
@@ -61,7 +65,7 @@ void main(uint2 dispatchThreadID : SV_DispatchThreadID)
     {
       {
         uint2 coord = dispatchThreadID + uint2(i, 0);
-        float2 chroma = g_sourceTexture.Load(uint3(coord, 0)).yw;
+        float2 chroma = g_sourceTexture.SampleLevel(g_sampler, float2(coord + 0.5) / inputTexDim, 0).yw;
         float2 s, c;
         sincos(2.0 * pi * (float(coord.x) / g_samplesPerColorburstCycle + relativePhase), s, c);
         IQ += chroma.xxyy  * float4(s, -c).xzyw;
@@ -69,7 +73,7 @@ void main(uint2 dispatchThreadID : SV_DispatchThreadID)
 
       {
         uint2 coord = dispatchThreadID - uint2(i, 0);
-        float2 chroma = g_sourceTexture.Load(uint3(coord, 0)).yw;
+        float2 chroma = g_sourceTexture.SampleLevel(g_sampler, float2(coord + 0.5) / inputTexDim, 0).yw;
         float2 s, c;
         sincos(2.0 * pi * (float(coord.x) / g_samplesPerColorburstCycle + relativePhase), s, c);
         IQ += chroma.xxyy  * float4(s, -c).xzyw;
@@ -81,7 +85,7 @@ void main(uint2 dispatchThreadID : SV_DispatchThreadID)
       // We have an odd remainder (because we have an even filter width), so sample 0.5x each endpoint
       {
         uint2 coord = dispatchThreadID + uint2(iterEnd + 1, 0);
-        float2 chroma = g_sourceTexture.Load(uint3(coord, 0)).yw;
+        float2 chroma = g_sourceTexture.SampleLevel(g_sampler, float2(coord + 0.5) / inputTexDim, 0).yw;
         float2 s, c;
         sincos(2.0 * pi * (float(coord.x) / g_samplesPerColorburstCycle + relativePhase), s, c);
         IQ += 0.5 * chroma.xxyy  * float4(s, -c).xzyw;
@@ -89,7 +93,7 @@ void main(uint2 dispatchThreadID : SV_DispatchThreadID)
 
       {
         uint2 coord = dispatchThreadID - uint2(iterEnd + 1, 0);
-        float2 chroma = g_sourceTexture.Load(uint3(coord, 0)).yw;
+        float2 chroma = g_sourceTexture.SampleLevel(g_sampler, float2(coord + 0.5) / inputTexDim, 0).yw;
         float2 s, c;
         sincos(2.0 * pi * (float(coord.x) / g_samplesPerColorburstCycle + relativePhase), s, c);
         IQ += 0.5 * chroma.xxyy  * float4(s, -c).xzyw;

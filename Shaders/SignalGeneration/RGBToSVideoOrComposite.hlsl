@@ -57,7 +57,7 @@ void main(int2 dispatchThreadID : SV_DispatchThreadID)
   float Q = YIQ.z;
 
   // Figure out where in the carrier wave we are
-  float2 scanlinePhase = g_scanlinePhases.Load(uint3(dispatchThreadID.y, 0, 0));
+  float2 scanlinePhase = g_scanlinePhases.SampleLevel(g_sampler, float2(dispatchThreadID.y + 0.5, 0) / g_scanlineCount, 0);
 
   // Calculate the phase
   float2 phase = scanlinePhase + (dispatchThreadID.x) / float(g_outputTexelsPerColorburstCycle);

@@ -5,7 +5,7 @@ float2 BoxFilter(Texture2D<float2> sourceTexture, sampler samp, uint filterWidth
   sourceTexture.GetDimensions(inputTexDim.x, inputTexDim.y);
 
   // Get the center sample (which we'll write out to the caller)
-  centerSample = sourceTexture.Load(uint3(centerTexelIndex, 0));
+  centerSample = sourceTexture.SampleLevel(samp, (float2(centerTexelIndex) + float2(0.5, 0.5)) / inputTexDim, 0);
 
   // Average starts with the center sample
   float2 avg = centerSample;
