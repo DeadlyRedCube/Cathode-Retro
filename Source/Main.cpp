@@ -89,7 +89,7 @@ void LoadTexture(wchar_t *path)
   load->sVideoToYIQ = std::make_unique<NTSCify::SignalDecode::SVideoToYIQ>(s_graphicsDevice.get(), load->processContext->signalTextureWidth, height);
   load->yiqToRGB = std::make_unique<NTSCify::SignalDecode::YIQToRGB>(s_graphicsDevice.get(), load->processContext->signalTextureWidth, height);
   load->filterRGB = std::make_unique<NTSCify::SignalDecode::FilterRGB>(s_graphicsDevice.get(), load->processContext->signalTextureWidth, height);
-  load->rgbToCRT = std::make_unique<NTSCify::CRT::RGBToCRT>(s_graphicsDevice.get(), width, load->processContext->signalTextureWidth, height);
+  load->rgbToCRT = std::make_unique<NTSCify::CRT::RGBToCRT>(s_graphicsDevice.get(), load->processContext.get(), width, load->processContext->signalTextureWidth, height);
 
   loadedTexture = std::move(load);
 }

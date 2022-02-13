@@ -1,10 +1,3 @@
-struct PSInput
-{
-  float4 pos : SV_POSITION;
-  float2 tex : TEX;
-};
-
-
 sampler SamDefault : register(s0);
 sampler SamWrap : register(s1);
 
@@ -49,13 +42,15 @@ float2 DistortCoordinates(float2 tex, float2 distortion, float noiseOffset)
 }
 
 
-float4 main(PSInput input) : SV_TARGET
+float4 main(float2 inTexCoord : TEX) : SV_TARGET
 {
+  inTexCoord = inTexCoord * 2 - 1;
+
   // Calculate a separate set of distorted coordinates, this for the outer mask (which determines the masking off of extra-rounded screen edges)
-  float2 maskT = DistortCoordinates(input.tex * g_viewScale, g_maskDistortion, 0);
+  float2 maskT = DistortCoordinates(inTexCoord * g_viewScale, g_maskDistortion, 0);
 
   // Now distort our actual texture coordinates to get our texture into the correct space for display
-  float2 t =           DistortCoordinates(input.tex * g_viewScale, g_distortion, 0) * g_overscanScale + g_overscanOffset * 2.0;
+  float2 t =           DistortCoordinates(inTexCoord * g_viewScale, g_distortion, 0) * g_overscanScale + g_overscanOffset * 2.0;
   
   // Take that calculation as our initial shadowMask texture (Before we start sharpening the vertical resolution of the sampling and the like)
   float2 shadowMaskT = t;

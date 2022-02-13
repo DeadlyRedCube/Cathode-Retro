@@ -120,9 +120,11 @@ namespace NTSCify
       1,
       DXGI_FORMAT_R32_FLOAT,
       GraphicsDevice::TextureFlags::UAV,
+
       &scanlinePhasesOneComponent.texture,
       &scanlinePhasesOneComponent.srv,
-      &scanlinePhasesOneComponent.uav);
+      &scanlinePhasesOneComponent.uav,
+      &scanlinePhasesOneComponent.rtv);
 
     device->CreateTexture2D(
       scanlineCount,
@@ -131,7 +133,8 @@ namespace NTSCify
       GraphicsDevice::TextureFlags::UAV,
       &scanlinePhasesTwoComponent.texture,
       &scanlinePhasesTwoComponent.srv,
-      &scanlinePhasesTwoComponent.uav);
+      &scanlinePhasesTwoComponent.uav,
+      &scanlinePhasesTwoComponent.rtv);
 
     // Now create our one-component (float1) signal textures
     device->CreateTexture2D(
@@ -141,7 +144,8 @@ namespace NTSCify
       GraphicsDevice::TextureFlags::UAV,
       &oneComponentTex.texture,
       &oneComponentTex.srv,
-      &oneComponentTex.uav);
+      &oneComponentTex.uav,
+      &oneComponentTex.rtv);
 
     device->CreateTexture2D(
       signalTextureWidth,
@@ -150,7 +154,8 @@ namespace NTSCify
       GraphicsDevice::TextureFlags::UAV,
       &oneComponentTexScratch.texture,
       &oneComponentTexScratch.srv,
-      &oneComponentTexScratch.uav);
+      &oneComponentTexScratch.uav,
+      &oneComponentTexScratch.rtv);
 
     // Two-component (float2) signal textures
     device->CreateTexture2D(
@@ -160,7 +165,8 @@ namespace NTSCify
       GraphicsDevice::TextureFlags::UAV,
       &twoComponentTex.texture,
       &twoComponentTex.srv,
-      &twoComponentTex.uav);
+      &twoComponentTex.uav,
+      &twoComponentTex.rtv);
 
     device->CreateTexture2D(
       signalTextureWidth,
@@ -169,7 +175,8 @@ namespace NTSCify
       GraphicsDevice::TextureFlags::UAV,
       &twoComponentTexScratch.texture,
       &twoComponentTexScratch.srv,
-      &twoComponentTexScratch.uav);
+      &twoComponentTexScratch.uav,
+      &twoComponentTexScratch.rtv);
 
     // Four-component (float4) signal textures
     device->CreateTexture2D(
@@ -179,7 +186,8 @@ namespace NTSCify
       GraphicsDevice::TextureFlags::UAV,
       &fourComponentTex.texture,
       &fourComponentTex.srv,
-      &fourComponentTex.uav);
+      &fourComponentTex.uav,
+      &fourComponentTex.rtv);
 
     device->CreateTexture2D(
       signalTextureWidth,
@@ -188,7 +196,8 @@ namespace NTSCify
       GraphicsDevice::TextureFlags::UAV,
       &fourComponentTexScratch.texture,
       &fourComponentTexScratch.srv,
-      &fourComponentTexScratch.uav);
+      &fourComponentTexScratch.uav,
+      &fourComponentTexScratch.rtv);
 
     // Color (32-bit RGBA) textures
     device->CreateTexture2D(
@@ -198,7 +207,8 @@ namespace NTSCify
       GraphicsDevice::TextureFlags::UAV,
       &colorTex.texture,
       &colorTex.srv,
-      &colorTex.uav);
+      &colorTex.uav,
+      &colorTex.rtv);
 
     device->CreateTexture2D(
       signalTextureWidth,
@@ -207,6 +217,152 @@ namespace NTSCify
       GraphicsDevice::TextureFlags::UAV,
       &colorTexScratch.texture,
       &colorTexScratch.srv,
-      &colorTexScratch.uav);
+      &colorTexScratch.uav,
+      &colorTexScratch.rtv);
+  }
+
+
+  void ProcessContext::RenderWithComputeShader(
+    GraphicsDevice *device,
+    ID3D11ComputeShader *cs,
+    ID3D11Texture2D *outputTexture,
+    ID3D11UnorderedAccessView *outputUav,
+    std::initializer_list<ID3D11ShaderResourceView *> srvs,
+    std::initializer_list<ID3D11SamplerState *> samplers,
+    std::initializer_list<ID3D11Buffer *> constantBuffers)
+  {
+    uint32_t outputTargetWidth;
+    uint32_t outputTargetHeight;
+    {
+      D3D11_TEXTURE2D_DESC desc;
+      outputTexture->GetDesc(&desc);
+      outputTargetWidth = desc.Width;
+      outputTargetHeight = desc.Height;
+    }
+    
+    auto context = device->Context();
+
+    context->CSSetShader(cs, nullptr, 0);
+    context->CSSetUnorderedAccessViews(0, 1, &outputUav, nullptr);
+    if (constantBuffers.size() > 0)
+    {
+      context->CSSetConstantBuffers(0, UINT(constantBuffers.size()), constantBuffers.begin());
+    }
+
+    if (srvs.size() > 0)
+    {
+      context->CSSetShaderResources(0, UINT(srvs.size()), srvs.begin());
+    }
+
+    if (samplers.size() > 0)
+    {
+      context->CSSetSamplers(0, UINT(samplers.size()), samplers.begin());
+    }
+
+    context->Dispatch((outputTargetWidth + 7) / 8, (outputTargetHeight + 7) / 8, 1);
+    outputUav = nullptr;
+    context->CSSetUnorderedAccessViews(0, 1, &outputUav, nullptr);
+    if (srvs.size() > 0)
+    {
+      ID3D11ShaderResourceView *nullViews[16] = {};
+      context->CSSetShaderResources(0, UINT(srvs.size()), nullViews);
+    }
+  }
+
+
+  void ProcessContext::RenderQuadWithPixelShader(
+    GraphicsDevice *device,
+    ID3D11PixelShader *ps,
+    ID3D11Texture2D *outputTexture,
+    ID3D11RenderTargetView *outputRtv,
+    std::initializer_list<ID3D11ShaderResourceView *> srvs,
+    std::initializer_list<ID3D11SamplerState *> samplers,
+    std::initializer_list<ID3D11Buffer *> constantBuffers)
+  {
+    uint32_t outputTargetWidth;
+    uint32_t outputTargetHeight;
+    D3D11_TEXTURE2D_DESC desc;
+    outputTexture->GetDesc(&desc);
+    outputTargetWidth = desc.Width;
+    outputTargetHeight = desc.Height;
+
+    RenderQuadWithPixelShader(
+      device,
+      ps,
+      outputTargetWidth,
+      outputTargetHeight,
+      outputRtv,
+      srvs,
+      samplers,
+      constantBuffers);
+  }
+
+
+  void ProcessContext::RenderQuadWithPixelShader(
+    GraphicsDevice *device,
+    ID3D11PixelShader *ps,
+    uint32_t outputTextureWidth,
+    uint32_t outputTextureHeight,
+    ID3D11RenderTargetView *outputRtv,
+    std::initializer_list<ID3D11ShaderResourceView *> srvs,
+    std::initializer_list<ID3D11SamplerState *> samplers,
+    std::initializer_list<ID3D11Buffer *> constantBuffers)
+  {
+    auto context = device->Context();
+
+    {
+      context->OMSetRenderTargets(1, &outputRtv, nullptr);
+
+      D3D11_VIEWPORT vp;
+      vp.TopLeftX = 0.0f;
+      vp.TopLeftY = 0.0f;
+      vp.Width = float(outputTextureWidth);
+      vp.Height = float(outputTextureHeight);
+      vp.MinDepth = 0.0f;
+      vp.MaxDepth = 1.0f;
+
+      context->RSSetViewports(1, &vp);
+    }
+
+    float color[] = {0.0f, 0.0f, 0.0f, 0.0f};
+    context->OMSetBlendState(blendState, color, 0xFFFFFFFF);
+    context->RSSetState(rasterizerState);
+    context->IASetInputLayout(inputLayout);
+    context->VSSetShader(vertexShader, nullptr, 0);
+    context->PSSetShader(ps, nullptr, 0);
+    context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+    {
+      auto ptr = vertexBuffer.Ptr();
+      UINT stride = UINT(vertexSize);
+      UINT offsets = 0;
+      context->IASetVertexBuffers(0, 1, &ptr, &stride, &offsets);
+    }
+    
+    if (samplers.size() > 0)
+    {
+      context->PSSetSamplers(0, UINT(samplers.size()), samplers.begin());
+    }
+    
+    if (constantBuffers.size() > 0)
+    {
+      context->PSSetConstantBuffers(0, UINT(constantBuffers.size()), constantBuffers.begin());
+    }
+    
+    if (srvs.size() > 0)
+    {
+      context->PSSetShaderResources(0, UINT(srvs.size()), srvs.begin());
+    }
+    
+    context->Draw(6, 0);
+    
+    if (srvs.size() > 0)
+    {
+      ID3D11ShaderResourceView *nullViews[16] = {};
+      context->PSSetShaderResources(0, UINT(srvs.size()), nullViews);
+    }
+
+    outputRtv = nullptr;
+    context->OMSetRenderTargets(1, &outputRtv, nullptr);
   }
 }

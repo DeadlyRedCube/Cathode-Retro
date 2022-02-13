@@ -105,6 +105,23 @@ void GraphicsDevice::CreateTexture2D(
   void *initialDataTexels,
   uint32_t initialDataPitch)
 {
+  CreateTexture2D(width, height, mipCount, format, flags, textureOut, srvOut, uavOut, nullptr, initialDataTexels, initialDataPitch);
+}
+
+
+void GraphicsDevice::CreateTexture2D(
+  uint32_t width, 
+  uint32_t height, 
+  uint32_t mipCount,
+  DXGI_FORMAT format,
+  TextureFlags flags,
+  ComPtr<ID3D11Texture2D> *textureOut,
+  ComPtr<ID3D11ShaderResourceView> *srvOut,
+  ComPtr<ID3D11UnorderedAccessView> *uavOut,
+  ComPtr<ID3D11RenderTargetView> *rtvOut,
+  void *initialDataTexels,
+  uint32_t initialDataPitch)
+{
   D3D11_TEXTURE2D_DESC desc;
   ZeroType(&desc);
   desc.Width = width;
@@ -137,7 +154,18 @@ void GraphicsDevice::CreateTexture2D(
   CHECK_HRESULT(device->CreateShaderResourceView(textureOut->Ptr(), nullptr, srvOut->AddressForReplace()), "create SRV");
   if (uavOut != nullptr)
   {
-    CHECK_HRESULT(device->CreateUnorderedAccessView(textureOut->Ptr(), nullptr, uavOut->AddressForReplace()), "create UAV");
+    D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc;
+    ZeroType(&uavDesc);
+    uavDesc.Format = format;
+    uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+    uavDesc.Texture2D.MipSlice = 0;
+
+    CHECK_HRESULT(device->CreateUnorderedAccessView(textureOut->Ptr(), &uavDesc, uavOut->AddressForReplace()), "create UAV");
+  }
+
+  if (rtvOut != nullptr)
+  {
+    CHECK_HRESULT(device->CreateRenderTargetView(textureOut->Ptr(), nullptr, rtvOut->AddressForReplace()), "create RTV");
   }
 }
 
@@ -153,8 +181,25 @@ void GraphicsDevice::CreateTexture2D(
   void *initialDataTexels,
   uint32_t initialDataPitch)
 {
-  CreateTexture2D(width, height, 1, format, flags, textureOut, srvOut, uavOut, initialDataTexels, initialDataPitch);
+  CreateTexture2D(width, height, 1, format, flags, textureOut, srvOut, uavOut, nullptr, initialDataTexels, initialDataPitch);
 }
+
+
+void GraphicsDevice::CreateTexture2D(
+  uint32_t width, 
+  uint32_t height, 
+  DXGI_FORMAT format,
+  TextureFlags flags,
+  ComPtr<ID3D11Texture2D> *textureOut,
+  ComPtr<ID3D11ShaderResourceView> *srvOut,
+  ComPtr<ID3D11UnorderedAccessView> *uavOut,
+  ComPtr<ID3D11RenderTargetView> *rtvOut,
+  void *initialDataTexels,
+  uint32_t initialDataPitch)
+{
+  CreateTexture2D(width, height, 1, format, flags, textureOut, srvOut, uavOut, rtvOut, initialDataTexels, initialDataPitch);
+}
+
 
 
 void GraphicsDevice::CreateConstantBuffer(size_t size, ComPtr<ID3D11Buffer> *bufferOut)

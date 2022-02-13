@@ -1,17 +1,16 @@
-RWTexture2D<unorm float4> g_outputTexture : register(u0);
-
 cbuffer consts : register(b0)
 {
   float g_blackLevel;
   float g_coordinateScale;
+  float2 g_texSize;
 }
 
 // Generate a texture that approximates the pattern of a CRT shadow mask (At least, one variety of one). We're going to generate
 //  two sets of RGB rounded rectangles, where the right-most set is offset 50% vertically (so it wraps around)
-[numthreads(8, 8, 1)]
-void main(uint2 dispatchThreadID : SV_DispatchThreadID)
+float4 main(float2 inTexCoord: TEX): SV_TARGET
 {
-  float2 t = float2(dispatchThreadID) * g_coordinateScale * float2(1.0, 2.0);
+  uint2 texelIndex = uint2(inTexCoord * g_texSize - 0.5);
+  float2 t = float2(texelIndex) * g_coordinateScale * float2(1.0, 2.0);
 
   if (t.x > 0.5)
   {
@@ -67,5 +66,5 @@ void main(uint2 dispatchThreadID : SV_DispatchThreadID)
 
   color = color / (1.0 - g_blackLevel) + g_blackLevel;
   
-  g_outputTexture[dispatchThreadID] = float4(color, 1);
+  return float4(color, 1);
 }

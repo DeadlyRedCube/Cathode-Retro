@@ -94,11 +94,36 @@ public:
   void CreateTexture2D(
     uint32_t width, 
     uint32_t height, 
+    uint32_t mipCount,
+    DXGI_FORMAT format,
+    TextureFlags flags,
+    ComPtr<ID3D11Texture2D> *textureOut,
+    ComPtr<ID3D11ShaderResourceView> *srvOut,
+    ComPtr<ID3D11UnorderedAccessView> *uavOut,
+    ComPtr<ID3D11RenderTargetView> *rtvOut,
+    void *initialDataTexels = nullptr,
+    uint32_t initialDataPitch = 0);
+
+  void CreateTexture2D(
+    uint32_t width, 
+    uint32_t height, 
     DXGI_FORMAT format,
     TextureFlags flags,
     ComPtr<ID3D11Texture2D> *textureOut,
     ComPtr<ID3D11ShaderResourceView> *srvOut,
     ComPtr<ID3D11UnorderedAccessView> *uavOut = nullptr,
+    void *initialDataTexels = nullptr,
+    uint32_t initialDataPitch = 0);
+
+  void CreateTexture2D(
+    uint32_t width, 
+    uint32_t height, 
+    DXGI_FORMAT format,
+    TextureFlags flags,
+    ComPtr<ID3D11Texture2D> *textureOut,
+    ComPtr<ID3D11ShaderResourceView> *srvOut,
+    ComPtr<ID3D11UnorderedAccessView> *uavOut,
+    ComPtr<ID3D11RenderTargetView> *rtvOut,
     void *initialDataTexels = nullptr,
     uint32_t initialDataPitch = 0);
 
