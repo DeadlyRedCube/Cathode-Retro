@@ -28,28 +28,7 @@ cbuffer consts : register(b0)
   float  g_scanlineStrength;    // How strong the scanlines are (0 == none, 1 == whoa)
 
   float  g_signalTextureWidth;
-  uint   g_noiseSeed;
-  float  g_instabilityScale;
-
 }
-
-// WangHash+XorShift used to generate noise to add to the signal. Thanks to Nathan Reed (http://www.reedbeta.com/blog/quick-and-easy-gpu-random-numbers-in-d3d11/)
-float WangHashAndXorShift(uint seed)
-{
-  // wang hash
-  seed = (seed ^ 61) ^ (seed >> 16);
-  seed *= 9;
-  seed = seed ^ (seed >> 4);
-  seed *= 0x27d4eb2d;
-  seed = seed ^ (seed >> 15);
-
-  // xorshift
-  seed ^= (seed << 13);
-  seed ^= (seed >> 17);
-  seed ^= (seed << 5);
-  return float(seed) * (1.0 / 4294967296.0);
-}
-
 
 // Do a barrel distortion (and horizontal noise wobble) to a given texture coordinate
 float2 DistortCoordinates(float2 tex, float2 distortion, float noiseOffset)
@@ -75,20 +54,12 @@ float4 main(PSInput input) : SV_TARGET
   // Calculate a separate set of distorted coordinates, this for the outer mask (which determines the masking off of extra-rounded screen edges)
   float2 maskT = DistortCoordinates(input.tex * g_viewScale, g_maskDistortion, 0);
 
-  // Calculate the instability noise per scanline
-  float noise = 0.0;
-  {
-    int scanlineIndex = int((input.tex.y * 0.5 + 0.5) * g_scanlineCount);
-    noise = WangHashAndXorShift(uint(g_noiseSeed * g_scanlineCount  + scanlineIndex)) - 0.5;
-    noise *= g_instabilityScale / g_signalTextureWidth;
-  }
-
-  // Distort the screen the correct amount and scale it to the correct aspect ratio, THEN scale it to make our overscan area the visible area.
-  float2 shadowMaskT = DistortCoordinates(input.tex * g_viewScale, g_distortion, 0) * g_overscanScale + g_overscanOffset * 2.0;
-
-  // Now distort our actual texture coordinates, using our noise value, to get our texture into the correct space for display
-  float2 t = DistortCoordinates(input.tex * g_viewScale, g_distortion, noise) * g_overscanScale + g_overscanOffset * 2.0;
+  // Now distort our actual texture coordinates to get our texture into the correct space for display
+  float2 t =           DistortCoordinates(input.tex * g_viewScale, g_distortion, 0) * g_overscanScale + g_overscanOffset * 2.0;
   
+  // Take that calculation as our initial shadowMask texture (Before we start sharpening the vertical resolution of the sampling and the like)
+  float2 shadowMaskT = t;
+
   // Do a little magic to sharpen up the interpolation between scanlines - a CRT (didn't really have any vertical smoothing, so we want to
   //  make the centers of our texels a little more solid and do less bilinear blending vertically (just a little to simulate the softness of
   //  the screen in general)

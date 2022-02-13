@@ -202,7 +202,7 @@
     <ResourceCompile Include="Source\Resource.rc" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="GeneratePhaseTexture.hlsl">
+    <FxCompile Include="Shaders\SignalGeneration\GeneratePhaseTexture.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
@@ -446,8 +446,10 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shaders\Noise.hlsli" />
     <None Include="Shaders\BoxFilter.hlsli" />
     <None Include="Shaders\SignalGeneration\SampleFilter.hlsli" />
+    <None Include="Shaders\TrackingInstability.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

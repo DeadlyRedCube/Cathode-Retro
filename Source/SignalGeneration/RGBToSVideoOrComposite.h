@@ -30,7 +30,13 @@ namespace NTSCify::SignalGeneration
     }
 
 
-    void Generate(GraphicsDevice *device, ID3D11ShaderResourceView *rgbSRV, ProcessContext *buffers, float initialFramePhase, float phaseIncrementPerScanline, const ArtifactSettings &artifactSettings)
+    void Generate(
+      GraphicsDevice *device, 
+      ID3D11ShaderResourceView *rgbSRV, 
+      ProcessContext *buffers, 
+      float initialFramePhase, 
+      float phaseIncrementPerScanline, 
+      const ArtifactSettings &artifactSettings)
     {
       auto context = device->Context();
 
@@ -60,6 +66,10 @@ namespace NTSCify::SignalGeneration
           prevFrameStartPhase,
           phaseIncrementPerScanline,
           k_signalSamplesPerColorCycle,
+          artifactSettings.instabilityScale,
+          noiseSeed,
+          signalTextureWidth,
+          scanlineCount,
         };
 
         device->DiscardAndUpdateBuffer(constantBuffer, &cd);
@@ -83,7 +93,10 @@ namespace NTSCify::SignalGeneration
           k_signalSamplesPerColorCycle, 
           rgbTextureWidth, 
           signalTextureWidth,  
+          scanlineCount,
           (buffers->signalType == SignalType::Composite) ? 1.0f : 0.0f,
+          artifactSettings.instabilityScale,
+          noiseSeed,
         };
 
         device->DiscardAndUpdateBuffer(constantBuffer, &cd);
@@ -91,6 +104,11 @@ namespace NTSCify::SignalGeneration
         ID3D11ShaderResourceView *srv[] = {rgbSRV, scanlinePhaseSRV};
         auto uav = targetUAV;
         auto cb = constantBuffer.Ptr();
+
+        {
+          ID3D11SamplerState *st[] = {buffers->samplerStateClamp};
+          context->CSSetSamplers(0, UINT(k_arrayLength<decltype(st)>), st);
+        }
 
         context->CSSetShader(rgbToSVideoShader, nullptr, 0);
         context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
@@ -110,6 +128,8 @@ namespace NTSCify::SignalGeneration
       buffers->saturationScale = 0.5f;
 
       prevFrameStartPhase = initialFramePhase;
+
+      noiseSeed = (noiseSeed + 1) & 0x000FFFFF;
     }
 
   private:
@@ -118,7 +138,10 @@ namespace NTSCify::SignalGeneration
       uint32_t outputTexelsPerColorburstCycle;        // This value should match SignalGeneration::k_signalSamplesPerColorCycle
       uint32_t inputWidth;                            // The width of the input, in texels
       uint32_t outputWidth;                           // The width of the output, in texels
+      uint32_t scanlineCount;                         // How many scanlines
       float compositeBlend;                           // 0 if we're outputting to SVideo, 1 if it's composite
+      float instabilityScale;
+      uint32_t noiseSeed;
     };
 
     struct GeneratePhaseTextureConstantData
@@ -127,6 +150,10 @@ namespace NTSCify::SignalGeneration
       float g_prevFrameStartPhase;                    // The phase at the start of the previous scanline of this frame (if relevant)
       float g_phaseIncrementPerScanline;              // The amount to increment the phase each scanline
       uint32_t g_samplesPerColorburstCycle;           // Should match k_signalSamplesPerColorCycle
+      float instabilityScale;
+      uint32_t noiseSeed;
+      uint32_t signalTextureWidth;
+      uint32_t scanlineCount;                         // How many scanlines
     };
 
     uint32_t rgbTextureWidth;
@@ -136,5 +163,7 @@ namespace NTSCify::SignalGeneration
     ComPtr<ID3D11ComputeShader> generatePhaseTextureShader;
     ComPtr<ID3D11Buffer> constantBuffer;
     float prevFrameStartPhase = 0.0f;
+
+    uint32_t noiseSeed = 0;
   };
 }

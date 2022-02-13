@@ -31,7 +31,7 @@
     <FxCompile Include="Shaders\SignalDecode\CompositeToSVideo.hlsl">
       <Filter>Shaders\SignalDecode</Filter>
     </FxCompile>
-    <FxCompile Include="GeneratePhaseTexture.hlsl">
+    <FxCompile Include="Shaders\SignalGeneration\GeneratePhaseTexture.hlsl">
       <Filter>Shaders\SignalGeneration</Filter>
     </FxCompile>
   </ItemGroup>
@@ -147,6 +147,12 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="Shaders\BoxFilter.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\TrackingInstability.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\Noise.hlsli">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

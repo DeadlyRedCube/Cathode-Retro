@@ -129,8 +129,6 @@ namespace NTSCify::CRT
         data.scanlineStrength = screenSettings.scanlineStrength;
 
         data.signalTextureWidth = float(signalTextureWidth);
-        data.noiseSeed = noiseSeed;
-        data.instabilityScale = screenSettings.instabilityScale;
 
         device->DiscardAndUpdateBuffer(constantBuffer, &data);
       }
@@ -174,9 +172,6 @@ namespace NTSCify::CRT
 
       // Swap the color texture we used with our previous frame texture so we have that ready for next time
       std::swap(processContext->colorTex, prevFrameTex);
-
-      // Update our noise seed
-      noiseSeed = (noiseSeed + 1) % (60 * 60);
     }
 
   protected:
@@ -309,8 +304,6 @@ namespace NTSCify::CRT
       float scanlineStrength;       // How strong the scanlines are (0 == none, 1 == whoa)
 
       float signalTextureWidth;     // The width (in texels) of the signal texture
-      int noiseSeed;                // A seed used to drive the distortion offset instability "wobble"
-      float instabilityScale;       // How much wobble there will be in the signal
     };
 
     uint32_t inputImageWidth;
@@ -324,7 +317,5 @@ namespace NTSCify::CRT
 
     ComPtr<ID3D11Texture2D> shadowMaskTexture;
     ComPtr<ID3D11ShaderResourceView> shadowMaskSRV;
-
-    int noiseSeed = 0;
   };
 }
