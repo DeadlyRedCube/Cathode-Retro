@@ -17,13 +17,15 @@ namespace NTSCify::SignalDecode
   public:
     FilterRGB(
       GraphicsDevice *device, 
+      uint32_t inputTextureWidthIn,
       uint32_t signalTextureWidthIn, 
       uint32_t scanlineCountIn)
     : scanlineCount(scanlineCountIn)
+    , inputTextureWidth(inputTextureWidthIn)
     , signalTextureWidth(signalTextureWidthIn)
     {
       device->CreateConstantBuffer(sizeof(ConstantData), &constantBuffer);
-      device->CreateComputeShader(IDR_FILTER_RGB, &blurRGBShader);
+      device->CreatePixelShader(IDR_FILTER_RGB, &blurRGBShader);
     }
 
 
@@ -32,14 +34,19 @@ namespace NTSCify::SignalDecode
       // We don't have to do anything if the sharpness is 0
       if (knobSettings.sharpness != 0)
       {
-        ConstantData data = { -knobSettings.sharpness, SignalGeneration::k_signalSamplesPerColorCycle };
+        ConstantData data = 
+        { 
+          -knobSettings.sharpness, 
+          float(inputTextureWidth) / float(signalTextureWidth) * float(SignalGeneration::k_signalSamplesPerColorCycle) 
+        };
+
         device->DiscardAndUpdateBuffer(constantBuffer, &data);
 
-        processContext->RenderWithComputeShader(
+        processContext->RenderQuadWithPixelShader(
           device,
           blurRGBShader,
           processContext->colorTexScratch.texture,
-          processContext->colorTexScratch.uav,
+          processContext->colorTexScratch.rtv,
           {processContext->colorTex.srv},
           {processContext->samplerStateClamp},
           {constantBuffer});
@@ -52,13 +59,14 @@ namespace NTSCify::SignalDecode
     struct ConstantData
     {
       float blurStrength;
-      uint32_t texelStepSize;
+      float blurSampleStepSize;
     };
 
     uint32_t scanlineCount;
+    uint32_t inputTextureWidth;
     uint32_t signalTextureWidth;
   
-    ComPtr<ID3D11ComputeShader> blurRGBShader;
+    ComPtr<ID3D11PixelShader> blurRGBShader;
     ComPtr<ID3D11Buffer> constantBuffer;
   };
 }

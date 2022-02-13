@@ -1,5 +1,4 @@
 Texture2D<float4> g_sourceTexture : register(t0);
-RWTexture2D<float4> g_outputTexture : register(u0);
 
 sampler g_sampler : register(s0);
 
@@ -10,13 +9,9 @@ cbuffer consts : register(b0)
 
 
 // This shader just takes a texture that's in YIQ color space and converts it into RGB.
-[numthreads(8, 8, 1)]
-void main(uint2 dispatchThreadID : SV_DispatchThreadID)
+float4 main(float2 texCoord: TEX): SV_TARGET
 {
-  float2 inputTexDim;
-  g_sourceTexture.GetDimensions(inputTexDim.x, inputTexDim.y);
-
-	float3 YIQ = g_sourceTexture.SampleLevel(g_sampler, (float2(dispatchThreadID) + 0.5) / inputTexDim, 0).rgb;
+	float3 YIQ = g_sourceTexture.SampleLevel(g_sampler, texCoord, 0).rgb;
 
   // $TODO: These values need to be gamma-adjusted since what is sent over NTSC is in a different gamma space than what is actually displayed.
 
@@ -27,5 +22,5 @@ void main(uint2 dispatchThreadID : SV_DispatchThreadID)
     0.623557, -0.635691,  1.7090047);
   float3 RGB = pow(saturate(mul(YIQ, mat)), g_gamma);
 
-  g_outputTexture[dispatchThreadID] = float4(RGB, 1);
+  return float4(RGB, 1);
 }

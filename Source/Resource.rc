@@ -53,17 +53,16 @@ END
 //
 
 IDR_BASIC_VERTEX_SHADER         RT_RCDATA               "Generated\\BasicVertexShader.vso"
-IDR_RGB_TO_SVIDEO_OR_COMPOSITE  RT_RCDATA               "Generated\\RGBToSVideoOrComposite.cso"
-IDR_APPLY_ARTIFACTS             RT_RCDATA               "Generated\\ApplyArtifacts.cso"
-IDR_COMPOSITE_TO_SVIDEO         RT_RCDATA               "Generated\\CompositeToSVideo.cso"
-IDR_SVIDEO_TO_YIQ               RT_RCDATA               "Generated\\SVideoToYIQ.cso"
-IDR_BLUR_IQ                     RT_RCDATA               "Generated\\BlurIQ.cso"
-IDR_YIQ_TO_RGB                  RT_RCDATA               "Generated\\YIQToRGB.cso"
-IDR_FILTER_RGB                  RT_RCDATA               "Generated\\FilterRGB.cso"
+IDR_RGB_TO_SVIDEO_OR_COMPOSITE  RT_RCDATA               "Generated\\RGBToSVideoOrComposite.pso"
+IDR_APPLY_ARTIFACTS             RT_RCDATA               "Generated\\ApplyArtifacts.pso"
+IDR_COMPOSITE_TO_SVIDEO         RT_RCDATA               "Generated\\CompositeToSVideo.pso"
+IDR_SVIDEO_TO_YIQ               RT_RCDATA               "Generated\\SVideoToYIQ.pso"
+IDR_YIQ_TO_RGB                  RT_RCDATA               "Generated\\YIQToRGB.pso"
+IDR_FILTER_RGB                  RT_RCDATA               "Generated\\FilterRGB.pso"
 IDR_GENERATE_SHADOW_MASK        RT_RCDATA               "Generated\\GenerateShadowMask.pso"
 IDR_DOWNSAMPLE_2X               RT_RCDATA               "Generated\\Downsample2X.pso"
 IDR_RGB_TO_CRT                  RT_RCDATA               "Generated\\RGBToCRT.pso"
-IDR_GENERATE_PHASE_TEXTURE      RT_RCDATA               "Generated\\GeneratePhaseTexture.cso"
+IDR_GENERATE_PHASE_TEXTURE      RT_RCDATA               "Generated\\GeneratePhaseTexture.pso"
 
 
 #ifndef APSTUDIO_INVOKED

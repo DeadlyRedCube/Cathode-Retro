@@ -2,13 +2,13 @@
 
 
 Texture2D<float2> g_sourceTexture : register(t0);
-RWTexture2D<float4> g_outputTexture : register(u0);
 
 sampler g_sampler : register(s0);
 
 cbuffer consts : register(b0)
 {
   uint g_samplesPerColorburstCycle;
+  float2 g_invTextureSize;
 }
 
 // This shader takes a composite signal (like you'd get via a console's composite input) and separates out the luma chroma so it is effectively an SVideo 
@@ -34,11 +34,15 @@ cbuffer consts : register(b0)
 //  Basically, months of trying to figure out the best way to do something turned into "average these few texels together, the end"
 //
 // It's also worth noting that this is doing TWO luma/chroma demodulations at once, for purposes of temporal aliasing reduction.
-[numthreads(8, 8, 1)]
-void main(uint2 dispatchThreadID : SV_DispatchThreadID)
+float4 main(float2 inTex: TEX): SV_TARGET
 {
+  float2 inputTexDim;
+  g_sourceTexture.GetDimensions(inputTexDim.x, inputTexDim.y);
+  
+  uint2 texelIndex = uint2(inTex * inputTexDim);
+
   // Average the luma samples
   float2 centerSample;
-  float2 luma = BoxFilter(g_sourceTexture, g_sampler, g_samplesPerColorburstCycle, dispatchThreadID, centerSample);
-  g_outputTexture[dispatchThreadID] = float4(luma, centerSample - luma).xzyw;
+  float2 luma = BoxFilter(g_sourceTexture, g_sampler, g_invTextureSize, g_samplesPerColorburstCycle, inTex, centerSample);
+  return float4(luma, centerSample - luma).xzyw;
 }

@@ -63,6 +63,13 @@ public:
 
   void DiscardAndUpdateBuffer(ID3D11Buffer *buffer, const void *data, size_t dataSize);
 
+  void RenderQuadWithPixelShader(
+    ID3D11PixelShader *ps,
+    ID3D11RenderTargetView *target,
+    std::initializer_list<ID3D11ShaderResourceView *> srvs,
+    std::initializer_list<ID3D11SamplerState *> samplers,
+    std::initializer_list<ID3D11Buffer *> constantBuffers);
+
   template <typename T>
   void DiscardAndUpdateBuffer(ID3D11Buffer *buffer, const T *data)
   {
@@ -73,9 +80,10 @@ public:
   {
     Dynamic = 0x01,
     UAV = 0x02,
+    RenderTarget = 0x04,
 
     None = 0x00,
-    All = 0x03,
+    All = 0x07,
   };
 
 

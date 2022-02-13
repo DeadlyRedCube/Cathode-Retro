@@ -30,7 +30,8 @@ namespace NTSCify::CRT
         GraphicsDevice::TextureFlags::UAV,
         &prevFrameTex.texture,
         &prevFrameTex.srv,
-        &prevFrameTex.uav);
+        &prevFrameTex.uav,
+        &prevFrameTex.rtv);
 
       device->CreatePixelShader(IDR_RGB_TO_CRT, &rgbToScreenShader);
       device->CreateConstantBuffer(sizeof(RGBToScreenConstants), &constantBuffer);

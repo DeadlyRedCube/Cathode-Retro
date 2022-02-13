@@ -25,8 +25,8 @@ namespace NTSCify::SignalGeneration
     , signalTextureWidth(signalTextureWidthIn)
     {
       device->CreateConstantBuffer(std::max(sizeof(RGBToSVideoConstantData), sizeof(GeneratePhaseTextureConstantData)), &constantBuffer);
-      device->CreateComputeShader(IDR_RGB_TO_SVIDEO_OR_COMPOSITE, &rgbToSVideoShader);
-      device->CreateComputeShader(IDR_GENERATE_PHASE_TEXTURE, &generatePhaseTextureShader);
+      device->CreatePixelShader(IDR_RGB_TO_SVIDEO_OR_COMPOSITE, &rgbToSVideoShader);
+      device->CreatePixelShader(IDR_GENERATE_PHASE_TEXTURE, &generatePhaseTextureShader);
     }
 
 
@@ -69,11 +69,11 @@ namespace NTSCify::SignalGeneration
 
         device->DiscardAndUpdateBuffer(constantBuffer, &cd);
 
-        processContext->RenderWithComputeShader(
+        processContext->RenderQuadWithPixelShader(
           device,
           generatePhaseTextureShader,
           scanlinePhase->texture,
-          scanlinePhase->uav,
+          scanlinePhase->rtv,
           {},
           {processContext->samplerStateClamp},
           {constantBuffer});
@@ -94,11 +94,11 @@ namespace NTSCify::SignalGeneration
 
         device->DiscardAndUpdateBuffer(constantBuffer, &cd);
 
-        processContext->RenderWithComputeShader(
+        processContext->RenderQuadWithPixelShader(
           device,
           rgbToSVideoShader,
           target->texture,
-          target->uav,
+          target->rtv,
           {rgbSRV, scanlinePhase->srv},
           {processContext->samplerStateClamp},
           {constantBuffer});
@@ -140,8 +140,8 @@ namespace NTSCify::SignalGeneration
     uint32_t rgbTextureWidth;
     uint32_t scanlineCount;
     uint32_t signalTextureWidth;
-    ComPtr<ID3D11ComputeShader> rgbToSVideoShader;
-    ComPtr<ID3D11ComputeShader> generatePhaseTextureShader;
+    ComPtr<ID3D11PixelShader> rgbToSVideoShader;
+    ComPtr<ID3D11PixelShader> generatePhaseTextureShader;
     ComPtr<ID3D11Buffer> constantBuffer;
     float prevFrameStartPhase = 0.0f;
 

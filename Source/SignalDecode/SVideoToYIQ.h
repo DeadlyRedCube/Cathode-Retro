@@ -24,7 +24,7 @@ namespace NTSCify::SignalDecode
     , signalTextureWidth(signalTextureWidthIn)
     {
       device->CreateConstantBuffer(sizeof(ConstantData), &constantBuffer);
-      device->CreateComputeShader(IDR_SVIDEO_TO_YIQ, &sVideoToYIQShader);
+      device->CreatePixelShader(IDR_SVIDEO_TO_YIQ, &sVideoToYIQShader);
     }
 
 
@@ -47,11 +47,11 @@ namespace NTSCify::SignalDecode
 
       device->DiscardAndUpdateBuffer(constantBuffer, &data);
 
-      processContext->RenderWithComputeShader(
+      processContext->RenderQuadWithPixelShader(
         device,
         sVideoToYIQShader,
         processContext->fourComponentTexScratch.texture,
-        processContext->fourComponentTexScratch.uav,
+        processContext->fourComponentTexScratch.rtv,
         {
           processContext->hasDoubledSignal ? processContext->fourComponentTex.srv : processContext->twoComponentTex.srv, 
           processContext->hasDoubledSignal ? processContext->scanlinePhasesTwoComponent.srv : processContext->scanlinePhasesOneComponent.srv,
@@ -80,7 +80,7 @@ namespace NTSCify::SignalDecode
     uint32_t scanlineCount;
     uint32_t signalTextureWidth;
   
-    ComPtr<ID3D11ComputeShader> sVideoToYIQShader;
+    ComPtr<ID3D11PixelShader> sVideoToYIQShader;
   
     ComPtr<ID3D11Buffer> constantBuffer;
   };

@@ -20,7 +20,7 @@ namespace NTSCify::SignalGeneration
     , signalTextureWidth(signalTextureWidthIn)
     {
       device->CreateConstantBuffer(sizeof(ConstantData), &constantBuffer);
-      device->CreateComputeShader(IDR_APPLY_ARTIFACTS, &applyArtifactsShader);
+      device->CreatePixelShader(IDR_APPLY_ARTIFACTS, &applyArtifactsShader);
     }
 
 
@@ -61,11 +61,11 @@ namespace NTSCify::SignalGeneration
         target = (processContext->signalType == SignalType::SVideo) ? &processContext->twoComponentTexScratch : &processContext->oneComponentTexScratch;
       }
       
-      processContext->RenderWithComputeShader(
+      processContext->RenderQuadWithPixelShader(
         device,
         applyArtifactsShader,
         target->texture,
-        target->uav,
+        target->rtv,
         {source->srv},
         {processContext->samplerStateClamp},
         {constantBuffer});
@@ -96,7 +96,7 @@ namespace NTSCify::SignalGeneration
 
     uint32_t scanlineCount;
     uint32_t signalTextureWidth;
-    ComPtr<ID3D11ComputeShader> applyArtifactsShader;
+    ComPtr<ID3D11PixelShader> applyArtifactsShader;
     ComPtr<ID3D11Buffer> constantBuffer;
 
     int32_t noiseSeed = 0;

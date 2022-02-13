@@ -1,7 +1,6 @@
 #include "../Noise.hlsli"
 
 Texture2D<float4>  g_sourceTexture : register(t0);
-RWTexture2D<float4> g_outputTexture : register(u0);
 
 sampler g_sampler : register(s0);
 
@@ -20,12 +19,11 @@ cbuffer consts : register(b0)
 
 
 // This shader applies ghosting and noise to an SVideo or Composite signal.
-[numthreads(8, 8, 1)]
-void main(uint2 dispatchThreadID : SV_DispatchThreadID)
+float4 main(float2 inputTexCoord: TEX): SV_TARGET
 {
-  float2 centerTexCoord = (float2(dispatchThreadID) + 0.5) / float2(g_signalTextureWidth, g_scanlineCount);
+  uint2 pixelIndex = uint2(round(inputTexCoord * float2(g_signalTextureWidth, g_scanlineCount) - 0.5));
 
-  float4 lumaChroma = g_sourceTexture.SampleLevel(g_sampler, centerTexCoord, 0);
+  float4 lumaChroma = g_sourceTexture.SampleLevel(g_sampler, inputTexCoord, 0);
 
   // Ghosting basically is what happens when a copy of your signal "skips" its intended path through the cable and mixes
   //  in with your normal signal (like an EM leak of the signal) and is basically a pre-echo of the signal. So just 
@@ -34,7 +32,7 @@ void main(uint2 dispatchThreadID : SV_DispatchThreadID)
   {
     float4 ghost = (0).xxxx;
 
-    float2 ghostCenterCoord = centerTexCoord + float2(g_ghostDistance * g_samplesPerColorburstCycle, 0) / float2(g_signalTextureWidth, g_scanlineCount);
+    float2 ghostCenterCoord = inputTexCoord + float2(g_ghostDistance * g_samplesPerColorburstCycle, 0) / float2(g_signalTextureWidth, g_scanlineCount);
 
     float2 ghostSampleSpread = float2(g_ghostSpreadScale * g_samplesPerColorburstCycle, 0)  / float2(g_signalTextureWidth, g_scanlineCount);
 
@@ -53,8 +51,8 @@ void main(uint2 dispatchThreadID : SV_DispatchThreadID)
 
   // Also add some noise for each texel.
   float noise = 0;
-  uint noiseCenter = (g_noiseSeed * g_scanlineCount + dispatchThreadID.y) * g_signalTextureWidth + dispatchThreadID.x / 2;
+  uint noiseCenter = (g_noiseSeed * g_scanlineCount + pixelIndex.y) * g_signalTextureWidth + pixelIndex.x / 2;
   noise = WangHashAndXorShift(noiseCenter) + (WangHashAndXorShift(noiseCenter + 1) + WangHashAndXorShift(noiseCenter - 1)) * 0.5;
   noise = (noise - 1) * g_noiseStrength * 0.5;
-  g_outputTexture[dispatchThreadID] = lumaChroma + noise;
+  return lumaChroma + noise;
 }

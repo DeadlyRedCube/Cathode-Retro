@@ -143,9 +143,6 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\SignalGeneration\SampleFilter.hlsli">
-      <Filter>Shaders</Filter>
-    </None>
     <None Include="Shaders\BoxFilter.hlsli">
       <Filter>Shaders</Filter>
     </None>

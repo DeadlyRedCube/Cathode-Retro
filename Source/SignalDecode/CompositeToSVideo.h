@@ -20,7 +20,7 @@ namespace NTSCify::SignalDecode
     , signalTextureWidth(signalTextureWidthIn)
     {
       device->CreateConstantBuffer(sizeof(ConstantData), &constantBuffer);
-      device->CreateComputeShader(IDR_COMPOSITE_TO_SVIDEO, &compositeToSVideoShader);
+      device->CreatePixelShader(IDR_COMPOSITE_TO_SVIDEO, &compositeToSVideoShader);
     }
 
 
@@ -32,42 +32,32 @@ namespace NTSCify::SignalDecode
         return;
       }
 
-      auto deviceContext = device->Context();
-
-      ConstantData cd = { SignalGeneration::k_signalSamplesPerColorCycle };
+      ConstantData cd = { SignalGeneration::k_signalSamplesPerColorCycle, 1.0f / float(signalTextureWidth), 1.0f / float(scanlineCount) };
       device->DiscardAndUpdateBuffer(constantBuffer, &cd);
 
-      auto srv = processContext->hasDoubledSignal ? processContext->twoComponentTex.srv.Ptr() : processContext->oneComponentTex.srv.Ptr();
-      auto uav = processContext->hasDoubledSignal ? processContext->fourComponentTex.uav.Ptr() :  processContext->twoComponentTex.uav.Ptr();
-      auto cb = constantBuffer.Ptr();
+      auto &outTex = processContext->hasDoubledSignal ? processContext->fourComponentTex : processContext->twoComponentTex;
 
-      deviceContext->CSSetShader(compositeToSVideoShader, nullptr, 0);
-      deviceContext->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
-      deviceContext->CSSetConstantBuffers(0, 1, &cb);
-      deviceContext->CSSetShaderResources(0, 1, &srv);
-
-      {
-        ID3D11SamplerState *st[] = {processContext->samplerStateClamp};
-        deviceContext->CSSetSamplers(0, UINT(k_arrayLength<decltype(st)>), st);
-      }
-
-      deviceContext->Dispatch((signalTextureWidth + 7) / 8, (scanlineCount + 7) / 8, 1);
-
-      srv = nullptr;
-      uav = nullptr;
-      deviceContext->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
-      deviceContext->CSSetShaderResources(0, 1, &srv);
+      processContext->RenderQuadWithPixelShader(
+        device,
+        compositeToSVideoShader,
+        outTex.texture,
+        outTex.rtv,
+        { processContext->hasDoubledSignal ? processContext->twoComponentTex.srv : processContext->oneComponentTex.srv },
+        { processContext->samplerStateClamp },
+        { constantBuffer });
     }
 
   private:
     struct ConstantData
     {
       uint32_t outputTexelsPerColorburstCycle;        // This value should match SignalGeneration::k_signalSamplesPerColorCycle
+      float invInputWidth;
+      float invInputHeight;
     };
 
     uint32_t scanlineCount;
     uint32_t signalTextureWidth;
-    ComPtr<ID3D11ComputeShader> compositeToSVideoShader;
+    ComPtr<ID3D11PixelShader> compositeToSVideoShader;
     ComPtr<ID3D11Buffer> constantBuffer;
   };
 }

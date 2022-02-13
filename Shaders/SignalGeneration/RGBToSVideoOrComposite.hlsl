@@ -2,7 +2,6 @@
 
 Texture2D<float4> g_sourceTexture : register(t0);
 Texture2D<float2> g_scanlinePhases : register(t1);
-RWTexture2D<float4> g_outputTexture : register(u0);
 
 cbuffer consts : register (b0)
 {
@@ -27,19 +26,19 @@ sampler g_sampler : register(s0);
 // This shader takes an RGB image and turns it into either an SVideo or Composite signal (Based on whether g_compositeBlend is 0 or 1).
 //  We might also be generating a PAIR of these, using two different sets of phase inputs (if g_scanlinePhases is a two-component input),
 //  for purposes of temporal aliasing reduction.
-[numthreads(8, 8, 1)]
-void main(int2 dispatchThreadID : SV_DispatchThreadID)
+float4 main(float2 signalTexCoord: TEX): SV_TARGET
 {
-  float2 texCoord = (float2(dispatchThreadID) * float2(float(g_inputWidth) / float(g_outputWidth), 1) + 0.5) / float2(g_inputWidth, g_scanlineCount);
+  uint2 signalTexelIndex = uint2(round(signalTexCoord * float2(g_outputWidth, g_scanlineCount) - 0.5));
+  float2 texCoord = (float2(signalTexelIndex) * float2(float(g_inputWidth) / float(g_outputWidth), 1) + 0.5) / float2(g_inputWidth, g_scanlineCount);
 
   float instability = CalculateTrackingInstabilityOffset(
-    dispatchThreadID.y, 
+    signalTexelIndex.y, 
     g_scanlineCount,
     g_noiseSeed,
     g_instabilityScale,
     g_outputWidth);
 
-  texCoord.x += instability; // * float(g_inputWidth) / float(g_outputWidth);
+  texCoord.x += instability;
 
   float3 RGB = g_sourceTexture.SampleLevel(g_sampler, texCoord, 0).rgb; 
   
@@ -57,10 +56,10 @@ void main(int2 dispatchThreadID : SV_DispatchThreadID)
   float Q = YIQ.z;
 
   // Figure out where in the carrier wave we are
-  float2 scanlinePhase = g_scanlinePhases.SampleLevel(g_sampler, float2(dispatchThreadID.y + 0.5, 0) / g_scanlineCount, 0);
+  float2 scanlinePhase = g_scanlinePhases.SampleLevel(g_sampler, float2(signalTexelIndex.y + 0.5, 0) / g_scanlineCount, 0);
 
   // Calculate the phase
-  float2 phase = scanlinePhase + (dispatchThreadID.x) / float(g_outputTexelsPerColorburstCycle);
+  float2 phase = scanlinePhase + (signalTexelIndex.x) / float(g_outputTexelsPerColorburstCycle);
 
   // Now we need to encode our IQ component in the carrier wave at the correct phase
   float2 s, c;
@@ -72,10 +71,10 @@ void main(int2 dispatchThreadID : SV_DispatchThreadID)
   // If compositeBlend is 1, this is a composite output and we combine the whole signal into the one channel. Otherwise, use two.
   if (g_compositeBlend > 0)
   {
-    g_outputTexture[dispatchThreadID] = (luma + chroma).xyxy;
+    return (luma + chroma).xyxy;
   }
   else
   {
-    g_outputTexture[dispatchThreadID] = float4(luma, chroma).xzyw;
+    return float4(luma, chroma).xzyw;
   }
 }

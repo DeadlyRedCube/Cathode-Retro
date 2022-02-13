@@ -24,7 +24,7 @@ namespace NTSCify::SignalDecode
     {
       device->CreateConstantBuffer(sizeof(ConstantData), &constantBuffer);
 
-      device->CreateComputeShader(IDR_YIQ_TO_RGB, &yiqToRGBShader);
+      device->CreatePixelShader(IDR_YIQ_TO_RGB, &yiqToRGBShader);
     }
 
 
@@ -33,11 +33,11 @@ namespace NTSCify::SignalDecode
       ConstantData data = { knobSettings.gamma };
       device->DiscardAndUpdateBuffer(constantBuffer, &data);
 
-      processContext->RenderWithComputeShader(
+      processContext->RenderQuadWithPixelShader(
         device,
         yiqToRGBShader,
         processContext->colorTex.texture,
-        processContext->colorTex.uav,
+        processContext->colorTex.rtv,
         {processContext->fourComponentTex.srv},
         {processContext->samplerStateClamp},
         {constantBuffer});
@@ -52,7 +52,7 @@ namespace NTSCify::SignalDecode
     uint32_t scanlineCount;
     uint32_t signalTextureWidth;
   
-    ComPtr<ID3D11ComputeShader> yiqToRGBShader;
+    ComPtr<ID3D11PixelShader> yiqToRGBShader;
     ComPtr<ID3D11Buffer> constantBuffer;
   };
 }
