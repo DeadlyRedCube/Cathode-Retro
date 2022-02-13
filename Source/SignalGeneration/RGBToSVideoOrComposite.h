@@ -32,25 +32,25 @@ namespace NTSCify::SignalGeneration
 
     void Generate(
       GraphicsDevice *device, 
-      ID3D11ShaderResourceView *rgbSRV, 
+      ITexture *rgbTexture, 
       ProcessContext *processContext, 
       float initialFramePhase, 
       float phaseIncrementPerScanline, 
       const ArtifactSettings &artifactSettings)
     {
-      ProcessContext::TextureSetUAV *scanlinePhase;
-      ProcessContext::TextureSetUAV *target;
+      ITexture *scanlinePhase;
+      ITexture *target;
       if (artifactSettings.temporalArtifactReduction > 0.0f && prevFrameStartPhase != initialFramePhase)
       {
         processContext->hasDoubledSignal = true;
-        scanlinePhase = &processContext->scanlinePhasesTwoComponent;
-        target = (processContext->signalType == SignalType::Composite) ? &processContext->twoComponentTex : &processContext->fourComponentTex;
+        scanlinePhase = processContext->scanlinePhasesTwoComponent.get();
+        target = ((processContext->signalType == SignalType::Composite) ? processContext->twoComponentTex : processContext->fourComponentTex).get();
       }
       else
       {
         processContext->hasDoubledSignal = false;
-        scanlinePhase = &processContext->scanlinePhasesOneComponent;
-        target = (processContext->signalType == SignalType::Composite) ? &processContext->oneComponentTex : &processContext->twoComponentTex;
+        scanlinePhase = processContext->scanlinePhasesOneComponent.get();
+        target = ((processContext->signalType == SignalType::Composite) ? processContext->oneComponentTex : processContext->twoComponentTex).get();
       }
 
       // Update our scanline phases texture
@@ -69,13 +69,11 @@ namespace NTSCify::SignalGeneration
 
         device->DiscardAndUpdateBuffer(constantBuffer, &cd);
 
-        processContext->RenderQuadWithPixelShader(
-          device,
+        device->RenderQuadWithPixelShader(
           generatePhaseTextureShader,
-          scanlinePhase->texture,
-          scanlinePhase->rtv,
+          scanlinePhase,
           {},
-          {processContext->samplerStateClamp},
+          {SamplerType::Clamp},
           {constantBuffer});
       }
 
@@ -94,13 +92,11 @@ namespace NTSCify::SignalGeneration
 
         device->DiscardAndUpdateBuffer(constantBuffer, &cd);
 
-        processContext->RenderQuadWithPixelShader(
-          device,
+        device->RenderQuadWithPixelShader(
           rgbToSVideoShader,
-          target->texture,
-          target->rtv,
-          {rgbSRV, scanlinePhase->srv},
-          {processContext->samplerStateClamp},
+          target,
+          {rgbTexture, scanlinePhase},
+          {SamplerType::Clamp},
           {constantBuffer});
       }
 

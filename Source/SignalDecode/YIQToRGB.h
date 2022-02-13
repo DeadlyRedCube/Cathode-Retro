@@ -33,13 +33,11 @@ namespace NTSCify::SignalDecode
       ConstantData data = { knobSettings.gamma };
       device->DiscardAndUpdateBuffer(constantBuffer, &data);
 
-      processContext->RenderQuadWithPixelShader(
-        device,
+      device->RenderQuadWithPixelShader(
         yiqToRGBShader,
-        processContext->colorTex.texture,
-        processContext->colorTex.rtv,
-        {processContext->fourComponentTex.srv},
-        {processContext->samplerStateClamp},
+        processContext->colorTex.get(),
+        {processContext->fourComponentTex.get()},
+        {SamplerType::Clamp},
         {constantBuffer});
     }
 

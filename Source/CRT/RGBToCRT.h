@@ -15,7 +15,6 @@ namespace NTSCify::CRT
   public:
     RGBToCRT(
       GraphicsDevice *device, 
-      ProcessContext *ctx,
       uint32_t inputImageWidthIn, 
       uint32_t signalTextureWidthIn, 
       uint32_t scanlineCountIn)
@@ -23,20 +22,12 @@ namespace NTSCify::CRT
     , signalTextureWidth(signalTextureWidthIn)
     , scanlineCount(scanlineCountIn)
     {
-      device->CreateTexture2D(
-        signalTextureWidth,
-        scanlineCount,
-        DXGI_FORMAT_R8G8B8A8_UNORM,
-        GraphicsDevice::TextureFlags::UAV,
-        &prevFrameTex.texture,
-        &prevFrameTex.srv,
-        &prevFrameTex.uav,
-        &prevFrameTex.rtv);
+      prevFrameTex = device->CreateTexture(signalTextureWidth, scanlineCount, DXGI_FORMAT_R8G8B8A8_UNORM, TextureFlags::RenderTarget);
 
       device->CreatePixelShader(IDR_RGB_TO_CRT, &rgbToScreenShader);
       device->CreateConstantBuffer(sizeof(RGBToScreenConstants), &constantBuffer);
 
-      GenerateShadowMaskTexture(device, ctx);
+      GenerateShadowMaskTexture(device);
     }
 
 
@@ -117,13 +108,11 @@ namespace NTSCify::CRT
       }
 
       // $TODO: Should probably make this function take the output render target as a parameter since not everyone will be rendering to backbuffer
-      processContext->RenderQuadWithPixelShader(
-        device,
+      device->RenderQuadWithPixelShader(
         rgbToScreenShader,
-        device->BackbufferTexture(),
-        device->BackbufferView(),
-        {processContext->colorTex.srv, prevFrameTex.srv, shadowMaskSRV},
-        {processContext->samplerStateClamp, processContext->samplerStateWrap},
+        nullptr,
+        {processContext->colorTex.get(), prevFrameTex.get(), shadowMaskTexture.get()},
+        {SamplerType::Clamp, SamplerType::Wrap},
         {constantBuffer});
 
       // Swap the color texture we used with our previous frame texture so we have that ready for next time
@@ -132,23 +121,14 @@ namespace NTSCify::CRT
 
   protected:
     // Generate the shadow mask texture we use for the CRT emulation
-    void GenerateShadowMaskTexture(GraphicsDevice *device, ProcessContext *processContext)
+    void GenerateShadowMaskTexture(GraphicsDevice *device)
     {
       // $TODO this texture could be pre-made and the one being generated here is WAY overkill for how tiny it shows up on-screen, but it does look nice!
       static constexpr uint32_t k_size = 512;
       static constexpr uint32_t k_mipCount = 8;
 
       ComPtr<ID3D11RenderTargetView> tempRTVLevel0;
-      device->CreateTexture2D(
-        k_size,
-        k_size / 2,
-        k_mipCount,
-        DXGI_FORMAT_R8G8B8A8_UNORM,
-        GraphicsDevice::TextureFlags::UAV,
-        &shadowMaskTexture,
-        &shadowMaskSRV,
-        nullptr,
-        &tempRTVLevel0);
+      shadowMaskTexture = device->CreateTexture(k_size, k_size / 2, k_mipCount, DXGI_FORMAT_R8G8B8A8_UNORM, TextureFlags::RenderTarget);
 
       // First step is the generate the texture at the largest mip level
       {
@@ -174,13 +154,11 @@ namespace NTSCify::CRT
 
         device->DiscardAndUpdateBuffer(constBuf, &consts, sizeof(consts));
 
-        processContext->RenderQuadWithPixelShader(
-          device,
+        device->RenderQuadWithPixelShader(
           generateShadowMaskShader,
-          shadowMaskTexture,
-          tempRTVLevel0,
+          shadowMaskTexture.get(),
           {},
-          {processContext->samplerStateClamp},
+          {SamplerType::Clamp},
           {constBuf});
       }
 
@@ -189,35 +167,14 @@ namespace NTSCify::CRT
       device->CreatePixelShader(IDR_DOWNSAMPLE_2X, &downsampleShader);
       for (uint32_t destMip = 1; destMip < k_mipCount; destMip++)
       {
-        ComPtr<ID3D11RenderTargetView> tempRTV;
-        {
-          D3D11_RENDER_TARGET_VIEW_DESC desc;
-          ZeroType(&desc);
-          desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-          desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-          desc.Texture2D.MipSlice = destMip;
-          CHECK_HRESULT(device->D3DDevice()->CreateRenderTargetView(shadowMaskTexture, &desc, tempRTV.AddressForReplace()), "Create RTV");
-        }
+        std::unique_ptr<IMipLevelSource> levelSource = device->CreateMipLevelSource(shadowMaskTexture.get(), destMip - 1);
+        std::unique_ptr<IMipLevelTarget> levelTarget = device->CreateMipLevelTarget(shadowMaskTexture.get(), destMip);
 
-        ComPtr<ID3D11ShaderResourceView> tempSRV;
-        {
-          D3D11_SHADER_RESOURCE_VIEW_DESC desc;
-          ZeroType(&desc);
-          desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-          desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-          desc.Texture2D.MipLevels = 1;
-          desc.Texture2D.MostDetailedMip = destMip - 1;
-          CHECK_HRESULT(device->D3DDevice()->CreateShaderResourceView(shadowMaskTexture, &desc, tempSRV.AddressForReplace()), "Create SRV");
-        }
-
-        processContext->RenderQuadWithPixelShader(
-          device,
+        device->RenderQuadWithPixelShader(
           downsampleShader,
-          std::max(1U, k_size >> destMip),
-          std::max(1U, k_size >> (destMip + 1)),
-          tempRTV,
-          {tempSRV},
-          {processContext->samplerStateWrap},
+          levelTarget.get(),
+          {levelSource.get()},
+          {SamplerType::Wrap},
           {});
       }
     }
@@ -254,9 +211,8 @@ namespace NTSCify::CRT
     ComPtr<ID3D11Buffer> constantBuffer;
     ComPtr<ID3D11PixelShader> rgbToScreenShader;
   
-    ProcessContext::TextureSetUAV prevFrameTex;
+    std::unique_ptr<ITexture> prevFrameTex;
 
-    ComPtr<ID3D11Texture2D> shadowMaskTexture;
-    ComPtr<ID3D11ShaderResourceView> shadowMaskSRV;
+    std::unique_ptr<ITexture> shadowMaskTexture;
   };
 }

@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 
 #define NOMINMAX
 
@@ -7,6 +8,7 @@
 
 #include "ComPtr.h"
 #include "SimpleArray.h"
+#include "Util.h"
 
 #define UUID_AND_ADDRESS(pObj) __uuidof(decltype(pObj.Ptr())), reinterpret_cast<void**>(pObj.AddressForReplace())
 
@@ -22,6 +24,60 @@
   } \
   while (false)
 
+
+enum class TextureFlags
+{
+  Dynamic       = 0x01,
+  RenderTarget  = 0x02,
+
+  None          = 0x00,
+  All           = 0x03,
+};
+
+
+class ITexture
+{
+public:
+  virtual ~ITexture() = default;
+  virtual uint32_t Width() const = 0;
+  virtual uint32_t Height() const = 0;
+  virtual uint32_t MipCount() const = 0;
+  virtual DXGI_FORMAT Format() const = 0;
+
+protected:
+  ITexture() = default;
+};
+
+
+class IMipLevelSource
+{
+public:
+  virtual ~IMipLevelSource() = default;
+  virtual uint32_t Width() const = 0;
+  virtual uint32_t Height() const = 0;
+
+protected:
+  IMipLevelSource() = default;
+};
+
+
+class IMipLevelTarget
+{
+public:
+  virtual ~IMipLevelTarget() = default;
+  virtual uint32_t Width() const = 0;
+  virtual uint32_t Height() const = 0;
+
+protected:
+  IMipLevelTarget() = default;
+};
+
+
+enum class SamplerType
+{
+  Clamp,
+  Wrap,
+};
 
 // A rather minimal wrapper around a D3D device and related functionality
 class GraphicsDevice
@@ -58,17 +114,9 @@ public:
     ComPtr<ID3D11VertexShader> *shaderOut, 
     ComPtr<ID3D11InputLayout> *layoutOut);
   void CreatePixelShader(int resourceID, ComPtr<ID3D11PixelShader> *shaderOut);
-  void CreateComputeShader(int resourceID, ComPtr<ID3D11ComputeShader> *shaderOut);
   void CreateConstantBuffer(size_t size, ComPtr<ID3D11Buffer> *bufferOut);
 
   void DiscardAndUpdateBuffer(ID3D11Buffer *buffer, const void *data, size_t dataSize);
-
-  void RenderQuadWithPixelShader(
-    ID3D11PixelShader *ps,
-    ID3D11RenderTargetView *target,
-    std::initializer_list<ID3D11ShaderResourceView *> srvs,
-    std::initializer_list<ID3D11SamplerState *> samplers,
-    std::initializer_list<ID3D11Buffer *> constantBuffers);
 
   template <typename T>
   void DiscardAndUpdateBuffer(ID3D11Buffer *buffer, const T *data)
@@ -76,71 +124,145 @@ public:
     DiscardAndUpdateBuffer(buffer, data, sizeof(T));
   }
 
-  enum class TextureFlags
-  {
-    Dynamic = 0x01,
-    UAV = 0x02,
-    RenderTarget = 0x04,
 
-    None = 0x00,
-    All = 0x07,
+  std::unique_ptr<ITexture> CreateTexture(
+    uint32_t width,
+    uint32_t height,
+    uint32_t mipCount,
+    DXGI_FORMAT format,
+    TextureFlags flags,
+    void *initialDataTexels = nullptr,
+    uint32_t initialDataPitch = 0);
+
+
+  std::unique_ptr<ITexture> CreateTexture(
+    uint32_t width,
+    uint32_t height,
+    DXGI_FORMAT format,
+    TextureFlags flags,
+    void *initialDataTexels = nullptr,
+    uint32_t initialDataPitch = 0)
+    { return CreateTexture(width, height, 1, format, flags, initialDataTexels, initialDataPitch); }
+
+  std::unique_ptr<IMipLevelSource> CreateMipLevelSource(ITexture *texture, uint32_t mipLevel);
+  std::unique_ptr<IMipLevelTarget> CreateMipLevelTarget(ITexture *texture, uint32_t mipLevel);
+
+  void RenderQuadWithPixelShader(
+    ID3D11PixelShader *ps,
+    nullptr_t,
+    std::initializer_list<ITexture *> inputs,
+    std::initializer_list<SamplerType> samplers,
+    std::initializer_list<ID3D11Buffer *> constantBuffers);
+
+  void RenderQuadWithPixelShader(
+    ID3D11PixelShader *ps,
+    IMipLevelTarget *output,
+    std::initializer_list<IMipLevelSource *> inputs,
+    std::initializer_list<SamplerType> samplers,
+    std::initializer_list<ID3D11Buffer *> constantBuffers);
+
+  void RenderQuadWithPixelShader(
+    ID3D11PixelShader *ps,
+    ITexture *output,
+    std::initializer_list<ITexture *> inputs,
+    std::initializer_list<SamplerType> samplers,
+    std::initializer_list<ID3D11Buffer *> constantBuffers);
+
+private:
+  class Texture : public ITexture
+  {
+  public:
+    uint32_t Width() const override
+      { return width; }
+
+    uint32_t Height() const override
+      { return height; }
+
+    uint32_t MipCount() const override
+      { return mipCount; }
+
+    DXGI_FORMAT Format() const override
+      { return format; }
+
+    ComPtr<ID3D11Texture2D> texture;
+    ComPtr<ID3D11ShaderResourceView> srv;
+    ComPtr<ID3D11RenderTargetView> rtv;
+    uint32_t width;
+    uint32_t height;
+    uint32_t mipCount;
+    DXGI_FORMAT format;
   };
 
 
-  void CreateTexture2D(
-    uint32_t width, 
-    uint32_t height, 
-    uint32_t mipCount,
-    DXGI_FORMAT format,
-    TextureFlags flags,
-    ComPtr<ID3D11Texture2D> *textureOut,
-    ComPtr<ID3D11ShaderResourceView> *srvOut,
-    ComPtr<ID3D11UnorderedAccessView> *uavOut = nullptr,
-    void *initialDataTexels = nullptr,
-    uint32_t initialDataPitch = 0);
+  class MipLevelSource : public IMipLevelSource
+  {
+  public:
+    uint32_t Width() const override
+      { return width; }
 
-  void CreateTexture2D(
-    uint32_t width, 
-    uint32_t height, 
-    uint32_t mipCount,
-    DXGI_FORMAT format,
-    TextureFlags flags,
-    ComPtr<ID3D11Texture2D> *textureOut,
-    ComPtr<ID3D11ShaderResourceView> *srvOut,
-    ComPtr<ID3D11UnorderedAccessView> *uavOut,
-    ComPtr<ID3D11RenderTargetView> *rtvOut,
-    void *initialDataTexels = nullptr,
-    uint32_t initialDataPitch = 0);
+    uint32_t Height() const override
+      { return height; }    
 
-  void CreateTexture2D(
-    uint32_t width, 
-    uint32_t height, 
-    DXGI_FORMAT format,
-    TextureFlags flags,
-    ComPtr<ID3D11Texture2D> *textureOut,
-    ComPtr<ID3D11ShaderResourceView> *srvOut,
-    ComPtr<ID3D11UnorderedAccessView> *uavOut = nullptr,
-    void *initialDataTexels = nullptr,
-    uint32_t initialDataPitch = 0);
+    ComPtr<ID3D11Texture2D> texture;
+    ComPtr<ID3D11ShaderResourceView> srv;
 
-  void CreateTexture2D(
-    uint32_t width, 
-    uint32_t height, 
-    DXGI_FORMAT format,
-    TextureFlags flags,
-    ComPtr<ID3D11Texture2D> *textureOut,
-    ComPtr<ID3D11ShaderResourceView> *srvOut,
-    ComPtr<ID3D11UnorderedAccessView> *uavOut,
-    ComPtr<ID3D11RenderTargetView> *rtvOut,
-    void *initialDataTexels = nullptr,
-    uint32_t initialDataPitch = 0);
+    uint32_t width;
+    uint32_t height;
+  };
 
-private:
+  class MipLevelTarget : public IMipLevelTarget
+  {
+  public:
+    uint32_t Width() const override
+      { return width; }
+
+    uint32_t Height() const override
+      { return height; }    
+
+    ComPtr<ID3D11Texture2D> texture;
+    ComPtr<ID3D11RenderTargetView> rtv;
+
+    uint32_t width;
+    uint32_t height;
+  };
+
+  void RenderQuadWithPixelShader(
+    ID3D11PixelShader *ps,
+    uint32_t viewportWidth,
+    uint32_t viewportHeight,
+    ID3D11RenderTargetView *outputRtv,
+    std::initializer_list<ITexture *> inputs,
+    std::initializer_list<SamplerType> samplers,
+    std::initializer_list<ID3D11Buffer *> constantBuffers);
+    
+  void RenderQuadWithPixelShader(
+    ID3D11PixelShader *ps,
+    uint32_t viewportWidth,
+    uint32_t viewportHeight,
+    ID3D11RenderTargetView *outputRtv,
+    ID3D11ShaderResourceView **srvs,
+    uint32_t srvCount,
+    std::initializer_list<SamplerType> samplers,
+    std::initializer_list<ID3D11Buffer *> constantBuffers);
+    
+  void InitializeBuiltIns();
+
   ComPtr<ID3D11Device> device;
   ComPtr<ID3D11DeviceContext> context;
   ComPtr<IDXGISwapChain> swapChain;
   ComPtr<ID3D11Texture2D> backbuffer;
   ComPtr<ID3D11RenderTargetView> backbufferView;
+  uint32_t backbufferWidth;
+  uint32_t backbufferHeight;
+
+  ComPtr<ID3D11Buffer> vertexBuffer;
+  ComPtr<ID3D11InputLayout> inputLayout;
+
+  ComPtr<ID3D11SamplerState> samplerStates[2];
+  ComPtr<ID3D11RasterizerState> rasterizerState;
+  ComPtr<ID3D11BlendState> blendState;
+
+  ComPtr<ID3D11VertexShader> vertexShader;
 
   HWND window;
 };

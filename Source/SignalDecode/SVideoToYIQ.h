@@ -47,16 +47,14 @@ namespace NTSCify::SignalDecode
 
       device->DiscardAndUpdateBuffer(constantBuffer, &data);
 
-      processContext->RenderQuadWithPixelShader(
-        device,
+      device->RenderQuadWithPixelShader(
         sVideoToYIQShader,
-        processContext->fourComponentTexScratch.texture,
-        processContext->fourComponentTexScratch.rtv,
+        processContext->fourComponentTexScratch.get(),
         {
-          processContext->hasDoubledSignal ? processContext->fourComponentTex.srv : processContext->twoComponentTex.srv, 
-          processContext->hasDoubledSignal ? processContext->scanlinePhasesTwoComponent.srv : processContext->scanlinePhasesOneComponent.srv,
+          processContext->hasDoubledSignal ? processContext->fourComponentTex.get() : processContext->twoComponentTex.get(), 
+          processContext->hasDoubledSignal ? processContext->scanlinePhasesTwoComponent.get() : processContext->scanlinePhasesOneComponent.get(),
         },
-        {processContext->samplerStateClamp},
+        {SamplerType::Clamp},
         {constantBuffer});
 
       std::swap(processContext->fourComponentTex, processContext->fourComponentTexScratch);

@@ -25,8 +25,7 @@ struct LoadedTexture
   uint32_t height = 0;
   SimpleArray<uint32_t> data;
 
-  ComPtr<ID3D11Texture2D> texture;
-  ComPtr<ID3D11ShaderResourceView> srv;
+  std::unique_ptr<ITexture> texture;
 
   std::unique_ptr<NTSCify::ProcessContext> processContext;
   std::unique_ptr<NTSCify::SignalGeneration::RGBToSVideoOrComposite> rgbToSVideoOrComposite;
@@ -61,16 +60,7 @@ void LoadTexture(wchar_t *path)
   load->height = height;
   load->data = std::move(loaded);
 
-  s_graphicsDevice->CreateTexture2D(
-    width,
-    height,
-    DXGI_FORMAT_R8G8B8A8_UNORM,
-    GraphicsDevice::TextureFlags::None,
-    &load->texture,
-    &load->srv,
-    nullptr,
-    load->data.Ptr(),
-    width * sizeof(uint32_t));
+  load->texture = s_graphicsDevice->CreateTexture(width, height, DXGI_FORMAT_R8G8B8A8_UNORM, TextureFlags::None, load->data.Ptr(), width * sizeof(uint32_t));
 
   load->processContext = std::make_unique<NTSCify::ProcessContext>(
     s_graphicsDevice.get(), 
@@ -89,7 +79,7 @@ void LoadTexture(wchar_t *path)
   load->sVideoToYIQ = std::make_unique<NTSCify::SignalDecode::SVideoToYIQ>(s_graphicsDevice.get(), load->processContext->signalTextureWidth, height);
   load->yiqToRGB = std::make_unique<NTSCify::SignalDecode::YIQToRGB>(s_graphicsDevice.get(), load->processContext->signalTextureWidth, height);
   load->filterRGB = std::make_unique<NTSCify::SignalDecode::FilterRGB>(s_graphicsDevice.get(), width, load->processContext->signalTextureWidth, height);
-  load->rgbToCRT = std::make_unique<NTSCify::CRT::RGBToCRT>(s_graphicsDevice.get(), load->processContext.get(), width, load->processContext->signalTextureWidth, height);
+  load->rgbToCRT = std::make_unique<NTSCify::CRT::RGBToCRT>(s_graphicsDevice.get(), width, load->processContext->signalTextureWidth, height);
 
   loadedTexture = std::move(load);
 }
@@ -267,7 +257,7 @@ int PASCAL WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int)
       {
         loadedTexture->rgbToSVideoOrComposite->Generate(
           s_graphicsDevice.get(),
-          loadedTexture->srv,
+          loadedTexture->texture.get(),
           loadedTexture->processContext.get(),
           float(phase) / float(generationInfo.denominator),
           float(generationInfo.phaseIncrementPerLine) / float(generationInfo.denominator),

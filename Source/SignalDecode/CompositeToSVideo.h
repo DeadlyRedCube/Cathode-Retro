@@ -37,13 +37,11 @@ namespace NTSCify::SignalDecode
 
       auto &outTex = processContext->hasDoubledSignal ? processContext->fourComponentTex : processContext->twoComponentTex;
 
-      processContext->RenderQuadWithPixelShader(
-        device,
+      device->RenderQuadWithPixelShader(
         compositeToSVideoShader,
-        outTex.texture,
-        outTex.rtv,
-        { processContext->hasDoubledSignal ? processContext->twoComponentTex.srv : processContext->oneComponentTex.srv },
-        { processContext->samplerStateClamp },
+        outTex.get(),
+        { processContext->hasDoubledSignal ? processContext->twoComponentTex.get() : processContext->oneComponentTex.get() },
+        { SamplerType::Clamp },
         { constantBuffer });
     }
 

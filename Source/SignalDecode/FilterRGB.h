@@ -42,13 +42,11 @@ namespace NTSCify::SignalDecode
 
         device->DiscardAndUpdateBuffer(constantBuffer, &data);
 
-        processContext->RenderQuadWithPixelShader(
-          device,
+        device->RenderQuadWithPixelShader(
           blurRGBShader,
-          processContext->colorTexScratch.texture,
-          processContext->colorTexScratch.rtv,
-          {processContext->colorTex.srv},
-          {processContext->samplerStateClamp},
+          processContext->colorTexScratch.get(),
+          {processContext->colorTex.get()},
+          {SamplerType::Clamp},
           {constantBuffer});
 
         std::swap(processContext->colorTex, processContext->colorTexScratch);

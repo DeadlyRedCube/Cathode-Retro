@@ -44,8 +44,8 @@ namespace NTSCify::SignalGeneration
 
       device->DiscardAndUpdateBuffer(constantBuffer, &cd);
 
-      ProcessContext::TextureSetUAV *source;
-      ProcessContext::TextureSetUAV *target;
+      std::unique_ptr<ITexture> *source;
+      std::unique_ptr<ITexture> *target;
 
       if (processContext->hasDoubledSignal)
       {
@@ -61,13 +61,11 @@ namespace NTSCify::SignalGeneration
         target = (processContext->signalType == SignalType::SVideo) ? &processContext->twoComponentTexScratch : &processContext->oneComponentTexScratch;
       }
       
-      processContext->RenderQuadWithPixelShader(
-        device,
+      device->RenderQuadWithPixelShader(
         applyArtifactsShader,
-        target->texture,
-        target->rtv,
-        {source->srv},
-        {processContext->samplerStateClamp},
+        target->get(),
+        {source->get()},
+        {SamplerType::Clamp},
         {constantBuffer});
       std::swap(*source, *target);
 
