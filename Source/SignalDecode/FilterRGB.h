@@ -27,33 +27,24 @@ namespace NTSCify::SignalDecode
     }
 
 
-    void Apply(GraphicsDevice *device, ProcessContext *buffers, const TVKnobSettings &knobSettings)
+    void Apply(GraphicsDevice *device, ProcessContext *processContext, const TVKnobSettings &knobSettings)
     {
-      auto context = device->Context();
-
       // We don't have to do anything if the sharpness is 0
       if (knobSettings.sharpness != 0)
       {
         ConstantData data = { -knobSettings.sharpness, SignalGeneration::k_signalSamplesPerColorCycle };
         device->DiscardAndUpdateBuffer(constantBuffer, &data);
 
-        auto srv = buffers->colorTex.srv.Ptr();
-        auto uav = buffers->colorTexScratch.uav.Ptr();
-        auto cb = constantBuffer.Ptr();
+        processContext->RenderWithComputeShader(
+          device,
+          blurRGBShader,
+          processContext->colorTexScratch.texture,
+          processContext->colorTexScratch.uav,
+          {processContext->colorTex.srv},
+          {processContext->samplerStateClamp},
+          {constantBuffer});
 
-        context->CSSetShader(blurRGBShader, nullptr, 0);
-        context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
-        context->CSSetConstantBuffers(0, 1, &cb);
-        context->CSSetShaderResources(0, 1, &srv);
-
-        context->Dispatch((signalTextureWidth + 7) / 8, (scanlineCount + 7) / 8, 1);
-
-        srv = nullptr;
-        uav = nullptr;
-        context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
-        context->CSSetShaderResources(0, 1, &srv);
-
-        std::swap(buffers->colorTex, buffers->colorTexScratch);
+        std::swap(processContext->colorTex, processContext->colorTexScratch);
       }
     }
 

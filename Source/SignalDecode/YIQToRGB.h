@@ -28,28 +28,19 @@ namespace NTSCify::SignalDecode
     }
 
 
-    void Apply(GraphicsDevice *device, ProcessContext *buffers, const TVKnobSettings &knobSettings)
+    void Apply(GraphicsDevice *device, ProcessContext *processContext, const TVKnobSettings &knobSettings)
     {
-      auto context = device->Context();
       ConstantData data = { knobSettings.gamma };
       device->DiscardAndUpdateBuffer(constantBuffer, &data);
 
-      auto srv = buffers->fourComponentTex.srv.Ptr();
-      auto uav = buffers->colorTex.uav.Ptr();
-      auto cb = constantBuffer.Ptr();
-
-      context->CSSetShader(yiqToRGBShader, nullptr, 0);
-      context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
-      context->CSSetConstantBuffers(0, 1, &cb);
-      context->CSSetShaderResources(0, 1, &srv);
-
-
-      context->Dispatch((signalTextureWidth + 7) / 8, (scanlineCount + 7) / 8, 1);
-
-      srv = nullptr;
-      uav = nullptr;
-      context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
-      context->CSSetShaderResources(0, 1, &srv);
+      processContext->RenderWithComputeShader(
+        device,
+        yiqToRGBShader,
+        processContext->colorTex.texture,
+        processContext->colorTex.uav,
+        {processContext->fourComponentTex.srv},
+        {processContext->samplerStateClamp},
+        {constantBuffer});
     }
 
   private:

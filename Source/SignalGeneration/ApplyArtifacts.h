@@ -24,10 +24,8 @@ namespace NTSCify::SignalGeneration
     }
 
 
-    void Apply(GraphicsDevice *device, ProcessContext *buffers, const ArtifactSettings &options)
+    void Apply(GraphicsDevice *device, ProcessContext *processContext, const ArtifactSettings &options)
     {
-      auto context = device->Context();
-
       // First step: Convert the luma/chroma at signalUAVTwoComponentA into a composite texture at signalUAVOneComponentA
       ConstantData cd = 
       {
@@ -41,61 +39,39 @@ namespace NTSCify::SignalGeneration
         k_signalSamplesPerColorCycle,
       };
 
-      buffers->whiteLevel *= (1.0f + options.ghostVisibility);
-      buffers->blackLevel *= (1.0f + options.ghostVisibility);
+      processContext->whiteLevel *= (1.0f + options.ghostVisibility);
+      processContext->blackLevel *= (1.0f + options.ghostVisibility);
 
       device->DiscardAndUpdateBuffer(constantBuffer, &cd);
 
-      ID3D11ShaderResourceView *srv;
-      ID3D11UnorderedAccessView *uav;
+      ProcessContext::TextureSetUAV *source;
+      ProcessContext::TextureSetUAV *target;
 
-      if (buffers->hasDoubledSignal)
+      if (processContext->hasDoubledSignal)
       {
-        srv = ((buffers->signalType == SignalType::SVideo) ? buffers->fourComponentTex : buffers->twoComponentTex).srv.Ptr();
-        uav = ((buffers->signalType == SignalType::SVideo) ? buffers->fourComponentTexScratch : buffers->twoComponentTexScratch).uav.Ptr();
+        // If we have a doubled signal, then we either need a four-component texture (if we're writing out (luma, chroma) * 2) or a two-component 
+        //  (for composite * 2)
+        source = (processContext->signalType == SignalType::SVideo) ? &processContext->fourComponentTex : &processContext->twoComponentTex;
+        target = (processContext->signalType == SignalType::SVideo) ? &processContext->fourComponentTexScratch : &processContext->twoComponentTexScratch;
       }
       else
       {
-        srv = ((buffers->signalType == SignalType::SVideo) ? buffers->twoComponentTex : buffers->oneComponentTex).srv.Ptr();
-        uav = ((buffers->signalType == SignalType::SVideo) ? buffers->twoComponentTexScratch : buffers->oneComponentTexScratch).uav.Ptr();
+        // The signal is NOT doubled, so we only need a float2 texture (for (luma, chroma)) or a float texture (for composite)
+        source = (processContext->signalType == SignalType::SVideo) ? &processContext->twoComponentTex : &processContext->oneComponentTex;
+        target = (processContext->signalType == SignalType::SVideo) ? &processContext->twoComponentTexScratch : &processContext->oneComponentTexScratch;
       }
-      auto cb = constantBuffer.Ptr();
+      
+      processContext->RenderWithComputeShader(
+        device,
+        applyArtifactsShader,
+        target->texture,
+        target->uav,
+        {source->srv},
+        {processContext->samplerStateClamp},
+        {constantBuffer});
+      std::swap(*source, *target);
 
-      context->CSSetShader(applyArtifactsShader, nullptr, 0);
-      context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
-      context->CSSetConstantBuffers(0, 1, &cb);
-      context->CSSetShaderResources(0, 1, &srv);
-
-      context->Dispatch((signalTextureWidth + 7) / 8, (scanlineCount + 7) / 8, 1);
-
-      srv = nullptr;
-      uav = nullptr;
-      context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
-      context->CSSetShaderResources(0, 1, &srv);
       noiseSeed = (noiseSeed + 1) % (60*60);
-
-      if (buffers->hasDoubledSignal)
-      {
-        if (buffers->signalType == SignalType::SVideo)
-        {
-          std::swap(buffers->fourComponentTex, buffers->fourComponentTexScratch);
-        }
-        else
-        {
-          std::swap(buffers->twoComponentTex, buffers->twoComponentTexScratch);
-        }
-      }
-      else
-      {
-        if (buffers->signalType == SignalType::SVideo)
-        {
-          std::swap(buffers->twoComponentTex, buffers->twoComponentTexScratch);
-        }
-        else
-        {
-          std::swap(buffers->oneComponentTex, buffers->oneComponentTexScratch);
-        }
-      }
     }
 
   private:

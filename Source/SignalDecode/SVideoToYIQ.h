@@ -28,44 +28,38 @@ namespace NTSCify::SignalDecode
     }
 
 
-    void Apply(GraphicsDevice *device, ProcessContext *buffers, const TVKnobSettings &knobSettings, const SignalGeneration::ArtifactSettings &artifactSettings)
+    void Apply(
+      GraphicsDevice *device, 
+      ProcessContext *processContext, 
+      const TVKnobSettings &knobSettings, 
+      const SignalGeneration::ArtifactSettings &artifactSettings)
     {
-      auto context = device->Context();
-
       ConstantData data = 
       { 
         SignalGeneration::k_signalSamplesPerColorCycle,
         knobSettings.tint,
-        knobSettings.saturation / buffers->saturationScale,
+        knobSettings.saturation / processContext->saturationScale,
         knobSettings.brightness,
-        buffers->blackLevel,
-        buffers->whiteLevel,
-        buffers->hasDoubledSignal ? artifactSettings.temporalArtifactReduction : 0.0f,
+        processContext->blackLevel,
+        processContext->whiteLevel,
+        processContext->hasDoubledSignal ? artifactSettings.temporalArtifactReduction : 0.0f,
       };
+
       device->DiscardAndUpdateBuffer(constantBuffer, &data);
 
-      ID3D11ShaderResourceView *srv[] = 
-      {
-        buffers->hasDoubledSignal ? buffers->fourComponentTex.srv : buffers->twoComponentTex.srv, 
-        buffers->hasDoubledSignal ? buffers->scanlinePhasesTwoComponent.srv : buffers->scanlinePhasesOneComponent.srv,
-      };
+      processContext->RenderWithComputeShader(
+        device,
+        sVideoToYIQShader,
+        processContext->fourComponentTexScratch.texture,
+        processContext->fourComponentTexScratch.uav,
+        {
+          processContext->hasDoubledSignal ? processContext->fourComponentTex.srv : processContext->twoComponentTex.srv, 
+          processContext->hasDoubledSignal ? processContext->scanlinePhasesTwoComponent.srv : processContext->scanlinePhasesOneComponent.srv,
+        },
+        {processContext->samplerStateClamp},
+        {constantBuffer});
 
-      auto uav = buffers->fourComponentTexScratch.uav.Ptr();
-      auto cb = constantBuffer.Ptr();
-
-      context->CSSetShader(sVideoToYIQShader, nullptr, 0);
-      context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
-      context->CSSetConstantBuffers(0, 1, &cb);
-      context->CSSetShaderResources(0, UINT(k_arrayLength<decltype(srv)>), srv);
-
-      context->Dispatch((signalTextureWidth + 7) / 8, (scanlineCount + 7) / 8, 1);
-
-      ZeroType(srv, k_arrayLength<decltype(srv)>);
-      uav = nullptr;
-      context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
-      context->CSSetShaderResources(0, UINT(k_arrayLength<decltype(srv)>), srv);
-
-      std::swap(buffers->fourComponentTex, buffers->fourComponentTexScratch);
+      std::swap(processContext->fourComponentTex, processContext->fourComponentTexScratch);
     }
 
   private:

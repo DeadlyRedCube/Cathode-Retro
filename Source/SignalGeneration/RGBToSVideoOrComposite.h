@@ -33,29 +33,24 @@ namespace NTSCify::SignalGeneration
     void Generate(
       GraphicsDevice *device, 
       ID3D11ShaderResourceView *rgbSRV, 
-      ProcessContext *buffers, 
+      ProcessContext *processContext, 
       float initialFramePhase, 
       float phaseIncrementPerScanline, 
       const ArtifactSettings &artifactSettings)
     {
-      auto context = device->Context();
-
-      ID3D11ShaderResourceView *scanlinePhaseSRV;
-      ID3D11UnorderedAccessView *scanlinePhaseUAV;
-      ID3D11UnorderedAccessView *targetUAV;
+      ProcessContext::TextureSetUAV *scanlinePhase;
+      ProcessContext::TextureSetUAV *target;
       if (artifactSettings.temporalArtifactReduction > 0.0f && prevFrameStartPhase != initialFramePhase)
       {
-        buffers->hasDoubledSignal = true;
-        scanlinePhaseSRV = buffers->scanlinePhasesTwoComponent.srv;
-        scanlinePhaseUAV = buffers->scanlinePhasesTwoComponent.uav;
-        targetUAV = (buffers->signalType == SignalType::Composite) ? buffers->twoComponentTex.uav.Ptr() : buffers->fourComponentTex.uav.Ptr();
+        processContext->hasDoubledSignal = true;
+        scanlinePhase = &processContext->scanlinePhasesTwoComponent;
+        target = (processContext->signalType == SignalType::Composite) ? &processContext->twoComponentTex : &processContext->fourComponentTex;
       }
       else
       {
-        buffers->hasDoubledSignal = false;
-        scanlinePhaseSRV = buffers->scanlinePhasesOneComponent.srv;
-        scanlinePhaseUAV = buffers->scanlinePhasesOneComponent.uav;
-        targetUAV = (buffers->signalType == SignalType::Composite) ? buffers->oneComponentTex.uav.Ptr() : buffers->twoComponentTex.uav.Ptr();
+        processContext->hasDoubledSignal = false;
+        scanlinePhase = &processContext->scanlinePhasesOneComponent;
+        target = (processContext->signalType == SignalType::Composite) ? &processContext->oneComponentTex : &processContext->twoComponentTex;
       }
 
       // Update our scanline phases texture
@@ -74,16 +69,14 @@ namespace NTSCify::SignalGeneration
 
         device->DiscardAndUpdateBuffer(constantBuffer, &cd);
 
-        auto uav = scanlinePhaseUAV;
-        auto cb = constantBuffer.Ptr();
-        context->CSSetShader(generatePhaseTextureShader, nullptr, 0);
-        context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
-        context->CSSetConstantBuffers(0, 1, &cb);
-
-        context->Dispatch((scanlineCount + 7) / 8, 1, 1);
-
-        uav = nullptr;
-        context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
+        processContext->RenderWithComputeShader(
+          device,
+          generatePhaseTextureShader,
+          scanlinePhase->texture,
+          scanlinePhase->uav,
+          {},
+          {processContext->samplerStateClamp},
+          {constantBuffer});
       }
 
       // Now run the actual shader
@@ -94,38 +87,26 @@ namespace NTSCify::SignalGeneration
           rgbTextureWidth, 
           signalTextureWidth,  
           scanlineCount,
-          (buffers->signalType == SignalType::Composite) ? 1.0f : 0.0f,
+          (processContext->signalType == SignalType::Composite) ? 1.0f : 0.0f,
           artifactSettings.instabilityScale,
           noiseSeed,
         };
 
         device->DiscardAndUpdateBuffer(constantBuffer, &cd);
 
-        ID3D11ShaderResourceView *srv[] = {rgbSRV, scanlinePhaseSRV};
-        auto uav = targetUAV;
-        auto cb = constantBuffer.Ptr();
-
-        {
-          ID3D11SamplerState *st[] = {buffers->samplerStateClamp};
-          context->CSSetSamplers(0, UINT(k_arrayLength<decltype(st)>), st);
-        }
-
-        context->CSSetShader(rgbToSVideoShader, nullptr, 0);
-        context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
-        context->CSSetConstantBuffers(0, 1, &cb);
-        context->CSSetShaderResources(0, UINT(k_arrayLength<decltype(srv)>), srv);
-
-        context->Dispatch((signalTextureWidth + 7) / 8, (scanlineCount + 7) / 8, 1);
-
-        ZeroType(srv, k_arrayLength<decltype(srv)>);
-        uav = nullptr;
-        context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
-        context->CSSetShaderResources(0, UINT(k_arrayLength<decltype(srv)>), srv);
+        processContext->RenderWithComputeShader(
+          device,
+          rgbToSVideoShader,
+          target->texture,
+          target->uav,
+          {rgbSRV, scanlinePhase->srv},
+          {processContext->samplerStateClamp},
+          {constantBuffer});
       }
 
-      buffers->blackLevel = 0.0f;
-      buffers->whiteLevel = 1.0f;
-      buffers->saturationScale = 0.5f;
+      processContext->blackLevel = 0.0f;
+      processContext->whiteLevel = 1.0f;
+      processContext->saturationScale = 0.5f;
 
       prevFrameStartPhase = initialFramePhase;
 
