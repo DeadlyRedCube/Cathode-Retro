@@ -255,9 +255,12 @@ int PASCAL WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int)
       s_graphicsDevice->ClearBackbuffer();
 
       NTSCify::SignalGeneration::ArtifactSettings artifactSettings;
-      artifactSettings.noiseStrength = 0.15f;
-      artifactSettings.ghostVisibility = 0.65f;
+      artifactSettings.noiseStrength = 0.05f;
+      artifactSettings.ghostVisibility = 0.0f; // 0.35f;
+      artifactSettings.ghostSpreadScale = 0.71f;
+      artifactSettings.ghostDistance = 3.1f;
       artifactSettings.temporalArtifactReduction = 1.0f;
+      artifactSettings.instabilityScale = 0.5f;
 
 
       if (loadedTexture != nullptr)

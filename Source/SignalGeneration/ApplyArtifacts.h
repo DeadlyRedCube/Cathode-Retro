@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include "SignalGeneration/ArtifactSettings.h"
+#include "Constants.h"
 #include "GraphicsDevice.h"
 #include "ProcessContext.h"
 #include "resource.h"
@@ -32,11 +33,16 @@ namespace NTSCify::SignalGeneration
       {
         options.ghostSpreadScale,
         options.ghostVisibility,
+        options.ghostDistance,
         noiseSeed,
         options.noiseStrength,
         signalTextureWidth,
         scanlineCount,
+        k_signalSamplesPerColorCycle,
       };
+
+      buffers->whiteLevel *= (1.0f + options.ghostVisibility);
+      buffers->blackLevel *= (1.0f + options.ghostVisibility);
 
       device->DiscardAndUpdateBuffer(constantBuffer, &cd);
 
@@ -98,6 +104,7 @@ namespace NTSCify::SignalGeneration
       // These parameters affect the ghosting. $TODO: Reimplement ghosting, what we have now is bad
       float ghostSpreadScale;
       float ghostBrightness;
+      float ghostDistance;
 
       // Noise strength and seed to adjust how much noise there is (And how to animate it)
       int32_t noiseSeed;
@@ -108,6 +115,7 @@ namespace NTSCify::SignalGeneration
 
       // How many scanlines there are to the signal
       uint32_t scanlineCount;
+      uint32_t samplesPerColorburstCycle;
     };
 
     uint32_t scanlineCount;
