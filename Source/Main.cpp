@@ -235,7 +235,7 @@ int PASCAL WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int)
       screenSettings.verticalDistortion = 0.25f;
       screenSettings.cornerRounding = 0.05f;
       screenSettings.shadowMaskScale = 1.0f;
-      screenSettings.shadowMaskStrength = 1.0f;
+      screenSettings.shadowMaskStrength = 0.8f;
       screenSettings.phosphorDecay = 0.05f;
       screenSettings.scanlineStrength = 0.25f;
 

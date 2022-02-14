@@ -25,6 +25,7 @@ namespace NTSCify
       rgbToScreenShader = device->CreatePixelShader(IDR_RGB_TO_CRT);
       generateScreenTextureShader = device->CreatePixelShader(IDR_GENERATE_SCREEN_TEXTURE);
       constantBuffer = device->CreateConstantBuffer(sizeof(RGBToScreenConstants));
+      samplePatternConstantBuffer = device->CreateConstantBuffer(sizeof(k_samplingPattern16X));
 
       GenerateShadowMaskTexture();
     }
@@ -77,7 +78,6 @@ namespace NTSCify
           }
         }
 
-        // 
         data.distortionX = screenSettings.horizontalDistortion;
         data.distortionY = screenSettings.verticalDistortion;
         data.maskDistortionX = screenSettings.screenEdgeRoundingX + data.distortionX;
@@ -110,13 +110,22 @@ namespace NTSCify
         || screenTexture->Width() != outputTargetWidth 
         || screenTexture->Height() != outputTargetHeight)
       {
-        screenTexture = device->CreateTexture(outputTargetWidth, outputTargetHeight, DXGI_FORMAT_R16G16B16A16_FLOAT, TextureFlags::RenderTarget);
+        device->DiscardAndUpdateBuffer(samplePatternConstantBuffer, &k_samplingPattern16X);
+
+        if (screenTexture == nullptr 
+          || screenTexture->Width() != outputTargetWidth 
+          || screenTexture->Height() != outputTargetHeight)
+        {
+          // Rebuild the texture at the correct resolution
+          screenTexture = device->CreateTexture(outputTargetWidth, outputTargetHeight, DXGI_FORMAT_R16G16B16A16_FLOAT, TextureFlags::RenderTarget);
+        }
+
         device->RenderQuadWithPixelShader(
           generateScreenTextureShader,
           screenTexture.get(),
           {shadowMaskTexture.get()},
           {SamplerType::Wrap},
-          {constantBuffer});
+          {constantBuffer, samplePatternConstantBuffer});
 
         screenSettingsDirty = false;
       }
@@ -130,6 +139,43 @@ namespace NTSCify
     }
 
   protected:
+    // These are float2 sampling patterns, but they need to be float4 aligned for the constant buffers, so there's 2 padding floats per
+    //  coordinate.
+    // These are standard 8x and 16x sampling patterns (found in the D3D docs here:
+    //  https://docs.microsoft.com/en-us/windows/win32/api/d3d11/ne-d3d11-d3d11_standard_multisample_quality_levels )
+    static constexpr float k_samplingPattern8X[] =
+    {
+       1.0f / 8.0, -3.0f / 8.0,   0.0f, 0.0f,
+      -1.0f / 8.0,  3.0f / 8.0,   0.0f, 0.0f,
+       5.0f / 8.0,  1.0f / 8.0,   0.0f, 0.0f,
+      -3.0f / 8.0, -5.0f / 8.0,   0.0f, 0.0f,
+      -5.0f / 8.0,  5.0f / 8.0,   0.0f, 0.0f,
+      -7.0f / 8.0, -1.0f / 8.0,   0.0f, 0.0f,
+       3.0f / 8.0,  7.0f / 8.0,   0.0f, 0.0f,
+       7.0f / 8.0, -7.0f / 8.0,   0.0f, 0.0f,
+    };
+
+
+    static constexpr float k_samplingPattern16X[] =
+    {
+       1.0f / 8.0,  1.0f / 8.0,   0.0f, 0.0f,
+      -1.0f / 8.0, -3.0f / 8.0,   0.0f, 0.0f,
+      -3.0f / 8.0,  2.0f / 8.0,   0.0f, 0.0f,
+       4.0f / 8.0, -1.0f / 8.0,   0.0f, 0.0f,
+      -5.0f / 8.0, -2.0f / 8.0,   0.0f, 0.0f,
+       2.0f / 8.0,  5.0f / 8.0,   0.0f, 0.0f,
+       5.0f / 8.0,  3.0f / 8.0,   0.0f, 0.0f,
+       3.0f / 8.0, -5.0f / 8.0,   0.0f, 0.0f,
+      -2.0f / 8.0,  6.0f / 8.0,   0.0f, 0.0f,
+       0.0f / 8.0, -7.0f / 8.0,   0.0f, 0.0f,
+      -4.0f / 8.0, -6.0f / 8.0,   0.0f, 0.0f,
+      -6.0f / 8.0,  4.0f / 8.0,   0.0f, 0.0f,
+      -8.0f / 8.0,  0.0f / 8.0,   0.0f, 0.0f,
+       7.0f / 8.0, -4.0f / 8.0,   0.0f, 0.0f,
+       6.0f / 8.0,  7.0f / 8.0,   0.0f, 0.0f,
+      -7.0f / 8.0, -8.0f / 8.0,   0.0f, 0.0f,
+    };
+
     // Generate the shadow mask texture we use for the CRT emulation
     void GenerateShadowMaskTexture()
     {
@@ -218,6 +264,7 @@ namespace NTSCify
     uint32_t scanlineCount;
 
     ComPtr<ID3D11Buffer> constantBuffer;
+    ComPtr<ID3D11Buffer> samplePatternConstantBuffer;
     ComPtr<ID3D11PixelShader> rgbToScreenShader;
     ComPtr<ID3D11PixelShader> generateScreenTextureShader;
   

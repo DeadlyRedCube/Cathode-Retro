@@ -59,7 +59,8 @@ float4 main(float2 inTexCoord : TEX) : SV_TARGET
     // If a phosphor hasn't decayed all the way keep its brightness
     sourceColor = max(prevSourceColor * g_phosphorDecay, sourceColor);
   }
-  
+
   // Put it all together
   return float4(lerp((0.05).xxx, sourceColor * screenMask.rgb, screenMask.a), 1);
+
 }

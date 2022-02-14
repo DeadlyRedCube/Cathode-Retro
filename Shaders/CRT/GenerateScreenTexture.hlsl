@@ -4,7 +4,6 @@ Texture2D<float4> g_shadowMaskTexture : register(t0);
 
 sampler g_sampler : register(s0);
 
-
 cbuffer consts : register(b0)
 {
   float2 g_viewScale;           // Scale to get the correct aspect ratio of the image
@@ -23,6 +22,35 @@ cbuffer consts : register(b0)
   float  g_signalTextureWidth;
 }
 
+cbuffer moreConsts : register(b1)
+{
+  float2 g_samplePoints[16];
+}
+
+
+float3 ScreenTint(float2 coord)
+{
+  // Calculate the scanline multiplier
+  // $TODO When we finally add interlacing back in, the scanline info will need to move to a separate texture
+  float scanlineMultiplier;
+  {
+    static const float k_pi = 3.141597;
+    float yCoord = (coord.y + 0.125f) * g_scanlineCount;
+    scanlineMultiplier = sqrt(sin(yCoord * 2.0 * k_pi) * 0.5 + 0.5);
+    scanlineMultiplier = (scanlineMultiplier * g_scanlineStrength) + 1.0 - g_scanlineStrength * 0.60;
+  }
+  
+  // Sample the shadow mask
+  float3 shadowMaskColor = g_shadowMaskTexture.SampleBias(
+    g_sampler, 
+    coord * g_shadowMaskScale,
+    -1).rgb;
+
+  shadowMaskColor = (shadowMaskColor - 0.15) * g_shadowMaskStrength + 1.0;
+
+  return shadowMaskColor * scanlineMultiplier;
+}
+
 
 float4 main(float2 inTexCoord : TEX) : SV_TARGET
 {
@@ -32,8 +60,8 @@ float4 main(float2 inTexCoord : TEX) : SV_TARGET
   float2 maskT = DistortCRTCoordinates(inTexCoord * g_viewScale, g_maskDistortion);
 
   // Now distort our actual texture coordinates to get our texture into the correct space for display
-  float2 shadowMaskT = DistortCRTCoordinates(inTexCoord * g_viewScale, g_distortion) * g_overscanScale + g_overscanOffset * 2.0;
-  
+  float2 t = DistortCRTCoordinates(inTexCoord * g_viewScale, g_distortion) * g_overscanScale + g_overscanOffset * 2.0;
+
   // Calculate the signed distance to the edge of the "screen" taking the rounded corners into account.
   float edgeDist;
   {
@@ -54,23 +82,17 @@ float4 main(float2 inTexCoord : TEX) : SV_TARGET
   // Masking value blends nicely in based on our signed distance and the mask's rough length.
   float maskAlpha = 1.0 - smoothstep(g_roundedCornerSize - length(ddx(maskT) + ddy(maskT)), g_roundedCornerSize, edgeDist);
 
-  // Calculate the scanline multiplier
-  // $TODO Do some moire-reduction magic
-  // $TODO Also when we finally add interlacing back in, the scanline info will need to move to a separate one-component texture
-  float scanlineMultiplier;
-  {
-    static const float k_pi = 3.141597;
-    scanlineMultiplier = sqrt(sin(((shadowMaskT.y + 0.125f) * g_scanlineCount) * 2.0 * k_pi) * 0.5 + 0.5);
-    scanlineMultiplier = (scanlineMultiplier * g_scanlineStrength) + 1.0 - g_scanlineStrength * 0.60;
-  }
-  
-  // Sample the shadow mask
-  // $TODO Do some moire-reduction magic
-  float3 shadowMaskColor = g_shadowMaskTexture.SampleBias(
-    g_sampler, 
-    shadowMaskT * g_shadowMaskScale,
-    0.25).rgb;
+  float2 dxT = ddx(t);
+  float2 dyT = ddy(t);
 
-  shadowMaskColor = (shadowMaskColor - 0.15) * g_shadowMaskStrength + 1.0;
-  return float4((scanlineMultiplier * shadowMaskColor), maskAlpha);
+  float3 color = 0;
+  for (uint i = 0; i < 16; i++)
+  {
+    color += ScreenTint(t + g_samplePoints[i].x * dxT + g_samplePoints[i].y * dyT);
+  }
+
+  color /= 16.0;
+
+
+  return float4(color, maskAlpha);
 }
