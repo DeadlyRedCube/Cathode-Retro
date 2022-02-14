@@ -23,8 +23,8 @@ namespace NTSCify::DecodeComponents
     , signalTextureWidth(signalTextureWidthIn)
     , colorCyclesPerInputPixel(colorCyclesPerInputPixelIn)
     {
-      device->CreateConstantBuffer(sizeof(ConstantData), &constantBuffer);
-      device->CreatePixelShader(IDR_FILTER_RGB, &blurRGBShader);
+      constantBuffer = device->CreateConstantBuffer(sizeof(ConstantData));
+      blurRGBShader = device->CreatePixelShader(IDR_FILTER_RGB);
     }
 
 

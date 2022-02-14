@@ -90,11 +90,11 @@ public:
 
   void UpdateWindowSize();
 
-  ID3D11Texture2D *BackbufferTexture()
-    { return backbuffer; }
+  uint32_t BackbufferWidth() const
+    { return backbufferWidth; }
 
-  ID3D11RenderTargetView *BackbufferView()
-    { return backbufferView; }
+  uint32_t BackbufferHeight() const
+    { return backbufferHeight; }
 
   void ClearBackbuffer();
 
@@ -113,8 +113,9 @@ public:
     size_t layoutElementCount,
     ComPtr<ID3D11VertexShader> *shaderOut, 
     ComPtr<ID3D11InputLayout> *layoutOut);
-  void CreatePixelShader(int resourceID, ComPtr<ID3D11PixelShader> *shaderOut);
-  void CreateConstantBuffer(size_t size, ComPtr<ID3D11Buffer> *bufferOut);
+  
+  ComPtr<ID3D11PixelShader> CreatePixelShader(int resourceID);
+  ComPtr<ID3D11Buffer> CreateConstantBuffer(size_t size);
 
   void DiscardAndUpdateBuffer(ID3D11Buffer *buffer, const void *data, size_t dataSize);
 

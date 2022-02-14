@@ -18,8 +18,8 @@ namespace NTSCify::DecodeComponents
     : scanlineCount(scanlineCountIn)
     , signalTextureWidth(signalTextureWidthIn)
     {
-      device->CreateConstantBuffer(sizeof(ConstantData), &constantBuffer);
-      device->CreatePixelShader(IDR_COMPOSITE_TO_SVIDEO, &compositeToSVideoShader);
+      constantBuffer = device->CreateConstantBuffer(sizeof(ConstantData));
+      compositeToSVideoShader = device->CreatePixelShader(IDR_COMPOSITE_TO_SVIDEO);
     }
 
 

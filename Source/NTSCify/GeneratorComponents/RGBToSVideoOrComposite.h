@@ -25,9 +25,9 @@ namespace NTSCify::GeneratorComponents
     , scanlineCount(scanlineCountIn)
     , signalTextureWidth(signalTextureWidthIn)
     {
-      device->CreateConstantBuffer(std::max(sizeof(RGBToSVideoConstantData), sizeof(GeneratePhaseTextureConstantData)), &constantBuffer);
-      device->CreatePixelShader(IDR_RGB_TO_SVIDEO_OR_COMPOSITE, &rgbToSVideoShader);
-      device->CreatePixelShader(IDR_GENERATE_PHASE_TEXTURE, &generatePhaseTextureShader);
+      constantBuffer = device->CreateConstantBuffer(std::max(sizeof(RGBToSVideoConstantData), sizeof(GeneratePhaseTextureConstantData)));
+      rgbToSVideoShader = device->CreatePixelShader(IDR_RGB_TO_SVIDEO_OR_COMPOSITE);
+      generatePhaseTextureShader = device->CreatePixelShader(IDR_GENERATE_PHASE_TEXTURE);
     }
 
 

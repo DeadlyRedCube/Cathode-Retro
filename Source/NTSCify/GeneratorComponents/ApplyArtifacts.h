@@ -20,8 +20,8 @@ namespace NTSCify::GeneratorComponents
     : scanlineCount(scanlineCountIn)
     , signalTextureWidth(signalTextureWidthIn)
     {
-      device->CreateConstantBuffer(sizeof(ConstantData), &constantBuffer);
-      device->CreatePixelShader(IDR_APPLY_ARTIFACTS, &applyArtifactsShader);
+      constantBuffer = device->CreateConstantBuffer(sizeof(ConstantData));
+      applyArtifactsShader = device->CreatePixelShader(IDR_APPLY_ARTIFACTS);
     }
 
 

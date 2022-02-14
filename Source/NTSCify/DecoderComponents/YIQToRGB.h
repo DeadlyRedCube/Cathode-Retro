@@ -21,7 +21,7 @@ namespace NTSCify::DecodeComponents
     : scanlineCount(scanlineCountIn)
     , signalTextureWidth(signalTextureWidthIn)
     {
-      device->CreatePixelShader(IDR_YIQ_TO_RGB, &yiqToRGBShader);
+      yiqToRGBShader = device->CreatePixelShader(IDR_YIQ_TO_RGB);
     }
 
 

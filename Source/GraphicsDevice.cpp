@@ -74,16 +74,19 @@ void GraphicsDevice::CreateVertexShaderAndInputLayout(
 }
 
   
-void GraphicsDevice::CreatePixelShader(int resourceID, ComPtr<ID3D11PixelShader> *shaderOut)
+ComPtr<ID3D11PixelShader> GraphicsDevice::CreatePixelShader(int resourceID)
 {
   auto data = LoadResourceBytes(resourceID);
+  ComPtr<ID3D11PixelShader> shader;
   CHECK_HRESULT(
     device->CreatePixelShader(
       data.Ptr(),
       DWORD(data.Length()),
       nullptr, 
-      shaderOut->AddressForReplace()), 
+      shader.AddressForReplace()), 
     "create pixel shader");
+
+  return shader;
 }
 
   
@@ -182,7 +185,7 @@ std::unique_ptr<IMipLevelTarget> GraphicsDevice::CreateMipLevelTarget(ITexture *
 }
 
 
-void GraphicsDevice::CreateConstantBuffer(size_t size, ComPtr<ID3D11Buffer> *bufferOut)
+ComPtr<ID3D11Buffer> GraphicsDevice::CreateConstantBuffer(size_t size)
 {
   // Constant buffers must be multiples of 16 bytes in size so round up if we're off.
   if (size & 0x0F)
@@ -196,7 +199,10 @@ void GraphicsDevice::CreateConstantBuffer(size_t size, ComPtr<ID3D11Buffer> *buf
   desc.Usage = D3D11_USAGE_DYNAMIC;
   desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
   desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-  CHECK_HRESULT(device->CreateBuffer(&desc, nullptr, bufferOut->AddressForReplace()), "create constant buffer");
+  ComPtr<ID3D11Buffer> buffer;
+  CHECK_HRESULT(device->CreateBuffer(&desc, nullptr, buffer.AddressForReplace()), "create constant buffer");
+
+  return buffer;
 }
 
 
@@ -330,7 +336,6 @@ void GraphicsDevice::InitializeBuiltIns()
     desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
     desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
     desc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-    desc.MipLODBias = 0.25f;
     desc.MinLOD = 0;
     desc.MaxLOD = D3D11_FLOAT32_MAX;
     CHECK_HRESULT(device->CreateSamplerState(&desc, samplerStates[EnumValue(SamplerType::Clamp)].AddressForReplace()), "create standard sampler state");
@@ -345,7 +350,6 @@ void GraphicsDevice::InitializeBuiltIns()
     desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
     desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
     desc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-    desc.MipLODBias = 0.25f;
     desc.MinLOD = 0;
     desc.MaxLOD = D3D11_FLOAT32_MAX;
     CHECK_HRESULT(device->CreateSamplerState(&desc, samplerStates[EnumValue(SamplerType::Wrap)].AddressForReplace()), "create wrap sampler state");

@@ -22,29 +22,28 @@ namespace NTSCify
     , signalTextureWidth(signalTextureWidthIn)
     , scanlineCount(scanlineCountIn)
     {
-      device->CreatePixelShader(IDR_RGB_TO_CRT, &rgbToScreenShader);
-      device->CreateConstantBuffer(sizeof(RGBToScreenConstants), &constantBuffer);
+      rgbToScreenShader = device->CreatePixelShader(IDR_RGB_TO_CRT);
+      generateScreenTextureShader = device->CreatePixelShader(IDR_GENERATE_SCREEN_TEXTURE);
+      constantBuffer = device->CreateConstantBuffer(sizeof(RGBToScreenConstants));
 
       GenerateShadowMaskTexture();
     }
 
 
     void SetScreenSettings(const ScreenSettings &settings)
-      { screenSettings = settings; }
+    { 
+      if (memcmp(&settings, &screenSettings, sizeof(ScreenSettings)) != 0)
+      {
+        screenSettings = settings; 
+        screenSettingsDirty = true;
+      }
+    }
 
 
     void Render(const ITexture *currentFrameRGBInput, const ITexture *previousFrameRGBInput)
     {
-      auto outputTarget = device->BackbufferTexture();
-      uint32_t outputTargetWidth;
-      uint32_t outputTargetHeight;
-
-      {
-        D3D11_TEXTURE2D_DESC desc;
-        outputTarget->GetDesc(&desc);
-        outputTargetWidth = desc.Width;
-        outputTargetHeight = desc.Height;
-      }
+      uint32_t outputTargetWidth = device->BackbufferWidth();
+      uint32_t outputTargetHeight = device->BackbufferHeight();
 
       // Next up: Set up our shader constants
       {
@@ -106,11 +105,27 @@ namespace NTSCify
         device->DiscardAndUpdateBuffer(constantBuffer, &data);
       }
 
+      if (screenSettingsDirty 
+        || screenTexture == nullptr 
+        || screenTexture->Width() != outputTargetWidth 
+        || screenTexture->Height() != outputTargetHeight)
+      {
+        screenTexture = device->CreateTexture(outputTargetWidth, outputTargetHeight, DXGI_FORMAT_R16G16B16A16_FLOAT, TextureFlags::RenderTarget);
+        device->RenderQuadWithPixelShader(
+          generateScreenTextureShader,
+          screenTexture.get(),
+          {shadowMaskTexture.get()},
+          {SamplerType::Wrap},
+          {constantBuffer});
+
+        screenSettingsDirty = false;
+      }
+
       device->RenderQuadWithPixelShader(
         rgbToScreenShader,
         nullptr,
-        {currentFrameRGBInput, previousFrameRGBInput, shadowMaskTexture.get()},
-        {SamplerType::Clamp, SamplerType::Wrap},
+        {currentFrameRGBInput, previousFrameRGBInput, screenTexture.get()},
+        {SamplerType::Clamp},
         {constantBuffer});
     }
 
@@ -127,8 +142,7 @@ namespace NTSCify
 
       // First step is the generate the texture at the largest mip level
       {
-        ComPtr<ID3D11PixelShader> generateShadowMaskShader;
-        device->CreatePixelShader(IDR_GENERATE_SHADOW_MASK, &generateShadowMaskShader);
+        ComPtr<ID3D11PixelShader> generateShadowMaskShader = device->CreatePixelShader(IDR_GENERATE_SHADOW_MASK);
 
         struct GenerateShadowMaskConstants
         {
@@ -144,8 +158,7 @@ namespace NTSCify
         consts.texWidth = float(k_size);
         consts.texHeight = float(k_size / 2);
 
-        ComPtr<ID3D11Buffer> constBuf;
-        device->CreateConstantBuffer(sizeof(GenerateShadowMaskConstants), &constBuf);
+        ComPtr<ID3D11Buffer> constBuf = device->CreateConstantBuffer(sizeof(GenerateShadowMaskConstants));
 
         device->DiscardAndUpdateBuffer(constBuf, &consts, sizeof(consts));
 
@@ -158,8 +171,7 @@ namespace NTSCify
       }
 
       // Now it's generated so we need to generate the mips by using our lanczos downsample
-      ComPtr<ID3D11PixelShader> downsampleShader;
-      device->CreatePixelShader(IDR_DOWNSAMPLE_2X, &downsampleShader);
+      ComPtr<ID3D11PixelShader> downsampleShader = device->CreatePixelShader(IDR_DOWNSAMPLE_2X);
       for (uint32_t destMip = 1; destMip < k_mipCount; destMip++)
       {
         std::unique_ptr<IMipLevelSource> levelSource = device->CreateMipLevelSource(shadowMaskTexture.get(), destMip - 1);
@@ -207,9 +219,12 @@ namespace NTSCify
 
     ComPtr<ID3D11Buffer> constantBuffer;
     ComPtr<ID3D11PixelShader> rgbToScreenShader;
+    ComPtr<ID3D11PixelShader> generateScreenTextureShader;
   
     std::unique_ptr<ITexture> shadowMaskTexture;
+    std::unique_ptr<ITexture> screenTexture;
 
     ScreenSettings screenSettings;
+    bool screenSettingsDirty = false;
   };
 }
