@@ -4,10 +4,9 @@ namespace NTSCify
 {
   struct ArtifactSettings
   {
-    // $TODO These ghosting settings could be better make them better - I think we want one major ghost that is blurred instead of a weird horizontal smudge
     float ghostVisibility = 0.0f;           // How visible is the ghost
-    float ghostSpreadScale = 0.650f;        // How far does each sample of the ghost spread from the last
-    float ghostDistance    = 4.0f;          // How far from center is the ghost's center
+    float ghostSpreadScale = 0.71f;         // How far does each sample of the ghost spread from the last
+    float ghostDistance    = 3.1f;          // How far from center is the ghost's center
 
     float noiseStrength = 0.0f;             // How much noise is added to the signal
 

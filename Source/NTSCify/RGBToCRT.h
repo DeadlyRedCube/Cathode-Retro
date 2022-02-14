@@ -6,7 +6,7 @@
 #include "resource.h"
 #include "Util.h"
 
-namespace NTSCify::CRT
+namespace NTSCify
 {
   // This class takes RGB data (either the input or SVideo/composite filtering final output) and draws it as if it were on a CRT screen
   class RGBToCRT
@@ -106,7 +106,6 @@ namespace NTSCify::CRT
         device->DiscardAndUpdateBuffer(constantBuffer, &data);
       }
 
-      // $TODO: Should probably make this function take the output render target as a parameter since not everyone will be rendering to backbuffer
       device->RenderQuadWithPixelShader(
         rgbToScreenShader,
         nullptr,

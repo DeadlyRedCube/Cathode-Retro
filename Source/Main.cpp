@@ -24,7 +24,7 @@ struct LoadedTexture
 
   std::unique_ptr<NTSCify::SignalGenerator> signalGenerator;
   std::unique_ptr<NTSCify::SignalDecoder> signalDecoder;
-  std::unique_ptr<NTSCify::CRT::RGBToCRT> rgbToCRT;
+  std::unique_ptr<NTSCify::RGBToCRT> rgbToCRT;
 };
 
 std::unique_ptr<LoadedTexture> loadedTexture;
@@ -57,7 +57,7 @@ void LoadTexture(wchar_t *path)
     height,
     generationInfo);
   load->signalDecoder = std::make_unique<NTSCify::SignalDecoder>(s_graphicsDevice.get(), load->signalGenerator->SignalProperties());
-  load->rgbToCRT = std::make_unique<NTSCify::CRT::RGBToCRT>(s_graphicsDevice.get(), width, load->signalGenerator->SignalProperties().scanlineWidth, height);
+  load->rgbToCRT = std::make_unique<NTSCify::RGBToCRT>(s_graphicsDevice.get(), width, load->signalGenerator->SignalProperties().scanlineWidth, height);
 
   loadedTexture = std::move(load);
 }
@@ -227,11 +227,27 @@ int PASCAL WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int)
       artifactSettings.temporalArtifactReduction = 1.0f;
       artifactSettings.instabilityScale = 0.5f;
 
+      NTSCify::TVKnobSettings knobSettings;
+
+      NTSCify::ScreenSettings screenSettings;
+      screenSettings.inputPixelAspectRatio = 1.0f;
+      screenSettings.horizontalDistortion = 0.20f;
+      screenSettings.verticalDistortion = 0.25f;
+      screenSettings.cornerRounding = 0.05f;
+      screenSettings.shadowMaskScale = 1.0f;
+      screenSettings.shadowMaskStrength = 1.0f;
+      screenSettings.phosphorDecay = 0.05f;
+      screenSettings.scanlineStrength = 0.25f;
 
       if (loadedTexture != nullptr)
       {
+        loadedTexture->signalGenerator->SetArtifactSettings(artifactSettings);
         loadedTexture->signalGenerator->Generate(loadedTexture->texture.get());
+
+        loadedTexture->signalDecoder->SetKnobSettings(knobSettings);
         loadedTexture->signalDecoder->Decode(loadedTexture->signalGenerator->SignalTexture(), loadedTexture->signalGenerator->PhasesTexture(), loadedTexture->signalGenerator->SignalLevels());
+
+        loadedTexture->rgbToCRT->SetScreenSettings(screenSettings);
         loadedTexture->rgbToCRT->Render(loadedTexture->signalDecoder->CurrentFrameRGBOutput(), loadedTexture->signalDecoder->PreviousFrameRGBOutput());
       }
 

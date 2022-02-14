@@ -221,7 +221,6 @@ GraphicsDevice::GraphicsDevice(HWND hwnd)
   swapDesc.Windowed = true;
   swapDesc.SampleDesc.Count = 1;
 
-  // $TODO Handle different refresh rates?
   swapDesc.BufferDesc.RefreshRate.Numerator = 60;
   swapDesc.BufferDesc.RefreshRate.Denominator = 1;
 
@@ -386,7 +385,7 @@ void GraphicsDevice::UpdateWindowSize()
     2, 
     backbufferWidth,
     backbufferHeight,
-    DXGI_FORMAT_R8G8B8A8_UNORM, 
+    DXGI_FORMAT_R8G8B8A8_UNORM,
     DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT);
 
   swapChain->GetBuffer(0, UUID_AND_ADDRESS(backbuffer));

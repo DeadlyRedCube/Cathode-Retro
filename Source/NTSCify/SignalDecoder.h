@@ -58,7 +58,7 @@ namespace NTSCify
       }
 
       sVideoToYIQ->Apply(device, levels, sVideoTexture, inputPhases, yiqTexture.get(), knobSettings);
-      yiqToRGB->Apply(device, yiqTexture.get(), rgbTexture.get(), knobSettings);
+      yiqToRGB->Apply(device, yiqTexture.get(), rgbTexture.get());
       if (filterRGB->Apply(device, rgbTexture.get(), scratchRGBTexture.get(), knobSettings))
       {
         // We applied RGB to scratch so swap scratch in for our RGB texture it's now our output

@@ -69,7 +69,7 @@ namespace NTSCify::GeneratorComponents
   private:
     struct ConstantData
     {
-      // These parameters affect the ghosting. $TODO: Reimplement ghosting, what we have now is bad
+      // These parameters affect the ghosting.
       float ghostSpreadScale;
       float ghostBrightness;
       float ghostDistance;

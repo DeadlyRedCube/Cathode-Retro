@@ -110,5 +110,10 @@ float4 main(float2 inTexCoord : TEX): SV_TARGET
   Y.x = lerp(Y.x, Y.y, g_temporalArtifactReduction * 0.5);
   IQ.xy = lerp(IQ.xy, IQ.zw, g_temporalArtifactReduction * 0.5);
 
+  // Do some gamma adjustments (values effectively based on eyeballing the results of NTSC signals from NES, SNES, and Genesis consoles)
+  Y.x = pow(saturate(Y.x), 2.0 / 2.2);
+  float iqSat = saturate(length(IQ.xy));
+  IQ.xy *= pow(iqSat, 2.0 / 2.2) / max(0.00001, iqSat);
+
   return float4(Y.x, IQ.xy, 1);
 }

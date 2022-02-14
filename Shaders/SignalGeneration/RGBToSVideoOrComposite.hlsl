@@ -50,6 +50,11 @@ float4 main(float2 signalTexCoord: TEX): SV_TARGET
   // Convert RGB to YIQ
   float3 YIQ = mul(RGB, mat);
 
+  // Do some gamma adjustments to counter for the gamma that will be used at decode time.
+  YIQ.x = pow(saturate(YIQ.x), 2.2 / 2);
+  float iqSat = saturate(length(YIQ.yz));
+  YIQ.yz *= pow(iqSat, 2.2 / 2) / max(0.00001, iqSat);
+  
   // Separate them out because YIQ.y ended up being confusing (is it y? no it's i! but also it's y!)
   float Y = YIQ.x;
   float I = YIQ.y;

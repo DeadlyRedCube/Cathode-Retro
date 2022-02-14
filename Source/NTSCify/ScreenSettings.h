@@ -2,7 +2,7 @@
 
 #include <cinttypes>
 
-namespace NTSCify::CRT
+namespace NTSCify
 {
   struct ScreenSettings
   {
@@ -17,24 +17,24 @@ namespace NTSCify::CRT
     uint32_t overscanBottom = 0;
 
     // How much to barrel distort our picture horizontally and vertically to emulate a curved screen
-    float horizontalDistortion = 0.20f;
-    float verticalDistortion = 0.25f;
+    float horizontalDistortion = 0.0f;
+    float verticalDistortion = 0.0f;
 
     // How much additional rounding of the edges we want to emulate a screen that didn't have a rectangular bezel shape
     float screenEdgeRoundingX = 0.0f;
     float screenEdgeRoundingY = 0.0f;
 
     // How much to round the corners (to emulate an old TV with rounded corners)
-    float cornerRounding = 0.05f;
+    float cornerRounding = 0.0f;
 
     // How much the shadow 
     float shadowMaskScale = 1.0f;
-    float shadowMaskStrength = 1.0f;
+    float shadowMaskStrength = 0.0f;
 
     // How much of the previous frame to keep around on the next frame.
-    float phosphorDecay = 0.05f;
+    float phosphorDecay = 0.0f;
 
     // How powerful the scanlines are
-    float scanlineStrength = 0.25f;
+    float scanlineStrength = 0.0f;
   };
 }
