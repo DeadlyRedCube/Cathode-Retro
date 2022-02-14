@@ -404,7 +404,7 @@ void GraphicsDevice::Present()
 void GraphicsDevice::RenderQuadWithPixelShader(
   ID3D11PixelShader *ps,
   nullptr_t,
-  std::initializer_list<ITexture *> inputs,
+  std::initializer_list<const ITexture *> inputs,
   std::initializer_list<SamplerType> samplers,
   std::initializer_list<ID3D11Buffer *> constantBuffers)
 {
@@ -422,14 +422,14 @@ void GraphicsDevice::RenderQuadWithPixelShader(
 void GraphicsDevice::RenderQuadWithPixelShader(
   ID3D11PixelShader *ps,
   IMipLevelTarget *output,
-  std::initializer_list<IMipLevelSource *> inputs,
+  std::initializer_list<const IMipLevelSource *> inputs,
   std::initializer_list<SamplerType> samplers,
   std::initializer_list<ID3D11Buffer *> constantBuffers)
 {
   ID3D11ShaderResourceView *srvs[16] = {};
   for (uint32_t i = 0; i < inputs.size(); i++)
   {
-    srvs[i] = static_cast<MipLevelSource *>(inputs.begin()[i])->srv;
+    srvs[i] = static_cast<const MipLevelSource *>(inputs.begin()[i])->srv;
   }
 
   RenderQuadWithPixelShader(
@@ -447,7 +447,7 @@ void GraphicsDevice::RenderQuadWithPixelShader(
 void GraphicsDevice::RenderQuadWithPixelShader(
   ID3D11PixelShader *ps,
   ITexture *output,
-  std::initializer_list<ITexture *> inputs,
+  std::initializer_list<const ITexture *> inputs,
   std::initializer_list<SamplerType> samplers,
   std::initializer_list<ID3D11Buffer *> constantBuffers)
 {
@@ -467,14 +467,14 @@ void GraphicsDevice::RenderQuadWithPixelShader(
   uint32_t viewportWidth,
   uint32_t viewportHeight,
   ID3D11RenderTargetView *outputRtv,
-  std::initializer_list<ITexture *> inputs,
+  std::initializer_list<const ITexture *> inputs,
   std::initializer_list<SamplerType> samplers,
   std::initializer_list<ID3D11Buffer *> constantBuffers)
 {
   ID3D11ShaderResourceView *srvs[16] = {};
   for (uint32_t i = 0; i < inputs.size(); i++)
   {
-    srvs[i] = static_cast<Texture *>(inputs.begin()[i])->srv;
+    srvs[i] = static_cast<const Texture *>(inputs.begin()[i])->srv;
   }
 
   RenderQuadWithPixelShader(

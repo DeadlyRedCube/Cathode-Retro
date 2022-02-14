@@ -42,9 +42,6 @@
     <ClCompile Include="Source\Main.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Source\ProcessContext.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="Source\ReadWicTexture.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -101,12 +98,13 @@
     <ClInclude Include="Source\SignalGeneration\ApplyArtifacts.h">
       <Filter>Headers\SignalGeneration</Filter>
     </ClInclude>
-    <ClInclude Include="Source\ProcessContext.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
     <ClInclude Include="Source\SignalGeneration\Constants.h">
       <Filter>Headers\SignalGeneration</Filter>
     </ClInclude>
+    <ClInclude Include="Source\SignalGeneration\SignalGenerator.h" />
+    <ClInclude Include="Source\SignalGeneration\SignalLevels.h" />
+    <ClInclude Include="Source\SignalDecode\SignalDecoder.h" />
+    <ClInclude Include="Source\SignalGeneration\SignalProperties.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">

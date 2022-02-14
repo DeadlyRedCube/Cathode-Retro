@@ -3,7 +3,6 @@
 #include <algorithm>
 
 #include "GraphicsDevice.h"
-#include "ProcessContext.h"
 #include "SignalGeneration/Constants.h"
 #include "resource.h"
 #include "Util.h"
@@ -24,25 +23,17 @@ namespace NTSCify::SignalDecode
     }
 
 
-    void Apply(GraphicsDevice *device, ProcessContext *processContext)
+    void Apply(GraphicsDevice *device,  const ITexture *compositeIn, ITexture *sVideoOut)
     {
-      if (processContext->signalType == SignalGeneration::SignalType::SVideo)
-      {
-        // We're actually already using SVideo so there's nothing to do here.
-        return;
-      }
-
       ConstantData cd = { SignalGeneration::k_signalSamplesPerColorCycle, 1.0f / float(signalTextureWidth), 1.0f / float(scanlineCount) };
       device->DiscardAndUpdateBuffer(constantBuffer, &cd);
 
-      auto &outTex = processContext->hasDoubledSignal ? processContext->fourComponentTex : processContext->twoComponentTex;
-
       device->RenderQuadWithPixelShader(
         compositeToSVideoShader,
-        outTex.get(),
-        { processContext->hasDoubledSignal ? processContext->twoComponentTex.get() : processContext->oneComponentTex.get() },
-        { SamplerType::Clamp },
-        { constantBuffer });
+        sVideoOut,
+        {compositeIn},
+        {SamplerType::Clamp},
+        {constantBuffer});
     }
 
   private:

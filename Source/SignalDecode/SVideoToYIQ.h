@@ -4,8 +4,8 @@
 
 #include "SignalDecode/TVKnobSettings.h"
 #include "SignalGeneration/ArtifactSettings.h"
+#include "SignalGeneration/SignalLevels.h"
 #include "GraphicsDevice.h"
-#include "ProcessContext.h"
 #include "resource.h"
 #include "Util.h"
 
@@ -30,34 +30,31 @@ namespace NTSCify::SignalDecode
 
     void Apply(
       GraphicsDevice *device, 
-      ProcessContext *processContext, 
-      const TVKnobSettings &knobSettings, 
-      const SignalGeneration::ArtifactSettings &artifactSettings)
+      const SignalGeneration::SignalLevels &levels,
+      const ITexture *signalInput,
+      const ITexture *phasesInput,
+      ITexture *yiqOutput,
+      const TVKnobSettings &knobSettings)
     {
       ConstantData data = 
       { 
         SignalGeneration::k_signalSamplesPerColorCycle,
         knobSettings.tint,
-        knobSettings.saturation / processContext->saturationScale,
+        knobSettings.saturation / levels.saturationScale,
         knobSettings.brightness,
-        processContext->blackLevel,
-        processContext->whiteLevel,
-        processContext->hasDoubledSignal ? artifactSettings.temporalArtifactReduction : 0.0f,
+        levels.blackLevel,
+        levels.whiteLevel,
+        levels.temporalArtifactReduction,
       };
 
       device->DiscardAndUpdateBuffer(constantBuffer, &data);
 
       device->RenderQuadWithPixelShader(
         sVideoToYIQShader,
-        processContext->fourComponentTexScratch.get(),
-        {
-          processContext->hasDoubledSignal ? processContext->fourComponentTex.get() : processContext->twoComponentTex.get(), 
-          processContext->hasDoubledSignal ? processContext->scanlinePhasesTwoComponent.get() : processContext->scanlinePhasesOneComponent.get(),
-        },
+        yiqOutput,
+        {signalInput, phasesInput},
         {SamplerType::Clamp},
         {constantBuffer});
-
-      std::swap(processContext->fourComponentTex, processContext->fourComponentTexScratch);
     }
 
   private:

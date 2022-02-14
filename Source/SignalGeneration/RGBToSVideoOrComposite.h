@@ -4,8 +4,9 @@
 
 #include "SignalGeneration/ArtifactSettings.h"
 #include "SignalGeneration/Constants.h"
+#include "SignalGeneration/SignalLevels.h"
+#include "SignalGeneration/SourceSettings.h"
 #include "GraphicsDevice.h"
-#include "ProcessContext.h"
 #include "resource.h"
 #include "Util.h"
 
@@ -32,27 +33,16 @@ namespace NTSCify::SignalGeneration
 
     void Generate(
       GraphicsDevice *device, 
-      ITexture *rgbTexture, 
-      ProcessContext *processContext, 
+      SignalType signalType,
+      const ITexture *rgbTexture, 
+      ITexture *phaseTextureOut,
+      ITexture *signalTextureOut,
+      SignalLevels *levelsOut,
       float initialFramePhase, 
+      float prevFrameStartPhase,
       float phaseIncrementPerScanline, 
       const ArtifactSettings &artifactSettings)
     {
-      ITexture *scanlinePhase;
-      ITexture *target;
-      if (artifactSettings.temporalArtifactReduction > 0.0f && prevFrameStartPhase != initialFramePhase)
-      {
-        processContext->hasDoubledSignal = true;
-        scanlinePhase = processContext->scanlinePhasesTwoComponent.get();
-        target = ((processContext->signalType == SignalType::Composite) ? processContext->twoComponentTex : processContext->fourComponentTex).get();
-      }
-      else
-      {
-        processContext->hasDoubledSignal = false;
-        scanlinePhase = processContext->scanlinePhasesOneComponent.get();
-        target = ((processContext->signalType == SignalType::Composite) ? processContext->oneComponentTex : processContext->twoComponentTex).get();
-      }
-
       // Update our scanline phases texture
       {
         GeneratePhaseTextureConstantData cd = 
@@ -71,7 +61,7 @@ namespace NTSCify::SignalGeneration
 
         device->RenderQuadWithPixelShader(
           generatePhaseTextureShader,
-          scanlinePhase,
+          phaseTextureOut,
           {},
           {SamplerType::Clamp},
           {constantBuffer});
@@ -85,7 +75,7 @@ namespace NTSCify::SignalGeneration
           rgbTextureWidth, 
           signalTextureWidth,  
           scanlineCount,
-          (processContext->signalType == SignalType::Composite) ? 1.0f : 0.0f,
+          (signalType == SignalType::Composite) ? 1.0f : 0.0f,
           artifactSettings.instabilityScale,
           noiseSeed,
         };
@@ -94,17 +84,15 @@ namespace NTSCify::SignalGeneration
 
         device->RenderQuadWithPixelShader(
           rgbToSVideoShader,
-          target,
-          {rgbTexture, scanlinePhase},
+          signalTextureOut,
+          {rgbTexture, phaseTextureOut},
           {SamplerType::Clamp},
           {constantBuffer});
       }
 
-      processContext->blackLevel = 0.0f;
-      processContext->whiteLevel = 1.0f;
-      processContext->saturationScale = 0.5f;
-
-      prevFrameStartPhase = initialFramePhase;
+      levelsOut->blackLevel = 0.0f;
+      levelsOut->whiteLevel = 1.0f;
+      levelsOut->saturationScale = 0.5f;
 
       noiseSeed = (noiseSeed + 1) & 0x000FFFFF;
     }
@@ -139,7 +127,6 @@ namespace NTSCify::SignalGeneration
     ComPtr<ID3D11PixelShader> rgbToSVideoShader;
     ComPtr<ID3D11PixelShader> generatePhaseTextureShader;
     ComPtr<ID3D11Buffer> constantBuffer;
-    float prevFrameStartPhase = 0.0f;
 
     uint32_t noiseSeed = 0;
   };

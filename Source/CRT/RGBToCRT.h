@@ -3,7 +3,6 @@
 #include <cinttypes>
 #include "CRT/ScreenSettings.h"
 #include "GraphicsDevice.h"
-#include "ProcessContext.h"
 #include "resource.h"
 #include "Util.h"
 
@@ -14,27 +13,27 @@ namespace NTSCify::CRT
   {
   public:
     RGBToCRT(
-      GraphicsDevice *device, 
+      GraphicsDevice *deviceIn, 
       uint32_t inputImageWidthIn, 
       uint32_t signalTextureWidthIn, 
       uint32_t scanlineCountIn)
-    : inputImageWidth(inputImageWidthIn)
+    : device(deviceIn)
+    , inputImageWidth(inputImageWidthIn)
     , signalTextureWidth(signalTextureWidthIn)
     , scanlineCount(scanlineCountIn)
     {
-      prevFrameTex = device->CreateTexture(signalTextureWidth, scanlineCount, DXGI_FORMAT_R8G8B8A8_UNORM, TextureFlags::RenderTarget);
-
       device->CreatePixelShader(IDR_RGB_TO_CRT, &rgbToScreenShader);
       device->CreateConstantBuffer(sizeof(RGBToScreenConstants), &constantBuffer);
 
-      GenerateShadowMaskTexture(device);
+      GenerateShadowMaskTexture();
     }
 
 
-    void Render(
-      GraphicsDevice *device, 
-      ProcessContext *processContext,
-      const ScreenSettings &screenSettings)
+    void SetScreenSettings(const ScreenSettings &settings)
+      { screenSettings = settings; }
+
+
+    void Render(const ITexture *currentFrameRGBInput, const ITexture *previousFrameRGBInput)
     {
       auto outputTarget = device->BackbufferTexture();
       uint32_t outputTargetWidth;
@@ -111,17 +110,14 @@ namespace NTSCify::CRT
       device->RenderQuadWithPixelShader(
         rgbToScreenShader,
         nullptr,
-        {processContext->colorTex.get(), prevFrameTex.get(), shadowMaskTexture.get()},
+        {currentFrameRGBInput, previousFrameRGBInput, shadowMaskTexture.get()},
         {SamplerType::Clamp, SamplerType::Wrap},
         {constantBuffer});
-
-      // Swap the color texture we used with our previous frame texture so we have that ready for next time
-      std::swap(processContext->colorTex, prevFrameTex);
     }
 
   protected:
     // Generate the shadow mask texture we use for the CRT emulation
-    void GenerateShadowMaskTexture(GraphicsDevice *device)
+    void GenerateShadowMaskTexture()
     {
       // $TODO this texture could be pre-made and the one being generated here is WAY overkill for how tiny it shows up on-screen, but it does look nice!
       static constexpr uint32_t k_size = 512;
@@ -204,6 +200,8 @@ namespace NTSCify::CRT
       float signalTextureWidth;     // The width (in texels) of the signal texture
     };
 
+    GraphicsDevice *device;
+
     uint32_t inputImageWidth;
     uint32_t signalTextureWidth;
     uint32_t scanlineCount;
@@ -211,8 +209,8 @@ namespace NTSCify::CRT
     ComPtr<ID3D11Buffer> constantBuffer;
     ComPtr<ID3D11PixelShader> rgbToScreenShader;
   
-    std::unique_ptr<ITexture> prevFrameTex;
-
     std::unique_ptr<ITexture> shadowMaskTexture;
+
+    ScreenSettings screenSettings;
   };
 }

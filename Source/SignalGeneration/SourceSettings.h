@@ -22,23 +22,23 @@ namespace NTSCify::SignalGeneration
     //  2/3rds, etc. 
     //
     // Basically, all subsequent values are fractions with this as the denominator.
-    int32_t denominator = 1;
+    uint32_t denominator = 1;
 
     // This is a measure of how many cycles of the color carrier wave there are per pixel, and the answer is usually <= 1.
-    int32_t colorCyclesPerInputPixel = 1;
+    uint32_t colorCyclesPerInputPixel = 1;
 
     // Phase is measured in multiples of the color cycle.
 
     // This is what fraction of the color cycle the first line of the first frame starts at
-    int32_t initialFramePhase = 0;
+    uint32_t initialFramePhase = 0;
 
     // This is what fraction of the color cycle the phase increments every scanline
-    int32_t phaseIncrementPerLine = 0;
+    uint32_t phaseIncrementPerLine = 0;
 
     // Some systems had different phase changes per frame, and so this breaks down "how different is the starting phase of a frame
     //  from one frame to the next" into even and odd frame deltas.
-    int32_t phaseIncrementPerEvenFrame = 0;
-    int32_t phaseIncrementPerOddFrame = 0;
+    uint32_t phaseIncrementPerEvenFrame = 0;
+    uint32_t phaseIncrementPerOddFrame = 0;
   };
 
 

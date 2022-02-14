@@ -5,8 +5,8 @@
 #include "SignalGeneration/ArtifactSettings.h"
 #include "Constants.h"
 #include "GraphicsDevice.h"
-#include "ProcessContext.h"
 #include "resource.h"
+#include "SignalLevels.h"
 #include "Util.h"
 
 namespace NTSCify::SignalGeneration
@@ -24,8 +24,18 @@ namespace NTSCify::SignalGeneration
     }
 
 
-    void Apply(GraphicsDevice *device, ProcessContext *processContext, const ArtifactSettings &options)
+    [[nodiscard]] bool Apply(
+      GraphicsDevice *device, 
+      const ITexture *inputSignal,
+      ITexture *outputSignal,
+      SignalLevels *levelsInOut,
+      const ArtifactSettings &options)
     {
+      if (options.noiseStrength <= 0.0f && options.ghostVisibility != 0.0f)
+      {
+        return false;
+      }
+
       // First step: Convert the luma/chroma at signalUAVTwoComponentA into a composite texture at signalUAVOneComponentA
       ConstantData cd = 
       {
@@ -39,37 +49,20 @@ namespace NTSCify::SignalGeneration
         k_signalSamplesPerColorCycle,
       };
 
-      processContext->whiteLevel *= (1.0f + options.ghostVisibility);
-      processContext->blackLevel *= (1.0f + options.ghostVisibility);
+      levelsInOut->whiteLevel *= (1.0f + options.ghostVisibility);
+      levelsInOut->blackLevel *= (1.0f + options.ghostVisibility);
 
       device->DiscardAndUpdateBuffer(constantBuffer, &cd);
 
-      std::unique_ptr<ITexture> *source;
-      std::unique_ptr<ITexture> *target;
-
-      if (processContext->hasDoubledSignal)
-      {
-        // If we have a doubled signal, then we either need a four-component texture (if we're writing out (luma, chroma) * 2) or a two-component 
-        //  (for composite * 2)
-        source = (processContext->signalType == SignalType::SVideo) ? &processContext->fourComponentTex : &processContext->twoComponentTex;
-        target = (processContext->signalType == SignalType::SVideo) ? &processContext->fourComponentTexScratch : &processContext->twoComponentTexScratch;
-      }
-      else
-      {
-        // The signal is NOT doubled, so we only need a float2 texture (for (luma, chroma)) or a float texture (for composite)
-        source = (processContext->signalType == SignalType::SVideo) ? &processContext->twoComponentTex : &processContext->oneComponentTex;
-        target = (processContext->signalType == SignalType::SVideo) ? &processContext->twoComponentTexScratch : &processContext->oneComponentTexScratch;
-      }
-      
       device->RenderQuadWithPixelShader(
         applyArtifactsShader,
-        target->get(),
-        {source->get()},
+        outputSignal,
+        {inputSignal},
         {SamplerType::Clamp},
         {constantBuffer});
-      std::swap(*source, *target);
 
       noiseSeed = (noiseSeed + 1) % (60*60);
+      return true;
     }
 
   private:

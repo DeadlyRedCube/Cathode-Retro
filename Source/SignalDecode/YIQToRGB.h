@@ -4,7 +4,6 @@
 
 #include "SignalDecode/TVKnobSettings.h"
 #include "GraphicsDevice.h"
-#include "ProcessContext.h"
 #include "resource.h"
 #include "Util.h"
 
@@ -28,15 +27,19 @@ namespace NTSCify::SignalDecode
     }
 
 
-    void Apply(GraphicsDevice *device, ProcessContext *processContext, const TVKnobSettings &knobSettings)
+    void Apply(
+      GraphicsDevice *device, 
+      const ITexture *inputYIQ,
+      ITexture *outputRGB,
+      const TVKnobSettings &knobSettings)
     {
       ConstantData data = { knobSettings.gamma };
       device->DiscardAndUpdateBuffer(constantBuffer, &data);
 
       device->RenderQuadWithPixelShader(
         yiqToRGBShader,
-        processContext->colorTex.get(),
-        {processContext->fourComponentTex.get()},
+        outputRGB,
+        {inputYIQ},
         {SamplerType::Clamp},
         {constantBuffer});
     }

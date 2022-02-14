@@ -2,13 +2,8 @@
 #include <memory>
 
 #include "CRT/RGBToCRT.h"
-#include "SignalGeneration/ApplyArtifacts.h"
-#include "SignalGeneration/RGBToSVideoOrComposite.h"
-#include "SignalGeneration/SourceSettings.h"
-#include "SignalDecode/CompositeToSVideo.h"
-#include "SignalDecode/FilterRGB.h"
-#include "SignalDecode/SVideoToYIQ.h"
-#include "SignalDecode/YIQToRGB.h"
+#include "SignalGeneration/SignalGenerator.h"
+#include "SignalDecode/SignalDecoder.h"
 #include "GraphicsDevice.h"
 #include "ReadWicTexture.h"
 
@@ -27,13 +22,8 @@ struct LoadedTexture
 
   std::unique_ptr<ITexture> texture;
 
-  std::unique_ptr<NTSCify::ProcessContext> processContext;
-  std::unique_ptr<NTSCify::SignalGeneration::RGBToSVideoOrComposite> rgbToSVideoOrComposite;
-  std::unique_ptr<NTSCify::SignalGeneration::ApplyArtifacts> applyArtifacts;
-  std::unique_ptr<NTSCify::SignalDecode::CompositeToSVideo> compositeToSVideo;
-  std::unique_ptr<NTSCify::SignalDecode::SVideoToYIQ> sVideoToYIQ;
-  std::unique_ptr<NTSCify::SignalDecode::YIQToRGB> yiqToRGB;
-  std::unique_ptr<NTSCify::SignalDecode::FilterRGB> filterRGB;
+  std::unique_ptr<NTSCify::SignalGeneration::SignalGenerator> signalGenerator;
+  std::unique_ptr<NTSCify::SignalDecode::SignalDecoder> signalDecoder;
   std::unique_ptr<NTSCify::CRT::RGBToCRT> rgbToCRT;
 };
 
@@ -49,8 +39,6 @@ void LoadTexture(wchar_t *path)
     return;
   }
 
-  // generationInfo.signalType = NTSCify::SignalGeneration::SignalType::SVideo;
-
   std::unique_ptr<LoadedTexture> load = std::make_unique<LoadedTexture>();
   uint32_t width;
   uint32_t height;
@@ -62,24 +50,14 @@ void LoadTexture(wchar_t *path)
 
   load->texture = s_graphicsDevice->CreateTexture(width, height, DXGI_FORMAT_R8G8B8A8_UNORM, TextureFlags::None, load->data.Ptr(), width * sizeof(uint32_t));
 
-  load->processContext = std::make_unique<NTSCify::ProcessContext>(
+  load->signalGenerator = std::make_unique<NTSCify::SignalGeneration::SignalGenerator>(
     s_graphicsDevice.get(), 
-    generationInfo.signalType,
-    width, 
-    height, 
-    generationInfo.colorCyclesPerInputPixel, 
-    generationInfo.denominator);
-  load->rgbToSVideoOrComposite = std::make_unique<NTSCify::SignalGeneration::RGBToSVideoOrComposite>(
-    s_graphicsDevice.get(),
+    NTSCify::SignalGeneration::SignalType::Composite,
     width,
-    load->processContext->signalTextureWidth,
-    height);
-  load->applyArtifacts = std::make_unique<NTSCify::SignalGeneration::ApplyArtifacts>(s_graphicsDevice.get(), load->processContext->signalTextureWidth, height);
-  load->compositeToSVideo = std::make_unique<NTSCify::SignalDecode::CompositeToSVideo>(s_graphicsDevice.get(), load->processContext->signalTextureWidth, height);
-  load->sVideoToYIQ = std::make_unique<NTSCify::SignalDecode::SVideoToYIQ>(s_graphicsDevice.get(), load->processContext->signalTextureWidth, height);
-  load->yiqToRGB = std::make_unique<NTSCify::SignalDecode::YIQToRGB>(s_graphicsDevice.get(), load->processContext->signalTextureWidth, height);
-  load->filterRGB = std::make_unique<NTSCify::SignalDecode::FilterRGB>(s_graphicsDevice.get(), width, load->processContext->signalTextureWidth, height);
-  load->rgbToCRT = std::make_unique<NTSCify::CRT::RGBToCRT>(s_graphicsDevice.get(), width, load->processContext->signalTextureWidth, height);
+    height,
+    generationInfo);
+  load->signalDecoder = std::make_unique<NTSCify::SignalDecode::SignalDecoder>(s_graphicsDevice.get(), load->signalGenerator->SignalProperties());
+  load->rgbToCRT = std::make_unique<NTSCify::CRT::RGBToCRT>(s_graphicsDevice.get(), width, load->signalGenerator->SignalProperties().scanlineWidth, height);
 
   loadedTexture = std::move(load);
 }
@@ -224,9 +202,6 @@ int PASCAL WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 
     ShowWindow(s_hwnd, SW_NORMAL);
 
-    int32_t phase = generationInfo.initialFramePhase;
-    bool isEvenFrame = false;
-
     bool done = false;
     while (!done)
     {
@@ -255,46 +230,9 @@ int PASCAL WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 
       if (loadedTexture != nullptr)
       {
-        loadedTexture->rgbToSVideoOrComposite->Generate(
-          s_graphicsDevice.get(),
-          loadedTexture->texture.get(),
-          loadedTexture->processContext.get(),
-          float(phase) / float(generationInfo.denominator),
-          float(generationInfo.phaseIncrementPerLine) / float(generationInfo.denominator),
-          artifactSettings);
-
-        isEvenFrame = !isEvenFrame;
-        phase = (phase + (isEvenFrame ? generationInfo.phaseIncrementPerEvenFrame : generationInfo.phaseIncrementPerOddFrame)) % generationInfo.denominator;
-
-        {
-          loadedTexture->applyArtifacts->Apply(s_graphicsDevice.get(), loadedTexture->processContext.get(), artifactSettings);
-          loadedTexture->compositeToSVideo->Apply(s_graphicsDevice.get(), loadedTexture->processContext.get());
-        }
-
-        {
-          NTSCify::SignalDecode::TVKnobSettings info;
-          info.saturation = 1.0f;
-          info.brightness = 1.0f;
-          info.gamma = 1.0f;
-          info.tint = 0.0f;
-          info.sharpness = 0.0f;
-
-          loadedTexture->sVideoToYIQ->Apply(s_graphicsDevice.get(), loadedTexture->processContext.get(), info, artifactSettings);
-          #if 0
-            loadedTexture->blurIQ->Apply(s_graphicsDevice.get(), loadedTexture->ProcessContext.get());
-          #endif
-
-          loadedTexture->yiqToRGB->Apply(s_graphicsDevice.get(), loadedTexture->processContext.get(), info);
-          loadedTexture->filterRGB->Apply(s_graphicsDevice.get(), loadedTexture->processContext.get(), info);
-        }
-
-#if 1
-        {
-          NTSCify::CRT::ScreenSettings settings;
-
-          loadedTexture->rgbToCRT->Render(s_graphicsDevice.get(), loadedTexture->processContext.get(), settings);
-        }
-#endif
+        loadedTexture->signalGenerator->Generate(loadedTexture->texture.get());
+        loadedTexture->signalDecoder->Decode(loadedTexture->signalGenerator->SignalTexture(), loadedTexture->signalGenerator->PhasesTexture(), loadedTexture->signalGenerator->SignalLevels());
+        loadedTexture->rgbToCRT->Render(loadedTexture->signalDecoder->CurrentFrameRGBOutput(), loadedTexture->signalDecoder->PreviousFrameRGBOutput());
       }
 
       s_graphicsDevice->Present();

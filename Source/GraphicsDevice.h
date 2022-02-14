@@ -150,21 +150,21 @@ public:
   void RenderQuadWithPixelShader(
     ID3D11PixelShader *ps,
     nullptr_t,
-    std::initializer_list<ITexture *> inputs,
+    std::initializer_list<const ITexture *> inputs,
     std::initializer_list<SamplerType> samplers,
     std::initializer_list<ID3D11Buffer *> constantBuffers);
 
   void RenderQuadWithPixelShader(
     ID3D11PixelShader *ps,
     IMipLevelTarget *output,
-    std::initializer_list<IMipLevelSource *> inputs,
+    std::initializer_list<const IMipLevelSource *> inputs,
     std::initializer_list<SamplerType> samplers,
     std::initializer_list<ID3D11Buffer *> constantBuffers);
 
   void RenderQuadWithPixelShader(
     ID3D11PixelShader *ps,
     ITexture *output,
-    std::initializer_list<ITexture *> inputs,
+    std::initializer_list<const ITexture *> inputs,
     std::initializer_list<SamplerType> samplers,
     std::initializer_list<ID3D11Buffer *> constantBuffers);
 
@@ -231,7 +231,7 @@ private:
     uint32_t viewportWidth,
     uint32_t viewportHeight,
     ID3D11RenderTargetView *outputRtv,
-    std::initializer_list<ITexture *> inputs,
+    std::initializer_list<const ITexture *> inputs,
     std::initializer_list<SamplerType> samplers,
     std::initializer_list<ID3D11Buffer *> constantBuffers);
     

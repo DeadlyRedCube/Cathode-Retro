@@ -4,7 +4,6 @@
 
 #include "SignalDecode/TVKnobSettings.h"
 #include "GraphicsDevice.h"
-#include "ProcessContext.h"
 #include "resource.h"
 #include "Util.h"
 
@@ -17,19 +16,19 @@ namespace NTSCify::SignalDecode
   public:
     FilterRGB(
       GraphicsDevice *device, 
-      uint32_t inputTextureWidthIn,
+      float colorCyclesPerInputPixelIn,
       uint32_t signalTextureWidthIn, 
       uint32_t scanlineCountIn)
     : scanlineCount(scanlineCountIn)
-    , inputTextureWidth(inputTextureWidthIn)
     , signalTextureWidth(signalTextureWidthIn)
+    , colorCyclesPerInputPixel(colorCyclesPerInputPixelIn)
     {
       device->CreateConstantBuffer(sizeof(ConstantData), &constantBuffer);
       device->CreatePixelShader(IDR_FILTER_RGB, &blurRGBShader);
     }
 
 
-    void Apply(GraphicsDevice *device, ProcessContext *processContext, const TVKnobSettings &knobSettings)
+    [[nodiscard]] bool Apply(GraphicsDevice *device, ITexture *input, ITexture *output, const TVKnobSettings &knobSettings)
     {
       // We don't have to do anything if the sharpness is 0
       if (knobSettings.sharpness != 0)
@@ -37,20 +36,22 @@ namespace NTSCify::SignalDecode
         ConstantData data = 
         { 
           -knobSettings.sharpness, 
-          float(inputTextureWidth) / float(signalTextureWidth) * float(SignalGeneration::k_signalSamplesPerColorCycle) 
+          colorCyclesPerInputPixel * float(SignalGeneration::k_signalSamplesPerColorCycle) 
         };
 
         device->DiscardAndUpdateBuffer(constantBuffer, &data);
 
         device->RenderQuadWithPixelShader(
           blurRGBShader,
-          processContext->colorTexScratch.get(),
-          {processContext->colorTex.get()},
+          output,
+          {input},
           {SamplerType::Clamp},
           {constantBuffer});
 
-        std::swap(processContext->colorTex, processContext->colorTexScratch);
+        return true;
       }
+
+      return false;
     }
 
   private:
@@ -61,8 +62,8 @@ namespace NTSCify::SignalDecode
     };
 
     uint32_t scanlineCount;
-    uint32_t inputTextureWidth;
     uint32_t signalTextureWidth;
+    float colorCyclesPerInputPixel;
   
     ComPtr<ID3D11PixelShader> blurRGBShader;
     ComPtr<ID3D11Buffer> constantBuffer;
