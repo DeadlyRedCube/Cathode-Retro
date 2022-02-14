@@ -2,13 +2,13 @@
 
 #include <algorithm>
 
-#include "SignalDecode/TVKnobSettings.h"
+#include "NTSCify/TVKnobSettings.h"
 #include "GraphicsDevice.h"
 #include "resource.h"
 #include "Util.h"
 
 
-namespace NTSCify::SignalDecode
+namespace NTSCify::DecodeComponents
 {
   // This takes a YIQ input texture and converts its color space to be RGB.
   class YIQToRGB

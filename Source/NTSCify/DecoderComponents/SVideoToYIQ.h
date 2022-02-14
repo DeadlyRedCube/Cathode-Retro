@@ -2,15 +2,15 @@
 
 #include <algorithm>
 
-#include "SignalDecode/TVKnobSettings.h"
-#include "SignalGeneration/ArtifactSettings.h"
-#include "SignalGeneration/SignalLevels.h"
+#include "NTSCify/ArtifactSettings.h"
+#include "NTSCify/SignalLevels.h"
+#include "NTSCify/TVKnobSettings.h"
 #include "GraphicsDevice.h"
 #include "resource.h"
 #include "Util.h"
 
 
-namespace NTSCify::SignalDecode
+namespace NTSCify::DecodeComponents
 {
   // This takes an SVideo signal and decodes it into a YIQ (NTSC's native color space) output (this is the process of "NTSC color demodulation").
   class SVideoToYIQ
@@ -30,7 +30,7 @@ namespace NTSCify::SignalDecode
 
     void Apply(
       GraphicsDevice *device, 
-      const SignalGeneration::SignalLevels &levels,
+      const SignalLevels &levels,
       const ITexture *signalInput,
       const ITexture *phasesInput,
       ITexture *yiqOutput,
@@ -38,7 +38,7 @@ namespace NTSCify::SignalDecode
     {
       ConstantData data = 
       { 
-        SignalGeneration::k_signalSamplesPerColorCycle,
+        k_signalSamplesPerColorCycle,
         knobSettings.tint,
         knobSettings.saturation / levels.saturationScale,
         knobSettings.brightness,
@@ -60,7 +60,7 @@ namespace NTSCify::SignalDecode
   private:
     struct ConstantData
     {
-      uint32_t samplesPerColorburstCycle;           // This value should match SignalGeneration::k_signalSamplesPerColorCycle
+      uint32_t samplesPerColorburstCycle;           // This value should match k_signalSamplesPerColorCycle
       float tint;                                   // How much additional tint to apply to the signal (usually a user setting)
       float saturation;                             // The saturation of the output (a user setting)
       float brightness;                             // The brightness adjustment for the output (a user setting)

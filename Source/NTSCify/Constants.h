@@ -3,7 +3,7 @@
 #include <cinttypes>
 
 
-namespace NTSCify::SignalGeneration
+namespace NTSCify
 {
   static constexpr uint32_t k_signalSamplesPerColorCycle = 4;
 }

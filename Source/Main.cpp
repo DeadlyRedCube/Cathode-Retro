@@ -1,9 +1,9 @@
 #pragma once
 #include <memory>
 
-#include "CRT/RGBToCRT.h"
-#include "SignalGeneration/SignalGenerator.h"
-#include "SignalDecode/SignalDecoder.h"
+#include "NTSCify/RGBToCRT.h"
+#include "NTSCify/SignalGenerator.h"
+#include "NTSCify/SignalDecoder.h"
 #include "GraphicsDevice.h"
 #include "ReadWicTexture.h"
 
@@ -22,14 +22,14 @@ struct LoadedTexture
 
   std::unique_ptr<ITexture> texture;
 
-  std::unique_ptr<NTSCify::SignalGeneration::SignalGenerator> signalGenerator;
-  std::unique_ptr<NTSCify::SignalDecode::SignalDecoder> signalDecoder;
+  std::unique_ptr<NTSCify::SignalGenerator> signalGenerator;
+  std::unique_ptr<NTSCify::SignalDecoder> signalDecoder;
   std::unique_ptr<NTSCify::CRT::RGBToCRT> rgbToCRT;
 };
 
 std::unique_ptr<LoadedTexture> loadedTexture;
 
-NTSCify::SignalGeneration::SourceSettings generationInfo = NTSCify::SignalGeneration::k_NESLikeSourceSettings;
+NTSCify::SourceSettings generationInfo = NTSCify::k_NESLikeSourceSettings;
 
 void LoadTexture(wchar_t *path)
 {
@@ -50,13 +50,13 @@ void LoadTexture(wchar_t *path)
 
   load->texture = s_graphicsDevice->CreateTexture(width, height, DXGI_FORMAT_R8G8B8A8_UNORM, TextureFlags::None, load->data.Ptr(), width * sizeof(uint32_t));
 
-  load->signalGenerator = std::make_unique<NTSCify::SignalGeneration::SignalGenerator>(
+  load->signalGenerator = std::make_unique<NTSCify::SignalGenerator>(
     s_graphicsDevice.get(), 
-    NTSCify::SignalGeneration::SignalType::Composite,
+    NTSCify::SignalType::Composite,
     width,
     height,
     generationInfo);
-  load->signalDecoder = std::make_unique<NTSCify::SignalDecode::SignalDecoder>(s_graphicsDevice.get(), load->signalGenerator->SignalProperties());
+  load->signalDecoder = std::make_unique<NTSCify::SignalDecoder>(s_graphicsDevice.get(), load->signalGenerator->SignalProperties());
   load->rgbToCRT = std::make_unique<NTSCify::CRT::RGBToCRT>(s_graphicsDevice.get(), width, load->signalGenerator->SignalProperties().scanlineWidth, height);
 
   loadedTexture = std::move(load);
@@ -219,7 +219,7 @@ int PASCAL WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 
       s_graphicsDevice->ClearBackbuffer();
 
-      NTSCify::SignalGeneration::ArtifactSettings artifactSettings;
+      NTSCify::ArtifactSettings artifactSettings;
       artifactSettings.noiseStrength = 0.05f;
       artifactSettings.ghostVisibility = 0.0f; // 0.35f;
       artifactSettings.ghostSpreadScale = 0.71f;

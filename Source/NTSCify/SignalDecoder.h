@@ -1,31 +1,31 @@
 #pragma once
 
-#include "SignalGeneration/SignalProperties.h"
-#include "SignalDecode/CompositeToSVideo.h"
-#include "SignalDecode/FilterRGB.h"
-#include "SignalDecode/SVideoToYIQ.h"
-#include "SignalDecode/YIQToRGB.h"
+#include "NTSCify/SignalProperties.h"
+#include "NTSCify/DecoderComponents/CompositeToSVideo.h"
+#include "NTSCify/DecoderComponents/FilterRGB.h"
+#include "NTSCify/DecoderComponents/SVideoToYIQ.h"
+#include "NTSCify/DecoderComponents/YIQToRGB.h"
 
 
-namespace NTSCify::SignalDecode
+namespace NTSCify
 {
   class SignalDecoder
   {
   public:
-    SignalDecoder(GraphicsDevice *deviceIn, const SignalGeneration::SignalProperties &signalPropsIn)
+    SignalDecoder(GraphicsDevice *deviceIn, const SignalProperties &signalPropsIn)
     : device(deviceIn)
     , signalProps(signalPropsIn)
     {
-      if (signalProps.type == SignalGeneration::SignalType::Composite)
+      if (signalProps.type == SignalType::Composite)
       {
-        compositeToSVideo = std::make_unique<CompositeToSVideo>(device, signalProps.scanlineWidth, signalProps.scanlineCount);
+        compositeToSVideo = std::make_unique<DecodeComponents::CompositeToSVideo>(device, signalProps.scanlineWidth, signalProps.scanlineCount);
         decodedSVideoTextureSingle = device->CreateTexture(signalProps.scanlineWidth, signalProps.scanlineCount, DXGI_FORMAT_R32G32_FLOAT, TextureFlags::RenderTarget);
         decodedSVideoTextureDouble = device->CreateTexture(signalProps.scanlineWidth, signalProps.scanlineCount, DXGI_FORMAT_R32G32B32A32_FLOAT, TextureFlags::RenderTarget);
       }
 
-      sVideoToYIQ = std::make_unique<SVideoToYIQ>(device, signalProps.scanlineWidth, signalProps.scanlineCount);
-      yiqToRGB = std::make_unique<YIQToRGB>(device, signalProps.scanlineWidth, signalProps.scanlineCount);
-      filterRGB = std::make_unique<FilterRGB>(device, signalProps.colorCyclesPerInputPixel, signalProps.scanlineWidth, signalProps.scanlineCount);
+      sVideoToYIQ = std::make_unique<DecodeComponents::SVideoToYIQ>(device, signalProps.scanlineWidth, signalProps.scanlineCount);
+      yiqToRGB = std::make_unique<DecodeComponents::YIQToRGB>(device, signalProps.scanlineWidth, signalProps.scanlineCount);
+      filterRGB = std::make_unique<DecodeComponents::FilterRGB>(device, signalProps.colorCyclesPerInputPixel, signalProps.scanlineWidth, signalProps.scanlineCount);
 
       yiqTexture = device->CreateTexture(signalProps.scanlineWidth, signalProps.scanlineCount, DXGI_FORMAT_R32G32B32A32_FLOAT, TextureFlags::RenderTarget);
       rgbTexture = device->CreateTexture(signalProps.scanlineWidth, signalProps.scanlineCount, DXGI_FORMAT_R8G8B8A8_UNORM, TextureFlags::RenderTarget);
@@ -42,11 +42,11 @@ namespace NTSCify::SignalDecode
     const ITexture *PreviousFrameRGBOutput() const
       { return prevFrameRGBTexture.get(); }
 
-    void Decode(const ITexture *inputSignal, const ITexture *inputPhases, const SignalGeneration::SignalLevels &levels)
+    void Decode(const ITexture *inputSignal, const ITexture *inputPhases, const SignalLevels &levels)
     {
       std::swap(rgbTexture, prevFrameRGBTexture);
       const ITexture *sVideoTexture;
-      if (signalProps.type == SignalGeneration::SignalType::Composite)
+      if (signalProps.type == SignalType::Composite)
       {
         ITexture *outTex = (levels.isDoubled) ? decodedSVideoTextureDouble.get() : decodedSVideoTextureSingle.get();
         sVideoTexture = outTex;
@@ -75,12 +75,12 @@ namespace NTSCify::SignalDecode
     std::unique_ptr<ITexture> prevFrameRGBTexture;
     std::unique_ptr<ITexture> scratchRGBTexture;
 
-    std::unique_ptr<CompositeToSVideo> compositeToSVideo;
-    std::unique_ptr<SVideoToYIQ> sVideoToYIQ;
-    std::unique_ptr<YIQToRGB> yiqToRGB;
-    std::unique_ptr<FilterRGB> filterRGB;
+    std::unique_ptr<DecodeComponents::CompositeToSVideo> compositeToSVideo;
+    std::unique_ptr<DecodeComponents::SVideoToYIQ> sVideoToYIQ;
+    std::unique_ptr<DecodeComponents::YIQToRGB> yiqToRGB;
+    std::unique_ptr<DecodeComponents::FilterRGB> filterRGB;
 
-    SignalGeneration::SignalProperties signalProps;
+    SignalProperties signalProps;
     TVKnobSettings knobSettings;
   };
 }

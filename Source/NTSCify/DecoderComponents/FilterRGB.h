@@ -2,13 +2,13 @@
 
 #include <algorithm>
 
-#include "SignalDecode/TVKnobSettings.h"
+#include "NTSCify/TVKnobSettings.h"
 #include "GraphicsDevice.h"
 #include "resource.h"
 #include "Util.h"
 
 
-namespace NTSCify::SignalDecode
+namespace NTSCify::DecodeComponents
 {
   // Apply a blur or sharpen filter to an RGB texture
   class FilterRGB
@@ -36,7 +36,7 @@ namespace NTSCify::SignalDecode
         ConstantData data = 
         { 
           -knobSettings.sharpness, 
-          colorCyclesPerInputPixel * float(SignalGeneration::k_signalSamplesPerColorCycle) 
+          colorCyclesPerInputPixel * float(k_signalSamplesPerColorCycle) 
         };
 
         device->DiscardAndUpdateBuffer(constantBuffer, &data);

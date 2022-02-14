@@ -1,6 +1,6 @@
 #pragma once
 
-namespace NTSCify::SignalDecode
+namespace NTSCify
 {
   struct TVKnobSettings
   {

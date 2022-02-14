@@ -1,13 +1,13 @@
 #pragma once
 
-#include "ApplyArtifacts.h"
-#include "Constants.h"
-#include "RGBToSVideoOrComposite.h"
-#include "SignalLevels.h"
-#include "SignalProperties.h"
-#include "SourceSettings.h"
+#include "NTSCify/Constants.h"
+#include "NTSCify/SignalLevels.h"
+#include "NTSCify/SignalProperties.h"
+#include "NTSCify/SourceSettings.h"
+#include "NTSCify/GeneratorComponents/ApplyArtifacts.h"
+#include "NTSCify/GeneratorComponents/RGBToSVideoOrComposite.h"
 
-namespace NTSCify::SignalGeneration
+namespace NTSCify
 {
   class SignalGenerator
   {
@@ -27,8 +27,8 @@ namespace NTSCify::SignalGeneration
       signalProps.scanlineCount = inputHeight;
       signalProps.colorCyclesPerInputPixel = float(inputSettings.colorCyclesPerInputPixel) / float(inputSettings.denominator);
       
-      rgbToSVideoOrComposite = std::make_unique<RGBToSVideoOrComposite>(device, inputWidth, signalProps.scanlineWidth, signalProps.scanlineCount);
-      applyArtifacts = std::make_unique<NTSCify::SignalGeneration::ApplyArtifacts>(device, signalProps.scanlineWidth, signalProps.scanlineCount);
+      rgbToSVideoOrComposite = std::make_unique<GeneratorComponents::RGBToSVideoOrComposite>(device, inputWidth, signalProps.scanlineWidth, signalProps.scanlineCount);
+      applyArtifacts = std::make_unique<GeneratorComponents::ApplyArtifacts>(device, signalProps.scanlineWidth, signalProps.scanlineCount);
 
       phasesTextureSingle = device->CreateTexture(signalProps.scanlineCount, 1, DXGI_FORMAT_R32_FLOAT, TextureFlags::RenderTarget);
       phasesTextureDoubled = device->CreateTexture(signalProps.scanlineCount, 1, DXGI_FORMAT_R32G32_FLOAT, TextureFlags::RenderTarget);
@@ -125,8 +125,8 @@ namespace NTSCify::SignalGeneration
   private:
     GraphicsDevice *device;
 
-    std::unique_ptr<RGBToSVideoOrComposite> rgbToSVideoOrComposite;
-    std::unique_ptr<ApplyArtifacts> applyArtifacts;
+    std::unique_ptr<GeneratorComponents::RGBToSVideoOrComposite> rgbToSVideoOrComposite;
+    std::unique_ptr<GeneratorComponents::ApplyArtifacts> applyArtifacts;
     std::unique_ptr<ITexture> phasesTextureSingle;
     std::unique_ptr<ITexture> phasesTextureDoubled;
     
@@ -136,8 +136,8 @@ namespace NTSCify::SignalGeneration
     std::unique_ptr<ITexture> scratchSignalTextureDoubled;
 
     SourceSettings sourceSettings;
-    NTSCify::SignalGeneration::SignalProperties signalProps;
-    NTSCify::SignalGeneration::SignalLevels levels;
+    NTSCify::SignalProperties signalProps;
+    NTSCify::SignalLevels levels;
 
     ArtifactSettings artifactSettings;
     uint32_t frameStartPhaseNumerator = 0;

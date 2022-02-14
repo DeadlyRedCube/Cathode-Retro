@@ -1,6 +1,6 @@
 #pragma once
 
-namespace NTSCify::SignalGeneration
+namespace NTSCify
 {
   struct ArtifactSettings
   {

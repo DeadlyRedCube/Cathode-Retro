@@ -3,12 +3,12 @@
 #include <algorithm>
 
 #include "GraphicsDevice.h"
-#include "SignalGeneration/Constants.h"
+#include "NTSCify/Constants.h"
 #include "resource.h"
 #include "Util.h"
 
 
-namespace NTSCify::SignalDecode
+namespace NTSCify::DecodeComponents
 {
   // Take a composite input and break the luma and chroma back up so that it's "SVideo" (this is the NTSC luma/chroma separation process)
   class CompositeToSVideo
@@ -25,7 +25,7 @@ namespace NTSCify::SignalDecode
 
     void Apply(GraphicsDevice *device,  const ITexture *compositeIn, ITexture *sVideoOut)
     {
-      ConstantData cd = { SignalGeneration::k_signalSamplesPerColorCycle, 1.0f / float(signalTextureWidth), 1.0f / float(scanlineCount) };
+      ConstantData cd = { k_signalSamplesPerColorCycle, 1.0f / float(signalTextureWidth), 1.0f / float(scanlineCount) };
       device->DiscardAndUpdateBuffer(constantBuffer, &cd);
 
       device->RenderQuadWithPixelShader(
@@ -39,7 +39,7 @@ namespace NTSCify::SignalDecode
   private:
     struct ConstantData
     {
-      uint32_t outputTexelsPerColorburstCycle;        // This value should match SignalGeneration::k_signalSamplesPerColorCycle
+      uint32_t outputTexelsPerColorburstCycle;        // This value should match k_signalSamplesPerColorCycle
       float invInputWidth;
       float invInputHeight;
     };

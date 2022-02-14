@@ -2,14 +2,15 @@
 
 #include <algorithm>
 
-#include "SignalGeneration/ArtifactSettings.h"
-#include "Constants.h"
+#include "NTSCify/ArtifactSettings.h"
+#include "NTSCify/Constants.h"
+#include "NTSCify/SignalLevels.h"
+
 #include "GraphicsDevice.h"
 #include "resource.h"
-#include "SignalLevels.h"
 #include "Util.h"
 
-namespace NTSCify::SignalGeneration
+namespace NTSCify::GeneratorComponents
 {
   // Apply any ghosting or noise that we want to the input (which might be an SVideo texture or it might be Composite)
   class ApplyArtifacts

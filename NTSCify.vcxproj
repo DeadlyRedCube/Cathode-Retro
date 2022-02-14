@@ -167,30 +167,6 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Source\SignalDecode\SignalDecoder.h" />
-    <ClInclude Include="Source\SignalGeneration\Constants.h" />
-    <ClInclude Include="Source\SignalGeneration\ApplyArtifacts.h" />
-    <ClInclude Include="Source\CRT\ScreenSettings.h" />
-    <ClInclude Include="Source\ComPtr.h" />
-    <ClInclude Include="Source\CRT\RGBToCRT.h" />
-    <ClInclude Include="Source\GraphicsDevice.h" />
-    <ClInclude Include="Source\ReadWicTexture.h" />
-    <ClInclude Include="Source\resource.h" />
-    <ClInclude Include="Source\SignalDecode\CompositeToSVideo.h" />
-    <ClInclude Include="Source\SignalDecode\FilterRGB.h" />
-    <ClInclude Include="Source\SignalDecode\SVideoToYIQ.h" />
-    <ClInclude Include="Source\SignalDecode\YIQToRGB.h" />
-    <ClInclude Include="Source\SignalGeneration\RGBToSVideoOrComposite.h" />
-    <ClInclude Include="Source\SignalDecode\TVKnobSettings.h" />
-    <ClInclude Include="Source\SignalGeneration\SignalGenerator.h" />
-    <ClInclude Include="Source\SignalGeneration\SignalLevels.h" />
-    <ClInclude Include="Source\SignalGeneration\SignalProperties.h" />
-    <ClInclude Include="Source\SignalGeneration\SourceSettings.h" />
-    <ClInclude Include="Source\SignalGeneration\ArtifactSettings.h" />
-    <ClInclude Include="Source\SimpleArray.h" />
-    <ClInclude Include="Source\Util.h" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="Source\GraphicsDevice.cpp" />
     <ClCompile Include="Source\Main.cpp">
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">stdcpp17</LanguageStandard>
@@ -451,6 +427,30 @@
     <None Include="Shaders\Noise.hlsli" />
     <None Include="Shaders\BoxFilter.hlsli" />
     <None Include="Shaders\TrackingInstability.hlsli" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\ComPtr.h" />
+    <ClInclude Include="Source\GraphicsDevice.h" />
+    <ClInclude Include="Source\NTSCify\ArtifactSettings.h" />
+    <ClInclude Include="Source\NTSCify\Constants.h" />
+    <ClInclude Include="Source\NTSCify\DecoderComponents\CompositeToSVideo.h" />
+    <ClInclude Include="Source\NTSCify\DecoderComponents\FilterRGB.h" />
+    <ClInclude Include="Source\NTSCify\DecoderComponents\SVideoToYIQ.h" />
+    <ClInclude Include="Source\NTSCify\DecoderComponents\YIQToRGB.h" />
+    <ClInclude Include="Source\NTSCify\GeneratorComponents\ApplyArtifacts.h" />
+    <ClInclude Include="Source\NTSCify\GeneratorComponents\RGBToSVideoOrComposite.h" />
+    <ClInclude Include="Source\NTSCify\RGBToCRT.h" />
+    <ClInclude Include="Source\NTSCify\ScreenSettings.h" />
+    <ClInclude Include="Source\NTSCify\SignalDecoder.h" />
+    <ClInclude Include="Source\NTSCify\SignalGenerator.h" />
+    <ClInclude Include="Source\NTSCify\SignalLevels.h" />
+    <ClInclude Include="Source\NTSCify\SignalProperties.h" />
+    <ClInclude Include="Source\NTSCify\SourceSettings.h" />
+    <ClInclude Include="Source\NTSCify\TVKnobSettings.h" />
+    <ClInclude Include="Source\ReadWicTexture.h" />
+    <ClInclude Include="Source\resource.h" />
+    <ClInclude Include="Source\SimpleArray.h" />
+    <ClInclude Include="Source\Util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

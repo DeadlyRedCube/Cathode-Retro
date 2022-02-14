@@ -3,7 +3,7 @@
 #include "SourceSettings.h"
 
 
-namespace NTSCify::SignalGeneration
+namespace NTSCify
 {
   struct SignalProperties
   {

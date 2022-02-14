@@ -2,16 +2,16 @@
 
 #include <algorithm>
 
-#include "SignalGeneration/ArtifactSettings.h"
-#include "SignalGeneration/Constants.h"
-#include "SignalGeneration/SignalLevels.h"
-#include "SignalGeneration/SourceSettings.h"
+#include "NTSCify/ArtifactSettings.h"
+#include "NTSCify/Constants.h"
+#include "NTSCify/SignalLevels.h"
+#include "NTSCify/SourceSettings.h"
 #include "GraphicsDevice.h"
 #include "resource.h"
 #include "Util.h"
 
 
-namespace NTSCify::SignalGeneration
+namespace NTSCify::GeneratorComponents
 {
   // Take an RGB input texture (usually the output of the game or emulator) and convert it into either an SVideo (separate luma/chroma) or Composite
   //  (a single combined channel) output. We will also, if temporalArtifactReduction is non-zero, generate a second signal into the output texture:
@@ -100,7 +100,7 @@ namespace NTSCify::SignalGeneration
   private:
     struct RGBToSVideoConstantData
     {
-      uint32_t outputTexelsPerColorburstCycle;        // This value should match SignalGeneration::k_signalSamplesPerColorCycle
+      uint32_t outputTexelsPerColorburstCycle;        // This value should match k_signalSamplesPerColorCycle
       uint32_t inputWidth;                            // The width of the input, in texels
       uint32_t outputWidth;                           // The width of the output, in texels
       uint32_t scanlineCount;                         // How many scanlines

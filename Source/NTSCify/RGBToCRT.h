@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cinttypes>
-#include "CRT/ScreenSettings.h"
+#include "NTSCify/ScreenSettings.h"
 #include "GraphicsDevice.h"
 #include "resource.h"
 #include "Util.h"

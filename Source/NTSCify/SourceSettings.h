@@ -2,7 +2,7 @@
 
 #include <cinttypes>
 
-namespace NTSCify::SignalGeneration
+namespace NTSCify
 {
   enum class SignalType
   {
