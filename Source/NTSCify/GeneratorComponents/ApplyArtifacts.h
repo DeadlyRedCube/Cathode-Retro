@@ -32,7 +32,7 @@ namespace NTSCify::GeneratorComponents
       SignalLevels *levelsInOut,
       const ArtifactSettings &options)
     {
-      if (options.noiseStrength <= 0.0f && options.ghostVisibility != 0.0f)
+      if (options.noiseStrength <= 0.0f && options.ghostVisibility <= 0.0f)
       {
         return false;
       }
