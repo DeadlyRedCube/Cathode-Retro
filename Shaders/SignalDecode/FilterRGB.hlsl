@@ -15,9 +15,9 @@ float4 main(float2 inTexCoord: TEX): SV_TARGET
   // Just a simple three-tap 1D filter.
   float blurSide = g_blurStrength / 3.0;
   float blurCenter = 1.0 - 2.0 * blurSide;
-  float4 color = g_sourceTexture.SampleLevel(g_sampler, inTexCoord - float2(g_stepSize, 0) * inputTexelSize, 0) * blurSide
-               + g_sourceTexture.SampleLevel(g_sampler, inTexCoord,                                          0) * blurCenter
-               + g_sourceTexture.SampleLevel(g_sampler, inTexCoord + float2(g_stepSize, 0) * inputTexelSize, 0) * blurSide;
+  float4 color = g_sourceTexture.Sample(g_sampler, inTexCoord - float2(g_stepSize, 0) * inputTexelSize) * blurSide
+               + g_sourceTexture.Sample(g_sampler, inTexCoord)                                          * blurCenter
+               + g_sourceTexture.Sample(g_sampler, inTexCoord + float2(g_stepSize, 0) * inputTexelSize) * blurSide;
   
   return color;
 }

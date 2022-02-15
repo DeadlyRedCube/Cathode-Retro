@@ -39,13 +39,13 @@ float4 main(float2 inTexCoord : TEX): SV_TARGET
   //  things, which are too strong. 2x is much softer but not so large that you can really notice that it's extra.
   uint filterWidth = g_samplesPerColorburstCycle * 2;
 
-  float2 relativePhase = g_scanlinePhases.SampleLevel(g_sampler, inTexCoord.y, 0) + g_tint;
+  float2 relativePhase = g_scanlinePhases.Sample(g_sampler, inTexCoord.y) + g_tint;
 
   // This is the chroma decode process, it's a QAM demodulation. 
   //  You multiply the chroma signal by a reference waveform and its quadrature (Basically, sin and cos at a given time) and then filter
   //  out the chroma frequency (here done by a box filter (an average)). What you're left with are the approximate I and Q color space
   //  values for this part of the image.
-  float4 centerSample = g_sourceTexture.SampleLevel(g_sampler, inTexCoord, 0);
+  float4 centerSample = g_sourceTexture.Sample(g_sampler, inTexCoord);
   float2 Y = centerSample.xz;
 
   // $TODO This could be made likely more efficient by basically doing two passes: one to generate a four-component texture with both sets of
@@ -64,7 +64,7 @@ float4 main(float2 inTexCoord : TEX): SV_TARGET
     {
       {
         float2 coord = inTexCoord + float2(i, 0) * inputTexelSize;
-        float2 chroma = g_sourceTexture.SampleLevel(g_sampler, coord, 0).yw;
+        float2 chroma = g_sourceTexture.Sample(g_sampler, coord).yw;
         float2 s, c;
         sincos(2.0 * pi * (float(sampleXIndex + i) / g_samplesPerColorburstCycle + relativePhase), s, c);
         IQ += chroma.xxyy  * float4(s, -c).xzyw;
@@ -72,7 +72,7 @@ float4 main(float2 inTexCoord : TEX): SV_TARGET
 
       {
         float2 coord = inTexCoord - float2(i, 0) * inputTexelSize;
-        float2 chroma = g_sourceTexture.SampleLevel(g_sampler, coord, 0).yw;
+        float2 chroma = g_sourceTexture.Sample(g_sampler, coord).yw;
         float2 s, c;
         sincos(2.0 * pi * (float(sampleXIndex - i) / g_samplesPerColorburstCycle + relativePhase), s, c);
         IQ += chroma.xxyy  * float4(s, -c).xzyw;
@@ -84,7 +84,7 @@ float4 main(float2 inTexCoord : TEX): SV_TARGET
       // We have an odd remainder (because we have an even filter width), so sample 0.5x each endpoint
       {
         float2 coord = inTexCoord + float2(iterEnd + 1, 0) * inputTexelSize;
-        float2 chroma = g_sourceTexture.SampleLevel(g_sampler, coord, 0).yw;
+        float2 chroma = g_sourceTexture.Sample(g_sampler, coord).yw;
         float2 s, c;
         sincos(2.0 * pi * (float(sampleXIndex + iterEnd + 1) / g_samplesPerColorburstCycle + relativePhase), s, c);
         IQ += 0.5 * chroma.xxyy  * float4(s, -c).xzyw;
@@ -92,7 +92,7 @@ float4 main(float2 inTexCoord : TEX): SV_TARGET
 
       {
         float2 coord = inTexCoord - float2(iterEnd + 1, 0) * inputTexelSize;
-        float2 chroma = g_sourceTexture.SampleLevel(g_sampler, coord, 0).yw;
+        float2 chroma = g_sourceTexture.Sample(g_sampler, coord).yw;
         float2 s, c;
         sincos(2.0 * pi * (float(sampleXIndex - iterEnd - 1) / g_samplesPerColorburstCycle + relativePhase), s, c);
         IQ += 0.5 * chroma.xxyy  * float4(s, -c).xzyw;

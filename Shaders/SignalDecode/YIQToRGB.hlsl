@@ -5,7 +5,7 @@ sampler g_sampler : register(s0);
 // This shader just takes a texture that's in YIQ color space and converts it into RGB.
 float4 main(float2 texCoord: TEX): SV_TARGET
 {
-	float3 YIQ = g_sourceTexture.SampleLevel(g_sampler, texCoord, 0).rgb;
+	float3 YIQ = g_sourceTexture.Sample(g_sampler, texCoord).rgb;
 
   float3x3 mat = float3x3(
     1.0,       1.0,       1.0,

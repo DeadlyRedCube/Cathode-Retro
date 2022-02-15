@@ -22,7 +22,7 @@ float4 main(float2 inTexCoord: TEX): SV_TARGET
   {
     for (int x = -3; x < 5; x++)
     {
-      float4 samp = g_sourceTexture.SampleLevel(g_sampler, inTexCoord + float2(x, y) * inputTexelSize, 0);
+      float4 samp = g_sourceTexture.Sample(g_sampler, inTexCoord + float2(x, y) * inputTexelSize);
       
       color += samp * k_lanczos2[x + 3] * k_lanczos2[y + 3];
     }

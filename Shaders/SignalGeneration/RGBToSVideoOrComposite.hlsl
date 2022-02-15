@@ -40,7 +40,7 @@ float4 main(float2 signalTexCoord: TEX): SV_TARGET
 
   texCoord.x += instability;
 
-  float3 RGB = g_sourceTexture.SampleLevel(g_sampler, texCoord, 0).rgb; 
+  float3 RGB = g_sourceTexture.Sample(g_sampler, texCoord).rgb; 
   
   float3x3 mat = float3x3(
     0.3000,  0.5990,  0.2130,  // r
@@ -61,7 +61,7 @@ float4 main(float2 signalTexCoord: TEX): SV_TARGET
   float Q = YIQ.z;
 
   // Figure out where in the carrier wave we are
-  float2 scanlinePhase = g_scanlinePhases.SampleLevel(g_sampler, float2(signalTexelIndex.y + 0.5, 0) / g_scanlineCount, 0);
+  float2 scanlinePhase = g_scanlinePhases.Sample(g_sampler, float2(signalTexelIndex.y + 0.5, 0) / g_scanlineCount);
 
   // Calculate the phase
   float2 phase = scanlinePhase + (signalTexelIndex.x) / float(g_outputTexelsPerColorburstCycle);
