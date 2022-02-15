@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -100,6 +100,9 @@
     <Manifest>
       <EnableDpiAwareness>true</EnableDpiAwareness>
     </Manifest>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>.</AdditionalIncludeDirectories>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -123,6 +126,9 @@
     <Manifest>
       <EnableDpiAwareness>true</EnableDpiAwareness>
     </Manifest>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>.</AdditionalIncludeDirectories>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -142,6 +148,9 @@
     <Manifest>
       <EnableDpiAwareness>true</EnableDpiAwareness>
     </Manifest>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>.</AdditionalIncludeDirectories>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -165,6 +174,9 @@
     <Manifest>
       <EnableDpiAwareness>true</EnableDpiAwareness>
     </Manifest>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>.</AdditionalIncludeDirectories>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source\GraphicsDevice.cpp" />
@@ -175,6 +187,7 @@
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdcpp17</LanguageStandard>
     </ClCompile>
     <ClCompile Include="Source\ReadWicTexture.cpp" />
+    <ClCompile Include="Source\SettingsDialog.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Source\Resource.rc" />
@@ -446,6 +459,18 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Generated\ApplyArtifacts.pso" />
+    <None Include="Generated\BasicVertexShader.vso" />
+    <None Include="Generated\CompositeToSVideo.pso" />
+    <None Include="Generated\Downsample2X.pso" />
+    <None Include="Generated\FilterRGB.pso" />
+    <None Include="Generated\GeneratePhaseTexture.pso" />
+    <None Include="Generated\GenerateScreenTexture.pso" />
+    <None Include="Generated\GenerateShadowMask.pso" />
+    <None Include="Generated\RGBToCRT.pso" />
+    <None Include="Generated\RGBToSVideoOrComposite.pso" />
+    <None Include="Generated\SVideoToYIQ.pso" />
+    <None Include="Generated\YIQToRGB.pso" />
     <None Include="Shaders\CRT\DistortCRTCoordinates.hlsli" />
     <None Include="Shaders\Noise.hlsli" />
     <None Include="Shaders\BoxFilter.hlsli" />
@@ -462,6 +487,7 @@
     <ClInclude Include="Source\NTSCify\DecoderComponents\YIQToRGB.h" />
     <ClInclude Include="Source\NTSCify\GeneratorComponents\ApplyArtifacts.h" />
     <ClInclude Include="Source\NTSCify\GeneratorComponents\RGBToSVideoOrComposite.h" />
+    <ClInclude Include="Source\NTSCify\OverscanSettings.h" />
     <ClInclude Include="Source\NTSCify\RGBToCRT.h" />
     <ClInclude Include="Source\NTSCify\ScreenSettings.h" />
     <ClInclude Include="Source\NTSCify\SignalDecoder.h" />
@@ -472,6 +498,7 @@
     <ClInclude Include="Source\NTSCify\TVKnobSettings.h" />
     <ClInclude Include="Source\ReadWicTexture.h" />
     <ClInclude Include="Source\resource.h" />
+    <ClInclude Include="Source\SettingsDialog.h" />
     <ClInclude Include="Source\SimpleArray.h" />
     <ClInclude Include="Source\Util.h" />
   </ItemGroup>

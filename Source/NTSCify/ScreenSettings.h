@@ -6,16 +6,6 @@ namespace NTSCify
 {
   struct ScreenSettings
   {
-    // The display aspect ratio of an input pixel when displayed.
-    //  Use 1/1 for square input pixels, but for the NES/SNES it's 8/7
-    float inputPixelAspectRatio = 1.0f;     
-
-    // Each of these represents how many input pixels of overscan there is on each side of the view
-    uint32_t overscanLeft = 0;
-    uint32_t overscanRight = 0;
-    uint32_t overscanTop = 0;
-    uint32_t overscanBottom = 0;
-
     // How much to barrel distort our picture horizontally and vertically to emulate a curved screen
     float horizontalDistortion = 0.0f;
     float verticalDistortion = 0.0f;
@@ -36,5 +26,129 @@ namespace NTSCify
 
     // How powerful the scanlines are
     float scanlineStrength = 0.0f;
+  };
+
+  struct ScreenSettingsPreset
+  {
+    const char *name;
+    ScreenSettings settings;
+  };
+
+  static constexpr ScreenSettingsPreset k_screenPresets[] =
+  {
+    {
+      "Nothing At All",
+      {
+        0.0f,
+        0.0f,
+        
+        0.0f,
+        0.0f,
+        
+        0.0f,
+        
+        1.0f,
+        0.0f,
+        
+        0.0f,
+
+        0.0f,
+      }
+    },
+    {
+      "Scanlines Only",
+      {
+        0.0f,
+        0.0f,
+        
+        0.0f,
+        0.0f,
+        
+        0.0f,
+        
+        1.0f,
+        0.0f,
+        
+        0.5f,
+
+        0.0f,
+      }
+    },
+    {
+      "Flat CRT",
+      {
+        0.0f,
+        0.0f,
+        
+        0.0f,
+        0.0f,
+        
+        0.0f,
+        
+        1.0f,
+        0.65f,
+        
+        0.25f,
+
+        0.05f,
+      }
+    },
+    {
+      "Standard CRT",
+      {
+        0.20f,
+        0.25f,
+        
+        0.0f,
+        0.0f,
+        
+        0.05f,
+        
+        1.0f,
+        0.65f,
+        
+        0.25f,
+
+        0.05f,
+      }
+    },
+    {
+      "Standard CRT (No Scanlines)",
+      {
+        0.20f,
+        0.25f,
+        
+        0.0f,
+        0.0f,
+        
+        0.05f,
+        
+        1.0f,
+        0.65f,
+        
+        0.0f,
+
+        0.05f,
+      }
+    },
+    {
+      "Old CRT",
+      {
+        0.30f,
+        0.35f,
+        
+        0.1f,
+        0.1f,
+        
+        0.1f,
+        
+        1.2f,
+        0.65f,
+        
+        0.25f,
+
+        0.2f,
+      }
+    },
   };
 }

@@ -27,6 +27,13 @@ constexpr auto EnumValue(T v)
 }
 
 
+template <typename T>
+bool AreBitwiseEqual(const T &a, const T &b)
+{
+  return memcmp(&a, &b, sizeof(T)) == 0;
+}
+
+
 // What follows is a bunch of template garbage to help deal with enum classes / flag enum classes
 
 

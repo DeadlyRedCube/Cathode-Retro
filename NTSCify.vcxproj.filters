@@ -48,6 +48,9 @@
     <ClCompile Include="Source\ReadWicTexture.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="Source\SettingsDialog.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
@@ -77,6 +80,9 @@
     <Filter Include="Headers\NTSCify\GeneratorComponents">
       <UniqueIdentifier>{37816f4a-9b53-4198-9b0b-db16230dd27f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Generated">
+      <UniqueIdentifier>{60a883dc-944c-4f5b-bbe0-64d5ba28d3a9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Source\Resource.rc">
@@ -95,6 +101,42 @@
     </None>
     <None Include="Shaders\CRT\DistortCRTCoordinates.hlsli">
       <Filter>Shaders\CRT</Filter>
+    </None>
+    <None Include="Generated\ApplyArtifacts.pso">
+      <Filter>Generated</Filter>
+    </None>
+    <None Include="Generated\BasicVertexShader.vso">
+      <Filter>Generated</Filter>
+    </None>
+    <None Include="Generated\CompositeToSVideo.pso">
+      <Filter>Generated</Filter>
+    </None>
+    <None Include="Generated\Downsample2X.pso">
+      <Filter>Generated</Filter>
+    </None>
+    <None Include="Generated\FilterRGB.pso">
+      <Filter>Generated</Filter>
+    </None>
+    <None Include="Generated\GeneratePhaseTexture.pso">
+      <Filter>Generated</Filter>
+    </None>
+    <None Include="Generated\GenerateScreenTexture.pso">
+      <Filter>Generated</Filter>
+    </None>
+    <None Include="Generated\GenerateShadowMask.pso">
+      <Filter>Generated</Filter>
+    </None>
+    <None Include="Generated\RGBToCRT.pso">
+      <Filter>Generated</Filter>
+    </None>
+    <None Include="Generated\RGBToSVideoOrComposite.pso">
+      <Filter>Generated</Filter>
+    </None>
+    <None Include="Generated\YIQToRGB.pso">
+      <Filter>Generated</Filter>
+    </None>
+    <None Include="Generated\SVideoToYIQ.pso">
+      <Filter>Generated</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -162,6 +204,12 @@
       <Filter>Headers\NTSCify\DecoderComponents</Filter>
     </ClInclude>
     <ClInclude Include="Source\NTSCify\TVKnobSettings.h">
+      <Filter>Headers\NTSCify</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SettingsDialog.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\NTSCify\OverscanSettings.h">
       <Filter>Headers\NTSCify</Filter>
     </ClInclude>
   </ItemGroup>

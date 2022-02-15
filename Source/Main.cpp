@@ -1,18 +1,37 @@
+#define NOMINMAX
 #pragma once
+#include <Windows.h>
+#include <CommCtrl.h>
+#include <atomic>
 #include <memory>
+#include <mutex>
+#include <thread>
 
 #include "NTSCify/RGBToCRT.h"
 #include "NTSCify/SignalGenerator.h"
 #include "NTSCify/SignalDecoder.h"
 #include "GraphicsDevice.h"
 #include "ReadWicTexture.h"
-
+#include "resource.h"
+#include "SettingsDialog.h"
 
 static HWND s_hwnd;
+static HMENU s_menu;
+static HINSTANCE s_instance;
 static bool s_fullscreen = false;
 static RECT s_oldWindowedRect;
 static std::unique_ptr<GraphicsDevice> s_graphicsDevice;
 
+static auto s_signalType = NTSCify::SignalType::Composite;
+static auto s_sourceSettings = NTSCify::k_sourcePresets[1].settings;
+static auto s_artifactSettings = NTSCify::k_artifactPresets[1].settings;
+static auto s_knobSettings = NTSCify::TVKnobSettings();
+static auto s_overscanSettings = NTSCify::OverscanSettings();
+static auto s_screenSettings = NTSCify::k_screenPresets[2].settings;
+
+static std::thread s_renderThread;
+static std::atomic<bool> s_stopRenderThread = false;
+static std::mutex s_renderThreadMutex;
 
 struct LoadedTexture 
 {
@@ -25,14 +44,53 @@ struct LoadedTexture
   std::unique_ptr<NTSCify::SignalGenerator> signalGenerator;
   std::unique_ptr<NTSCify::SignalDecoder> signalDecoder;
   std::unique_ptr<NTSCify::RGBToCRT> rgbToCRT;
+
+  NTSCify::SignalType cachedSignalType;
+  NTSCify::SourceSettings cachedSourceSettings;
 };
 
 std::unique_ptr<LoadedTexture> loadedTexture;
 
-NTSCify::SourceSettings generationInfo = NTSCify::k_NESLikeSourceSettings;
+void RebuildGeneratorsIfNecessary(bool force = false)
+{ 
+  if (loadedTexture == nullptr)
+  {
+    return;
+  }
+
+  auto sourceSettings = s_sourceSettings;
+  auto signalType = s_signalType;
+
+  if (force
+    || signalType != loadedTexture->cachedSignalType
+    || memcmp(&sourceSettings, &loadedTexture->cachedSourceSettings, sizeof(sourceSettings)) != 0)
+  {
+    loadedTexture->signalGenerator = std::make_unique<NTSCify::SignalGenerator>(
+      s_graphicsDevice.get(), 
+      s_signalType,
+      loadedTexture->texture->Width(),
+      loadedTexture->texture->Height(),
+      s_sourceSettings);
+    loadedTexture->signalDecoder = std::make_unique<NTSCify::SignalDecoder>(
+      s_graphicsDevice.get(), 
+      loadedTexture->signalGenerator->SignalProperties());
+    loadedTexture->rgbToCRT = std::make_unique<NTSCify::RGBToCRT>(
+      s_graphicsDevice.get(), 
+      loadedTexture->texture->Width(), 
+      loadedTexture->signalGenerator->SignalProperties().scanlineWidth, 
+      loadedTexture->texture->Height(),
+      loadedTexture->signalGenerator->SignalProperties().inputPixelAspectRatio);
+
+    loadedTexture->cachedSignalType = signalType;
+    loadedTexture->cachedSourceSettings = sourceSettings;
+  }
+}
+
 
 void LoadTexture(wchar_t *path)
 {
+  std::unique_lock lock(s_renderThreadMutex);
+
   if (path == nullptr || path[0] == L'\0')
   {
     loadedTexture = nullptr;
@@ -50,18 +108,73 @@ void LoadTexture(wchar_t *path)
 
   load->texture = s_graphicsDevice->CreateTexture(width, height, DXGI_FORMAT_R8G8B8A8_UNORM, TextureFlags::None, load->data.Ptr(), width * sizeof(uint32_t));
 
-  load->signalGenerator = std::make_unique<NTSCify::SignalGenerator>(
-    s_graphicsDevice.get(), 
-    NTSCify::SignalType::Composite,
-    width,
-    height,
-    generationInfo);
-  load->signalDecoder = std::make_unique<NTSCify::SignalDecoder>(s_graphicsDevice.get(), load->signalGenerator->SignalProperties());
-  load->rgbToCRT = std::make_unique<NTSCify::RGBToCRT>(s_graphicsDevice.get(), width, load->signalGenerator->SignalProperties().scanlineWidth, height);
+  RebuildGeneratorsIfNecessary(true);
 
   loadedTexture = std::move(load);
 }
 
+
+
+
+static void OpenFile()
+{
+  wchar_t filename[1024] = {0};
+  OPENFILENAME ofn;
+  ZeroType(&ofn);
+  ofn.lStructSize = sizeof(OPENFILENAME);
+  ofn.hInstance = static_cast<HINSTANCE>(GetModuleHandle(nullptr));
+  ofn.hwndOwner = s_hwnd;
+  ofn.lpstrFilter = L"Images (*.jpg;*.jpeg;*.png;*.bmp)\0*.jpg;*.jpeg;*.png;*.bmp\0\0";
+  ofn.lpstrFile = filename;
+  ofn.nMaxFile = DWORD(k_arrayLength<decltype(filename)>);
+  ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
+
+  if (GetOpenFileName(&ofn))
+  {
+    LoadTexture(filename);
+  }
+}
+
+
+void ToggleFullscreen()
+{
+  s_fullscreen = !s_fullscreen;
+  if (s_fullscreen)
+  {
+    GetWindowRect(s_hwnd, &s_oldWindowedRect);
+    SetWindowLongPtr(s_hwnd, GWL_STYLE, GetWindowLongPtr(s_hwnd, GWL_STYLE) & ~WS_OVERLAPPEDWINDOW | WS_POPUP);
+    SetMenu(s_hwnd, nullptr);
+
+    HMONITOR primaryMon = MonitorFromPoint({s_oldWindowedRect.left, s_oldWindowedRect.top}, MONITOR_DEFAULTTOPRIMARY);
+    MONITORINFO info;
+    ZeroType(&info);
+    info.cbSize = sizeof(MONITORINFO);
+    GetMonitorInfo(primaryMon, &info);
+
+    int32_t width = info.rcMonitor.right - info.rcMonitor.left;
+    int32_t height = info.rcMonitor.bottom - info.rcMonitor.top;
+    SetWindowPos(s_hwnd, nullptr, info.rcMonitor.left, info.rcMonitor.top, width, height, SWP_NOZORDER);
+  }
+  else
+  {
+    SetWindowLongPtr(s_hwnd, GWL_STYLE, GetWindowLongPtr(s_hwnd, GWL_STYLE) & ~WS_POPUP| WS_OVERLAPPEDWINDOW);
+    SetMenu(s_hwnd, s_menu);
+    SetWindowPos(
+      s_hwnd, 
+      nullptr, 
+      s_oldWindowedRect.left, 
+      s_oldWindowedRect.top, 
+      s_oldWindowedRect.right - s_oldWindowedRect.left,
+      s_oldWindowedRect.bottom - s_oldWindowedRect.top,
+      SWP_NOZORDER);
+  }
+
+  {
+    std::unique_lock lock(s_renderThreadMutex);
+    s_graphicsDevice->UpdateWindowSize();
+  }
+
+}
 
 LRESULT FAR PASCAL WindowProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
 {
@@ -69,76 +182,48 @@ LRESULT FAR PASCAL WindowProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
   {
   case WM_CREATE:
     break;
+
   case WM_DESTROY:
     PostQuitMessage( 0 );
     break;
+
+  case WM_COMMAND:
+    switch (LOWORD(wParam))
+    {
+    case ID_FILE_OPEN:
+      OpenFile();
+      break;
+
+    case ID_FILE_EXIT:
+      SendMessage(hWnd, WM_CLOSE, 0, 0);
+      break;
+
+    case ID_OPTIONS_FULLSCREEN:
+      ToggleFullscreen();
+      break;
+    
+    case ID_OPTIONS_SETTINGS:
+      RunSettingsDialog(hWnd, &s_signalType, &s_sourceSettings, &s_artifactSettings, &s_knobSettings, &s_overscanSettings, &s_screenSettings);
+      break;
+    }
+    break;
+
   case WM_KEYDOWN:
     switch (wParam)
     {
     case 'O':
-      {
-        wchar_t filename[1024] = {0};
-        OPENFILENAME ofn;
-        ZeroType(&ofn);
-        ofn.lStructSize = sizeof(OPENFILENAME);
-        ofn.hInstance = static_cast<HINSTANCE>(GetModuleHandle(nullptr));
-        ofn.hwndOwner = hWnd;
-        ofn.lpstrFilter = L"Images (*.jpg;*.jpeg;*.png)\0*.jpg;*.jpeg;*.png\0\0";
-        ofn.lpstrFile = filename;
-        ofn.nMaxFile = DWORD(k_arrayLength<decltype(filename)>);
-        ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
+      OpenFile();
+      break;
 
-        if (GetOpenFileName(&ofn))
-        {
-          LoadTexture(filename);
-        }
-      }
+    case 'S':
+      RunSettingsDialog(hWnd, &s_signalType, &s_sourceSettings, &s_artifactSettings, &s_knobSettings, &s_overscanSettings, &s_screenSettings);
       break;
       
      case VK_ESCAPE:
-      {
-        s_fullscreen = !s_fullscreen;
-        if (s_fullscreen)
-        {
-          GetWindowRect(s_hwnd, &s_oldWindowedRect);
-          SetWindowLongPtr(s_hwnd, GWL_STYLE, GetWindowLongPtr(s_hwnd, GWL_STYLE) & ~WS_OVERLAPPEDWINDOW | WS_POPUP);
-          SetMenu(s_hwnd, nullptr);
-
-          HMONITOR primaryMon = MonitorFromPoint({s_oldWindowedRect.left, s_oldWindowedRect.top}, MONITOR_DEFAULTTOPRIMARY);
-          MONITORINFO info;
-          ZeroType(&info);
-          info.cbSize = sizeof(MONITORINFO);
-          GetMonitorInfo(primaryMon, &info);
-
-          int32_t width = info.rcMonitor.right - info.rcMonitor.left;
-          int32_t height = info.rcMonitor.bottom - info.rcMonitor.top;
-          SetWindowPos(s_hwnd, nullptr, info.rcMonitor.left, info.rcMonitor.top, width, height, SWP_NOZORDER);
-        }
-        else
-        {
-          SetWindowLongPtr(s_hwnd, GWL_STYLE, GetWindowLongPtr(s_hwnd, GWL_STYLE) & ~WS_POPUP| WS_OVERLAPPEDWINDOW);
-          SetWindowPos(
-            s_hwnd, 
-            nullptr, 
-            s_oldWindowedRect.left, 
-            s_oldWindowedRect.top, 
-            s_oldWindowedRect.right - s_oldWindowedRect.left,
-            s_oldWindowedRect.bottom - s_oldWindowedRect.top,
-            SWP_NOZORDER);
-        }
-
-        s_graphicsDevice->UpdateWindowSize();
-      }
+      ToggleFullscreen();
       break;
     }
     break;
-  case WM_SIZE:
-    if (wParam != SIZE_MINIMIZED)
-    {
-      s_graphicsDevice->UpdateWindowSize(); 
-    }
-    break;
-
   case WM_CLOSE:
     break;
   }
@@ -172,6 +257,8 @@ static void DoInit( HINSTANCE hInstance )
   screenRect.bottom = 224*3;
   AdjustWindowRect(&screenRect, WS_OVERLAPPEDWINDOW, TRUE);
 
+  s_instance = hInstance;
+
   hwnd = CreateWindowEx(
     0, 
     L"NTSCify", 
@@ -186,12 +273,80 @@ static void DoInit( HINSTANCE hInstance )
     hInstance, 
     nullptr);
   s_hwnd = hwnd;
+
+  s_menu = LoadMenu(hInstance, MAKEINTRESOURCE(IDR_MAIN_MENU));
 }
+
+
+void RenderThreadProc()
+{
+  while (!s_stopRenderThread)
+  {
+    {
+      std::unique_lock lock(s_renderThreadMutex);
+
+      s_graphicsDevice->UpdateWindowSize();
+      s_graphicsDevice->ClearBackbuffer();
+
+      if (loadedTexture != nullptr)
+      {
+        RebuildGeneratorsIfNecessary();
+
+        const ITexture *input = loadedTexture->texture.get();
+        const ITexture *input2 = loadedTexture->texture.get();
+        if (s_signalType != NTSCify::SignalType::RGB)
+        {
+          loadedTexture->signalGenerator->SetArtifactSettings(s_artifactSettings);
+          loadedTexture->signalGenerator->Generate(input);
+
+          loadedTexture->signalDecoder->SetKnobSettings(s_knobSettings);
+          loadedTexture->signalDecoder->Decode(loadedTexture->signalGenerator->SignalTexture(), loadedTexture->signalGenerator->PhasesTexture(), loadedTexture->signalGenerator->SignalLevels());
+
+          input = loadedTexture->signalDecoder->CurrentFrameRGBOutput();
+          input2 = loadedTexture->signalDecoder->PreviousFrameRGBOutput();
+        }
+
+        // $TODO Currently artifacts are not applied to RGB, and we might still want to at least have some noise in there?
+        loadedTexture->rgbToCRT->SetScreenSettings(s_screenSettings);
+        loadedTexture->rgbToCRT->Render(input, input2);
+      }
+
+      s_graphicsDevice->Present();
+    }
+
+    Sleep(1);
+  }
+}
+
+
+
+// Do some absolutely not-at-all legit threading to put the drawing in the background so the settings dialog can change things on the fly. Please don't actually write
+//  multithreaded code with as few guards on data transfer as I have here.
+void StopRenderThread()
+{
+  if (s_renderThread.joinable())
+  {
+    s_stopRenderThread = true;
+    s_renderThread.join();
+  }
+
+  s_stopRenderThread = false;
+}
+
+
+void StartRenderThread()
+{
+  StopRenderThread();
+
+  s_renderThread = std::thread(RenderThreadProc);
+}
+
 
 
 int PASCAL WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 {
   CoInitialize(nullptr);
+  InitCommonControls();
 
   try
   {
@@ -201,57 +356,18 @@ int PASCAL WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int)
     s_graphicsDevice = std::make_unique<GraphicsDevice>(s_hwnd);
 
     ShowWindow(s_hwnd, SW_NORMAL);
+    SetMenu(s_hwnd, s_menu);
 
-    bool done = false;
-    while (!done)
+    StartRenderThread();
+    for (;;)
     {
-      while(PeekMessage(&msg,NULL, 0, 0, PM_NOREMOVE))
+      if(!GetMessage(&msg, NULL, 0, 0))
       {
-        if(!GetMessage(&msg, NULL, 0, 0))
-        {
-          done = true;
-          break;
-        }
-
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
+        break;
       }
 
-      s_graphicsDevice->ClearBackbuffer();
-
-      NTSCify::ArtifactSettings artifactSettings;
-      artifactSettings.noiseStrength = 0.05f;
-      artifactSettings.ghostVisibility = 0.0f; // 0.35f;
-      artifactSettings.ghostSpreadScale = 0.71f;
-      artifactSettings.ghostDistance = 3.1f;
-      artifactSettings.temporalArtifactReduction = 1.0f;
-      artifactSettings.instabilityScale = 0.5f;
-
-      NTSCify::TVKnobSettings knobSettings;
-
-      NTSCify::ScreenSettings screenSettings;
-      screenSettings.inputPixelAspectRatio = 1.0f;
-      screenSettings.horizontalDistortion = 0.20f;
-      screenSettings.verticalDistortion = 0.25f;
-      screenSettings.cornerRounding = 0.05f;
-      screenSettings.shadowMaskScale = 1.0f;
-      screenSettings.shadowMaskStrength = 0.8f;
-      screenSettings.phosphorDecay = 0.05f;
-      screenSettings.scanlineStrength = 0.25f;
-
-      if (loadedTexture != nullptr)
-      {
-        loadedTexture->signalGenerator->SetArtifactSettings(artifactSettings);
-        loadedTexture->signalGenerator->Generate(loadedTexture->texture.get());
-
-        loadedTexture->signalDecoder->SetKnobSettings(knobSettings);
-        loadedTexture->signalDecoder->Decode(loadedTexture->signalGenerator->SignalTexture(), loadedTexture->signalGenerator->PhasesTexture(), loadedTexture->signalGenerator->SignalLevels());
-
-        loadedTexture->rgbToCRT->SetScreenSettings(screenSettings);
-        loadedTexture->rgbToCRT->Render(loadedTexture->signalDecoder->CurrentFrameRGBOutput(), loadedTexture->signalDecoder->PreviousFrameRGBOutput());
-      }
-
-      s_graphicsDevice->Present();
+      TranslateMessage(&msg);
+      DispatchMessage(&msg);
     }
   }
   catch (const std::exception &ex)
@@ -259,5 +375,6 @@ int PASCAL WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int)
     MessageBoxA(s_hwnd, ex.what(), "Error", MB_OK);
   }
 
+  StopRenderThread();
   return 0;
 }

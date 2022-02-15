@@ -26,6 +26,7 @@ namespace NTSCify
       signalProps.scanlineWidth = int32_t(std::ceil(float(inputWidth * inputSettings.colorCyclesPerInputPixel * k_signalSamplesPerColorCycle) / float(inputSettings.denominator)));
       signalProps.scanlineCount = inputHeight;
       signalProps.colorCyclesPerInputPixel = float(inputSettings.colorCyclesPerInputPixel) / float(inputSettings.denominator);
+      signalProps.inputPixelAspectRatio = inputSettings.inputPixelAspectRatio;
       
       rgbToSVideoOrComposite = std::make_unique<GeneratorComponents::RGBToSVideoOrComposite>(device, inputWidth, signalProps.scanlineWidth, signalProps.scanlineCount);
       applyArtifacts = std::make_unique<GeneratorComponents::ApplyArtifacts>(device, signalProps.scanlineWidth, signalProps.scanlineCount);

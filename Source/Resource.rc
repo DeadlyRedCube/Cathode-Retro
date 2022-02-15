@@ -16,7 +16,8 @@
 // English (United States) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-LANGUAGE 9, 1
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -24,18 +25,18 @@ LANGUAGE 9, 1
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE  
+1 TEXTINCLUDE 
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE  
+2 TEXTINCLUDE 
 BEGIN
     "#include ""winres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE  
+3 TEXTINCLUDE 
 BEGIN
     "\r\n"
     "\0"
@@ -43,8 +44,132 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
-#endif    // English (United States) resources
+
 /////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_DISPLAY_SETTINGS_DIALOG DIALOGEX 0, 0, 663, 309
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "All The Settings"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,553,287,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,606,287,50,14
+    GROUPBOX        "TV Knobs",IDC_STATIC,225,7,213,110
+    GROUPBOX        "Source",IDC_STATIC,7,7,213,82
+    COMBOBOX        IDC_SIGNAL_TYPE,69,33,132,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    RTEXT           "Signal Type",IDC_STATIC,28,35,37,8
+    COMBOBOX        IDC_SIGNAL_TIMING,69,51,132,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    RTEXT           "Signal Timing",IDC_STATIC,21,53,44,8
+    GROUPBOX        "Signal Artifacts",IDC_STATIC,7,97,213,183
+    COMBOBOX        IDC_ARTIFACT_PRESET,69,114,132,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    RTEXT           "Preset",IDC_STATIC,45,116,20,8
+    CONTROL         "",IDC_NOISE_STRENGTH_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,69,140,108,15
+    LTEXT           "Static",IDC_NOISE_STRENGTH_LABEL,183,143,18,8
+    RTEXT           "Noise Strength",IDC_STATIC,18,143,47,8
+    CONTROL         "",IDC_INSTABILITY_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,69,158,108,15
+    LTEXT           "Static",IDC_INSTABILITY_LABEL,183,161,18,8
+    RTEXT           "Picture Instability",IDC_STATIC,10,161,55,8
+    CONTROL         "",IDC_GHOST_VISIBILITY_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,69,189,108,15
+    LTEXT           "Static",IDC_GHOST_VISIBILITY_LABEL,183,192,18,8
+    RTEXT           "Ghost Visibility",IDC_STATIC,19,192,46,8
+    CONTROL         "",IDC_GHOST_BLUR_WIDTH_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,69,207,108,15
+    LTEXT           "Static",IDC_GHOST_BLUR_WIDTH_LABEL,183,210,18,8
+    RTEXT           "Ghost Blur Width",IDC_STATIC,11,210,54,8
+    CONTROL         "",IDC_GHOST_DISTANCE_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,69,225,108,15
+    LTEXT           "Static",IDC_GHOST_DISTANCE_LABEL,183,228,18,8
+    RTEXT           "Ghost Distance",IDC_STATIC,18,228,47,8
+    CONTROL         "",IDC_ARTIFACT_REDUCTION_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,69,257,108,15
+    LTEXT           "Static",IDC_ARTIFACT_REDUCTION_LABEL,183,260,18,8
+    RTEXT           "Temporal Artifact\nReduction",IDC_STATIC,10,255,55,19
+    CONTROL         "",IDC_TINT_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,292,28,108,15
+    LTEXT           "Static",IDC_TINT_LABEL,406,31,18,8
+    RTEXT           "Tint",IDC_STATIC,275,31,13,8
+    CONTROL         "",IDC_SATURATION_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,292,46,108,15
+    LTEXT           "Static",IDC_SATURATION_LABEL,406,49,18,8
+    RTEXT           "Saturation",IDC_STATIC,255,49,33,8
+    CONTROL         "",IDC_BRIGHTNESS_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,292,64,108,15
+    LTEXT           "Static",IDC_BRIGHTNESS_LABEL,406,67,18,8
+    RTEXT           "Brightness",IDC_STATIC,254,67,34,8
+    CONTROL         "",IDC_SHARPNESS_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,292,82,108,15
+    LTEXT           "Static",IDC_SHARPNESS_LABEL,406,85,18,8
+    RTEXT           "Sharpness",IDC_STATIC,255,85,33,8
+    GROUPBOX        "Screen",IDC_STATIC,225,125,431,155
+    CONTROL         "",IDC_H_DISTORTION_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,292,159,108,15
+    LTEXT           "Static",IDC_H_DISTORTION_LABEL,406,163,18,8
+    RTEXT           "H. Distortion",IDC_STATIC,248,163,40,8
+    CONTROL         "",IDC_V_DISTORTION_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,292,177,108,15
+    LTEXT           "Static",IDC_V_DISTORTION_LABEL,406,182,18,8
+    RTEXT           "V. Distortion",IDC_STATIC,249,182,39,8
+    CONTROL         "",IDC_CORNER_ROUNDNESS_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,292,213,108,15
+    LTEXT           "Static",IDC_CORNER_ROUNDNESS_LABEL,406,217,18,8
+    RTEXT           "Corner Roundness",IDC_STATIC,230,217,58,8
+    CONTROL         "",IDC_LR_EDGE_ROUNDING_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,292,231,108,15
+    LTEXT           "Static",IDC_LR_EDGE_ROUNDING_LABEL,406,234,18,8
+    RTEXT           "L/R Edge Rounding",IDC_STATIC,227,234,61,8
+    CONTROL         "",IDC_TB_EDGE_ROUNDING_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,292,249,108,15
+    LTEXT           "Static",IDC_TB_EDGE_ROUNDING_LABEL,406,252,18,8
+    RTEXT           "T/B Edge Rounding",IDC_STATIC,226,252,62,8
+    GROUPBOX        "Overscan",IDC_STATIC,443,7,213,110
+    CONTROL         "",IDC_OVERSCAN_LEFT_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,512,28,108,15
+    LTEXT           "Static",IDC_OVERSCAN_LEFT_LABEL,626,32,18,8
+    RTEXT           "Left",IDC_STATIC,495,32,13,8
+    CONTROL         "",IDC_OVERSCAN_RIGHT_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,512,46,108,15
+    LTEXT           "Static",IDC_OVERSCAN_RIGHT_LABEL,626,50,18,8
+    RTEXT           "Right",IDC_STATIC,491,50,17,8
+    CONTROL         "",IDC_OVERSCAN_TOP_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,512,65,108,15
+    LTEXT           "Static",IDC_OVERSCAN_TOP_LABEL,626,69,18,8
+    RTEXT           "Top",IDC_STATIC,495,69,13,8
+    CONTROL         "",IDC_OVERSCAN_BOTTOM_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,512,84,108,15
+    LTEXT           "Static",IDC_OVERSCAN_BOTTOM_LABEL,626,87,18,8
+    RTEXT           "Bottom",IDC_STATIC,485,87,23,8
+    CONTROL         "",IDC_SHADOW_MASK_SCALE_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,512,158,108,15
+    LTEXT           "Static",IDC_SHADOW_MASK_SCALE_LABEL,626,162,18,8
+    RTEXT           "Shadow Mask Scale",IDC_STATIC,446,162,62,8
+    CONTROL         "",IDC_SHADOW_MASK_STRENGTH_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,512,177,108,15
+    LTEXT           "Static",IDC_SHADOW_MASK_STRENGTH_LABEL,626,182,18,8
+    RTEXT           "Shad. Mask Strength",IDC_STATIC,442,182,66,8
+    CONTROL         "",IDC_SCANLINE_STRENGTH_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,512,213,108,15
+    LTEXT           "Static",IDC_SCANLINE_STRENGTH_LABEL,626,217,18,8
+    RTEXT           "Scanline Strength",IDC_STATIC,452,217,56,8
+    CONTROL         "",IDC_PHOSPHOR_DECAY_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,512,248,108,15
+    LTEXT           "Static",IDC_PHOSPHOR_DECAY_LABEL,626,252,18,8
+    RTEXT           "Phosphor Decay",IDC_STATIC,457,252,51,8
+    COMBOBOX        IDC_SCREEN_PRESET,383,137,132,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    RTEXT           "Preset",IDC_STATIC,359,139,20,8
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_DISPLAY_SETTINGS_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 656
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 301
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_DISPLAY_SETTINGS_DIALOG AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -52,18 +177,54 @@ END
 // RT_RCDATA
 //
 
-IDR_BASIC_VERTEX_SHADER         RT_RCDATA               "Generated\\BasicVertexShader.vso"
-IDR_RGB_TO_SVIDEO_OR_COMPOSITE  RT_RCDATA               "Generated\\RGBToSVideoOrComposite.pso"
-IDR_APPLY_ARTIFACTS             RT_RCDATA               "Generated\\ApplyArtifacts.pso"
-IDR_COMPOSITE_TO_SVIDEO         RT_RCDATA               "Generated\\CompositeToSVideo.pso"
-IDR_SVIDEO_TO_YIQ               RT_RCDATA               "Generated\\SVideoToYIQ.pso"
-IDR_YIQ_TO_RGB                  RT_RCDATA               "Generated\\YIQToRGB.pso"
-IDR_FILTER_RGB                  RT_RCDATA               "Generated\\FilterRGB.pso"
-IDR_GENERATE_SHADOW_MASK        RT_RCDATA               "Generated\\GenerateShadowMask.pso"
-IDR_DOWNSAMPLE_2X               RT_RCDATA               "Generated\\Downsample2X.pso"
-IDR_RGB_TO_CRT                  RT_RCDATA               "Generated\\RGBToCRT.pso"
-IDR_GENERATE_PHASE_TEXTURE      RT_RCDATA               "Generated\\GeneratePhaseTexture.pso"
-IDR_GENERATE_SCREEN_TEXTURE     RT_RCDATA               "Generated\\GenerateScreenTexture.pso"
+IDR_BASIC_VERTEX_SHADER RT_RCDATA               "..\\Generated\\BasicVertexShader.vso"
+
+IDR_RGB_TO_SVIDEO_OR_COMPOSITE RT_RCDATA               "..\\Generated\\RGBToSVideoOrComposite.pso"
+
+IDR_APPLY_ARTIFACTS     RT_RCDATA               "..\\Generated\\ApplyArtifacts.pso"
+
+IDR_COMPOSITE_TO_SVIDEO RT_RCDATA               "..\\Generated\\CompositeToSVideo.pso"
+
+IDR_SVIDEO_TO_YIQ       RT_RCDATA               "..\\Generated\\SVideoToYIQ.pso"
+
+IDR_YIQ_TO_RGB          RT_RCDATA               "..\\Generated\\YIQToRGB.pso"
+
+IDR_FILTER_RGB          RT_RCDATA               "..\\Generated\\FilterRGB.pso"
+
+IDR_GENERATE_SHADOW_MASK RT_RCDATA               "..\\Generated\\GenerateShadowMask.pso"
+
+IDR_DOWNSAMPLE_2X       RT_RCDATA               "..\\Generated\\Downsample2X.pso"
+
+IDR_RGB_TO_CRT          RT_RCDATA               "..\\Generated\\RGBToCRT.pso"
+
+IDR_GENERATE_PHASE_TEXTURE RT_RCDATA               "..\\Generated\\GeneratePhaseTexture.pso"
+
+IDR_GENERATE_SCREEN_TEXTURE RT_RCDATA               "..\\Generated\\GenerateScreenTexture.pso"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAIN_MENU MENU
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&Open",                       ID_FILE_OPEN
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_FILE_EXIT
+    END
+    POPUP "&Options"
+    BEGIN
+        MENUITEM "&Settings",                   ID_OPTIONS_SETTINGS
+        MENUITEM "&Fullscreen",                 ID_OPTIONS_FULLSCREEN
+    END
+END
+
+#endif    // English (United States) resources
+/////////////////////////////////////////////////////////////////////////////
+
 
 
 #ifndef APSTUDIO_INVOKED
@@ -75,3 +236,4 @@ IDR_GENERATE_SCREEN_TEXTURE     RT_RCDATA               "Generated\\GenerateScre
 
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
+

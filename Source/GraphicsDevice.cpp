@@ -378,12 +378,19 @@ void GraphicsDevice::UpdateWindowSize()
 {
   RECT clientRect;
   GetClientRect(window, &clientRect);
+  uint32_t newWidth = clientRect.right - clientRect.left;
+  uint32_t newHeight = clientRect.bottom - clientRect.top;
+
+  if (newWidth == backbufferWidth && newHeight == backbufferHeight)
+  {
+    return;
+  }
 
   backbuffer = nullptr;
   backbufferView = nullptr;
 
-  backbufferWidth = clientRect.right - clientRect.left;
-  backbufferHeight = clientRect.bottom - clientRect.top;
+  backbufferWidth = newWidth;
+  backbufferHeight = newHeight;
 
   swapChain->ResizeBuffers(
     2, 

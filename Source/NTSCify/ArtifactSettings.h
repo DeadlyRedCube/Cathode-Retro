@@ -14,4 +14,57 @@ namespace NTSCify
 
     float temporalArtifactReduction = 0.0f; // How much to blend between two different phases to reduce temporal aliasing
   };
+
+  struct ArtifactSettingsPreset
+  {
+    const char *name;
+    ArtifactSettings settings;
+  };
+
+  static constexpr ArtifactSettingsPreset k_artifactPresets[] =
+  {
+    {
+      "Pristine",
+      {
+        0.0f, 
+        0.0f,
+        0.0f,
+        0.0f,
+        0.0f,
+        1.0f,
+      },
+    },
+    {
+      "Basic Analogue",
+      {
+        0.0f,
+        0.0f,
+        0.0f,
+        0.025f,
+        0.375f,
+        1.0f,
+      },
+    },
+    {
+      "Basic Analogue (w/temporal artifacts)",
+      {
+        0.0f,
+        0.0f,
+        0.0f,
+        0.025f,
+        0.375f,
+        0.0f,
+      },
+    },
+    {
+      "Bad Reception",
+      {
+        0.25f,
+        0.90f,
+        3.20f,
+        0.25f,
+        2.0f,
+      },
+    },
+  };
 }

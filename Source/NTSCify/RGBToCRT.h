@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cinttypes>
+#include "NTSCify/OverscanSettings.h"
 #include "NTSCify/ScreenSettings.h"
 #include "GraphicsDevice.h"
 #include "resource.h"
@@ -16,11 +17,13 @@ namespace NTSCify
       GraphicsDevice *deviceIn, 
       uint32_t inputImageWidthIn, 
       uint32_t signalTextureWidthIn, 
-      uint32_t scanlineCountIn)
+      uint32_t scanlineCountIn,
+      float pixelAspectIn)
     : device(deviceIn)
     , inputImageWidth(inputImageWidthIn)
     , signalTextureWidth(signalTextureWidthIn)
     , scanlineCount(scanlineCountIn)
+    , pixelAspect(pixelAspectIn)
     {
       rgbToScreenShader = device->CreatePixelShader(IDR_RGB_TO_CRT);
       generateScreenTextureShader = device->CreatePixelShader(IDR_GENERATE_SCREEN_TEXTURE);
@@ -41,6 +44,12 @@ namespace NTSCify
     }
 
 
+    void SetOverscanSettings(const OverscanSettings &settings)
+    {
+      overscanSettings = settings;
+    }
+
+
     void Render(const ITexture *currentFrameRGBInput, const ITexture *previousFrameRGBInput)
     {
       uint32_t outputTargetWidth = device->BackbufferWidth();
@@ -51,19 +60,18 @@ namespace NTSCify
         RGBToScreenConstants data;
 
         // Figure out how to adjust our viewed texture area for overscan
-        float overscanSizeX = (inputImageWidth - float(screenSettings.overscanLeft + screenSettings.overscanRight));
-        float overscanSizeY = (scanlineCount - float(screenSettings.overscanTop + screenSettings.overscanBottom));
+        float overscanSizeX = (inputImageWidth - float(overscanSettings.overscanLeft + overscanSettings.overscanRight));
+        float overscanSizeY = (scanlineCount - float(overscanSettings.overscanTop + overscanSettings.overscanBottom));
 
         data.overscanScaleX = overscanSizeX / inputImageWidth;
         data.overscanScaleY = overscanSizeY / scanlineCount;
 
-        data.overscanOffsetX = float(int32_t(screenSettings.overscanLeft - screenSettings.overscanRight)) / inputImageWidth * 0.5f;
-        data.overscanOffsetY = float(int32_t(screenSettings.overscanTop - screenSettings.overscanBottom)) / scanlineCount * 0.5f;
+        data.overscanOffsetX = float(int32_t(overscanSettings.overscanLeft - overscanSettings.overscanRight)) / inputImageWidth * 0.5f;
+        data.overscanOffsetY = float(int32_t(overscanSettings.overscanTop - overscanSettings.overscanBottom)) / scanlineCount * 0.5f;
 
         // Figure out the aspect ratio of the output, given both our dimensions as well as the pixel aspect ratio in the screen settings.
         {
-          float inputPixelRatio = screenSettings.inputPixelAspectRatio;
-          const float k_aspect = inputPixelRatio * overscanSizeX / overscanSizeY;
+          const float k_aspect = pixelAspect * overscanSizeX / overscanSizeY;
           if (float(outputTargetWidth) > k_aspect * float(outputTargetHeight))
           {
             float desiredWidth = k_aspect * float(outputTargetHeight);
@@ -89,11 +97,11 @@ namespace NTSCify
         static constexpr float shadowMaskScaleNormalization = 240.0f * 0.7f;
 
         data.shadowMaskScaleX = float (inputImageWidth) / float(scanlineCount) 
-                              * screenSettings.inputPixelAspectRatio 
+                              * pixelAspect
                               * shadowMaskScaleNormalization 
                               * 0.45f 
-                              * screenSettings.shadowMaskScale;
-        data.shadowMaskScaleY = shadowMaskScaleNormalization * screenSettings.shadowMaskScale;
+                              / screenSettings.shadowMaskScale;
+        data.shadowMaskScaleY = shadowMaskScaleNormalization / screenSettings.shadowMaskScale;
         data.shadowMaskStrength = screenSettings.shadowMaskStrength;
         data.phosphorDecay = screenSettings.phosphorDecay;
 
@@ -262,6 +270,7 @@ namespace NTSCify
     uint32_t inputImageWidth;
     uint32_t signalTextureWidth;
     uint32_t scanlineCount;
+    float pixelAspect;
 
     ComPtr<ID3D11Buffer> constantBuffer;
     ComPtr<ID3D11Buffer> samplePatternConstantBuffer;
@@ -272,6 +281,7 @@ namespace NTSCify
     std::unique_ptr<ITexture> screenTexture;
 
     ScreenSettings screenSettings;
+    OverscanSettings overscanSettings;
     bool screenSettingsDirty = false;
   };
 }
