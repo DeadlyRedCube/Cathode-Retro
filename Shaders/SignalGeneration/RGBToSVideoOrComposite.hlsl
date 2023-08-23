@@ -29,8 +29,9 @@ sampler g_sampler : register(s0);
 float4 main(float2 signalTexCoord: TEX): SV_TARGET
 {
   uint2 signalTexelIndex = uint2(round(signalTexCoord * float2(g_outputWidth, g_scanlineCount) - 0.5));
-  float2 texCoord = (float2(signalTexelIndex) * float2(float(g_inputWidth) / float(g_outputWidth), 1) + 0.5) / float2(g_inputWidth, g_scanlineCount);
-
+  float2 texCoord = (float2(signalTexelIndex) * float2(float(g_inputWidth) / float(g_outputWidth), 1) + float2(0.25, 0.5)) 
+    / float2(g_inputWidth, g_scanlineCount);
+  
   float instability = CalculateTrackingInstabilityOffset(
     signalTexelIndex.y, 
     g_scanlineCount,
