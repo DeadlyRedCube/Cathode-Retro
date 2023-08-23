@@ -77,6 +77,7 @@ enum class SamplerType
 {
   Clamp,
   Wrap,
+  PointClamp,
 };
 
 // A rather minimal wrapper around a D3D device and related functionality
@@ -262,7 +263,7 @@ private:
   ComPtr<ID3D11Buffer> vertexBuffer;
   ComPtr<ID3D11InputLayout> inputLayout;
 
-  ComPtr<ID3D11SamplerState> samplerStates[2];
+  ComPtr<ID3D11SamplerState> samplerStates[3];
   ComPtr<ID3D11RasterizerState> rasterizerState;
   ComPtr<ID3D11BlendState> blendState;
 

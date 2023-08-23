@@ -197,6 +197,8 @@ IDR_DOWNSAMPLE_2X       RT_RCDATA               "..\\Generated\\Downsample2X.pso
 
 IDR_RGB_TO_CRT          RT_RCDATA               "..\\Generated\\RGBToCRT.pso"
 
+IDR_RGB_TO_SCANLINE_RGB RT_RCDATA               "..\\Generated\\RGBToScanlineRGB.pso"
+
 IDR_GENERATE_PHASE_TEXTURE RT_RCDATA               "..\\Generated\\GeneratePhaseTexture.pso"
 
 IDR_GENERATE_SCREEN_TEXTURE RT_RCDATA               "..\\Generated\\GenerateScreenTexture.pso"

@@ -365,6 +365,7 @@ void GraphicsDevice::InitializeBuiltIns()
     D3D11_SAMPLER_DESC desc;
     ZeroType(&desc);
     desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+    desc.MaxAnisotropy = 16;
     desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
     desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
     desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
@@ -386,6 +387,19 @@ void GraphicsDevice::InitializeBuiltIns()
     desc.MinLOD = 0;
     desc.MaxLOD = D3D11_FLOAT32_MAX;
     CHECK_HRESULT(device->CreateSamplerState(&desc, samplerStates[EnumValue(SamplerType::Wrap)].AddressForReplace()), "create wrap sampler state");
+  }
+
+  {
+    D3D11_SAMPLER_DESC desc;
+    ZeroType(&desc);
+    desc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+    desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+    desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+    desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+    desc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+    desc.MinLOD = 0;
+    desc.MaxLOD = D3D11_FLOAT32_MAX;
+    CHECK_HRESULT(device->CreateSamplerState(&desc, samplerStates[EnumValue(SamplerType::PointClamp)].AddressForReplace()), "create point/clamp sampler state");
   }
 
   // Rasterizer/blend states!

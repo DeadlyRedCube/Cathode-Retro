@@ -15,11 +15,9 @@ cbuffer consts : register(b0)
   float2 g_shadowMaskScale;     // Scale of the shadow mask texture lookup
   float  g_shadowMaskStrength;  // 
   float  g_roundedCornerSize;   // 0 == no corner, 1 == screen is an oval
-  float  g_phosphorDecay;
-  float  g_scanlineCount;       // How many scanlines there are
-  float  g_scanlineStrength;    // How strong the scanlines are (0 == none, 1 == whoa)
-
-  float  g_signalTextureWidth;
+  float  g_phosphorDecayUnused;
+  float  g_scanlineCountUnused;     
+  float  g_scanlineStrengthUnused; 
 }
 
 cbuffer moreConsts : register(b1)
@@ -30,16 +28,6 @@ cbuffer moreConsts : register(b1)
 
 float3 ScreenTint(float2 coord)
 {
-  // Calculate the scanline multiplier
-  // $TODO When we finally add interlacing back in, the scanline info will need to move to a separate texture
-  float scanlineMultiplier;
-  {
-    static const float k_pi = 3.141597;
-    float yCoord = (coord.y + 0.125f) * g_scanlineCount;
-    scanlineMultiplier = sqrt(sin(yCoord * 2.0 * k_pi) * 0.5 + 0.5);
-    scanlineMultiplier = (scanlineMultiplier * g_scanlineStrength) + 1.0 - g_scanlineStrength * 0.60;
-  }
-  
   // Sample the shadow mask
   float3 shadowMaskColor = g_shadowMaskTexture.SampleBias(
     g_sampler, 
@@ -48,7 +36,7 @@ float3 ScreenTint(float2 coord)
 
   shadowMaskColor = (shadowMaskColor - 0.15) * g_shadowMaskStrength + 1.0;
 
-  return shadowMaskColor * scanlineMultiplier;
+  return shadowMaskColor;
 }
 
 

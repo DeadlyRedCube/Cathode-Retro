@@ -301,6 +301,17 @@ void RenderLoadedTexture(ITexture *output, Rebuild rebuild = Rebuild::AsNeeded)
     RebuildGeneratorsIfNecessary(rebuild);
   }
 
+  static auto scanlineType = NTSCify::ScanlineType::Progressive;
+
+  if (scanlineType == NTSCify::ScanlineType::Odd)
+  { 
+    scanlineType = NTSCify::ScanlineType::Even;
+  }
+  else if (scanlineType == NTSCify::ScanlineType::Even)
+  {
+    scanlineType = NTSCify::ScanlineType::Odd;
+  }
+
   const ITexture *input = loadedTexture->texture.get();
   const ITexture *input2 = loadedTexture->texture.get();
   if (s_signalType != NTSCify::SignalType::RGB)
@@ -320,7 +331,7 @@ void RenderLoadedTexture(ITexture *output, Rebuild rebuild = Rebuild::AsNeeded)
 
   // $TODO Currently artifacts are not applied to RGB, and we might still want to at least have some noise in there?
   loadedTexture->rgbToCRT->SetScreenSettings(s_screenSettings);
-  loadedTexture->rgbToCRT->Render(input, input2, output);
+  loadedTexture->rgbToCRT->Render(input, input2, output, scanlineType);
 }
 
 void RenderThreadProc()

@@ -12,16 +12,14 @@ cbuffer consts : register(b0)
   float2 g_overscanScale;       // overscanSize / standardSize;
   float2 g_overscanOffset;      // texture coordinate offset due to overscan
   float2 g_distortion;          // How much to distort (from 0 .. 1)
-  float2 g_maskDistortion;      // Where to put the mask sides
+  float2 g_maskDistortionUnused; 
 
-  float2 g_shadowMaskScale;     // Scale of the shadow mask texture lookup
-  float  g_shadowMaskStrength;  // 
-  float  g_roundedCornerSize;   // 0 == no corner, 1 == screen is an oval
+  float2 g_shadowMaskScaleUnused;
+  float  g_shadowMaskStrengthUnused;
+  float  g_roundedCornerSizeUnused;
   float  g_phosphorDecay;
   float  g_scanlineCount;       // How many scanlines there are
   float  g_scanlineStrength;    // How strong the scanlines are (0 == none, 1 == whoa)
-
-  float  g_signalTextureWidth;
 }
 
 float4 main(float2 inTexCoord : TEX) : SV_TARGET
@@ -54,6 +52,9 @@ float4 main(float2 inTexCoord : TEX) : SV_TARGET
 
     sourceColor = g_currentFrameTexture.Sample(g_sampler, t).rgb;
     
+    // We want to adjust the brightness to somewhat compensate for the darkening due to scanlines
+    sourceColor *= 1.0 + g_scanlineStrength * 0.5;
+    
     float3 prevSourceColor = g_previousFrameTexture.Sample(g_sampler, t).rgb;
 
     // If a phosphor hasn't decayed all the way keep its brightness
@@ -62,5 +63,4 @@ float4 main(float2 inTexCoord : TEX) : SV_TARGET
 
   // Put it all together
   return float4(lerp((0.05).xxx, sourceColor * screenMask.rgb, screenMask.a), 1);
-
 }
