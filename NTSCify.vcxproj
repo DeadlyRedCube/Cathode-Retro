@@ -186,7 +186,7 @@
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdcpp17</LanguageStandard>
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdcpp17</LanguageStandard>
     </ClCompile>
-    <ClCompile Include="Source\ReadWicTexture.cpp" />
+    <ClCompile Include="Source\WicTexture.cpp" />
     <ClCompile Include="Source\SettingsDialog.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -496,7 +496,7 @@
     <ClInclude Include="Source\NTSCify\SignalProperties.h" />
     <ClInclude Include="Source\NTSCify\SourceSettings.h" />
     <ClInclude Include="Source\NTSCify\TVKnobSettings.h" />
-    <ClInclude Include="Source\ReadWicTexture.h" />
+    <ClInclude Include="Source\WicTexture.h" />
     <ClInclude Include="Source\resource.h" />
     <ClInclude Include="Source\SettingsDialog.h" />
     <ClInclude Include="Source\SimpleArray.h" />

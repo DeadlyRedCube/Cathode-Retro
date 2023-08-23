@@ -50,10 +50,10 @@ namespace NTSCify
     }
 
 
-    void Render(const ITexture *currentFrameRGBInput, const ITexture *previousFrameRGBInput)
+    void Render(const ITexture *currentFrameRGBInput, const ITexture *previousFrameRGBInput, ITexture *outputTexture)
     {
-      uint32_t outputTargetWidth = device->BackbufferWidth();
-      uint32_t outputTargetHeight = device->BackbufferHeight();
+      uint32_t outputTargetWidth = (outputTexture != nullptr) ? outputTexture->Width() : device->BackbufferWidth();
+      uint32_t outputTargetHeight = (outputTexture != nullptr) ? outputTexture->Height() : device->BackbufferHeight();
 
       // Next up: Set up our shader constants
       {
@@ -140,7 +140,7 @@ namespace NTSCify
 
       device->RenderQuadWithPixelShader(
         rgbToScreenShader,
-        nullptr,
+        outputTexture,
         {currentFrameRGBInput, previousFrameRGBInput, screenTexture.get()},
         {SamplerType::Clamp},
         {constantBuffer});

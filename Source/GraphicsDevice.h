@@ -126,6 +126,8 @@ public:
   }
 
 
+  SimpleArray<uint32_t> GetTexturePixels(ITexture *texture);
+
   std::unique_ptr<ITexture> CreateTexture(
     uint32_t width,
     uint32_t height,
@@ -144,6 +146,7 @@ public:
     void *initialDataTexels = nullptr,
     uint32_t initialDataPitch = 0)
     { return CreateTexture(width, height, 1, format, flags, initialDataTexels, initialDataPitch); }
+
 
   std::unique_ptr<IMipLevelSource> CreateMipLevelSource(ITexture *texture, uint32_t mipLevel);
   std::unique_ptr<IMipLevelTarget> CreateMipLevelTarget(ITexture *texture, uint32_t mipLevel);

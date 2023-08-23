@@ -11,7 +11,7 @@
 #include "NTSCify/SignalGenerator.h"
 #include "NTSCify/SignalDecoder.h"
 #include "GraphicsDevice.h"
-#include "ReadWicTexture.h"
+#include "WicTexture.h"
 #include "resource.h"
 #include "SettingsDialog.h"
 
@@ -45,13 +45,21 @@ struct LoadedTexture
   std::unique_ptr<NTSCify::SignalDecoder> signalDecoder;
   std::unique_ptr<NTSCify::RGBToCRT> rgbToCRT;
 
-  NTSCify::SignalType cachedSignalType;
-  NTSCify::SourceSettings cachedSourceSettings;
+  NTSCify::SignalType cachedSignalType {};
+  NTSCify::SourceSettings cachedSourceSettings {};
 };
 
 std::unique_ptr<LoadedTexture> loadedTexture;
 
-void RebuildGeneratorsIfNecessary(bool force = false)
+enum class Rebuild
+{
+  AsNeeded,
+  Always,
+  Never,
+};
+
+
+void RebuildGeneratorsIfNecessary(Rebuild rebuild)
 { 
   if (loadedTexture == nullptr)
   {
@@ -61,7 +69,12 @@ void RebuildGeneratorsIfNecessary(bool force = false)
   auto sourceSettings = s_sourceSettings;
   auto signalType = s_signalType;
 
-  if (force
+  if (rebuild == Rebuild::Never)
+  {
+    loadedTexture->cachedSignalType = signalType;
+    loadedTexture->cachedSourceSettings = sourceSettings;
+  }
+  else if (rebuild == Rebuild::Always
     || signalType != loadedTexture->cachedSignalType
     || memcmp(&sourceSettings, &loadedTexture->cachedSourceSettings, sizeof(sourceSettings)) != 0)
   {
@@ -87,7 +100,7 @@ void RebuildGeneratorsIfNecessary(bool force = false)
 }
 
 
-void LoadTexture(wchar_t *path)
+void LoadTexture(const wchar_t *path, Rebuild rebuild = Rebuild::Always)
 {
   std::unique_lock lock(s_renderThreadMutex);
 
@@ -108,9 +121,12 @@ void LoadTexture(wchar_t *path)
 
   load->texture = s_graphicsDevice->CreateTexture(width, height, DXGI_FORMAT_R8G8B8A8_UNORM, TextureFlags::None, load->data.Ptr(), width * sizeof(uint32_t));
 
-  RebuildGeneratorsIfNecessary(true);
-
   loadedTexture = std::move(load);
+
+  if (rebuild != Rebuild::Never)
+  {
+    RebuildGeneratorsIfNecessary(rebuild);
+  }
 }
 
 
@@ -278,6 +294,35 @@ static void DoInit( HINSTANCE hInstance )
 }
 
 
+void RenderLoadedTexture(ITexture *output, Rebuild rebuild = Rebuild::AsNeeded)
+{
+  if (rebuild != Rebuild::Never)
+  {
+    RebuildGeneratorsIfNecessary(rebuild);
+  }
+
+  const ITexture *input = loadedTexture->texture.get();
+  const ITexture *input2 = loadedTexture->texture.get();
+  if (s_signalType != NTSCify::SignalType::RGB)
+  {
+    loadedTexture->signalGenerator->SetArtifactSettings(s_artifactSettings);
+    loadedTexture->signalGenerator->Generate(input);
+
+    loadedTexture->signalDecoder->SetKnobSettings(s_knobSettings);
+    loadedTexture->signalDecoder->Decode(
+      loadedTexture->signalGenerator->SignalTexture(), 
+      loadedTexture->signalGenerator->PhasesTexture(), 
+      loadedTexture->signalGenerator->SignalLevels());
+
+    input = loadedTexture->signalDecoder->CurrentFrameRGBOutput();
+    input2 = loadedTexture->signalDecoder->PreviousFrameRGBOutput();
+  }
+
+  // $TODO Currently artifacts are not applied to RGB, and we might still want to at least have some noise in there?
+  loadedTexture->rgbToCRT->SetScreenSettings(s_screenSettings);
+  loadedTexture->rgbToCRT->Render(input, input2, output);
+}
+
 void RenderThreadProc()
 {
   while (!s_stopRenderThread)
@@ -290,25 +335,7 @@ void RenderThreadProc()
 
       if (loadedTexture != nullptr)
       {
-        RebuildGeneratorsIfNecessary();
-
-        const ITexture *input = loadedTexture->texture.get();
-        const ITexture *input2 = loadedTexture->texture.get();
-        if (s_signalType != NTSCify::SignalType::RGB)
-        {
-          loadedTexture->signalGenerator->SetArtifactSettings(s_artifactSettings);
-          loadedTexture->signalGenerator->Generate(input);
-
-          loadedTexture->signalDecoder->SetKnobSettings(s_knobSettings);
-          loadedTexture->signalDecoder->Decode(loadedTexture->signalGenerator->SignalTexture(), loadedTexture->signalGenerator->PhasesTexture(), loadedTexture->signalGenerator->SignalLevels());
-
-          input = loadedTexture->signalDecoder->CurrentFrameRGBOutput();
-          input2 = loadedTexture->signalDecoder->PreviousFrameRGBOutput();
-        }
-
-        // $TODO Currently artifacts are not applied to RGB, and we might still want to at least have some noise in there?
-        loadedTexture->rgbToCRT->SetScreenSettings(s_screenSettings);
-        loadedTexture->rgbToCRT->Render(input, input2);
+        RenderLoadedTexture(nullptr);
       }
 
       s_graphicsDevice->Present();
@@ -343,13 +370,13 @@ void StartRenderThread()
 
 
 
-int PASCAL WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int)
+int CALLBACK WinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int)
 {
-  CoInitialize(nullptr);
-  InitCommonControls();
-
   try
   {
+    CHECK_HRESULT(CoInitialize(nullptr), "Initializing COM");
+    InitCommonControls();
+
     MSG msg;
     DoInit(hInstance);
 

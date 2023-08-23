@@ -45,7 +45,7 @@
     <ClCompile Include="Source\Main.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Source\ReadWicTexture.cpp">
+    <ClCompile Include="Source\WicTexture.cpp">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\SettingsDialog.cpp">
@@ -146,7 +146,7 @@
     <ClInclude Include="Source\GraphicsDevice.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Source\ReadWicTexture.h">
+    <ClInclude Include="Source\WicTexture.h">
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="Source\resource.h">

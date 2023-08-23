@@ -144,6 +144,39 @@ std::unique_ptr<ITexture> GraphicsDevice::CreateTexture(
 }
 
 
+SimpleArray<uint32_t> GraphicsDevice::GetTexturePixels(ITexture *texture)
+{
+  auto tex = static_cast<Texture *>(texture);
+
+  D3D11_TEXTURE2D_DESC desc;
+  tex->texture->GetDesc(&desc);
+
+  desc.BindFlags = 0;
+  desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+  desc.Usage = D3D11_USAGE_STAGING;
+  desc.MiscFlags = 0;
+
+  ComPtr<ID3D11Texture2D> staging;
+  CHECK_HRESULT(device->CreateTexture2D(&desc, nullptr, staging.AddressForReplace()), "create copy texture");
+
+  context->CopyResource(staging.Ptr(), tex->texture);
+  
+  D3D11_MAPPED_SUBRESOURCE resource;
+  CHECK_HRESULT(context->Map(staging.Ptr(), 0, D3D11_MAP_READ, 0, &resource), "mapping staging texture");
+
+  SimpleArray<uint32_t> ary { tex->Width() * tex->Height() };
+
+  for (uint32_t y = 0; y < tex->Height(); y++)
+  {
+    memcpy(&ary[y * tex->Width()], resource.pData, tex->Width()*sizeof(uint32_t));
+    resource.pData = static_cast<uint8_t *>(resource.pData) + resource.RowPitch;
+  }
+
+  context->Unmap(staging.Ptr(), 0);
+  return ary;
+}
+
+
 std::unique_ptr<IMipLevelSource> GraphicsDevice::CreateMipLevelSource(ITexture *texture, uint32_t mipLevel)
 {
   D3D11_SHADER_RESOURCE_VIEW_DESC desc;
@@ -461,14 +494,28 @@ void GraphicsDevice::RenderQuadWithPixelShader(
   std::initializer_list<SamplerType> samplers,
   std::initializer_list<ID3D11Buffer *> constantBuffers)
 {
-  RenderQuadWithPixelShader(
-    ps,
-    output->Width(),
-    output->Height(),
-    static_cast<Texture *>(output)->rtv,
-    inputs,
-    samplers,
-    constantBuffers);
+  if (output == nullptr)
+  {
+    RenderQuadWithPixelShader(
+      ps,
+      backbufferWidth,
+      backbufferHeight,
+      backbufferView,
+      inputs,
+      samplers,
+      constantBuffers);
+  }
+  else
+  {
+    RenderQuadWithPixelShader(
+      ps,
+      output->Width(),
+      output->Height(),
+      static_cast<Texture *>(output)->rtv,
+      inputs,
+      samplers,
+      constantBuffers);
+  }
 }
 
 
