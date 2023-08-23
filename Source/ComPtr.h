@@ -15,7 +15,7 @@ public:
     *this = var.m_pointer;
   }
 
-  ComPtr(ComPtr<T> && var)
+  ComPtr(ComPtr<T> && var) noexcept
   {
     m_pointer = var.m_pointer;
     var.m_pointer = nullptr;
@@ -54,7 +54,7 @@ public:
     return *this;
   }
 
-  inline ComPtr<T> & operator = (ComPtr<T> && var)
+  inline ComPtr<T> & operator = (ComPtr<T> && var) noexcept
   {
     if (m_pointer != nullptr)
     {

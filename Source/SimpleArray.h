@@ -17,12 +17,12 @@ public:
   SimpleArray(const SimpleArray &) = delete;
   void operator = (const SimpleArray &) = delete;
 
-  SimpleArray(SimpleArray &&b)
+  SimpleArray(SimpleArray &&b) noexcept
     : length(std::exchange(b.length, 0))
     , buffer(std::exchange(b.buffer, nullptr))
     { }
 
-  SimpleArray &operator = (SimpleArray &&b)
+  SimpleArray &operator = (SimpleArray &&b) noexcept
   {
     if (&b != this)
     {
