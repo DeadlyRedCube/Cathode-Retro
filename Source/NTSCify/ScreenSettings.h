@@ -69,9 +69,9 @@ namespace NTSCify
         1.0f,
         0.0f,
         
-        0.5f,
+        0.25f,
 
-        0.0f,
+        0.47f,
       }
     },
     {
@@ -90,7 +90,7 @@ namespace NTSCify
         
         0.25f,
 
-        0.05f,
+        0.47f,
       }
     },
     {
@@ -109,7 +109,7 @@ namespace NTSCify
         
         0.25f,
 
-        0.05f,
+        0.47f,
       }
     },
     {
@@ -126,9 +126,9 @@ namespace NTSCify
         1.0f,
         0.65f,
         
-        0.0f,
+        0.25f,
 
-        0.05f,
+        0.00f,
       }
     },
     {
@@ -147,7 +147,7 @@ namespace NTSCify
         
         0.25f,
 
-        0.2f,
+        0.47f,
       }
     },
   };

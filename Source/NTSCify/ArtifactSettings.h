@@ -59,11 +59,12 @@ namespace NTSCify
     {
       "Bad Reception",
       {
-        0.25f,
+        0.35f,
         0.90f,
-        3.20f,
-        0.25f,
-        2.0f,
+        3.00f,
+        0.20f,
+        1.25f,
+        0.0f,
       },
     },
   };
