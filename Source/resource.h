@@ -16,7 +16,6 @@
 #define IDR_GENERATE_SCREEN_TEXTURE     112
 #define IDD_DISPLAY_SETTINGS_DIALOG     113
 #define IDR_MAIN_MENU                   114
-#define IDR_RGB_TO_SCANLINE_RGB         115
 #define IDC_SIGNAL_TYPE                 1001
 #define IDC_SIGNAL_TIMING               1002
 #define IDC_ARTIFACT_PRESET             1003
@@ -79,7 +78,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        116
+#define _APS_NEXT_RESOURCE_VALUE        115
 #define _APS_NEXT_COMMAND_VALUE         40005
 #define _APS_NEXT_CONTROL_VALUE         1053
 #define _APS_NEXT_SYMED_VALUE           101

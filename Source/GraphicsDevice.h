@@ -49,36 +49,44 @@ protected:
 };
 
 
-class IMipLevelSource
-{
-public:
-  virtual ~IMipLevelSource() = default;
-  virtual uint32_t Width() const = 0;
-  virtual uint32_t Height() const = 0;
-
-protected:
-  IMipLevelSource() = default;
-};
-
-
-class IMipLevelTarget
-{
-public:
-  virtual ~IMipLevelTarget() = default;
-  virtual uint32_t Width() const = 0;
-  virtual uint32_t Height() const = 0;
-
-protected:
-  IMipLevelTarget() = default;
-};
-
-
 enum class SamplerType
 {
   Clamp,
   Wrap,
-  PointClamp,
 };
+
+
+struct ShaderResourceView
+{
+  ShaderResourceView(const ITexture *tex)
+    : texture(tex)
+    { }
+
+  ShaderResourceView(const ITexture *tex, uint32_t mip)
+    : texture(tex)
+    , mipLevel(int32_t(mip))
+    { }
+    
+  const ITexture *texture;
+  int32_t mipLevel = -1;
+};
+
+
+struct RenderTargetView
+{
+  RenderTargetView(ITexture *tex)
+    : texture(tex)
+    { }
+
+  RenderTargetView(ITexture *tex, uint32_t mip)
+    : texture(tex)
+    , mipLevel(int32_t(mip))
+    { }
+    
+  ITexture *texture;
+  uint32_t mipLevel = 0;
+};
+
 
 // A rather minimal wrapper around a D3D device and related functionality
 class GraphicsDevice
@@ -149,27 +157,10 @@ public:
     { return CreateTexture(width, height, 1, format, flags, initialDataTexels, initialDataPitch); }
 
 
-  std::unique_ptr<IMipLevelSource> CreateMipLevelSource(ITexture *texture, uint32_t mipLevel);
-  std::unique_ptr<IMipLevelTarget> CreateMipLevelTarget(ITexture *texture, uint32_t mipLevel);
-
   void RenderQuadWithPixelShader(
     ID3D11PixelShader *ps,
-    nullptr_t,
-    std::initializer_list<const ITexture *> inputs,
-    std::initializer_list<SamplerType> samplers,
-    std::initializer_list<ID3D11Buffer *> constantBuffers);
-
-  void RenderQuadWithPixelShader(
-    ID3D11PixelShader *ps,
-    IMipLevelTarget *output,
-    std::initializer_list<const IMipLevelSource *> inputs,
-    std::initializer_list<SamplerType> samplers,
-    std::initializer_list<ID3D11Buffer *> constantBuffers);
-
-  void RenderQuadWithPixelShader(
-    ID3D11PixelShader *ps,
-    ITexture *output,
-    std::initializer_list<const ITexture *> inputs,
+    RenderTargetView output,
+    std::initializer_list<ShaderResourceView> inputs,
     std::initializer_list<SamplerType> samplers,
     std::initializer_list<ID3D11Buffer *> constantBuffers);
 
@@ -190,8 +181,9 @@ private:
       { return format; }
 
     ComPtr<ID3D11Texture2D> texture;
-    ComPtr<ID3D11ShaderResourceView> srv;
-    ComPtr<ID3D11RenderTargetView> rtv;
+    ComPtr<ID3D11ShaderResourceView> fullSRV;
+    std::vector<ComPtr<ID3D11ShaderResourceView>> mipSRVs;
+    std::vector<ComPtr<ID3D11RenderTargetView>> mipRTVs;
     uint32_t width;
     uint32_t height;
     uint32_t mipCount;
@@ -199,44 +191,12 @@ private:
   };
 
 
-  class MipLevelSource : public IMipLevelSource
-  {
-  public:
-    uint32_t Width() const override
-      { return width; }
-
-    uint32_t Height() const override
-      { return height; }    
-
-    ComPtr<ID3D11Texture2D> texture;
-    ComPtr<ID3D11ShaderResourceView> srv;
-
-    uint32_t width;
-    uint32_t height;
-  };
-
-  class MipLevelTarget : public IMipLevelTarget
-  {
-  public:
-    uint32_t Width() const override
-      { return width; }
-
-    uint32_t Height() const override
-      { return height; }    
-
-    ComPtr<ID3D11Texture2D> texture;
-    ComPtr<ID3D11RenderTargetView> rtv;
-
-    uint32_t width;
-    uint32_t height;
-  };
-
   void RenderQuadWithPixelShader(
     ID3D11PixelShader *ps,
     uint32_t viewportWidth,
     uint32_t viewportHeight,
     ID3D11RenderTargetView *outputRtv,
-    std::initializer_list<const ITexture *> inputs,
+    std::initializer_list<ShaderResourceView> inputs,
     std::initializer_list<SamplerType> samplers,
     std::initializer_list<ID3D11Buffer *> constantBuffers);
     
@@ -263,7 +223,7 @@ private:
   ComPtr<ID3D11Buffer> vertexBuffer;
   ComPtr<ID3D11InputLayout> inputLayout;
 
-  ComPtr<ID3D11SamplerState> samplerStates[3];
+  ComPtr<ID3D11SamplerState> samplerStates[2];
   ComPtr<ID3D11RasterizerState> rasterizerState;
   ComPtr<ID3D11BlendState> blendState;
 

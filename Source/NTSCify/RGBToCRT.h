@@ -2,7 +2,6 @@
 
 #include <cassert>
 #include <cinttypes>
-#include "CRTComponents/RGBToScanlineRGB.h"
 #include "NTSCify/OverscanSettings.h"
 #include "NTSCify/ScreenSettings.h"
 #include "GraphicsDevice.h"
@@ -38,12 +37,11 @@ namespace NTSCify
     {
       rgbToScreenShader = device->CreatePixelShader(IDR_RGB_TO_CRT);
       generateScreenTextureShader = device->CreatePixelShader(IDR_GENERATE_SCREEN_TEXTURE);
+      downsample2XShader = device->CreatePixelShader(IDR_DOWNSAMPLE_2X);
       constantBuffer = device->CreateConstantBuffer(sizeof(RGBToScreenConstants));
       samplePatternConstantBuffer = device->CreateConstantBuffer(sizeof(k_samplingPattern16X));
 
       GenerateShadowMaskTexture();
-
-      rgbToScanlineRGB = std::make_unique<CRTComponents::RGBToScanlineRGB>(device);
     }
 
 
@@ -65,37 +63,6 @@ namespace NTSCify
 
     void Render(const ITexture *currentFrameRGBInput, const ITexture *previousFrameRGBInput, ITexture *outputTexture, ScanlineType scanType)
     {
-      if (scanType != ScanlineType::Progressive && screenSettings.scanlineStrength > 0.0f)
-      {
-        if (curFrameScanlineTexture == nullptr || curFrameScanlineTexture->Width() != currentFrameRGBInput->Width())
-        {
-          prevFrameScanlineTexture = device->CreateTexture(currentFrameRGBInput->Width(), scanlineCount * 2, DXGI_FORMAT_R8G8B8A8_UNORM, TextureFlags::RenderTarget);
-          curFrameScanlineTexture = device->CreateTexture(currentFrameRGBInput->Width(), scanlineCount * 2, DXGI_FORMAT_R8G8B8A8_UNORM, TextureFlags::RenderTarget);
-          cachedPrevFrameTexture = nullptr;
-        }
-
-        std::swap(curFrameScanlineTexture, prevFrameScanlineTexture);
-        rgbToScanlineRGB->Apply(device, currentFrameRGBInput, curFrameScanlineTexture.get(), scanType != ScanlineType::Even, screenSettings.scanlineStrength);
-        
-        assert(currentFrameRGBInput->Width() == curFrameScanlineTexture->Width());
-        currentFrameRGBInput = curFrameScanlineTexture.get();
-
-        if (previousFrameRGBInput != nullptr)
-        {
-          if (cachedPrevFrameTexture != previousFrameRGBInput)
-          {
-            assert(previousFrameRGBInput->Width() == prevFrameScanlineTexture->Width());
-
-            // We don't have a scanlined version of the previous frame, so we need to build that. It should be an Odd frame unless the
-            //  current frame is odd (in which case we're interlaced and it should be even)
-            rgbToScanlineRGB->Apply(device, previousFrameRGBInput, prevFrameScanlineTexture.get(), scanType != ScanlineType::Odd, screenSettings.scanlineStrength);
-          }
-
-          cachedPrevFrameTexture = previousFrameRGBInput;
-          previousFrameRGBInput = prevFrameScanlineTexture.get();
-        }
-      }
-
       uint32_t outputTargetWidth = (outputTexture != nullptr) ? outputTexture->Width() : device->BackbufferWidth();
       uint32_t outputTargetHeight = (outputTexture != nullptr) ? outputTexture->Height() : device->BackbufferHeight();
 
@@ -147,10 +114,15 @@ namespace NTSCify
                               / screenSettings.shadowMaskScale;
         data.shadowMaskScaleY = shadowMaskScaleNormalization / screenSettings.shadowMaskScale;
         data.shadowMaskStrength = screenSettings.shadowMaskStrength;
+
+        // TODO: may want to artificially increase phosphorDecay if we're interlaced
         data.phosphorDecay = screenSettings.phosphorDecay;
 
         data.scanlineCount = float(scanlineCount);
         data.scanlineStrength = (scanType != ScanlineType::Progressive) ? screenSettings.scanlineStrength : 0.0f;
+
+        data.curEvenOddTexelOffset = (scanType != ScanlineType::Even) ? 0.5f : -0.5f;
+        data.prevEvenOddTexelOffset = (m_prevScanlineType != ScanlineType::Even) ? 0.5f : -0.5f;
 
         device->DiscardAndUpdateBuffer(constantBuffer, &data);
       }
@@ -186,6 +158,8 @@ namespace NTSCify
         {currentFrameRGBInput, previousFrameRGBInput, screenTexture.get()},
         {SamplerType::Clamp},
         {constantBuffer});
+
+      m_prevScanlineType = scanType;
     }
 
   protected:
@@ -225,6 +199,7 @@ namespace NTSCify
        6.0f / 8.0,  7.0f / 8.0,   0.0f, 0.0f,
       -7.0f / 8.0, -8.0f / 8.0,   0.0f, 0.0f,
     };
+
 
     // Generate the shadow mask texture we use for the CRT emulation
     void GenerateShadowMaskTexture()
@@ -267,16 +242,12 @@ namespace NTSCify
       }
 
       // Now it's generated so we need to generate the mips by using our lanczos downsample
-      ComPtr<ID3D11PixelShader> downsampleShader = device->CreatePixelShader(IDR_DOWNSAMPLE_2X);
       for (uint32_t destMip = 1; destMip < k_mipCount; destMip++)
       {
-        std::unique_ptr<IMipLevelSource> levelSource = device->CreateMipLevelSource(shadowMaskTexture.get(), destMip - 1);
-        std::unique_ptr<IMipLevelTarget> levelTarget = device->CreateMipLevelTarget(shadowMaskTexture.get(), destMip);
-
         device->RenderQuadWithPixelShader(
-          downsampleShader,
-          levelTarget.get(),
-          {levelSource.get()},
+          downsample2XShader,
+          {shadowMaskTexture.get(), destMip},
+          {{shadowMaskTexture.get(), destMip - 1}},
           {SamplerType::Wrap},
           {});
       }
@@ -303,6 +274,8 @@ namespace NTSCify
       float phosphorDecay;          // 
       float scanlineCount;          // How many scanlines there are
       float scanlineStrength;       // How strong the scanlines are (0 == none, 1 == whoa)
+      float curEvenOddTexelOffset;  // This is 0.5 if it's an odd frame (or progressive) and -0.5 if it's even.
+      float prevEvenOddTexelOffset; // This is 0.5 if it's an odd frame (or progressive) and -0.5 if it's even.
     };
 
     GraphicsDevice *device;
@@ -315,19 +288,15 @@ namespace NTSCify
     ComPtr<ID3D11Buffer> constantBuffer;
     ComPtr<ID3D11Buffer> samplePatternConstantBuffer;
     ComPtr<ID3D11PixelShader> rgbToScreenShader;
+    ComPtr<ID3D11PixelShader> downsample2XShader;
     ComPtr<ID3D11PixelShader> generateScreenTextureShader;
   
-    std::unique_ptr<ITexture> curFrameScanlineTexture;
-    std::unique_ptr<ITexture> prevFrameScanlineTexture;
-    const ITexture *cachedPrevFrameTexture = nullptr;
-    
     std::unique_ptr<ITexture> shadowMaskTexture;
     std::unique_ptr<ITexture> screenTexture;
-
-    std::unique_ptr<CRTComponents::RGBToScanlineRGB> rgbToScanlineRGB;
 
     ScreenSettings screenSettings;
     OverscanSettings overscanSettings;
     bool screenSettingsDirty = false;
+    ScanlineType m_prevScanlineType = ScanlineType::Progressive;
   };
 }

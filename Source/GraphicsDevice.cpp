@@ -99,47 +99,76 @@ std::unique_ptr<ITexture> GraphicsDevice::CreateTexture(
   void *initialDataTexels,
   uint32_t initialDataPitch)
 {
-  D3D11_TEXTURE2D_DESC desc;
-  ZeroType(&desc);
-  desc.Width = width;
-  desc.Height = height;
-  desc.ArraySize = 1;
-  desc.Format = format;
-  desc.SampleDesc.Count = 1;
-  desc.Usage = ((flags & TextureFlags::Dynamic) != TextureFlags::None) ? D3D11_USAGE_DYNAMIC : D3D11_USAGE_DEFAULT;
-  desc.CPUAccessFlags = ((flags & TextureFlags::Dynamic) != TextureFlags::None) ? D3D11_CPU_ACCESS_WRITE : 0;
-  desc.MipLevels = mipCount;
-  desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-  if (((flags & TextureFlags::RenderTarget) != TextureFlags::None))
-  {
-    desc.BindFlags |= D3D11_BIND_RENDER_TARGET;
-  }
-
-  D3D11_SUBRESOURCE_DATA initialDataStorage;
-  D3D11_SUBRESOURCE_DATA *initialData = nullptr;
-  if (initialDataTexels != nullptr)
-  {
-    ZeroType(&initialDataStorage);
-    initialData = &initialDataStorage;
-
-    initialData->pSysMem = initialDataTexels;
-    initialData->SysMemPitch = initialDataPitch;
-  }
-
   std::unique_ptr<Texture> tex = std::make_unique<Texture>();
 
-  tex->width = width;
-  tex->height = height;
-  tex->mipCount = mipCount;
-  tex->format = format;
-
-  CHECK_HRESULT(device->CreateTexture2D(&desc, initialData, tex->texture.AddressForReplace()), "create texture 2D");
-  CHECK_HRESULT(device->CreateShaderResourceView(tex->texture, nullptr, tex->srv.AddressForReplace()), "create SRV");
-
-  if (((flags & TextureFlags::RenderTarget) != TextureFlags::None))
   {
-    CHECK_HRESULT(device->CreateRenderTargetView(tex->texture, nullptr, tex->rtv.AddressForReplace()), "create RTV");
+    D3D11_TEXTURE2D_DESC desc;
+    ZeroType(&desc);
+    desc.Width = width;
+    desc.Height = height;
+    desc.ArraySize = 1;
+    desc.Format = format;
+    desc.SampleDesc.Count = 1;
+    desc.Usage = ((flags & TextureFlags::Dynamic) != TextureFlags::None) ? D3D11_USAGE_DYNAMIC : D3D11_USAGE_DEFAULT;
+    desc.CPUAccessFlags = ((flags & TextureFlags::Dynamic) != TextureFlags::None) ? D3D11_CPU_ACCESS_WRITE : 0;
+    desc.MipLevels = mipCount;
+    desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+    if (((flags & TextureFlags::RenderTarget) != TextureFlags::None))
+    {
+      desc.BindFlags |= D3D11_BIND_RENDER_TARGET;
+    }
+
+    D3D11_SUBRESOURCE_DATA initialDataStorage;
+    D3D11_SUBRESOURCE_DATA *initialData = nullptr;
+    if (initialDataTexels != nullptr)
+    {
+      ZeroType(&initialDataStorage);
+      initialData = &initialDataStorage;
+
+      initialData->pSysMem = initialDataTexels;
+      initialData->SysMemPitch = initialDataPitch;
+    }
+
+    tex->width = width;
+    tex->height = height;
+    tex->format = format;
+
+    CHECK_HRESULT(device->CreateTexture2D(&desc, initialData, tex->texture.AddressForReplace()), "create texture 2D");
+    CHECK_HRESULT(device->CreateShaderResourceView(tex->texture, nullptr, tex->fullSRV.AddressForReplace()), "create SRV");
+
+    tex->texture->GetDesc(&desc);
+    tex->mipCount = desc.MipLevels;
   }
+
+  for (uint32_t mip = 0; mip < tex->mipCount; mip++)
+  {
+    {
+      D3D11_SHADER_RESOURCE_VIEW_DESC desc;
+      ZeroType(&desc);
+      desc.Format = format;
+      desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+      desc.Texture2D.MipLevels = 1;
+      desc.Texture2D.MostDetailedMip = mip;
+
+      ComPtr<ID3D11ShaderResourceView> srv;
+      CHECK_HRESULT(device->CreateShaderResourceView(tex->texture, &desc, srv.AddressForReplace()), "Create SRV");
+      tex->mipSRVs.push_back(std::move(srv));
+    }
+
+    if (((flags & TextureFlags::RenderTarget) != TextureFlags::None))
+    {
+      D3D11_RENDER_TARGET_VIEW_DESC desc;
+      ZeroType(&desc);
+      desc.Format = format;
+      desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+      desc.Texture2D.MipSlice = mip;
+
+      ComPtr<ID3D11RenderTargetView> rtv;
+      CHECK_HRESULT(device->CreateRenderTargetView(tex->texture, &desc, rtv.AddressForReplace()), "Create RTV");
+      tex->mipRTVs.push_back(std::move(rtv));
+    }
+  }
+
   return tex;
 }
 
@@ -174,47 +203,6 @@ SimpleArray<uint32_t> GraphicsDevice::GetTexturePixels(ITexture *texture)
 
   context->Unmap(staging.Ptr(), 0);
   return ary;
-}
-
-
-std::unique_ptr<IMipLevelSource> GraphicsDevice::CreateMipLevelSource(ITexture *texture, uint32_t mipLevel)
-{
-  D3D11_SHADER_RESOURCE_VIEW_DESC desc;
-  ZeroType(&desc);
-  desc.Format = texture->Format();
-  desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-  desc.Texture2D.MipLevels = 1;
-  desc.Texture2D.MostDetailedMip = mipLevel;
-
-  auto tex = static_cast<Texture *>(texture);
-
-  std::unique_ptr<MipLevelSource> source = std::make_unique<MipLevelSource>();
-
-  source->width = std::max(1U, texture->Width() >> mipLevel);
-  source->height = std::max(1U, texture->Height() >> mipLevel);
-  CHECK_HRESULT(device->CreateShaderResourceView(tex->texture, &desc, source->srv.AddressForReplace()), "Create SRV");
-
-  return source;
-}
-
-
-std::unique_ptr<IMipLevelTarget> GraphicsDevice::CreateMipLevelTarget(ITexture *texture, uint32_t mipLevel)
-{
-  D3D11_RENDER_TARGET_VIEW_DESC desc;
-  ZeroType(&desc);
-  desc.Format = texture->Format();
-  desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-  desc.Texture2D.MipSlice = mipLevel;
-
-  auto tex = static_cast<Texture *>(texture);
-
-  std::unique_ptr<MipLevelTarget> target = std::make_unique<MipLevelTarget>();
-
-  target->width = std::max(1U, texture->Width() >> mipLevel);
-  target->height = std::max(1U, texture->Height() >> mipLevel);
-  CHECK_HRESULT(device->CreateRenderTargetView(tex->texture, &desc, target->rtv.AddressForReplace()), "Create RTV");
-
-  return target;
 }
 
 
@@ -389,19 +377,6 @@ void GraphicsDevice::InitializeBuiltIns()
     CHECK_HRESULT(device->CreateSamplerState(&desc, samplerStates[EnumValue(SamplerType::Wrap)].AddressForReplace()), "create wrap sampler state");
   }
 
-  {
-    D3D11_SAMPLER_DESC desc;
-    ZeroType(&desc);
-    desc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-    desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-    desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-    desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-    desc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-    desc.MinLOD = 0;
-    desc.MaxLOD = D3D11_FLOAT32_MAX;
-    CHECK_HRESULT(device->CreateSamplerState(&desc, samplerStates[EnumValue(SamplerType::PointClamp)].AddressForReplace()), "create point/clamp sampler state");
-  }
-
   // Rasterizer/blend states!
   {
     D3D11_RASTERIZER_DESC desc;
@@ -460,55 +435,12 @@ void GraphicsDevice::Present()
 
 void GraphicsDevice::RenderQuadWithPixelShader(
   ID3D11PixelShader *ps,
-  nullptr_t,
-  std::initializer_list<const ITexture *> inputs,
+  RenderTargetView output,
+  std::initializer_list<ShaderResourceView> inputs,
   std::initializer_list<SamplerType> samplers,
   std::initializer_list<ID3D11Buffer *> constantBuffers)
 {
-  RenderQuadWithPixelShader(
-    ps,
-    backbufferWidth,
-    backbufferHeight,
-    backbufferView,
-    inputs,
-    samplers,
-    constantBuffers);
-}
-
-
-void GraphicsDevice::RenderQuadWithPixelShader(
-  ID3D11PixelShader *ps,
-  IMipLevelTarget *output,
-  std::initializer_list<const IMipLevelSource *> inputs,
-  std::initializer_list<SamplerType> samplers,
-  std::initializer_list<ID3D11Buffer *> constantBuffers)
-{
-  ID3D11ShaderResourceView *srvs[16] = {};
-  for (uint32_t i = 0; i < inputs.size(); i++)
-  {
-    srvs[i] = static_cast<const MipLevelSource *>(inputs.begin()[i])->srv;
-  }
-
-  RenderQuadWithPixelShader(
-    ps,
-    output->Width(),
-    output->Height(),
-    static_cast<MipLevelTarget *>(output)->rtv,
-    srvs,
-    uint32_t(inputs.size()),
-    samplers,
-    constantBuffers);
-}
-
-
-void GraphicsDevice::RenderQuadWithPixelShader(
-  ID3D11PixelShader *ps,
-  ITexture *output,
-  std::initializer_list<const ITexture *> inputs,
-  std::initializer_list<SamplerType> samplers,
-  std::initializer_list<ID3D11Buffer *> constantBuffers)
-{
-  if (output == nullptr)
+  if (output.texture == nullptr)
   {
     RenderQuadWithPixelShader(
       ps,
@@ -523,9 +455,9 @@ void GraphicsDevice::RenderQuadWithPixelShader(
   {
     RenderQuadWithPixelShader(
       ps,
-      output->Width(),
-      output->Height(),
-      static_cast<Texture *>(output)->rtv,
+      std::max(1U, output.texture->Width() >> output.mipLevel),
+      std::max(1U, output.texture->Height() >> output.mipLevel),
+      static_cast<Texture *>(output.texture)->mipRTVs[output.mipLevel],
       inputs,
       samplers,
       constantBuffers);
@@ -538,14 +470,22 @@ void GraphicsDevice::RenderQuadWithPixelShader(
   uint32_t viewportWidth,
   uint32_t viewportHeight,
   ID3D11RenderTargetView *outputRtv,
-  std::initializer_list<const ITexture *> inputs,
+  std::initializer_list<ShaderResourceView> inputs,
   std::initializer_list<SamplerType> samplers,
   std::initializer_list<ID3D11Buffer *> constantBuffers)
 {
   ID3D11ShaderResourceView *srvs[16] = {};
   for (uint32_t i = 0; i < inputs.size(); i++)
   {
-    srvs[i] = static_cast<const Texture *>(inputs.begin()[i])->srv;
+    const ShaderResourceView &input = inputs.begin()[i];
+    if (input.mipLevel < 0)
+    {
+      srvs[i] = static_cast<const Texture *>(input.texture)->fullSRV;
+    }
+    else
+    {
+      srvs[i] = static_cast<const Texture *>(input.texture)->mipSRVs[input.mipLevel];
+    }
   }
 
   RenderQuadWithPixelShader(

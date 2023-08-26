@@ -39,7 +39,8 @@ struct LoadedTexture
   uint32_t height = 0;
   SimpleArray<uint32_t> data;
 
-  std::unique_ptr<ITexture> texture;
+  std::unique_ptr<ITexture> oddTexture;
+  std::unique_ptr<ITexture> evenTexture;
 
   std::unique_ptr<NTSCify::SignalGenerator> signalGenerator;
   std::unique_ptr<NTSCify::SignalDecoder> signalDecoder;
@@ -81,17 +82,17 @@ void RebuildGeneratorsIfNecessary(Rebuild rebuild)
     loadedTexture->signalGenerator = std::make_unique<NTSCify::SignalGenerator>(
       s_graphicsDevice.get(), 
       s_signalType,
-      loadedTexture->texture->Width(),
-      loadedTexture->texture->Height(),
+      loadedTexture->oddTexture->Width(),
+      loadedTexture->oddTexture->Height(),
       s_sourceSettings);
     loadedTexture->signalDecoder = std::make_unique<NTSCify::SignalDecoder>(
       s_graphicsDevice.get(), 
       loadedTexture->signalGenerator->SignalProperties());
     loadedTexture->rgbToCRT = std::make_unique<NTSCify::RGBToCRT>(
       s_graphicsDevice.get(), 
-      loadedTexture->texture->Width(), 
+      loadedTexture->oddTexture->Width(), 
       loadedTexture->signalGenerator->SignalProperties().scanlineWidth, 
-      loadedTexture->texture->Height(),
+      loadedTexture->oddTexture->Height(),
       loadedTexture->signalGenerator->SignalProperties().inputPixelAspectRatio);
 
     loadedTexture->cachedSignalType = signalType;
@@ -102,6 +103,7 @@ void RebuildGeneratorsIfNecessary(Rebuild rebuild)
 
 void LoadTexture(const wchar_t *path, Rebuild rebuild = Rebuild::Always)
 {
+  bool interlaced = (wcsstr(path, L"Interlaced") != 0 || wcsstr(path, L"interlaced") != 0);
   std::unique_lock lock(s_renderThreadMutex);
 
   if (path == nullptr || path[0] == L'\0')
@@ -119,7 +121,25 @@ void LoadTexture(const wchar_t *path, Rebuild rebuild = Rebuild::Always)
   load->height = height;
   load->data = std::move(loaded);
 
-  load->texture = s_graphicsDevice->CreateTexture(width, height, DXGI_FORMAT_R8G8B8A8_UNORM, TextureFlags::None, load->data.Ptr(), width * sizeof(uint32_t));
+  if (interlaced)
+  {
+    // Grab the odd 
+    SimpleArray<uint32_t> oddScanlines(width * height/2);
+    SimpleArray<uint32_t> evenScanlines(width * height/2);
+    for (uint32_t y = 0; y < height/2; y++)
+    {
+      memcpy(oddScanlines.Ptr()  + width * y, load->data.Ptr() + width * (y * 2),     width * sizeof(uint32_t));
+      memcpy(evenScanlines.Ptr() + width * y, load->data.Ptr() + width * (y * 2 + 1), width * sizeof(uint32_t));
+    }
+
+    load->oddTexture = s_graphicsDevice->CreateTexture(width, height/2, DXGI_FORMAT_R8G8B8A8_UNORM, TextureFlags::None, oddScanlines.Ptr(), width * sizeof(uint32_t));
+    load->evenTexture = s_graphicsDevice->CreateTexture(width, height/2, DXGI_FORMAT_R8G8B8A8_UNORM, TextureFlags::None, evenScanlines.Ptr(), width * sizeof(uint32_t));
+  }
+  else
+  {
+    load->oddTexture = s_graphicsDevice->CreateTexture(width, height, DXGI_FORMAT_R8G8B8A8_UNORM, TextureFlags::None, load->data.Ptr(), width * sizeof(uint32_t));
+    load->evenTexture = nullptr;
+  }
 
   loadedTexture = std::move(load);
 
@@ -301,19 +321,28 @@ void RenderLoadedTexture(ITexture *output, Rebuild rebuild = Rebuild::AsNeeded)
     RebuildGeneratorsIfNecessary(rebuild);
   }
 
-  static auto scanlineType = NTSCify::ScanlineType::Progressive;
+  static auto scanlineType = NTSCify::ScanlineType::Odd;
 
-  if (scanlineType == NTSCify::ScanlineType::Odd)
+  
+  if (loadedTexture->evenTexture == nullptr)
+  {
+    scanlineType = NTSCify::ScanlineType::FauxProgressive;
+  }
+  else if (scanlineType == NTSCify::ScanlineType::Odd)
   { 
     scanlineType = NTSCify::ScanlineType::Even;
   }
-  else if (scanlineType == NTSCify::ScanlineType::Even)
+  else
   {
     scanlineType = NTSCify::ScanlineType::Odd;
   }
 
-  const ITexture *input = loadedTexture->texture.get();
-  const ITexture *input2 = loadedTexture->texture.get();
+  const ITexture *input = (scanlineType == NTSCify::ScanlineType::Even && loadedTexture->evenTexture != nullptr) 
+    ? loadedTexture->evenTexture.get() 
+    : loadedTexture->oddTexture.get();
+  const ITexture *input2 = (scanlineType == NTSCify::ScanlineType::Odd && loadedTexture->evenTexture != nullptr) 
+    ? loadedTexture->evenTexture.get() 
+    : loadedTexture->oddTexture.get();
   if (s_signalType != NTSCify::SignalType::RGB)
   {
     loadedTexture->signalGenerator->SetArtifactSettings(s_artifactSettings);

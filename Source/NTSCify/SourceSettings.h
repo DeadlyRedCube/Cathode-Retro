@@ -80,6 +80,19 @@ namespace NTSCify
       }
     },
     {
+      // Timings for NES- and SNES-like video generation
+      "SNES 512 mode",
+      {
+        4.0f/7.0f,  // SNES 512 mode pixels were 4:7 (assuming non-interlaced)
+        3,          // SNES timings are all in multiples of 1/3rd 
+        1,          // SNES 512 has 1/3rds of a color phase for every pixel
+        0,          // The starting phase of the SNES doesn't really matter, so just pick 0
+        1,          // Every line the phase of the color cycle offsets by 1/3rd of the color
+        2,          // On even frames, the color cycle offsets by 2/3rds of the color cycle
+        1,          // On odd frames, the color cycle offsets by 1/3rd of the color cycle (making the frames alternate, since 2/3 + 1/3 == 1)
+      }
+    },
+    {
       // Timings for CGA (And likely other PC board)-like video generation, 320px horizontal resolution
       "PC Composite 320",
       {
