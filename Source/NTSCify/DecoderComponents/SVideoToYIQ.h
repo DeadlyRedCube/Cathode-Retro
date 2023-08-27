@@ -40,7 +40,8 @@ namespace NTSCify::DecodeComponents
       { 
         k_signalSamplesPerColorCycle,
         knobSettings.tint,
-        knobSettings.saturation / levels.saturationScale,
+        // Saturation needs brightness scaled into it as well or else the output is weird when the brightness is set below 1.0
+        knobSettings.saturation / levels.saturationScale * knobSettings.brightness,
         knobSettings.brightness,
         levels.blackLevel,
         levels.whiteLevel,
