@@ -24,7 +24,7 @@ namespace NTSCify
   {
   public:
     RGBToCRT(
-      GraphicsDevice *deviceIn, 
+      IGraphicsDevice *deviceIn, 
       uint32_t inputImageWidthIn, 
       uint32_t signalTextureWidthIn, 
       uint32_t scanlineCountIn,
@@ -35,11 +35,11 @@ namespace NTSCify
     , scanlineCount(scanlineCountIn)
     , pixelAspect(pixelAspectIn)
     {
-      rgbToScreenShader = device->CreatePixelShader(IDR_RGB_TO_CRT);
-      generateScreenTextureShader = device->CreatePixelShader(IDR_GENERATE_SCREEN_TEXTURE);
-      downsample2XShader = device->CreatePixelShader(IDR_DOWNSAMPLE_2X);
-      gaussianBlurShader = device->CreatePixelShader(IDR_GAUSSIAN_BLUR_13);
-      toneMapShader = device->CreatePixelShader(IDR_TONEMAP_AND_DOWNSAMPLE);
+      rgbToScreenShader = device->CreateShader(ShaderID::RGBToCRT);
+      generateScreenTextureShader = device->CreateShader(ShaderID::GenerateScreenTexture);
+      downsample2XShader = device->CreateShader(ShaderID::Downsample2X);
+      gaussianBlurShader = device->CreateShader(ShaderID::GaussianBlur13);
+      toneMapShader = device->CreateShader(ShaderID::TonemapAndDownsample);
       rgbToScreenConstantBuffer = device->CreateConstantBuffer(sizeof(RGBToScreenConstants));
       samplePatternConstantBuffer = device->CreateConstantBuffer(sizeof(k_samplingPattern16X));
       toneMapConstantBuffer = device->CreateConstantBuffer(sizeof(ToneMapConstants));
@@ -68,8 +68,8 @@ namespace NTSCify
 
     void Render(const ITexture *currentFrameRGBInput, const ITexture *previousFrameRGBInput, ITexture *outputTexture, ScanlineType scanType)
     {
-      uint32_t outputTargetWidth = (outputTexture != nullptr) ? outputTexture->Width() : device->BackbufferWidth();
-      uint32_t outputTargetHeight = (outputTexture != nullptr) ? outputTexture->Height() : device->BackbufferHeight();
+      uint32_t outputTargetWidth = (outputTexture != nullptr) ? outputTexture->Width() : device->OutputWidth();
+      uint32_t outputTargetHeight = (outputTexture != nullptr) ? outputTexture->Height() : device->OutputHeight();
 
       // Next up: Set up our shader constants
       {
@@ -130,19 +130,22 @@ namespace NTSCify
             toneMapTexture = device->CreateTexture(
               tonemapTexWidth,
               tonemapTexHeight,
-              DXGI_FORMAT_R8G8B8A8_UNORM,
+              1,
+              TextureFormat::RGBA_Unorm8,
               TextureFlags::RenderTarget);
 
             blurTexture = device->CreateTexture(
               blurTextureWidth,
               tonemapTexHeight,
-              DXGI_FORMAT_R8G8B8A8_UNORM,
+              1,
+              TextureFormat::RGBA_Unorm8,
               TextureFlags::RenderTarget);
 
             blurScratchTexture = device->CreateTexture(
               blurTextureWidth,
               tonemapTexHeight,
-              DXGI_FORMAT_R8G8B8A8_UNORM,
+              1,
+              TextureFormat::RGBA_Unorm8,
               TextureFlags::RenderTarget);
           }
         }
@@ -177,7 +180,7 @@ namespace NTSCify
 
         data.diffusionStrength = screenSettings.diffusionStrength;
 
-        device->DiscardAndUpdateBuffer(rgbToScreenConstantBuffer, &data);
+        device->DiscardAndUpdateBuffer(rgbToScreenConstantBuffer.get(), &data);
       }
 
       if (screenSettingsDirty 
@@ -185,22 +188,22 @@ namespace NTSCify
         || screenTexture->Width() != outputTargetWidth 
         || screenTexture->Height() != outputTargetHeight)
       {
-        device->DiscardAndUpdateBuffer(samplePatternConstantBuffer, &k_samplingPattern16X);
+        device->DiscardAndUpdateBuffer(samplePatternConstantBuffer.get(), &k_samplingPattern16X);
 
         if (screenTexture == nullptr 
           || screenTexture->Width() != outputTargetWidth 
           || screenTexture->Height() != outputTargetHeight)
         {
           // Rebuild the texture at the correct resolution
-          screenTexture = device->CreateTexture(outputTargetWidth, outputTargetHeight, DXGI_FORMAT_R8G8B8A8_UNORM, TextureFlags::RenderTarget);
+          screenTexture = device->CreateTexture(outputTargetWidth, outputTargetHeight, 1, TextureFormat::RGBA_Unorm8, TextureFlags::RenderTarget);
         }
 
-        device->RenderQuadWithPixelShader(
-          generateScreenTextureShader,
+        device->RenderQuad(
+          generateScreenTextureShader.get(),
           screenTexture.get(),
           {shadowMaskTexture.get()},
-          {SamplerType::Wrap},
-          {rgbToScreenConstantBuffer, samplePatternConstantBuffer});
+          {SamplerType::LinearWrap},
+          {rgbToScreenConstantBuffer.get(), samplePatternConstantBuffer.get()});
 
         screenSettingsDirty = false;
       }
@@ -211,12 +214,12 @@ namespace NTSCify
       }
 
       (void)previousFrameRGBInput;
-      device->RenderQuadWithPixelShader(
-        rgbToScreenShader,
+      device->RenderQuad(
+        rgbToScreenShader.get(),
         outputTexture,
         {currentFrameRGBInput, previousFrameRGBInput, screenTexture.get(), blurTexture.get()},
-        {SamplerType::Clamp},
-        {rgbToScreenConstantBuffer});
+        {SamplerType::LinearClamp},
+        {rgbToScreenConstantBuffer.get()});
 
       m_prevScanlineType = scanType;
     }
@@ -267,12 +270,11 @@ namespace NTSCify
       static constexpr uint32_t k_size = 512;
       static constexpr uint32_t k_mipCount = 8;
 
-      ComPtr<ID3D11RenderTargetView> tempRTVLevel0;
-      shadowMaskTexture = device->CreateTexture(k_size, k_size / 2, k_mipCount, DXGI_FORMAT_R8G8B8A8_UNORM, TextureFlags::RenderTarget);
+      shadowMaskTexture = device->CreateTexture(k_size, k_size / 2, k_mipCount, TextureFormat::RGBA_Unorm8, TextureFlags::RenderTarget);
 
       // First step is the generate the texture at the largest mip level
       {
-        ComPtr<ID3D11PixelShader> generateShadowMaskShader = device->CreatePixelShader(IDR_GENERATE_SHADOW_MASK);
+        auto generateShadowMaskShader = device->CreateShader(ShaderID::GenerateShadowMask);
 
         struct GenerateShadowMaskConstants
         {
@@ -288,26 +290,26 @@ namespace NTSCify
         consts.texWidth = float(k_size);
         consts.texHeight = float(k_size / 2);
 
-        ComPtr<ID3D11Buffer> constBuf = device->CreateConstantBuffer(sizeof(GenerateShadowMaskConstants));
+        auto constBuf = device->CreateConstantBuffer(sizeof(GenerateShadowMaskConstants));
 
-        device->DiscardAndUpdateBuffer(constBuf, &consts, sizeof(consts));
+        device->DiscardAndUpdateBuffer(constBuf.get(), &consts, sizeof(consts));
 
-        device->RenderQuadWithPixelShader(
-          generateShadowMaskShader,
+        device->RenderQuad(
+          generateShadowMaskShader.get(),
           shadowMaskTexture.get(),
           {},
-          {SamplerType::Clamp},
-          {constBuf});
+          {SamplerType::LinearClamp},
+          {constBuf.get()});
       }
 
       // Now it's generated so we need to generate the mips by using our lanczos downsample
       for (uint32_t destMip = 1; destMip < k_mipCount; destMip++)
       {
-        device->RenderQuadWithPixelShader(
-          downsample2XShader,
+        device->RenderQuad(
+          downsample2XShader.get(),
           {shadowMaskTexture.get(), destMip},
           {{shadowMaskTexture.get(), destMip - 1}},
-          {SamplerType::Wrap},
+          {SamplerType::LinearWrap},
           {});
       }
     }
@@ -323,38 +325,38 @@ namespace NTSCify
       tmc.downsampleDirY = downsampleDirY;
       tmc.minLuminosity = 0.0f;
       tmc.colorPower = 1.3f;
-      device->DiscardAndUpdateBuffer(toneMapConstantBuffer, &tmc);
-      device->RenderQuadWithPixelShader(
-        toneMapShader,
+      device->DiscardAndUpdateBuffer(toneMapConstantBuffer.get(), &tmc);
+      device->RenderQuad(
+        toneMapShader.get(),
         toneMapTexture.get(),
         {inputTexture},
-        {SamplerType::Clamp},
-        {toneMapConstantBuffer});
+        {SamplerType::LinearClamp},
+        {toneMapConstantBuffer.get()});
 
-      device->RenderQuadWithPixelShader(
-        downsample2XShader,
+      device->RenderQuad(
+        downsample2XShader.get(),
         blurTexture.get(),
         {toneMapTexture.get()},
-        {SamplerType::Clamp},
+        {SamplerType::LinearClamp},
         {});
 
       GaussianBlurConstants blurH{1.0f, 0.0f};
-      device->DiscardAndUpdateBuffer(gaussianBlurConstantBufferH, &blurH);
-      device->RenderQuadWithPixelShader(
-        gaussianBlurShader,
+      device->DiscardAndUpdateBuffer(gaussianBlurConstantBufferH.get(), &blurH);
+      device->RenderQuad(
+        gaussianBlurShader.get(),
         blurScratchTexture.get(),
         {blurTexture.get()},
-        {SamplerType::Clamp},
-        {gaussianBlurConstantBufferH});
+        {SamplerType::LinearClamp},
+        {gaussianBlurConstantBufferH.get()});
 
       GaussianBlurConstants blurV{0.0f, 1.0f};
-      device->DiscardAndUpdateBuffer(gaussianBlurConstantBufferV, &blurV);
-      device->RenderQuadWithPixelShader(
-        gaussianBlurShader,
+      device->DiscardAndUpdateBuffer(gaussianBlurConstantBufferV.get(), &blurV);
+      device->RenderQuad(
+        gaussianBlurShader.get(),
         blurTexture.get(),
         {blurScratchTexture.get()},
-        {SamplerType::Clamp},
-        {gaussianBlurConstantBufferV});
+        {SamplerType::LinearClamp},
+        {gaussianBlurConstantBufferV.get()});
     }
 
 
@@ -398,23 +400,23 @@ namespace NTSCify
     };
   
 
-    GraphicsDevice *device;
+    IGraphicsDevice *device;
 
     uint32_t inputImageWidth;
     uint32_t signalTextureWidth;
     uint32_t scanlineCount;
     float pixelAspect;
 
-    ComPtr<ID3D11Buffer> rgbToScreenConstantBuffer;
-    ComPtr<ID3D11Buffer> samplePatternConstantBuffer;
-    ComPtr<ID3D11Buffer> toneMapConstantBuffer;
-    ComPtr<ID3D11Buffer> gaussianBlurConstantBufferH;
-    ComPtr<ID3D11Buffer> gaussianBlurConstantBufferV;
-    ComPtr<ID3D11PixelShader> rgbToScreenShader;
-    ComPtr<ID3D11PixelShader> downsample2XShader;
-    ComPtr<ID3D11PixelShader> toneMapShader;
-    ComPtr<ID3D11PixelShader> gaussianBlurShader;
-    ComPtr<ID3D11PixelShader> generateScreenTextureShader;
+    std::unique_ptr<IConstantBuffer> rgbToScreenConstantBuffer;
+    std::unique_ptr<IConstantBuffer> samplePatternConstantBuffer;
+    std::unique_ptr<IConstantBuffer> toneMapConstantBuffer;
+    std::unique_ptr<IConstantBuffer> gaussianBlurConstantBufferH;
+    std::unique_ptr<IConstantBuffer> gaussianBlurConstantBufferV;
+    std::unique_ptr<IShader> rgbToScreenShader;
+    std::unique_ptr<IShader> downsample2XShader;
+    std::unique_ptr<IShader> toneMapShader;
+    std::unique_ptr<IShader> gaussianBlurShader;
+    std::unique_ptr<IShader> generateScreenTextureShader;
   
     std::unique_ptr<ITexture> shadowMaskTexture;
     std::unique_ptr<ITexture> screenTexture;

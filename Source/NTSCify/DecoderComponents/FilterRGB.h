@@ -15,7 +15,7 @@ namespace NTSCify::DecodeComponents
   {
   public:
     FilterRGB(
-      GraphicsDevice *device, 
+      IGraphicsDevice *device, 
       float colorCyclesPerInputPixelIn,
       uint32_t signalTextureWidthIn, 
       uint32_t scanlineCountIn)
@@ -24,11 +24,11 @@ namespace NTSCify::DecodeComponents
     , colorCyclesPerInputPixel(colorCyclesPerInputPixelIn)
     {
       constantBuffer = device->CreateConstantBuffer(sizeof(ConstantData));
-      blurRGBShader = device->CreatePixelShader(IDR_FILTER_RGB);
+      blurRGBShader = device->CreateShader(ShaderID::FilterRGB);
     }
 
 
-    [[nodiscard]] bool Apply(GraphicsDevice *device, ITexture *input, ITexture *output, const TVKnobSettings &knobSettings)
+    [[nodiscard]] bool Apply(IGraphicsDevice *device, ITexture *input, ITexture *output, const TVKnobSettings &knobSettings)
     {
       // We don't have to do anything if the sharpness is 0
       if (knobSettings.sharpness != 0)
@@ -39,14 +39,14 @@ namespace NTSCify::DecodeComponents
           colorCyclesPerInputPixel * float(k_signalSamplesPerColorCycle) 
         };
 
-        device->DiscardAndUpdateBuffer(constantBuffer, &data);
+        device->DiscardAndUpdateBuffer(constantBuffer.get(), &data);
 
-        device->RenderQuadWithPixelShader(
-          blurRGBShader,
+        device->RenderQuad(
+          blurRGBShader.get(),
           output,
           {input},
-          {SamplerType::Clamp},
-          {constantBuffer});
+          {SamplerType::LinearClamp},
+          {constantBuffer.get()});
 
         return true;
       }
@@ -65,7 +65,7 @@ namespace NTSCify::DecodeComponents
     uint32_t signalTextureWidth;
     float colorCyclesPerInputPixel;
   
-    ComPtr<ID3D11PixelShader> blurRGBShader;
-    ComPtr<ID3D11Buffer> constantBuffer;
+    std::unique_ptr<IShader> blurRGBShader;
+    std::unique_ptr<IConstantBuffer> constantBuffer;
   };
 }

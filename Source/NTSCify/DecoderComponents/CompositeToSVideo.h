@@ -14,26 +14,26 @@ namespace NTSCify::DecodeComponents
   class CompositeToSVideo
   {
   public:
-    CompositeToSVideo(GraphicsDevice *device, uint32_t signalTextureWidthIn, uint32_t scanlineCountIn)
+    CompositeToSVideo(IGraphicsDevice *device, uint32_t signalTextureWidthIn, uint32_t scanlineCountIn)
     : scanlineCount(scanlineCountIn)
     , signalTextureWidth(signalTextureWidthIn)
     {
       constantBuffer = device->CreateConstantBuffer(sizeof(ConstantData));
-      compositeToSVideoShader = device->CreatePixelShader(IDR_COMPOSITE_TO_SVIDEO);
+      compositeToSVideoShader = device->CreateShader(ShaderID::CompositeToSVideo);
     }
 
 
-    void Apply(GraphicsDevice *device,  const ITexture *compositeIn, ITexture *sVideoOut)
+    void Apply(IGraphicsDevice *device,  const ITexture *compositeIn, ITexture *sVideoOut)
     {
       ConstantData cd = { k_signalSamplesPerColorCycle, 1.0f / float(signalTextureWidth), 1.0f / float(scanlineCount) };
-      device->DiscardAndUpdateBuffer(constantBuffer, &cd);
+      device->DiscardAndUpdateBuffer(constantBuffer.get(), &cd);
 
-      device->RenderQuadWithPixelShader(
-        compositeToSVideoShader,
+      device->RenderQuad(
+        compositeToSVideoShader.get(),
         sVideoOut,
         {compositeIn},
-        {SamplerType::Clamp},
-        {constantBuffer});
+        {SamplerType::LinearClamp},
+        {constantBuffer.get()});
     }
 
   private:
@@ -46,7 +46,7 @@ namespace NTSCify::DecodeComponents
 
     uint32_t scanlineCount;
     uint32_t signalTextureWidth;
-    ComPtr<ID3D11PixelShader> compositeToSVideoShader;
-    ComPtr<ID3D11Buffer> constantBuffer;
+    std::unique_ptr<IShader> compositeToSVideoShader;
+    std::unique_ptr<IConstantBuffer> constantBuffer;
   };
 }

@@ -16,17 +16,17 @@ namespace NTSCify::GeneratorComponents
   class ApplyArtifacts
   {
   public:
-    ApplyArtifacts(GraphicsDevice *device, uint32_t signalTextureWidthIn, uint32_t scanlineCountIn)
+    ApplyArtifacts(IGraphicsDevice *device, uint32_t signalTextureWidthIn, uint32_t scanlineCountIn)
     : scanlineCount(scanlineCountIn)
     , signalTextureWidth(signalTextureWidthIn)
     {
       constantBuffer = device->CreateConstantBuffer(sizeof(ConstantData));
-      applyArtifactsShader = device->CreatePixelShader(IDR_APPLY_ARTIFACTS);
+      applyArtifactsShader = device->CreateShader(ShaderID::ApplyArtifacts);
     }
 
 
     [[nodiscard]] bool Apply(
-      GraphicsDevice *device, 
+      IGraphicsDevice *device, 
       const ITexture *inputSignal,
       ITexture *outputSignal,
       SignalLevels *levelsInOut,
@@ -53,14 +53,14 @@ namespace NTSCify::GeneratorComponents
       levelsInOut->whiteLevel *= (1.0f + options.ghostVisibility);
       levelsInOut->blackLevel *= (1.0f + options.ghostVisibility);
 
-      device->DiscardAndUpdateBuffer(constantBuffer, &cd);
+      device->DiscardAndUpdateBuffer(constantBuffer.get(), &cd);
 
-      device->RenderQuadWithPixelShader(
-        applyArtifactsShader,
+      device->RenderQuad(
+        applyArtifactsShader.get(),
         outputSignal,
         {inputSignal},
-        {SamplerType::Clamp},
-        {constantBuffer});
+        {SamplerType::LinearClamp},
+        {constantBuffer.get()});
 
       noiseSeed = (noiseSeed + 1) % (60*60);
       return true;
@@ -88,8 +88,8 @@ namespace NTSCify::GeneratorComponents
 
     uint32_t scanlineCount;
     uint32_t signalTextureWidth;
-    ComPtr<ID3D11PixelShader> applyArtifactsShader;
-    ComPtr<ID3D11Buffer> constantBuffer;
+    std::unique_ptr<IShader> applyArtifactsShader;
+    std::unique_ptr<IConstantBuffer> constantBuffer;
 
     int32_t noiseSeed = 0;
   };

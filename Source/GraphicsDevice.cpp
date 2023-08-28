@@ -1,12 +1,33 @@
 #define NOMINMAX
+
+#include <d3d11.h>
+#include <Windows.h>
 #include <dxgi1_3.h>
+
 #include <cmath>
 #include <exception>
-#include <stdio.h>
+#include <memory>
 #include <vector>
-#include "GraphicsDevice.h"
+
+#include "ComPtr.h"
+#include "D3D11GraphicsDevice.h"
 #include "resource.h"
 #include "Util.h"
+
+#define UUID_AND_ADDRESS(pObj) __uuidof(decltype(pObj.Ptr())), reinterpret_cast<void**>(pObj.AddressForReplace())
+
+#define CHECK_HRESULT(exp, opName) \
+  do \
+  { \
+    if (auto res = (exp); FAILED(res)) \
+    { \
+      char exceptionStr[1024]; \
+      sprintf_s(exceptionStr, "Failed to " opName ", result: %08x", uint32_t(res)); \
+      throw std::exception(exceptionStr); \
+    } \
+  } \
+  while (false)
+
 
 #define DEBUG_DEVICE 1
 
@@ -16,6 +37,147 @@ struct Vertex
 };
     
 
+    // A rather minimal wrapper around a D3D device and related functionality
+class D3D11GraphicsDevice : public ID3D11GraphicsDevice
+{
+public:
+  D3D11GraphicsDevice(HWND hwnd);
+  
+  D3D11GraphicsDevice(D3D11GraphicsDevice &) = delete;
+  void operator=(const D3D11GraphicsDevice &) = delete;
+
+  void UpdateWindowSize() override;
+
+  uint32_t OutputWidth() const override
+    { return backbufferWidth; }
+
+  uint32_t OutputHeight() const override
+    { return backbufferHeight; }
+
+  void ClearBackbuffer() override;
+
+  void Present() override;
+
+  std::unique_ptr<IShader> CreateShader(ShaderID id) override;
+  std::unique_ptr<IConstantBuffer> CreateConstantBuffer(size_t size) override;
+
+  void DiscardAndUpdateBuffer(IConstantBuffer *buffer, const void *data, size_t dataSize) override;
+
+  std::vector<uint32_t> GetTexturePixels(ITexture *texture);
+
+  std::unique_ptr<ITexture> CreateTexture(
+    uint32_t width,
+    uint32_t height,
+    uint32_t mipCount,
+    TextureFormat format,
+    TextureFlags flags,
+    void *initialDataTexels = nullptr,
+    uint32_t initialDataPitch = 0);
+
+
+  void RenderQuad(
+    IShader *ps,
+    RenderTargetView output,
+    std::initializer_list<ShaderResourceView> inputs,
+    std::initializer_list<SamplerType> samplers,
+    std::initializer_list<IConstantBuffer *> constantBuffers) override;
+
+private:
+  class Texture : public ITexture
+  {
+  public:
+    uint32_t Width() const override
+      { return width; }
+
+    uint32_t Height() const override
+      { return height; }
+
+    uint32_t MipCount() const override
+      { return mipCount; }
+
+    TextureFormat Format() const override
+      { return format; }
+
+    ComPtr<ID3D11Texture2D> texture;
+    ComPtr<ID3D11ShaderResourceView> fullSRV;
+    std::vector<ComPtr<ID3D11ShaderResourceView>> mipSRVs;
+    std::vector<ComPtr<ID3D11RenderTargetView>> mipRTVs;
+    uint32_t width;
+    uint32_t height;
+    uint32_t mipCount;
+    TextureFormat format;
+  };
+
+
+  class PixelShader : public IShader
+  {
+  public:
+    PixelShader(ID3D11PixelShader *s)
+      : shader(s)
+      { }
+
+    ComPtr<ID3D11PixelShader> shader;
+  };
+
+
+  class ConstantBuffer : public IConstantBuffer
+  {
+  public:
+    ConstantBuffer(ID3D11Buffer *b)
+      : buffer(b)
+      { }
+
+    ComPtr<ID3D11Buffer> buffer;
+  };
+
+
+  void RenderQuad(
+    IShader *ps,
+    uint32_t viewportWidth,
+    uint32_t viewportHeight,
+    ID3D11RenderTargetView *outputRtv,
+    std::initializer_list<ShaderResourceView> inputs,
+    std::initializer_list<SamplerType> samplers,
+    std::initializer_list<IConstantBuffer *> constantBuffers);
+    
+  void RenderQuad(
+    IShader *ps,
+    uint32_t viewportWidth,
+    uint32_t viewportHeight,
+    ID3D11RenderTargetView *outputRtv,
+    ID3D11ShaderResourceView **srvs,
+    uint32_t srvCount,
+    std::initializer_list<SamplerType> samplers,
+    std::initializer_list<IConstantBuffer *> constantBuffers);
+    
+  void CreateVertexShaderAndInputLayout(
+    int resourceID, 
+    D3D11_INPUT_ELEMENT_DESC *layoutElements,
+    size_t layoutElementCount,
+    ComPtr<ID3D11VertexShader> *shaderOut, 
+    ComPtr<ID3D11InputLayout> *layoutOut);
+  
+  void InitializeBuiltIns();
+
+  ComPtr<ID3D11Device> device;
+  ComPtr<ID3D11DeviceContext> context;
+  ComPtr<IDXGISwapChain> swapChain;
+  ComPtr<ID3D11Texture2D> backbuffer;
+  ComPtr<ID3D11RenderTargetView> backbufferView;
+  uint32_t backbufferWidth;
+  uint32_t backbufferHeight;
+
+  ComPtr<ID3D11Buffer> vertexBuffer;
+  ComPtr<ID3D11InputLayout> inputLayout;
+
+  ComPtr<ID3D11SamplerState> samplerStates[2];
+  ComPtr<ID3D11RasterizerState> rasterizerState;
+  ComPtr<ID3D11BlendState> blendState;
+
+  ComPtr<ID3D11VertexShader> vertexShader;
+
+  HWND window;
+};
 // Load a resource from the current executable. Used because I packed the shaders into the RC like a weirdo
 static std::vector<uint8_t> LoadResourceBytes(int resourceId)
 {
@@ -41,14 +203,14 @@ static std::vector<uint8_t> LoadResourceBytes(int resourceId)
 }
 
 
-void GraphicsDevice::ClearBackbuffer()
+void D3D11GraphicsDevice::ClearBackbuffer()
 {
   float black[] = {0.05f, 0.05f, 0.05f, 0.05f};
   context->ClearRenderTargetView(backbufferView, black);
 }
 
 
-void GraphicsDevice::CreateVertexShaderAndInputLayout(
+void D3D11GraphicsDevice::CreateVertexShaderAndInputLayout(
   int resourceID, 
   D3D11_INPUT_ELEMENT_DESC *layoutElements,
   size_t layoutElementCount,
@@ -75,8 +237,26 @@ void GraphicsDevice::CreateVertexShaderAndInputLayout(
 }
 
   
-ComPtr<ID3D11PixelShader> GraphicsDevice::CreatePixelShader(int resourceID)
+std::unique_ptr<IShader> D3D11GraphicsDevice::CreateShader(ShaderID id)
 {
+  int resourceID = 0;
+  switch (id)
+  {
+    case ShaderID::Downsample2X: resourceID = IDR_DOWNSAMPLE_2X; break;
+    case ShaderID::GeneratePhaseTexture: resourceID = IDR_GENERATE_PHASE_TEXTURE; break;
+    case ShaderID::RGBToSVideoOrComposite: resourceID = IDR_RGB_TO_SVIDEO_OR_COMPOSITE; break;
+    case ShaderID::ApplyArtifacts: resourceID = IDR_APPLY_ARTIFACTS; break;
+    case ShaderID::CompositeToSVideo: resourceID = IDR_COMPOSITE_TO_SVIDEO; break;
+    case ShaderID::SVideoToYIQ: resourceID = IDR_SVIDEO_TO_YIQ; break;
+    case ShaderID::YIQToRGB: resourceID = IDR_YIQ_TO_RGB; break;
+    case ShaderID::FilterRGB: resourceID = IDR_FILTER_RGB; break;
+    case ShaderID::GenerateScreenTexture: resourceID = IDR_GENERATE_SCREEN_TEXTURE; break;
+    case ShaderID::GenerateShadowMask: resourceID = IDR_GENERATE_SHADOW_MASK; break;
+    case ShaderID::TonemapAndDownsample: resourceID = IDR_TONEMAP_AND_DOWNSAMPLE; break;
+    case ShaderID::GaussianBlur13: resourceID = IDR_GAUSSIAN_BLUR_13; break;
+    case ShaderID::RGBToCRT: resourceID = IDR_RGB_TO_CRT; break;
+  }
+
   auto data = LoadResourceBytes(resourceID);
   ComPtr<ID3D11PixelShader> shader;
   CHECK_HRESULT(
@@ -87,20 +267,41 @@ ComPtr<ID3D11PixelShader> GraphicsDevice::CreatePixelShader(int resourceID)
       shader.AddressForReplace()), 
     "create pixel shader");
 
-  return shader;
+  return std::make_unique<PixelShader>(shader.Ptr());
 }
 
   
-std::unique_ptr<ITexture> GraphicsDevice::CreateTexture(
+std::unique_ptr<ITexture> D3D11GraphicsDevice::CreateTexture(
   uint32_t width,
   uint32_t height,
   uint32_t mipCount,
-  DXGI_FORMAT format,
+  TextureFormat format,
   TextureFlags flags,
   void *initialDataTexels,
   uint32_t initialDataPitch)
 {
   std::unique_ptr<Texture> tex = std::make_unique<Texture>();
+
+  DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+  switch (format)
+  {
+  case TextureFormat::RGBA_Unorm8:
+    dxgiFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+    break;
+
+  case TextureFormat::R_Float32:
+    dxgiFormat = DXGI_FORMAT_R32_FLOAT;
+    break;
+
+  case TextureFormat::RG_Float32:
+    dxgiFormat = DXGI_FORMAT_R32G32_FLOAT;
+    break;
+
+  case TextureFormat::RGBA_Float32:
+    dxgiFormat = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    break;
+  }
+
 
   {
     D3D11_TEXTURE2D_DESC desc;
@@ -108,7 +309,7 @@ std::unique_ptr<ITexture> GraphicsDevice::CreateTexture(
     desc.Width = width;
     desc.Height = height;
     desc.ArraySize = 1;
-    desc.Format = format;
+    desc.Format = dxgiFormat;
     desc.SampleDesc.Count = 1;
     desc.Usage = ((flags & TextureFlags::Dynamic) != TextureFlags::None) ? D3D11_USAGE_DYNAMIC : D3D11_USAGE_DEFAULT;
     desc.CPUAccessFlags = ((flags & TextureFlags::Dynamic) != TextureFlags::None) ? D3D11_CPU_ACCESS_WRITE : 0;
@@ -146,7 +347,7 @@ std::unique_ptr<ITexture> GraphicsDevice::CreateTexture(
     {
       D3D11_SHADER_RESOURCE_VIEW_DESC desc;
       ZeroType(&desc);
-      desc.Format = format;
+      desc.Format = dxgiFormat;
       desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
       desc.Texture2D.MipLevels = 1;
       desc.Texture2D.MostDetailedMip = mip;
@@ -160,7 +361,7 @@ std::unique_ptr<ITexture> GraphicsDevice::CreateTexture(
     {
       D3D11_RENDER_TARGET_VIEW_DESC desc;
       ZeroType(&desc);
-      desc.Format = format;
+      desc.Format = dxgiFormat;
       desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
       desc.Texture2D.MipSlice = mip;
 
@@ -174,7 +375,7 @@ std::unique_ptr<ITexture> GraphicsDevice::CreateTexture(
 }
 
 
-std::vector<uint32_t> GraphicsDevice::GetTexturePixels(ITexture *texture)
+std::vector<uint32_t> D3D11GraphicsDevice::GetTexturePixels(ITexture *texture)
 {
   auto tex = static_cast<Texture *>(texture);
 
@@ -208,7 +409,7 @@ std::vector<uint32_t> GraphicsDevice::GetTexturePixels(ITexture *texture)
 }
 
 
-ComPtr<ID3D11Buffer> GraphicsDevice::CreateConstantBuffer(size_t size)
+std::unique_ptr<IConstantBuffer> D3D11GraphicsDevice::CreateConstantBuffer(size_t size)
 {
   // Constant buffers must be multiples of 16 bytes in size so round up if we're off.
   if (size & 0x0F)
@@ -225,20 +426,21 @@ ComPtr<ID3D11Buffer> GraphicsDevice::CreateConstantBuffer(size_t size)
   ComPtr<ID3D11Buffer> buffer;
   CHECK_HRESULT(device->CreateBuffer(&desc, nullptr, buffer.AddressForReplace()), "create constant buffer");
 
-  return buffer;
+  return std::make_unique<ConstantBuffer>(buffer.Ptr());
 }
 
 
-void GraphicsDevice::DiscardAndUpdateBuffer(ID3D11Buffer *buffer, const void *data, size_t dataSize)
+void D3D11GraphicsDevice::DiscardAndUpdateBuffer(IConstantBuffer *bufferIn, const void *data, size_t dataSize)
 {
   D3D11_MAPPED_SUBRESOURCE map;
+  ID3D11Buffer *buffer = static_cast<ConstantBuffer *>(bufferIn)->buffer.Ptr();
   context->Map(buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &map);
   memcpy(map.pData, data, size_t(dataSize));
   context->Unmap(buffer, 0);
 }
 
 
-GraphicsDevice::GraphicsDevice(HWND hwnd)
+D3D11GraphicsDevice::D3D11GraphicsDevice(HWND hwnd)
 {
   window = hwnd;
 
@@ -306,7 +508,7 @@ GraphicsDevice::GraphicsDevice(HWND hwnd)
 }
 
 
-void GraphicsDevice::InitializeBuiltIns()
+void D3D11GraphicsDevice::InitializeBuiltIns()
 {
 
   // Create the basic vertex buffer (just a square made of 6 vertices because it wasn't even worth dealing with an index buffer for a single quad)
@@ -362,7 +564,7 @@ void GraphicsDevice::InitializeBuiltIns()
     desc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
     desc.MinLOD = 0;
     desc.MaxLOD = D3D11_FLOAT32_MAX;
-    CHECK_HRESULT(device->CreateSamplerState(&desc, samplerStates[EnumValue(SamplerType::Clamp)].AddressForReplace()), "create standard sampler state");
+    CHECK_HRESULT(device->CreateSamplerState(&desc, samplerStates[EnumValue(SamplerType::LinearClamp)].AddressForReplace()), "create standard sampler state");
   }
 
   {
@@ -376,7 +578,7 @@ void GraphicsDevice::InitializeBuiltIns()
     desc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
     desc.MinLOD = 0;
     desc.MaxLOD = D3D11_FLOAT32_MAX;
-    CHECK_HRESULT(device->CreateSamplerState(&desc, samplerStates[EnumValue(SamplerType::Wrap)].AddressForReplace()), "create wrap sampler state");
+    CHECK_HRESULT(device->CreateSamplerState(&desc, samplerStates[EnumValue(SamplerType::LinearWrap)].AddressForReplace()), "create wrap sampler state");
   }
 
   // Rasterizer/blend states!
@@ -398,7 +600,7 @@ void GraphicsDevice::InitializeBuiltIns()
 }
 
 
-void GraphicsDevice::UpdateWindowSize()
+void D3D11GraphicsDevice::UpdateWindowSize()
 {
   RECT clientRect;
   GetClientRect(window, &clientRect);
@@ -429,22 +631,22 @@ void GraphicsDevice::UpdateWindowSize()
 }
 
 
-void GraphicsDevice::Present()
+void D3D11GraphicsDevice::Present()
 {
   swapChain->Present(1, 0);
 }
 
 
-void GraphicsDevice::RenderQuadWithPixelShader(
-  ID3D11PixelShader *ps,
+void D3D11GraphicsDevice::RenderQuad(
+  IShader *ps,
   RenderTargetView output,
   std::initializer_list<ShaderResourceView> inputs,
   std::initializer_list<SamplerType> samplers,
-  std::initializer_list<ID3D11Buffer *> constantBuffers)
+  std::initializer_list<IConstantBuffer *> constantBuffers)
 {
   if (output.texture == nullptr)
   {
-    RenderQuadWithPixelShader(
+    RenderQuad(
       ps,
       backbufferWidth,
       backbufferHeight,
@@ -455,7 +657,7 @@ void GraphicsDevice::RenderQuadWithPixelShader(
   }
   else
   {
-    RenderQuadWithPixelShader(
+    RenderQuad(
       ps,
       std::max(1U, output.texture->Width() >> output.mipLevel),
       std::max(1U, output.texture->Height() >> output.mipLevel),
@@ -467,14 +669,14 @@ void GraphicsDevice::RenderQuadWithPixelShader(
 }
 
 
-void GraphicsDevice::RenderQuadWithPixelShader(
-  ID3D11PixelShader *ps,
+void D3D11GraphicsDevice::RenderQuad(
+  IShader *ps,
   uint32_t viewportWidth,
   uint32_t viewportHeight,
   ID3D11RenderTargetView *outputRtv,
   std::initializer_list<ShaderResourceView> inputs,
   std::initializer_list<SamplerType> samplers,
-  std::initializer_list<ID3D11Buffer *> constantBuffers)
+  std::initializer_list<IConstantBuffer *> constantBuffers)
 {
   ID3D11ShaderResourceView *srvs[16] = {};
   for (uint32_t i = 0; i < inputs.size(); i++)
@@ -490,7 +692,7 @@ void GraphicsDevice::RenderQuadWithPixelShader(
     }
   }
 
-  RenderQuadWithPixelShader(
+  RenderQuad(
     ps,
     viewportWidth,
     viewportHeight,
@@ -502,15 +704,15 @@ void GraphicsDevice::RenderQuadWithPixelShader(
 }
 
 
-void GraphicsDevice::RenderQuadWithPixelShader(
-  ID3D11PixelShader *ps,
+void D3D11GraphicsDevice::RenderQuad(
+  IShader *ps,
   uint32_t viewportWidth,
   uint32_t viewportHeight,
   ID3D11RenderTargetView *outputRtv,
   ID3D11ShaderResourceView **srvs,
   uint32_t srvCount,
   std::initializer_list<SamplerType> samplers,
-  std::initializer_list<ID3D11Buffer *> constantBuffers)
+  std::initializer_list<IConstantBuffer *> constantBuffers)
 {
   {
     context->OMSetRenderTargets(1, &outputRtv, nullptr);
@@ -531,7 +733,7 @@ void GraphicsDevice::RenderQuadWithPixelShader(
   context->RSSetState(rasterizerState);
   context->IASetInputLayout(inputLayout);
   context->VSSetShader(vertexShader, nullptr, 0);
-  context->PSSetShader(ps, nullptr, 0);
+  context->PSSetShader(static_cast<PixelShader *>(ps)->shader, nullptr, 0);
   context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
   {
@@ -555,7 +757,13 @@ void GraphicsDevice::RenderQuadWithPixelShader(
     
   if (constantBuffers.size() > 0)
   {
-    context->PSSetConstantBuffers(0, UINT(constantBuffers.size()), constantBuffers.begin());
+    ID3D11Buffer *cbs[16];
+    for (uint32_t i = 0; i < constantBuffers.size(); i++)
+    {
+      cbs[i] = static_cast<ConstantBuffer *>(constantBuffers.begin()[i])->buffer;
+    }
+    
+    context->PSSetConstantBuffers(0, UINT(constantBuffers.size()), cbs);
   }
 
   if (srvCount > 0)
@@ -573,4 +781,10 @@ void GraphicsDevice::RenderQuadWithPixelShader(
 
   outputRtv = nullptr;
   context->OMSetRenderTargets(1, &outputRtv, nullptr);
+}
+
+
+std::unique_ptr<ID3D11GraphicsDevice> ID3D11GraphicsDevice::Create(HWND hwnd)
+{
+  return std::make_unique<D3D11GraphicsDevice>(hwnd);
 }

@@ -13,7 +13,7 @@ namespace NTSCify
   {
   public:
     SignalGenerator(
-      GraphicsDevice *deviceIn,
+      IGraphicsDevice *deviceIn,
       SignalType type,
       uint32_t inputWidth,
       uint32_t inputHeight,
@@ -31,23 +31,23 @@ namespace NTSCify
       rgbToSVideoOrComposite = std::make_unique<GeneratorComponents::RGBToSVideoOrComposite>(device, inputWidth, signalProps.scanlineWidth, signalProps.scanlineCount);
       applyArtifacts = std::make_unique<GeneratorComponents::ApplyArtifacts>(device, signalProps.scanlineWidth, signalProps.scanlineCount);
 
-      phasesTextureSingle = device->CreateTexture(signalProps.scanlineCount, 1, DXGI_FORMAT_R32_FLOAT, TextureFlags::RenderTarget);
-      phasesTextureDoubled = device->CreateTexture(signalProps.scanlineCount, 1, DXGI_FORMAT_R32G32_FLOAT, TextureFlags::RenderTarget);
+      phasesTextureSingle = device->CreateTexture(signalProps.scanlineCount, 1, 1, TextureFormat::R_Float32, TextureFlags::RenderTarget);
+      phasesTextureDoubled = device->CreateTexture(signalProps.scanlineCount, 1, 1, TextureFormat::RG_Float32, TextureFlags::RenderTarget);
     
       switch (type)
       {
       case SignalType::SVideo:
-        signalTextureSingle = device->CreateTexture(signalProps.scanlineWidth, signalProps.scanlineCount, DXGI_FORMAT_R32G32_FLOAT, TextureFlags::RenderTarget);
-        scratchSignalTextureSingle = device->CreateTexture(signalProps.scanlineWidth, signalProps.scanlineCount, DXGI_FORMAT_R32G32_FLOAT, TextureFlags::RenderTarget);
-        signalTextureDoubled = device->CreateTexture(signalProps.scanlineWidth, signalProps.scanlineCount, DXGI_FORMAT_R32G32B32A32_FLOAT, TextureFlags::RenderTarget);
-        scratchSignalTextureDoubled = device->CreateTexture(signalProps.scanlineWidth, signalProps.scanlineCount, DXGI_FORMAT_R32G32B32A32_FLOAT, TextureFlags::RenderTarget);
+        signalTextureSingle = device->CreateTexture(signalProps.scanlineWidth, signalProps.scanlineCount, 1, TextureFormat::RG_Float32, TextureFlags::RenderTarget);
+        scratchSignalTextureSingle = device->CreateTexture(signalProps.scanlineWidth, signalProps.scanlineCount, 1, TextureFormat::RG_Float32, TextureFlags::RenderTarget);
+        signalTextureDoubled = device->CreateTexture(signalProps.scanlineWidth, signalProps.scanlineCount, 1, TextureFormat::RGBA_Float32, TextureFlags::RenderTarget);
+        scratchSignalTextureDoubled = device->CreateTexture(signalProps.scanlineWidth, signalProps.scanlineCount, 1, TextureFormat::RGBA_Float32, TextureFlags::RenderTarget);
         break;
       
       case SignalType::Composite:
-        signalTextureSingle = device->CreateTexture(signalProps.scanlineWidth, signalProps.scanlineCount, DXGI_FORMAT_R32_FLOAT, TextureFlags::RenderTarget);
-        scratchSignalTextureSingle = device->CreateTexture(signalProps.scanlineWidth, signalProps.scanlineCount, DXGI_FORMAT_R32_FLOAT, TextureFlags::RenderTarget);
-        signalTextureDoubled = device->CreateTexture(signalProps.scanlineWidth, signalProps.scanlineCount, DXGI_FORMAT_R32G32_FLOAT, TextureFlags::RenderTarget);
-        scratchSignalTextureDoubled = device->CreateTexture(signalProps.scanlineWidth, signalProps.scanlineCount, DXGI_FORMAT_R32G32_FLOAT, TextureFlags::RenderTarget);
+        signalTextureSingle = device->CreateTexture(signalProps.scanlineWidth, signalProps.scanlineCount, 1, TextureFormat::R_Float32, TextureFlags::RenderTarget);
+        scratchSignalTextureSingle = device->CreateTexture(signalProps.scanlineWidth, signalProps.scanlineCount, 1, TextureFormat::R_Float32, TextureFlags::RenderTarget);
+        signalTextureDoubled = device->CreateTexture(signalProps.scanlineWidth, signalProps.scanlineCount, 1, TextureFormat::RG_Float32, TextureFlags::RenderTarget);
+        scratchSignalTextureDoubled = device->CreateTexture(signalProps.scanlineWidth, signalProps.scanlineCount, 1, TextureFormat::RG_Float32, TextureFlags::RenderTarget);
         break;
       }
     }
@@ -124,7 +124,7 @@ namespace NTSCify
     }
 
   private:
-    GraphicsDevice *device;
+    IGraphicsDevice *device;
 
     std::unique_ptr<GeneratorComponents::RGBToSVideoOrComposite> rgbToSVideoOrComposite;
     std::unique_ptr<GeneratorComponents::ApplyArtifacts> applyArtifacts;

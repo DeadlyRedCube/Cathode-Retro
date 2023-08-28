@@ -217,5 +217,6 @@
     <ClInclude Include="Source\NTSCify\OverscanSettings.h">
       <Filter>Headers\NTSCify</Filter>
     </ClInclude>
+    <ClInclude Include="Source\D3D11GraphicsDevice.h" />
   </ItemGroup>
 </Project>

@@ -17,19 +17,19 @@ namespace NTSCify::DecodeComponents
   {
   public:
     SVideoToYIQ(
-      GraphicsDevice *device, 
+      IGraphicsDevice *device, 
       uint32_t signalTextureWidthIn, 
       uint32_t scanlineCountIn)
     : scanlineCount(scanlineCountIn)
     , signalTextureWidth(signalTextureWidthIn)
     {
       constantBuffer = device->CreateConstantBuffer(sizeof(ConstantData));
-      sVideoToYIQShader = device->CreatePixelShader(IDR_SVIDEO_TO_YIQ);
+      sVideoToYIQShader = device->CreateShader(ShaderID::SVideoToYIQ);
     }
 
 
     void Apply(
-      GraphicsDevice *device, 
+      IGraphicsDevice *device, 
       const SignalLevels &levels,
       const ITexture *signalInput,
       const ITexture *phasesInput,
@@ -48,14 +48,14 @@ namespace NTSCify::DecodeComponents
         levels.temporalArtifactReduction,
       };
 
-      device->DiscardAndUpdateBuffer(constantBuffer, &data);
+      device->DiscardAndUpdateBuffer(constantBuffer.get(), &data);
 
-      device->RenderQuadWithPixelShader(
-        sVideoToYIQShader,
+      device->RenderQuad(
+        sVideoToYIQShader.get(),
         yiqOutput,
         {signalInput, phasesInput},
-        {SamplerType::Clamp},
-        {constantBuffer});
+        {SamplerType::LinearClamp},
+        {constantBuffer.get()});
     }
 
   private:
@@ -76,8 +76,8 @@ namespace NTSCify::DecodeComponents
     uint32_t scanlineCount;
     uint32_t signalTextureWidth;
   
-    ComPtr<ID3D11PixelShader> sVideoToYIQShader;
+    std::unique_ptr<IShader> sVideoToYIQShader;
   
-    ComPtr<ID3D11Buffer> constantBuffer;
+    std::unique_ptr<IConstantBuffer> constantBuffer;
   };
 }

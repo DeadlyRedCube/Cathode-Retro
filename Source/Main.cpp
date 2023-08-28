@@ -10,7 +10,7 @@
 #include "NTSCify/RGBToCRT.h"
 #include "NTSCify/SignalGenerator.h"
 #include "NTSCify/SignalDecoder.h"
-#include "GraphicsDevice.h"
+#include "D3D11GraphicsDevice.h"
 #include "WicTexture.h"
 #include "resource.h"
 #include "SettingsDialog.h"
@@ -20,7 +20,7 @@ static HMENU s_menu;
 static HINSTANCE s_instance;
 static bool s_fullscreen = false;
 static RECT s_oldWindowedRect;
-static std::unique_ptr<GraphicsDevice> s_graphicsDevice;
+static std::unique_ptr<ID3D11GraphicsDevice> s_graphicsDevice;
 
 static auto s_signalType = NTSCify::SignalType::Composite;
 static auto s_sourceSettings = NTSCify::k_sourcePresets[1].settings;
@@ -132,12 +132,12 @@ void LoadTexture(const wchar_t *path, Rebuild rebuild = Rebuild::Always)
       memcpy(evenScanlines.data() + width * y, load->data.data() + width * (y * 2 + 1), width * sizeof(uint32_t));
     }
 
-    load->oddTexture = s_graphicsDevice->CreateTexture(width, height/2, DXGI_FORMAT_R8G8B8A8_UNORM, TextureFlags::None, oddScanlines.data(), width * sizeof(uint32_t));
-    load->evenTexture = s_graphicsDevice->CreateTexture(width, height/2, DXGI_FORMAT_R8G8B8A8_UNORM, TextureFlags::None, evenScanlines.data(), width * sizeof(uint32_t));
+    load->oddTexture = s_graphicsDevice->CreateTexture(width, height/2, 1, TextureFormat::RGBA_Unorm8, TextureFlags::None, oddScanlines.data(), width * sizeof(uint32_t));
+    load->evenTexture = s_graphicsDevice->CreateTexture(width, height/2, 1, TextureFormat::RGBA_Unorm8, TextureFlags::None, evenScanlines.data(), width * sizeof(uint32_t));
   }
   else
   {
-    load->oddTexture = s_graphicsDevice->CreateTexture(width, height, DXGI_FORMAT_R8G8B8A8_UNORM, TextureFlags::None, load->data.data(), width * sizeof(uint32_t));
+    load->oddTexture = s_graphicsDevice->CreateTexture(width, height, 1, TextureFormat::RGBA_Unorm8, TextureFlags::None, load->data.data(), width * sizeof(uint32_t));
     load->evenTexture = nullptr;
   }
 
@@ -414,13 +414,17 @@ int CALLBACK WinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, 
 {
   try
   {
-    CHECK_HRESULT(CoInitialize(nullptr), "Initializing COM");
+    if (CoInitialize(nullptr) != S_OK)
+    {
+      throw std::exception("Failed Initializing COM");
+    }
+
     InitCommonControls();
 
     MSG msg;
     DoInit(hInstance);
 
-    s_graphicsDevice = std::make_unique<GraphicsDevice>(s_hwnd);
+    s_graphicsDevice = ID3D11GraphicsDevice::Create(s_hwnd);
 
     ShowWindow(s_hwnd, SW_NORMAL);
     SetMenu(s_hwnd, s_menu);

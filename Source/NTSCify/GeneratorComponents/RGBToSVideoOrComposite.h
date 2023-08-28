@@ -20,19 +20,19 @@ namespace NTSCify::GeneratorComponents
   class RGBToSVideoOrComposite
   {
   public:
-    RGBToSVideoOrComposite(GraphicsDevice *device, uint32_t rgbTextureWidthIn, uint32_t signalTextureWidthIn, uint32_t scanlineCountIn)
+    RGBToSVideoOrComposite(IGraphicsDevice *device, uint32_t rgbTextureWidthIn, uint32_t signalTextureWidthIn, uint32_t scanlineCountIn)
     : rgbTextureWidth(rgbTextureWidthIn)
     , scanlineCount(scanlineCountIn)
     , signalTextureWidth(signalTextureWidthIn)
     {
       constantBuffer = device->CreateConstantBuffer(std::max(sizeof(RGBToSVideoConstantData), sizeof(GeneratePhaseTextureConstantData)));
-      rgbToSVideoShader = device->CreatePixelShader(IDR_RGB_TO_SVIDEO_OR_COMPOSITE);
-      generatePhaseTextureShader = device->CreatePixelShader(IDR_GENERATE_PHASE_TEXTURE);
+      rgbToSVideoShader = device->CreateShader(ShaderID::RGBToSVideoOrComposite);
+      generatePhaseTextureShader = device->CreateShader(ShaderID::GeneratePhaseTexture);
     }
 
 
     void Generate(
-      GraphicsDevice *device, 
+      IGraphicsDevice *device, 
       SignalType signalType,
       const ITexture *rgbTexture, 
       ITexture *phaseTextureOut,
@@ -57,14 +57,14 @@ namespace NTSCify::GeneratorComponents
           scanlineCount,
         };
 
-        device->DiscardAndUpdateBuffer(constantBuffer, &cd);
+        device->DiscardAndUpdateBuffer(constantBuffer.get(), &cd);
 
-        device->RenderQuadWithPixelShader(
-          generatePhaseTextureShader,
+        device->RenderQuad(
+          generatePhaseTextureShader.get(),
           phaseTextureOut,
           {},
-          {SamplerType::Clamp},
-          {constantBuffer});
+          {SamplerType::LinearClamp},
+          {constantBuffer.get()});
       }
 
       // Now run the actual shader
@@ -80,14 +80,14 @@ namespace NTSCify::GeneratorComponents
           noiseSeed,
         };
 
-        device->DiscardAndUpdateBuffer(constantBuffer, &cd);
+        device->DiscardAndUpdateBuffer(constantBuffer.get(), &cd);
 
-        device->RenderQuadWithPixelShader(
-          rgbToSVideoShader,
+        device->RenderQuad(
+          rgbToSVideoShader.get(),
           signalTextureOut,
           {rgbTexture, phaseTextureOut},
-          {SamplerType::Clamp},
-          {constantBuffer});
+          {SamplerType::LinearClamp},
+          {constantBuffer.get()});
       }
 
       levelsOut->blackLevel = 0.0f;
@@ -124,9 +124,9 @@ namespace NTSCify::GeneratorComponents
     uint32_t rgbTextureWidth;
     uint32_t scanlineCount;
     uint32_t signalTextureWidth;
-    ComPtr<ID3D11PixelShader> rgbToSVideoShader;
-    ComPtr<ID3D11PixelShader> generatePhaseTextureShader;
-    ComPtr<ID3D11Buffer> constantBuffer;
+    std::unique_ptr<IShader> rgbToSVideoShader;
+    std::unique_ptr<IShader> generatePhaseTextureShader;
+    std::unique_ptr<IConstantBuffer> constantBuffer;
 
     uint32_t noiseSeed = 0;
   };

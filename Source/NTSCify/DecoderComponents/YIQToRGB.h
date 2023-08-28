@@ -15,23 +15,23 @@ namespace NTSCify::DecodeComponents
   {
   public:
     YIQToRGB(
-      GraphicsDevice *device, 
+      IGraphicsDevice *device, 
       uint32_t signalTextureWidthIn, 
       uint32_t scanlineCountIn)
     : scanlineCount(scanlineCountIn)
     , signalTextureWidth(signalTextureWidthIn)
     {
-      yiqToRGBShader = device->CreatePixelShader(IDR_YIQ_TO_RGB);
+      yiqToRGBShader = device->CreateShader(ShaderID::YIQToRGB);
     }
 
 
-    void Apply(GraphicsDevice *device, const ITexture *inputYIQ, ITexture *outputRGB)
+    void Apply(IGraphicsDevice *device, const ITexture *inputYIQ, ITexture *outputRGB)
     {
-      device->RenderQuadWithPixelShader(
-        yiqToRGBShader,
+      device->RenderQuad(
+        yiqToRGBShader.get(),
         outputRGB,
         {inputYIQ},
-        {SamplerType::Clamp},
+        {SamplerType::LinearClamp},
         {});
     }
 
@@ -39,6 +39,6 @@ namespace NTSCify::DecodeComponents
     uint32_t scanlineCount;
     uint32_t signalTextureWidth;
   
-    ComPtr<ID3D11PixelShader> yiqToRGBShader;
+    std::unique_ptr<IShader> yiqToRGBShader;
   };
 }
