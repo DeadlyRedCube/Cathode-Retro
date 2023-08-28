@@ -38,8 +38,13 @@ namespace NTSCify
       rgbToScreenShader = device->CreatePixelShader(IDR_RGB_TO_CRT);
       generateScreenTextureShader = device->CreatePixelShader(IDR_GENERATE_SCREEN_TEXTURE);
       downsample2XShader = device->CreatePixelShader(IDR_DOWNSAMPLE_2X);
-      constantBuffer = device->CreateConstantBuffer(sizeof(RGBToScreenConstants));
+      gaussianBlurShader = device->CreatePixelShader(IDR_GAUSSIAN_BLUR_13);
+      toneMapShader = device->CreatePixelShader(IDR_TONEMAP_AND_DOWNSAMPLE);
+      rgbToScreenConstantBuffer = device->CreateConstantBuffer(sizeof(RGBToScreenConstants));
       samplePatternConstantBuffer = device->CreateConstantBuffer(sizeof(k_samplingPattern16X));
+      toneMapConstantBuffer = device->CreateConstantBuffer(sizeof(ToneMapConstants));
+      gaussianBlurConstantBufferH = device->CreateConstantBuffer(sizeof(GaussianBlurConstants));
+      gaussianBlurConstantBufferV = device->CreateConstantBuffer(sizeof(GaussianBlurConstants));
 
       GenerateShadowMaskTexture();
     }
@@ -71,8 +76,8 @@ namespace NTSCify
         RGBToScreenConstants data;
 
         // Figure out how to adjust our viewed texture area for overscan
-        float overscanSizeX = (inputImageWidth - float(overscanSettings.overscanLeft + overscanSettings.overscanRight));
-        float overscanSizeY = (scanlineCount - float(overscanSettings.overscanTop + overscanSettings.overscanBottom));
+        float overscanSizeX = float(inputImageWidth - (overscanSettings.overscanLeft + overscanSettings.overscanRight));
+        float overscanSizeY = float(scanlineCount - (overscanSettings.overscanTop + overscanSettings.overscanBottom));
 
         data.overscanScaleX = overscanSizeX / inputImageWidth;
         data.overscanScaleY = overscanSizeY / scanlineCount;
@@ -95,7 +100,53 @@ namespace NTSCify
             data.viewScaleX = 1.0f;
             data.viewScaleY = float(outputTargetHeight) / desiredHeight;
           }
+
+          uint32_t tonemapTexWidth;
+          uint32_t tonemapTexHeight;
+          uint32_t blurTextureWidth;
+          if (float(signalTextureWidth) > k_aspect * float(scanlineCount))
+          {
+            // the tonemap texture is going to scale down to 2x the actual aspect we want (we'll downsample farther from there)
+            tonemapTexHeight = scanlineCount;
+            tonemapTexWidth = uint32_t(std::round(k_aspect * float(scanlineCount))) * 2;
+            blurTextureWidth = tonemapTexWidth / 2;
+            downsampleDirX = 1.0f;
+            downsampleDirY = 0.0f;
+          }
+          else
+          {
+            // This is an unlikely case (the signal already has a massive stretch), in this case we'll keep things the same and the
+            //  blur texture will be scaled up slightly.
+            tonemapTexWidth = inputImageWidth;
+            tonemapTexHeight = scanlineCount;
+            blurTextureWidth = uint32_t(std::round(k_aspect * float(scanlineCount)));
+            downsampleDirX = 0.0f;
+            downsampleDirY = 1.0f;
+          }
+
+          if (toneMapTexture == nullptr || toneMapTexture->Width() != tonemapTexWidth || toneMapTexture->Height() != tonemapTexHeight)
+          {
+            // Rebuild our blur textures.
+            toneMapTexture = device->CreateTexture(
+              tonemapTexWidth,
+              tonemapTexHeight,
+              DXGI_FORMAT_R8G8B8A8_UNORM,
+              TextureFlags::RenderTarget);
+
+            blurTexture = device->CreateTexture(
+              blurTextureWidth,
+              tonemapTexHeight,
+              DXGI_FORMAT_R8G8B8A8_UNORM,
+              TextureFlags::RenderTarget);
+
+            blurScratchTexture = device->CreateTexture(
+              blurTextureWidth,
+              tonemapTexHeight,
+              DXGI_FORMAT_R8G8B8A8_UNORM,
+              TextureFlags::RenderTarget);
+          }
         }
+
 
         data.distortionX = screenSettings.horizontalDistortion;
         data.distortionY = screenSettings.verticalDistortion;
@@ -115,7 +166,7 @@ namespace NTSCify
         data.shadowMaskScaleY = shadowMaskScaleNormalization / screenSettings.shadowMaskScale;
         data.shadowMaskStrength = screenSettings.shadowMaskStrength;
 
-        // TODO: may want to artificially increase phosphorDecay if we're interlaced
+        // $TODO: may want to artificially increase phosphorDecay if we're interlaced
         data.phosphorDecay = screenSettings.phosphorDecay;
 
         data.scanlineCount = float(scanlineCount);
@@ -124,7 +175,9 @@ namespace NTSCify
         data.curEvenOddTexelOffset = (scanType != ScanlineType::Even) ? 0.5f : -0.5f;
         data.prevEvenOddTexelOffset = (m_prevScanlineType != ScanlineType::Even) ? 0.5f : -0.5f;
 
-        device->DiscardAndUpdateBuffer(constantBuffer, &data);
+        data.diffusionStrength = screenSettings.diffusionStrength;
+
+        device->DiscardAndUpdateBuffer(rgbToScreenConstantBuffer, &data);
       }
 
       if (screenSettingsDirty 
@@ -147,17 +200,23 @@ namespace NTSCify
           screenTexture.get(),
           {shadowMaskTexture.get()},
           {SamplerType::Wrap},
-          {constantBuffer, samplePatternConstantBuffer});
+          {rgbToScreenConstantBuffer, samplePatternConstantBuffer});
 
         screenSettingsDirty = false;
       }
 
+      if (screenSettings.diffusionStrength > 0.0f)
+      {
+        RenderBlur(currentFrameRGBInput);
+      }
+
+      (void)previousFrameRGBInput;
       device->RenderQuadWithPixelShader(
         rgbToScreenShader,
         outputTexture,
-        {currentFrameRGBInput, previousFrameRGBInput, screenTexture.get()},
+        {currentFrameRGBInput, previousFrameRGBInput, screenTexture.get(), blurTexture.get()},
         {SamplerType::Clamp},
-        {constantBuffer});
+        {rgbToScreenConstantBuffer});
 
       m_prevScanlineType = scanType;
     }
@@ -254,6 +313,51 @@ namespace NTSCify
     }
 
 
+    void RenderBlur(const ITexture *inputTexture)
+    {
+      // Step one: abuse the downsample2x shader to scale to whatever size we need.
+      // $TODO: This is slightly inaccurate, we should really be using the max of inputTexture and prevFrameTexture * g_phosphorDecay but
+      //  for now, this is fine.
+      ToneMapConstants tmc;
+      tmc.downsampleDirX = downsampleDirX;
+      tmc.downsampleDirY = downsampleDirY;
+      tmc.minLuminosity = 0.0f;
+      tmc.colorPower = 1.3f;
+      device->DiscardAndUpdateBuffer(toneMapConstantBuffer, &tmc);
+      device->RenderQuadWithPixelShader(
+        toneMapShader,
+        toneMapTexture.get(),
+        {inputTexture},
+        {SamplerType::Clamp},
+        {toneMapConstantBuffer});
+
+      device->RenderQuadWithPixelShader(
+        downsample2XShader,
+        blurTexture.get(),
+        {toneMapTexture.get()},
+        {SamplerType::Clamp},
+        {});
+
+      GaussianBlurConstants blurH{1.0f, 0.0f};
+      device->DiscardAndUpdateBuffer(gaussianBlurConstantBufferH, &blurH);
+      device->RenderQuadWithPixelShader(
+        gaussianBlurShader,
+        blurScratchTexture.get(),
+        {blurTexture.get()},
+        {SamplerType::Clamp},
+        {gaussianBlurConstantBufferH});
+
+      GaussianBlurConstants blurV{0.0f, 1.0f};
+      device->DiscardAndUpdateBuffer(gaussianBlurConstantBufferV, &blurV);
+      device->RenderQuadWithPixelShader(
+        gaussianBlurShader,
+        blurTexture.get(),
+        {blurScratchTexture.get()},
+        {SamplerType::Clamp},
+        {gaussianBlurConstantBufferV});
+    }
+
+
     struct RGBToScreenConstants
     {
       float viewScaleX;             // Scale to get the correct aspect ratio of the image
@@ -276,7 +380,23 @@ namespace NTSCify
       float scanlineStrength;       // How strong the scanlines are (0 == none, 1 == whoa)
       float curEvenOddTexelOffset;  // This is 0.5 if it's an odd frame (or progressive) and -0.5 if it's even.
       float prevEvenOddTexelOffset; // This is 0.5 if it's an odd frame (or progressive) and -0.5 if it's even.
+      float diffusionStrength;      // The strength of the diffusion blur that is blended into the signal.
     };
+
+    struct GaussianBlurConstants
+    {
+      float blurDirX;
+      float blurDirY;
+    };
+  
+    struct ToneMapConstants
+    {
+      float downsampleDirX;
+      float downsampleDirY;
+      float minLuminosity;
+      float colorPower;
+    };
+  
 
     GraphicsDevice *device;
 
@@ -285,18 +405,29 @@ namespace NTSCify
     uint32_t scanlineCount;
     float pixelAspect;
 
-    ComPtr<ID3D11Buffer> constantBuffer;
+    ComPtr<ID3D11Buffer> rgbToScreenConstantBuffer;
     ComPtr<ID3D11Buffer> samplePatternConstantBuffer;
+    ComPtr<ID3D11Buffer> toneMapConstantBuffer;
+    ComPtr<ID3D11Buffer> gaussianBlurConstantBufferH;
+    ComPtr<ID3D11Buffer> gaussianBlurConstantBufferV;
     ComPtr<ID3D11PixelShader> rgbToScreenShader;
     ComPtr<ID3D11PixelShader> downsample2XShader;
+    ComPtr<ID3D11PixelShader> toneMapShader;
+    ComPtr<ID3D11PixelShader> gaussianBlurShader;
     ComPtr<ID3D11PixelShader> generateScreenTextureShader;
   
     std::unique_ptr<ITexture> shadowMaskTexture;
     std::unique_ptr<ITexture> screenTexture;
+    
+    std::unique_ptr<ITexture> toneMapTexture;
+    std::unique_ptr<ITexture> blurScratchTexture;
+    std::unique_ptr<ITexture> blurTexture;
 
     ScreenSettings screenSettings;
     OverscanSettings overscanSettings;
     bool screenSettingsDirty = false;
     ScanlineType m_prevScanlineType = ScanlineType::Progressive;
+    float downsampleDirX;
+    float downsampleDirY;
   };
 }

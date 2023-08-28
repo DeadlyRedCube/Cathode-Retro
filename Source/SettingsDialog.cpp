@@ -395,6 +395,7 @@ private:
     shadowMaskStrengthSlider = Slider(dialog, IDC_SHADOW_MASK_STRENGTH_SLIDER, IDC_SHADOW_MASK_STRENGTH_LABEL, &screenSettings->shadowMaskStrength, 0.0f, 1.0f, 20, [this]() { UpdateDisplay(); });
     scanlineStrengthSlider = Slider(dialog, IDC_SCANLINE_STRENGTH_SLIDER, IDC_SCANLINE_STRENGTH_LABEL, &screenSettings->scanlineStrength, 0.0f, 1.0f, 20, [this]() { UpdateDisplay(); });
     phosphorDecaySlider = Slider(dialog, IDC_PHOSPHOR_DECAY_SLIDER, IDC_PHOSPHOR_DECAY_LABEL, &screenSettings->phosphorDecay, 0.0f, 0.9f, 19, [this]() { UpdateDisplay(); });
+    diffusionSlider = Slider(dialog, IDC_DIFFUSION_SLIDER, IDC_DIFFUSION_LABEL, &screenSettings->diffusionStrength, 0.0f, 0.9f, 19, [this]() { UpdateDisplay(); });
     UpdateDisplay();
   }
 
@@ -438,6 +439,7 @@ private:
   Slider<float> shadowMaskStrengthSlider;
   Slider<float> scanlineStrengthSlider;
   Slider<float> phosphorDecaySlider;
+  Slider<float> diffusionSlider;
 };
 
 

@@ -37,6 +37,12 @@
     <FxCompile Include="Shaders\CRT\GenerateScreenTexture.hlsl">
       <Filter>Shaders\CRT</Filter>
     </FxCompile>
+    <FxCompile Include="Shaders\GaussianBlur13.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\TonemapAndDownsample.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\GraphicsDevice.cpp">

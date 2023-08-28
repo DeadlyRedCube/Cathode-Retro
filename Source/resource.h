@@ -16,6 +16,8 @@
 #define IDR_GENERATE_SCREEN_TEXTURE     112
 #define IDD_DISPLAY_SETTINGS_DIALOG     113
 #define IDR_MAIN_MENU                   114
+#define IDR_GAUSSIAN_BLUR_13            115
+#define IDR_TONEMAP_AND_DOWNSAMPLE      116
 #define IDC_SIGNAL_TYPE                 1001
 #define IDC_SIGNAL_TIMING               1002
 #define IDC_ARTIFACT_PRESET             1003
@@ -47,7 +49,7 @@
 #define IDC_INSTABILITY_LABEL           1029
 #define IDC_SCREEN_SHAPE_PRESET         1030
 #define IDC_SCREEN_PRESET               1030
-#define IDC_SCREEN_IMAGE_PRESET         1031
+#define IDC_DIFFUSION_SLIDER            1031
 #define IDC_GHOST_VISIBILITY_LABEL      1032
 #define IDC_GHOST_BLUR_WIDTH_LABEL      1033
 #define IDC_GHOST_DISTANCE_LABEL        1034
@@ -69,6 +71,7 @@
 #define IDC_SHADOW_MASK_STRENGTH_LABEL  1050
 #define IDC_SCANLINE_STRENGTH_LABEL     1051
 #define IDC_PHOSPHOR_DECAY_LABEL        1052
+#define IDC_DIFFUSION_LABEL             1053
 #define ID_OPTIONS_SETTINGS             40001
 #define ID_OPTIONS_FULLSCREEN           40002
 #define ID_FILE_OPEN                    40003
@@ -78,9 +81,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        115
+#define _APS_NEXT_RESOURCE_VALUE        117
 #define _APS_NEXT_COMMAND_VALUE         40005
-#define _APS_NEXT_CONTROL_VALUE         1053
+#define _APS_NEXT_CONTROL_VALUE         1054
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -5,6 +5,7 @@ sampler g_sampler : register(s0);
 Texture2D<float4> g_currentFrameTexture: register(t0);
 Texture2D<float4> g_previousFrameTexture : register(t1);
 Texture2D<float4> g_screenMaskTexture : register(t2);
+Texture2D<float4> g_diffusionTexture : register(t3);
 
 cbuffer consts : register(b0)
 {
@@ -22,6 +23,7 @@ cbuffer consts : register(b0)
   float  g_scanlineStrength;            // How strong the scanlines are (0 == none, 1 == whoa)
   float  g_curEvenOddTexelOffset;       // This is 0.5 if it's an odd frame and -0.5 if it's even.
   float  g_prevEvenOddTexelOffset;      // This is 0.5 if it's an odd frame and -0.5 if it's even.
+  float  g_diffusionStrength;           // This is a 0..1
 }
 
 
@@ -34,7 +36,11 @@ float4 main(float2 inTexCoord : TEX) : SV_TARGET
   
   // Now distort our actual texture coordinates to get our texture into the correct space for display
   float2 t = DistortCRTCoordinates((inTexCoord * 2 - 1) * g_viewScale, g_distortion) * g_overscanScale + g_overscanOffset * 2.0;
-  float2 prevT;
+  
+  // Use "t" (before we do the even/odd update or the scanline-sharpening) to load our diffusion texture, which is an approximation of
+  //  the glass in front of the phosphors scattering light a little bit due to imperfections.
+  float3 diffusionColor = g_diffusionTexture.Sample(g_sampler, t * 0.5 + 0.5).rgb;
+ 
   // Offset based on whether we're an even or odd frame
   t.y += g_curEvenOddTexelOffset / g_scanlineCount;
     
@@ -46,8 +52,8 @@ float4 main(float2 inTexCoord : TEX) : SV_TARGET
   float pixelLengthInScanlineSpace = length(ddy(t)) * g_scanlineCount;
 
   // Do a little magic to sharpen up the interpolation between scanlines - a CRT (didn't really have any vertical smoothing, so we want to
-  //  make the centers of our texels a little more solid and do less bilinear blending vertically (just a little to simulate the softness of
-  //  the screen in general)
+  //  make the centers of our texels a little more solid and do less bilinear blending vertically (just a little to simulate the softness
+  //  of the screen in general)
   {
     float scanlineIndex = (t.y * 0.5 + 0.5) * g_scanlineCount;
     float scanlineFrac = frac(scanlineIndex);
@@ -115,6 +121,14 @@ float4 main(float2 inTexCoord : TEX) : SV_TARGET
     sourceColor *= 1.0 + scanlineStrength * 0.5;
   }
 
-  // Put it all together
-  return float4(lerp((0.05).xxx, sourceColor * screenMask.rgb, screenMask.a), 1);
+  // Time to put it all together: first, by applying the screen mask (i.e. the shadow mask/aperture grill, etc)...
+  float3 res = sourceColor * screenMask.rgb;
+  
+  // ... then bringing in some diffusion on top (This isn't physically accurate (it should really be a lerp between res and diffusionColor) 
+  //  but doing it this way preserves the brightness and still looks reasonable, especially when displaying bright things on a dark
+  //  background)
+  res = max(diffusionColor * g_diffusionStrength, res);
+  
+  // Finally, mask out everything outside of the edges
+  return float4(lerp((0.05).xxx, res, screenMask.a), 1);
 }

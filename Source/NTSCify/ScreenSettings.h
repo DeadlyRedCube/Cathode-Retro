@@ -26,6 +26,9 @@ namespace NTSCify
 
     // How powerful the scanlines are
     float scanlineStrength = 0.0f;
+
+    // How much the "glass" in front of the "phosphors" diffuses the light passing through it.
+    float diffusionStrength = 0.0f;
   };
 
   struct ScreenSettingsPreset
@@ -53,6 +56,8 @@ namespace NTSCify
         0.0f,
 
         0.0f,
+
+        0.0f,
       }
     },
     {
@@ -72,6 +77,8 @@ namespace NTSCify
         0.25f,
 
         0.47f,
+
+        0.0f,
       }
     },
     {
@@ -91,18 +98,20 @@ namespace NTSCify
         0.25f,
 
         0.47f,
+
+        0.5f,
       }
     },
     {
       "Standard CRT",
       {
-        0.20f,
+        0.35f,
         0.25f,
         
         0.0f,
         0.0f,
         
-        0.05f,
+        0.03f,
         
         1.0f,
         0.65f,
@@ -110,18 +119,20 @@ namespace NTSCify
         0.25f,
 
         0.47f,
+
+        0.5f,
       }
     },
     {
       "Standard CRT (No Scanlines)",
       {
-        0.20f,
+        0.35f,
         0.25f,
         
         0.0f,
         0.0f,
         
-        0.05f,
+        0.03f,
         
         1.0f,
         0.65f,
@@ -129,6 +140,8 @@ namespace NTSCify
         0.25f,
 
         0.00f,
+
+        0.5f,
       }
     },
     {
@@ -148,6 +161,8 @@ namespace NTSCify
         0.25f,
 
         0.47f,
+
+        0.7f,
       }
     },
   };

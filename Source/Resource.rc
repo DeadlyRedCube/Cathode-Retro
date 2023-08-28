@@ -134,11 +134,14 @@ BEGIN
     CONTROL         "",IDC_SCANLINE_STRENGTH_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,512,213,108,15
     LTEXT           "Static",IDC_SCANLINE_STRENGTH_LABEL,626,217,18,8
     RTEXT           "Scanline Strength",IDC_STATIC,452,217,56,8
-    CONTROL         "",IDC_PHOSPHOR_DECAY_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,512,248,108,15
-    LTEXT           "Static",IDC_PHOSPHOR_DECAY_LABEL,626,252,18,8
-    RTEXT           "Phosphor Decay",IDC_STATIC,457,252,51,8
+    CONTROL         "",IDC_DIFFUSION_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,512,248,108,15
+    LTEXT           "Static",IDC_DIFFUSION_LABEL,626,252,18,8
+    RTEXT           "Diffusion",IDC_STATIC,457,252,28,8
     COMBOBOX        IDC_SCREEN_PRESET,383,137,132,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     RTEXT           "Preset",IDC_STATIC,359,139,20,8
+    CONTROL         "",IDC_PHOSPHOR_DECAY_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,512,231,108,15
+    LTEXT           "Static",IDC_PHOSPHOR_DECAY_LABEL,626,234,18,8
+    RTEXT           "Phosphor Decay",IDC_STATIC,457,234,51,8
 END
 
 
@@ -200,6 +203,10 @@ IDR_RGB_TO_CRT          RT_RCDATA               "..\\Generated\\RGBToCRT.pso"
 IDR_GENERATE_PHASE_TEXTURE RT_RCDATA               "..\\Generated\\GeneratePhaseTexture.pso"
 
 IDR_GENERATE_SCREEN_TEXTURE RT_RCDATA               "..\\Generated\\GenerateScreenTexture.pso"
+
+IDR_GAUSSIAN_BLUR_13    RT_RCDATA               "..\\Generated\\GaussianBlur13.pso"
+
+IDR_TONEMAP_AND_DOWNSAMPLE RT_RCDATA               "..\\Generated\\TonemapAndDownsample.pso"
 
 
 /////////////////////////////////////////////////////////////////////////////
