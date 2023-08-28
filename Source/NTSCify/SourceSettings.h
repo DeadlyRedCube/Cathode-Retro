@@ -94,7 +94,7 @@ namespace NTSCify
     },
     {
       // Timings for CGA (And likely other PC board)-like video generation, 320px horizontal resolution
-      "PC Composite 320",
+      "PC Composite 320x240",
       {
         1.0f,       // Square pixels
         2,          // CGA deals in multiples of 1/2
@@ -106,10 +106,36 @@ namespace NTSCify
       }
     },
     {
+      // Timings for CGA (And likely other PC board)-like video generation, 320px horizontal resolution
+      "PC Composite 320x200",
+      {
+        5.0f/6.0f,  // mode 13 and similar had slightly tall pixels
+        2,          // CGA deals in multiples of 1/2
+        1,          // Every pixel is half of a color subcarrier wave
+        0,          // Start at phase 0
+        0,          // The CGA doesn't change phase at all per line (or per frames)
+        0,          //  ...
+        0,          //  ...
+      }
+    },
+    {
       // Timings for CGA (And likely other PC board)-like video generation, 640px horizontal resolution
-      "PC Composite 640",
+      "PC Composite 640x480",
       {
         1.0f,       // Square pixels
+        4,          // CGA at 640 pixels wide deals in multiples of 1/4
+        1,          // Every pixel is a quarter a color subcarrier wave (half of the 320 span since we have twice the number of pixels)
+        0,          // Start at phase 0
+        0,          // The CGA doesn't change phase at all per line (or per frames)
+        0,          //  ...
+        0,          //  ...
+      }
+    },
+    {
+      // Timings for CGA (And likely other PC board)-like video generation, 640px horizontal resolution
+      "PC Composite 640x400",
+      {
+        5.0f/6.0f,  // 640x480 had slightly tall pixels
         4,          // CGA at 640 pixels wide deals in multiples of 1/4
         1,          // Every pixel is a quarter a color subcarrier wave (half of the 320 span since we have twice the number of pixels)
         0,          // Start at phase 0
