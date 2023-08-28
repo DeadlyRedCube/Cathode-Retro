@@ -541,7 +541,6 @@
     <ClInclude Include="Source\WicTexture.h" />
     <ClInclude Include="Source\resource.h" />
     <ClInclude Include="Source\SettingsDialog.h" />
-    <ClInclude Include="Source\SimpleArray.h" />
     <ClInclude Include="Source\Util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

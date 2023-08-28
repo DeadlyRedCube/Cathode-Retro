@@ -7,7 +7,6 @@
 #include <Windows.h>
 
 #include "ComPtr.h"
-#include "SimpleArray.h"
 #include "Util.h"
 
 #define UUID_AND_ADDRESS(pObj) __uuidof(decltype(pObj.Ptr())), reinterpret_cast<void**>(pObj.AddressForReplace())
@@ -109,20 +108,6 @@ public:
 
   void Present();
 
-  ID3D11Device *D3DDevice()
-    { return device; }
-
-  ID3D11DeviceContext *Context()
-    { return context; }
-
-
-  void CreateVertexShaderAndInputLayout(
-    int resourceID, 
-    D3D11_INPUT_ELEMENT_DESC *layoutElements,
-    size_t layoutElementCount,
-    ComPtr<ID3D11VertexShader> *shaderOut, 
-    ComPtr<ID3D11InputLayout> *layoutOut);
-  
   ComPtr<ID3D11PixelShader> CreatePixelShader(int resourceID);
   ComPtr<ID3D11Buffer> CreateConstantBuffer(size_t size);
 
@@ -135,7 +120,7 @@ public:
   }
 
 
-  SimpleArray<uint32_t> GetTexturePixels(ITexture *texture);
+  std::vector<uint32_t> GetTexturePixels(ITexture *texture);
 
   std::unique_ptr<ITexture> CreateTexture(
     uint32_t width,
@@ -210,6 +195,13 @@ private:
     std::initializer_list<SamplerType> samplers,
     std::initializer_list<ID3D11Buffer *> constantBuffers);
     
+  void CreateVertexShaderAndInputLayout(
+    int resourceID, 
+    D3D11_INPUT_ELEMENT_DESC *layoutElements,
+    size_t layoutElementCount,
+    ComPtr<ID3D11VertexShader> *shaderOut, 
+    ComPtr<ID3D11InputLayout> *layoutOut);
+  
   void InitializeBuiltIns();
 
   ComPtr<ID3D11Device> device;

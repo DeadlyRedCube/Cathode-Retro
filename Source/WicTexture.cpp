@@ -27,10 +27,10 @@
   while (false)
 
 
-void SaveWicTexture(const wchar_t *inputPath, uint32_t width, uint32_t height, const SimpleArray<uint32_t> &colors)
+void SaveWicTexture(const wchar_t *inputPath, uint32_t width, uint32_t height, const std::vector<uint32_t> &colors)
 {
-  SimpleArray<uint32_t> swizzledColors(colors.Length());
-  for (uint32_t i = 0; i < colors.Length(); i++)
+  std::vector<uint32_t> swizzledColors(colors.size());
+  for (uint32_t i = 0; i < colors.size(); i++)
   {
     swizzledColors[i] = 
       (colors[i] & 0xFF00FF00)
@@ -90,7 +90,7 @@ void SaveWicTexture(const wchar_t *inputPath, uint32_t width, uint32_t height, c
       height, 
       width * sizeof(uint32_t), 
       width * height * sizeof(uint32_t), 
-      const_cast<uint8_t *>(reinterpret_cast<const uint8_t*>(swizzledColors.Ptr()))),
+      const_cast<uint8_t *>(reinterpret_cast<const uint8_t*>(swizzledColors.data()))),
     "writing pixels");
 
   CHECK_HRESULT(
@@ -109,7 +109,7 @@ void SaveWicTexture(const wchar_t *inputPath, uint32_t width, uint32_t height, c
 }
 
 
-SimpleArray<uint32_t> ReadWicTexture(const wchar_t *inputPath, uint32_t *width, uint32_t *height)
+std::vector<uint32_t> ReadWicTexture(const wchar_t *inputPath, uint32_t *width, uint32_t *height)
 {
   ComPtr<IWICImagingFactory> imagingFactory;
   CHECK_HRESULT(
@@ -142,9 +142,10 @@ SimpleArray<uint32_t> ReadWicTexture(const wchar_t *inputPath, uint32_t *width, 
     "initializing converted frame");
 
   uint32_t size = *width * *height;
-  SimpleArray<uint32_t> colorData(size);
+  std::vector<uint32_t> colorData;
+  colorData.resize(size);
   CHECK_HRESULT(
-    convertedFrame->CopyPixels(nullptr, *width * sizeof(uint32_t), size * sizeof(uint32_t), reinterpret_cast<uint8_t*>(colorData.Ptr())),
+    convertedFrame->CopyPixels(nullptr, *width * sizeof(uint32_t), size * sizeof(uint32_t), reinterpret_cast<uint8_t*>(colorData.data())),
     "copying pixels");
 
   return colorData;

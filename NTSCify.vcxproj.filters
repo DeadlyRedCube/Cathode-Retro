@@ -144,6 +144,8 @@
     <None Include="Generated\SVideoToYIQ.pso">
       <Filter>Generated</Filter>
     </None>
+    <None Include="Generated\GaussianBlur13.pso" />
+    <None Include="Generated\TonemapAndDownsample.pso" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\ComPtr.h">
@@ -156,9 +158,6 @@
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="Source\resource.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\SimpleArray.h">
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="Source\Util.h">

@@ -17,7 +17,7 @@ struct Vertex
     
 
 // Load a resource from the current executable. Used because I packed the shaders into the RC like a weirdo
-static SimpleArray<uint8_t> LoadResourceBytes(int resourceId)
+static std::vector<uint8_t> LoadResourceBytes(int resourceId)
 {
   HRSRC resource = FindResourceW(GetModuleHandle(nullptr), MAKEINTRESOURCE(resourceId), L"RT_RCDATA");
   if (resource == nullptr)
@@ -34,8 +34,9 @@ static SimpleArray<uint8_t> LoadResourceBytes(int resourceId)
   void *resData = LockResource(loaded);
   DWORD resSize = SizeofResource(0, resource);
 
-  SimpleArray<uint8_t> bytes{size_t(resSize)};
-  memcpy(bytes.Ptr(), resData, bytes.Length());
+  std::vector<uint8_t> bytes;
+  bytes.resize(size_t(resSize));
+  memcpy(bytes.data(), resData, bytes.size());
   return bytes;
 }
 
@@ -57,8 +58,8 @@ void GraphicsDevice::CreateVertexShaderAndInputLayout(
   auto data = LoadResourceBytes(resourceID);
   CHECK_HRESULT(
     device->CreateVertexShader(
-      data.Ptr(),
-      DWORD(data.Length()),
+      data.data(),
+      DWORD(data.size()),
       nullptr, 
       shaderOut->AddressForReplace()), 
     "create vertex shader");
@@ -67,8 +68,8 @@ void GraphicsDevice::CreateVertexShaderAndInputLayout(
     device->CreateInputLayout(
       layoutElements,
       DWORD(layoutElementCount),
-      data.Ptr(),
-      DWORD(data.Length()),
+      data.data(),
+      DWORD(data.size()),
       layoutOut->AddressForReplace()),
     "create input layout");
 }
@@ -80,8 +81,8 @@ ComPtr<ID3D11PixelShader> GraphicsDevice::CreatePixelShader(int resourceID)
   ComPtr<ID3D11PixelShader> shader;
   CHECK_HRESULT(
     device->CreatePixelShader(
-      data.Ptr(),
-      DWORD(data.Length()),
+      data.data(),
+      DWORD(data.size()),
       nullptr, 
       shader.AddressForReplace()), 
     "create pixel shader");
@@ -173,7 +174,7 @@ std::unique_ptr<ITexture> GraphicsDevice::CreateTexture(
 }
 
 
-SimpleArray<uint32_t> GraphicsDevice::GetTexturePixels(ITexture *texture)
+std::vector<uint32_t> GraphicsDevice::GetTexturePixels(ITexture *texture)
 {
   auto tex = static_cast<Texture *>(texture);
 
@@ -193,7 +194,8 @@ SimpleArray<uint32_t> GraphicsDevice::GetTexturePixels(ITexture *texture)
   D3D11_MAPPED_SUBRESOURCE resource;
   CHECK_HRESULT(context->Map(staging.Ptr(), 0, D3D11_MAP_READ, 0, &resource), "mapping staging texture");
 
-  SimpleArray<uint32_t> ary { tex->Width() * tex->Height() };
+  std::vector<uint32_t> ary;
+  ary.resize(tex->Width() * tex->Height());
 
   for (uint32_t y = 0; y < tex->Height(); y++)
   {

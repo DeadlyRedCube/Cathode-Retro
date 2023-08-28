@@ -120,33 +120,3 @@ constexpr Type &operator ^= (Type &a, Type b)
 template <typename T> size_t k_arrayLength = 0;
 template <typename T> size_t k_arrayLength<T &> = k_arrayLength<T>;
 template <typename T, size_t N> size_t k_arrayLength<T[N]> = N;
-
-
-// Functions to generate a gaussian kernel
-
-
-inline float Gaussian(float x, float sigma)
-{
-  auto sqrTerm = x / sigma;
-  return std::exp(-0.5f *  sqrTerm * sqrTerm);
-}
-
-
-inline std::vector<float> CalculateGaussianKernel(int32_t filterWidth, float sigma)
-{
-  std::vector<float> kernel;
-  kernel.resize(filterWidth);
-
-  float sum = 0.0f;
-  for (int32_t i = 0; i < filterWidth; i++)
-  {
-    kernel[i] = Gaussian(float(i - (filterWidth - 1) / 2), sigma);
-    sum += kernel[i];
-  }
-
-  for (int32_t i = 0; i < filterWidth; i++)
-  {
-    kernel[i] /= sum;
-  }
-  return kernel;
-}

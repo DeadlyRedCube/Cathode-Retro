@@ -37,7 +37,7 @@ struct LoadedTexture
 {
   uint32_t width = 0;
   uint32_t height = 0;
-  SimpleArray<uint32_t> data;
+  std::vector<uint32_t> data;
 
   std::unique_ptr<ITexture> oddTexture;
   std::unique_ptr<ITexture> evenTexture;
@@ -124,20 +124,20 @@ void LoadTexture(const wchar_t *path, Rebuild rebuild = Rebuild::Always)
   if (interlaced)
   {
     // Grab the odd 
-    SimpleArray<uint32_t> oddScanlines(width * height/2);
-    SimpleArray<uint32_t> evenScanlines(width * height/2);
+    std::vector<uint32_t> oddScanlines(width * height/2);
+    std::vector<uint32_t> evenScanlines(width * height/2);
     for (uint32_t y = 0; y < height/2; y++)
     {
-      memcpy(oddScanlines.Ptr()  + width * y, load->data.Ptr() + width * (y * 2),     width * sizeof(uint32_t));
-      memcpy(evenScanlines.Ptr() + width * y, load->data.Ptr() + width * (y * 2 + 1), width * sizeof(uint32_t));
+      memcpy(oddScanlines.data()  + width * y, load->data.data() + width * (y * 2),     width * sizeof(uint32_t));
+      memcpy(evenScanlines.data() + width * y, load->data.data() + width * (y * 2 + 1), width * sizeof(uint32_t));
     }
 
-    load->oddTexture = s_graphicsDevice->CreateTexture(width, height/2, DXGI_FORMAT_R8G8B8A8_UNORM, TextureFlags::None, oddScanlines.Ptr(), width * sizeof(uint32_t));
-    load->evenTexture = s_graphicsDevice->CreateTexture(width, height/2, DXGI_FORMAT_R8G8B8A8_UNORM, TextureFlags::None, evenScanlines.Ptr(), width * sizeof(uint32_t));
+    load->oddTexture = s_graphicsDevice->CreateTexture(width, height/2, DXGI_FORMAT_R8G8B8A8_UNORM, TextureFlags::None, oddScanlines.data(), width * sizeof(uint32_t));
+    load->evenTexture = s_graphicsDevice->CreateTexture(width, height/2, DXGI_FORMAT_R8G8B8A8_UNORM, TextureFlags::None, evenScanlines.data(), width * sizeof(uint32_t));
   }
   else
   {
-    load->oddTexture = s_graphicsDevice->CreateTexture(width, height, DXGI_FORMAT_R8G8B8A8_UNORM, TextureFlags::None, load->data.Ptr(), width * sizeof(uint32_t));
+    load->oddTexture = s_graphicsDevice->CreateTexture(width, height, DXGI_FORMAT_R8G8B8A8_UNORM, TextureFlags::None, load->data.data(), width * sizeof(uint32_t));
     load->evenTexture = nullptr;
   }
 
