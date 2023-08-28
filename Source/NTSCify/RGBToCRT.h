@@ -192,7 +192,7 @@ namespace NTSCify
           || screenTexture->Height() != outputTargetHeight)
         {
           // Rebuild the texture at the correct resolution
-          screenTexture = device->CreateTexture(outputTargetWidth, outputTargetHeight, DXGI_FORMAT_R16G16B16A16_FLOAT, TextureFlags::RenderTarget);
+          screenTexture = device->CreateTexture(outputTargetWidth, outputTargetHeight, DXGI_FORMAT_R8G8B8A8_UNORM, TextureFlags::RenderTarget);
         }
 
         device->RenderQuadWithPixelShader(
