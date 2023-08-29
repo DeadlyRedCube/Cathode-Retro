@@ -19,18 +19,48 @@ namespace NTSCify::Internal::Decoder
       if (signalProps.type == SignalType::Composite)
       {
         compositeToSVideo = std::make_unique<CompositeToSVideo>(device, signalProps.scanlineWidth, signalProps.scanlineCount);
-        decodedSVideoTextureSingle = device->CreateTexture(signalProps.scanlineWidth, signalProps.scanlineCount, 1, TextureFormat::RG_Float32, TextureFlags::RenderTarget);
-        decodedSVideoTextureDouble = device->CreateTexture(signalProps.scanlineWidth, signalProps.scanlineCount, 1, TextureFormat::RGBA_Float32, TextureFlags::RenderTarget);
+        decodedSVideoTextureSingle = device->CreateTexture(
+          signalProps.scanlineWidth,
+          signalProps.scanlineCount,
+          1,
+          TextureFormat::RG_Float32,
+          TextureFlags::RenderTarget);
+        decodedSVideoTextureDouble = device->CreateTexture(
+          signalProps.scanlineWidth,
+          signalProps.scanlineCount,
+          1,
+          TextureFormat::RGBA_Float32,
+          TextureFlags::RenderTarget);
       }
 
       sVideoToYIQ = std::make_unique<SVideoToYIQ>(device, signalProps.scanlineWidth, signalProps.scanlineCount);
       yiqToRGB = std::make_unique<YIQToRGB>(device, signalProps.scanlineWidth, signalProps.scanlineCount);
       filterRGB = std::make_unique<FilterRGB>(device, signalProps.colorCyclesPerInputPixel, signalProps.scanlineWidth, signalProps.scanlineCount);
 
-      yiqTexture = device->CreateTexture(signalProps.scanlineWidth, signalProps.scanlineCount, 1, TextureFormat::RGBA_Float32, TextureFlags::RenderTarget);
-      rgbTexture = device->CreateTexture(signalProps.scanlineWidth, signalProps.scanlineCount, 1, TextureFormat::RGBA_Unorm8, TextureFlags::RenderTarget);
-      prevFrameRGBTexture = device->CreateTexture(signalProps.scanlineWidth, signalProps.scanlineCount, 1, TextureFormat::RGBA_Unorm8, TextureFlags::RenderTarget);
-      scratchRGBTexture = device->CreateTexture(signalProps.scanlineWidth, signalProps.scanlineCount, 1, TextureFormat::RGBA_Unorm8, TextureFlags::RenderTarget);
+      yiqTexture = device->CreateTexture(
+        signalProps.scanlineWidth,
+        signalProps.scanlineCount,
+        1,
+        TextureFormat::RGBA_Float32,
+        TextureFlags::RenderTarget);
+      rgbTexture = device->CreateTexture(
+        signalProps.scanlineWidth,
+        signalProps.scanlineCount,
+        1,
+        TextureFormat::RGBA_Unorm8,
+        TextureFlags::RenderTarget);
+      prevFrameRGBTexture = device->CreateTexture(
+        signalProps.scanlineWidth,
+        signalProps.scanlineCount,
+        1,
+        TextureFormat::RGBA_Unorm8,
+        TextureFlags::RenderTarget);
+      scratchRGBTexture = device->CreateTexture(
+        signalProps.scanlineWidth,
+        signalProps.scanlineCount,
+        1,
+        TextureFormat::RGBA_Unorm8,
+        TextureFlags::RenderTarget);
     }
 
     void SetKnobSettings(const TVKnobSettings &settings)

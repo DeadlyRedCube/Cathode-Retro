@@ -19,7 +19,7 @@ namespace NTSCify
     // How much to round the corners (to emulate an old TV with rounded corners)
     float cornerRounding = 0.0f;
 
-    // How much the shadow 
+    // How much the shadow
     float shadowMaskScale = 1.0f;
     float shadowMaskStrength = 0.0f;
 
@@ -48,15 +48,15 @@ namespace NTSCify
       {
         0.0f,
         0.0f,
-        
+
         0.0f,
         0.0f,
-        
+
         0.0f,
-        
+
         1.0f,
         0.0f,
-        
+
         0.0f,
 
         0.0f,
@@ -69,15 +69,15 @@ namespace NTSCify
       {
         0.0f,
         0.0f,
-        
+
         0.0f,
         0.0f,
-        
+
         0.0f,
-        
+
         1.0f,
         0.0f,
-        
+
         0.25f,
 
         0.47f,
@@ -90,15 +90,15 @@ namespace NTSCify
       {
         0.0f,
         0.0f,
-        
+
         0.0f,
         0.0f,
-        
+
         0.0f,
-        
+
         1.0f,
         0.65f,
-        
+
         0.25f,
 
         0.47f,
@@ -111,15 +111,15 @@ namespace NTSCify
       {
         0.35f,
         0.25f,
-        
+
         0.0f,
         0.0f,
-        
+
         0.03f,
-        
+
         1.0f,
         0.65f,
-        
+
         0.25f,
 
         0.47f,
@@ -132,15 +132,15 @@ namespace NTSCify
       {
         0.35f,
         0.25f,
-        
+
         0.0f,
         0.0f,
-        
+
         0.03f,
-        
+
         1.0f,
         0.65f,
-        
+
         0.25f,
 
         0.00f,
@@ -153,15 +153,15 @@ namespace NTSCify
       {
         0.30f,
         0.35f,
-        
+
         0.1f,
         0.1f,
-        
+
         0.1f,
-        
+
         1.2f,
         0.65f,
-        
+
         0.25f,
 
         0.47f,

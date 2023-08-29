@@ -90,7 +90,7 @@ namespace NTSCify
       : texture(tex)
       , mipLevel(int32_t(mip))
       { }
-    
+
     const ITexture *texture;
     int32_t mipLevel = -1;
   };
@@ -106,7 +106,7 @@ namespace NTSCify
       : texture(tex)
       , mipLevel(int32_t(mip))
       { }
-    
+
     ITexture *texture;
     uint32_t mipLevel = 0;
   };

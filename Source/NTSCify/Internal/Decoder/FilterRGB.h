@@ -13,9 +13,9 @@ namespace NTSCify::Internal::Decoder
   {
   public:
     FilterRGB(
-      IGraphicsDevice *device, 
+      IGraphicsDevice *device,
       float colorCyclesPerInputPixelIn,
-      uint32_t signalTextureWidthIn, 
+      uint32_t signalTextureWidthIn,
       uint32_t scanlineCountIn)
     : scanlineCount(scanlineCountIn)
     , signalTextureWidth(signalTextureWidthIn)
@@ -31,10 +31,10 @@ namespace NTSCify::Internal::Decoder
       // We don't have to do anything if the sharpness is 0
       if (knobSettings.sharpness != 0)
       {
-        ConstantData data = 
-        { 
-          -knobSettings.sharpness, 
-          colorCyclesPerInputPixel * float(k_signalSamplesPerColorCycle) 
+        ConstantData data =
+        {
+          -knobSettings.sharpness,
+          colorCyclesPerInputPixel * float(k_signalSamplesPerColorCycle)
         };
 
         device->DiscardAndUpdateBuffer(constantBuffer.get(), &data);
@@ -62,7 +62,7 @@ namespace NTSCify::Internal::Decoder
     uint32_t scanlineCount;
     uint32_t signalTextureWidth;
     float colorCyclesPerInputPixel;
-  
+
     std::unique_ptr<IShader> blurRGBShader;
     std::unique_ptr<IConstantBuffer> constantBuffer;
   };

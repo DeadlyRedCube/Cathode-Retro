@@ -16,9 +16,9 @@ namespace NTSCify::Internal::CRT
   {
   public:
     RGBToCRT(
-      IGraphicsDevice *deviceIn, 
-      uint32_t inputImageWidthIn, 
-      uint32_t signalTextureWidthIn, 
+      IGraphicsDevice *deviceIn,
+      uint32_t inputImageWidthIn,
+      uint32_t signalTextureWidthIn,
       uint32_t scanlineCountIn,
       float pixelAspectIn)
     : device(deviceIn)
@@ -43,10 +43,10 @@ namespace NTSCify::Internal::CRT
 
 
     void SetScreenSettings(const ScreenSettings &settings)
-    { 
+    {
       if (memcmp(&settings, &screenSettings, sizeof(ScreenSettings)) != 0)
       {
-        screenSettings = settings; 
+        screenSettings = settings;
         screenSettingsDirty = true;
       }
     }
@@ -153,10 +153,10 @@ namespace NTSCify::Internal::CRT
         //  of scaling the shadow mask.
         static constexpr float shadowMaskScaleNormalization = 240.0f * 0.7f;
 
-        data.shadowMaskScaleX = float (inputImageWidth) / float(scanlineCount) 
+        data.shadowMaskScaleX = float (inputImageWidth) / float(scanlineCount)
                               * pixelAspect
-                              * shadowMaskScaleNormalization 
-                              * 0.45f 
+                              * shadowMaskScaleNormalization
+                              * 0.45f
                               / screenSettings.shadowMaskScale;
         data.shadowMaskScaleY = shadowMaskScaleNormalization / screenSettings.shadowMaskScale;
         data.shadowMaskStrength = screenSettings.shadowMaskStrength;
@@ -175,15 +175,15 @@ namespace NTSCify::Internal::CRT
         device->DiscardAndUpdateBuffer(rgbToScreenConstantBuffer.get(), &data);
       }
 
-      if (screenSettingsDirty 
-        || screenTexture == nullptr 
-        || screenTexture->Width() != outputTargetWidth 
+      if (screenSettingsDirty
+        || screenTexture == nullptr
+        || screenTexture->Width() != outputTargetWidth
         || screenTexture->Height() != outputTargetHeight)
       {
         device->DiscardAndUpdateBuffer(samplePatternConstantBuffer.get(), &k_samplingPattern16X);
 
-        if (screenTexture == nullptr 
-          || screenTexture->Width() != outputTargetWidth 
+        if (screenTexture == nullptr
+          || screenTexture->Width() != outputTargetWidth
           || screenTexture->Height() != outputTargetHeight)
         {
           // Rebuild the texture at the correct resolution
@@ -219,6 +219,7 @@ namespace NTSCify::Internal::CRT
   protected:
     // These are float2 sampling patterns, but they need to be float4 aligned for the constant buffers, so there's 2 padding floats per
     //  coordinate.
+    // $TODO: Is that actually true in non-D3D graphics APIs? I guess I could make them float4s so that it IS true.
     // These are standard 8x and 16x sampling patterns (found in the D3D docs here:
     //  https://docs.microsoft.com/en-us/windows/win32/api/d3d11/ne-d3d11-d3d11_standard_multisample_quality_levels )
     static constexpr float k_samplingPattern8X[] =
@@ -367,9 +368,9 @@ namespace NTSCify::Internal::CRT
 
       float shadowMaskScaleX;       // Scale of the shadow mask texture lookup
       float shadowMaskScaleY;       // Scale of the shadow mask texture lookup
-      float shadowMaskStrength;     // 
+      float shadowMaskStrength;     //
       float roundedCornerSize;      // 0 == no corner, 1 == screen is an oval
-      float phosphorDecay;          // 
+      float phosphorDecay;          //
       float scanlineCount;          // How many scanlines there are
       float scanlineStrength;       // How strong the scanlines are (0 == none, 1 == whoa)
       float curEvenOddTexelOffset;  // This is 0.5 if it's an odd frame (or progressive) and -0.5 if it's even.
@@ -382,7 +383,7 @@ namespace NTSCify::Internal::CRT
       float blurDirX;
       float blurDirY;
     };
-  
+
     struct ToneMapConstants
     {
       float downsampleDirX;
@@ -390,7 +391,7 @@ namespace NTSCify::Internal::CRT
       float minLuminosity;
       float colorPower;
     };
-  
+
 
     IGraphicsDevice *device;
 
@@ -409,10 +410,10 @@ namespace NTSCify::Internal::CRT
     std::unique_ptr<IShader> toneMapShader;
     std::unique_ptr<IShader> gaussianBlurShader;
     std::unique_ptr<IShader> generateScreenTextureShader;
-  
+
     std::unique_ptr<ITexture> shadowMaskTexture;
     std::unique_ptr<ITexture> screenTexture;
-    
+
     std::unique_ptr<ITexture> toneMapTexture;
     std::unique_ptr<ITexture> blurScratchTexture;
     std::unique_ptr<ITexture> blurTexture;

@@ -24,7 +24,7 @@ namespace NTSCify::Internal::Generator
 
 
     [[nodiscard]] bool Apply(
-      IGraphicsDevice *device, 
+      IGraphicsDevice *device,
       const ITexture *inputSignal,
       ITexture *outputSignal,
       SignalLevels *levelsInOut,
@@ -36,7 +36,7 @@ namespace NTSCify::Internal::Generator
       }
 
       // First step: Convert the luma/chroma at signalUAVTwoComponentA into a composite texture at signalUAVOneComponentA
-      ConstantData cd = 
+      ConstantData cd =
       {
         options.ghostSpreadScale,
         options.ghostVisibility,

@@ -12,7 +12,7 @@ namespace NTSCify
   };
 
 
-  // This structure contains the settings used for the generation of the actual clean SVideo/composite signal, and represent the properties of the source of the 
+  // This structure contains the settings used for the generation of the actual clean SVideo/composite signal, and represent the properties of the source of the
   //  signal (i.e. the "machine" that is generating the signal)
   struct SourceSettings
   {
@@ -20,11 +20,11 @@ namespace NTSCify
 
     // The display aspect ratio of an input pixel when displayed.
     //  Use 1/1 for square input pixels, but for the NES/SNES it's 8/7
-    float inputPixelAspectRatio = 1.0f;     
+    float inputPixelAspectRatio = 1.0f;
 
     // This is the common denominator of all phase generation values (kept as a fraction to maintain numerical precision, because in
-    //  practice they're all rational values). So if the denominator is 3, a value of 1 would be 1/3rd of a color cycle, 2 would be 
-    //  2/3rds, etc. 
+    //  practice they're all rational values). So if the denominator is 3, a value of 1 would be 1/3rd of a color cycle, 2 would be
+    //  2/3rds, etc.
     //
     // Basically, all subsequent values are fractions with this as the denominator.
     uint32_t denominator = 1;
@@ -60,7 +60,7 @@ namespace NTSCify
       "NES/SNES",
       {
         8.0f/7.0f,  // NES pixels were 8:7
-        3,          // NES timings are all in multiples of 1/3rd 
+        3,          // NES timings are all in multiples of 1/3rd
         2,          // NES has 2/3rds of a color phase for every pixel (i.e. it has a 33% greater horizontal resolution than the color signal can represent)
         0,          // The starting phase of the NES doesn't really matter, so just pick 0
         1,          // Every line the phase of the color cycle offsets by 1/3rd of the color
@@ -73,7 +73,7 @@ namespace NTSCify
       "NES/SNES (Square Pixels)",
       {
         1.0f,       // NES pixels were 8:7
-        3,          // NES timings are all in multiples of 1/3rd 
+        3,          // NES timings are all in multiples of 1/3rd
         2,          // NES has 2/3rds of a color phase for every pixel (i.e. it has a 33% greater horizontal resolution than the color signal can represent)
         0,          // The starting phase of the NES doesn't really matter, so just pick 0
         1,          // Every line the phase of the color cycle offsets by 1/3rd of the color
@@ -86,7 +86,7 @@ namespace NTSCify
       "SNES 512 mode",
       {
         4.0f/7.0f,  // SNES 512 mode pixels were 4:7 (assuming non-interlaced)
-        3,          // SNES timings are all in multiples of 1/3rd 
+        3,          // SNES timings are all in multiples of 1/3rd
         1,          // SNES 512 has 1/3rds of a color phase for every pixel
         0,          // The starting phase of the SNES doesn't really matter, so just pick 0
         1,          // Every line the phase of the color cycle offsets by 1/3rd of the color

@@ -50,7 +50,7 @@ class D3D11GraphicsDevice : public ID3D11GraphicsDevice
 {
 public:
   D3D11GraphicsDevice(HWND hwnd);
-  
+
   D3D11GraphicsDevice(D3D11GraphicsDevice &) = delete;
   void operator=(const D3D11GraphicsDevice &) = delete;
 
@@ -147,7 +147,7 @@ private:
     std::initializer_list<ShaderResourceView> inputs,
     std::initializer_list<SamplerType> samplers,
     std::initializer_list<IConstantBuffer *> constantBuffers);
-    
+
   void RenderQuad(
     IShader *ps,
     uint32_t viewportWidth,
@@ -157,14 +157,14 @@ private:
     uint32_t srvCount,
     std::initializer_list<SamplerType> samplers,
     std::initializer_list<IConstantBuffer *> constantBuffers);
-    
+
   void CreateVertexShaderAndInputLayout(
-    int resourceID, 
+    int resourceID,
     D3D11_INPUT_ELEMENT_DESC *layoutElements,
     size_t layoutElementCount,
-    ComPtr<ID3D11VertexShader> *shaderOut, 
+    ComPtr<ID3D11VertexShader> *shaderOut,
     ComPtr<ID3D11InputLayout> *layoutOut);
-  
+
   void InitializeBuiltIns();
 
   ComPtr<ID3D11Device> device;
@@ -219,10 +219,10 @@ void D3D11GraphicsDevice::ClearBackbuffer()
 
 
 void D3D11GraphicsDevice::CreateVertexShaderAndInputLayout(
-  int resourceID, 
+  int resourceID,
   D3D11_INPUT_ELEMENT_DESC *layoutElements,
   size_t layoutElementCount,
-  ComPtr<ID3D11VertexShader> *shaderOut, 
+  ComPtr<ID3D11VertexShader> *shaderOut,
   ComPtr<ID3D11InputLayout> *layoutOut)
 {
   auto data = LoadResourceBytes(resourceID);
@@ -230,8 +230,8 @@ void D3D11GraphicsDevice::CreateVertexShaderAndInputLayout(
     device->CreateVertexShader(
       data.data(),
       DWORD(data.size()),
-      nullptr, 
-      shaderOut->AddressForReplace()), 
+      nullptr,
+      shaderOut->AddressForReplace()),
     "create vertex shader");
 
   CHECK_HRESULT(
@@ -244,7 +244,7 @@ void D3D11GraphicsDevice::CreateVertexShaderAndInputLayout(
     "create input layout");
 }
 
-  
+
 std::unique_ptr<IShader> D3D11GraphicsDevice::CreateShader(ShaderID id)
 {
   int resourceID = 0;
@@ -271,14 +271,14 @@ std::unique_ptr<IShader> D3D11GraphicsDevice::CreateShader(ShaderID id)
     device->CreatePixelShader(
       data.data(),
       DWORD(data.size()),
-      nullptr, 
-      shader.AddressForReplace()), 
+      nullptr,
+      shader.AddressForReplace()),
     "create pixel shader");
 
   return std::make_unique<PixelShader>(shader.Ptr());
 }
 
-  
+
 std::unique_ptr<ITexture> D3D11GraphicsDevice::CreateTexture(
   uint32_t width,
   uint32_t height,
@@ -395,7 +395,7 @@ std::vector<uint32_t> D3D11GraphicsDevice::GetTexturePixels(ITexture *texture)
   CHECK_HRESULT(device->CreateTexture2D(&desc, nullptr, staging.AddressForReplace()), "create copy texture");
 
   context->CopyResource(staging.Ptr(), tex->texture);
-  
+
   D3D11_MAPPED_SUBRESOURCE resource;
   CHECK_HRESULT(context->Map(staging.Ptr(), 0, D3D11_MAP_READ, 0, &resource), "mapping staging texture");
 
@@ -513,7 +513,7 @@ D3D11GraphicsDevice::D3D11GraphicsDevice(HWND hwnd)
 void D3D11GraphicsDevice::InitializeBuiltIns()
 {
 
-  // Create the basic vertex buffer (just a square made of 6 vertices because it wasn't even worth dealing with an index buffer for a single quad)
+  // Create the basic vertex buffer (just a square made of 6 vertices, it wasn't even worth dealing with an index buffer for a single quad)
   {
     Vertex data[]
     {
@@ -529,7 +529,7 @@ void D3D11GraphicsDevice::InitializeBuiltIns()
     vbDesc.ByteWidth = sizeof(data);
     vbDesc.Usage = D3D11_USAGE_DEFAULT;
     vbDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    
+
     D3D11_SUBRESOURCE_DATA initial;
     initial.pSysMem = data;
     initial.SysMemPitch = 0;
@@ -537,19 +537,19 @@ void D3D11GraphicsDevice::InitializeBuiltIns()
 
     CHECK_HRESULT(device->CreateBuffer(&vbDesc, &initial, vertexBuffer.AddressForReplace()), "create vertex buffer");
   }
-  
+
   // Load our basic vertex shader, which can be reused for multiple pixel shaders
   {
     D3D11_INPUT_ELEMENT_DESC elements[] =
-    { 
+    {
       {"POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA , 0},
     };
 
     CreateVertexShaderAndInputLayout(
-      IDR_BASIC_VERTEX_SHADER, 
+      IDR_BASIC_VERTEX_SHADER,
       elements,
       1,
-      &vertexShader, 
+      &vertexShader,
       &inputLayout);
   }
 
@@ -616,7 +616,7 @@ void D3D11GraphicsDevice::UpdateWindowSize()
   backbufferHeight = newHeight;
 
   swapChain->ResizeBuffers(
-    2, 
+    2,
     backbufferWidth,
     backbufferHeight,
     DXGI_FORMAT_R8G8B8A8_UNORM,
@@ -748,10 +748,10 @@ void D3D11GraphicsDevice::RenderQuad(
     {
       samps[i] = samplerStates[EnumValue(samplers.begin()[i])];
     }
-    
+
     context->PSSetSamplers(0, UINT(samplers.size()), samps);
   }
-    
+
   if (constantBuffers.size() > 0)
   {
     ID3D11Buffer *cbs[16];
@@ -759,7 +759,7 @@ void D3D11GraphicsDevice::RenderQuad(
     {
       cbs[i] = static_cast<ConstantBuffer *>(constantBuffers.begin()[i])->buffer;
     }
-    
+
     context->PSSetConstantBuffers(0, UINT(constantBuffers.size()), cbs);
   }
 
@@ -767,9 +767,9 @@ void D3D11GraphicsDevice::RenderQuad(
   {
     context->PSSetShaderResources(0, UINT(srvCount), srvs);
   }
-    
+
   context->Draw(6, 0);
-    
+
   if (srvCount)
   {
     ID3D11ShaderResourceView *nullSrvs[16] = {};

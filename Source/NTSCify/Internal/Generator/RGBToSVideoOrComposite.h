@@ -11,10 +11,10 @@
 
 namespace NTSCify::Internal::Generator
 {
-  // Take an RGB input texture (usually the output of the game or emulator) and convert it into either an SVideo (separate luma/chroma) or Composite
-  //  (a single combined channel) output. We will also, if temporalArtifactReduction is non-zero, generate a second signal into the output texture:
-  //  this represents the same /frame/ of data, but with a different starting phase, so that we can mix them together to reduce the flickering that
-  //  the output of NES-style timings will give you normally.
+  // Take an RGB input texture (usually the output of the game or emulator) and convert it into either an SVideo (separate luma/chroma) or
+  //  Composite (a single combined channel) output. We will also, if temporalArtifactReduction is non-zero, generate a second signal into
+  //  the output texture: this represents the same /frame/ of data, but with a different starting phase, so that we can mix them together
+  //  to reduce the flickering that the output of NES-style timings will give you normally.
   class RGBToSVideoOrComposite
   {
   public:
@@ -30,21 +30,21 @@ namespace NTSCify::Internal::Generator
 
 
     void Generate(
-      IGraphicsDevice *device, 
+      IGraphicsDevice *device,
       SignalType signalType,
-      const ITexture *rgbTexture, 
+      const ITexture *rgbTexture,
       ITexture *phaseTextureOut,
       ITexture *signalTextureOut,
       SignalLevels *levelsOut,
-      float initialFramePhase, 
+      float initialFramePhase,
       float prevFrameStartPhase,
-      float phaseIncrementPerScanline, 
+      float phaseIncrementPerScanline,
       const ArtifactSettings &artifactSettings)
     {
       // Update our scanline phases texture
       {
-        GeneratePhaseTextureConstantData cd = 
-        { 
+        GeneratePhaseTextureConstantData cd =
+        {
           initialFramePhase,
           prevFrameStartPhase,
           phaseIncrementPerScanline,
@@ -67,11 +67,11 @@ namespace NTSCify::Internal::Generator
 
       // Now run the actual shader
       {
-        RGBToSVideoConstantData cd = 
-        { 
-          k_signalSamplesPerColorCycle, 
-          rgbTextureWidth, 
-          signalTextureWidth,  
+        RGBToSVideoConstantData cd =
+        {
+          k_signalSamplesPerColorCycle,
+          rgbTextureWidth,
+          signalTextureWidth,
           scanlineCount,
           (signalType == SignalType::Composite) ? 1.0f : 0.0f,
           artifactSettings.instabilityScale,

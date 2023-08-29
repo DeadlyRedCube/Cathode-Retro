@@ -11,13 +11,13 @@
 
 namespace NTSCify::Internal::Decoder
 {
-  // This takes an SVideo signal and decodes it into a YIQ (NTSC's native color space) output (this is the process of "NTSC color demodulation").
+  // This performs NTSC color demodulation: it takes an SVideo signal and decodes it into a YIQ (NTSC's native color space) output
   class SVideoToYIQ
   {
   public:
     SVideoToYIQ(
-      IGraphicsDevice *device, 
-      uint32_t signalTextureWidthIn, 
+      IGraphicsDevice *device,
+      uint32_t signalTextureWidthIn,
       uint32_t scanlineCountIn)
     : scanlineCount(scanlineCountIn)
     , signalTextureWidth(signalTextureWidthIn)
@@ -28,15 +28,15 @@ namespace NTSCify::Internal::Decoder
 
 
     void Apply(
-      IGraphicsDevice *device, 
+      IGraphicsDevice *device,
       const SignalLevels &levels,
       const ITexture *signalInput,
       const ITexture *phasesInput,
       ITexture *yiqOutput,
       const TVKnobSettings &knobSettings)
     {
-      ConstantData data = 
-      { 
+      ConstantData data =
+      {
         k_signalSamplesPerColorCycle,
         knobSettings.tint,
         // Saturation needs brightness scaled into it as well or else the output is weird when the brightness is set below 1.0
@@ -65,18 +65,18 @@ namespace NTSCify::Internal::Decoder
       float saturation;                             // The saturation of the output (a user setting)
       float brightness;                             // The brightness adjustment for the output (a user setting)
 
-      float blackLevel;                             // The black "voltage" level of the input signal (this is supplied from the signal generator/reader)
-      float whiteLevel;                             // The white "voltage" level of the input signal (this is supplied from the signal generator/reader)
+      float blackLevel;                             // The black "voltage" level of the input signal (from the signal generator/reader)
+      float whiteLevel;                             // The white "voltage" level of the input signal (from the signal generator/reader)
 
-      float temporalArtifactReduction;              // If we have a doubled input (same picture, two phases) blend in the second one (1.0 being a perfect
-                                                    //  50/50 blend)
+      float temporalArtifactReduction;              // If we have a doubled input (same picture, two phases) blend in the second one (1.0
+                                                    //  being a perfect 50/50 blend)
     };
 
     uint32_t scanlineCount;
     uint32_t signalTextureWidth;
-  
+
     std::unique_ptr<IShader> sVideoToYIQShader;
-  
+
     std::unique_ptr<IConstantBuffer> constantBuffer;
   };
 }

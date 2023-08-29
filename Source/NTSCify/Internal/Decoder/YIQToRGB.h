@@ -13,8 +13,8 @@ namespace NTSCify::Internal::Decoder
   {
   public:
     YIQToRGB(
-      IGraphicsDevice *device, 
-      uint32_t signalTextureWidthIn, 
+      IGraphicsDevice *device,
+      uint32_t signalTextureWidthIn,
       uint32_t scanlineCountIn)
     : scanlineCount(scanlineCountIn)
     , signalTextureWidth(signalTextureWidthIn)
@@ -36,7 +36,7 @@ namespace NTSCify::Internal::Decoder
   private:
     uint32_t scanlineCount;
     uint32_t signalTextureWidth;
-  
+
     std::unique_ptr<IShader> yiqToRGBShader;
   };
 }

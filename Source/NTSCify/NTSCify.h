@@ -41,15 +41,15 @@ namespace NTSCify
       signalGenerator->SetArtifactSettings(artifactSettings);
 
       signalDecoder = std::make_unique<Decoder::SignalDecoder>(
-        device, 
+        device,
         signalGenerator->SignalProperties());
 
       signalDecoder->SetKnobSettings(knobSettings);
 
       rgbToCRT = std::make_unique<CRT::RGBToCRT>(
-        device, 
-        inputWidth, 
-        signalGenerator->SignalProperties().scanlineWidth, 
+        device,
+        inputWidth,
+        signalGenerator->SignalProperties().scanlineWidth,
         inputHeight,
         signalGenerator->SignalProperties().inputPixelAspectRatio);
 
@@ -99,22 +99,22 @@ namespace NTSCify
       if (signalGenerator->SignalProperties() != oldSignalProps)
       {
         signalDecoder = std::make_unique<Decoder::SignalDecoder>(
-          device, 
+          device,
           signalGenerator->SignalProperties());
       }
-      
+
       signalDecoder->SetKnobSettings(knobSettings);
 
-      if (rebuildCRT 
+      if (rebuildCRT
         || signalGenerator->SignalProperties().scanlineWidth != oldSignalProps.scanlineWidth
         || signalGenerator->SignalProperties().inputPixelAspectRatio != oldSignalProps.inputPixelAspectRatio)
       {
         rgbToCRT = std::make_unique<CRT::RGBToCRT>(
-          device, 
-          inputWidth, 
-          signalGenerator->SignalProperties().scanlineWidth, 
+          device,
+          inputWidth,
+          signalGenerator->SignalProperties().scanlineWidth,
           inputHeight,
-          signalGenerator->SignalProperties().inputPixelAspectRatio);      
+          signalGenerator->SignalProperties().inputPixelAspectRatio);
       }
 
       rgbToCRT->SetOverscanSettings(overscanSettings);
@@ -123,9 +123,9 @@ namespace NTSCify
 
 
     void Render(
-      const ITexture *currentFrameInputRGB, 
-      const ITexture *previousFrameInputRGB, 
-      ScanlineType scanlineType, 
+      const ITexture *currentFrameInputRGB,
+      const ITexture *previousFrameInputRGB,
+      ScanlineType scanlineType,
       ITexture *output)
     {
       if (signalType != SignalType::RGB)

@@ -32,7 +32,7 @@ static std::thread s_renderThread;
 static std::atomic<bool> s_stopRenderThread = false;
 static std::mutex s_renderThreadMutex;
 
-struct LoadedTexture 
+struct LoadedTexture
 {
   uint32_t width = 0;
   uint32_t height = 0;
@@ -58,7 +58,7 @@ enum class Rebuild
 
 
 void RebuildGeneratorsIfNecessary(Rebuild rebuild)
-{ 
+{
   using namespace NTSCify::Internal;
 
   if (loadedTexture == nullptr)
@@ -117,7 +117,7 @@ void LoadTexture(const wchar_t *path, Rebuild rebuild = Rebuild::Always)
 
   if (interlaced)
   {
-    // Grab the odd 
+    // Grab the odd
     std::vector<uint32_t> oddScanlines(width * height/2);
     std::vector<uint32_t> evenScanlines(width * height/2);
     for (uint32_t y = 0; y < height/2; y++)
@@ -127,32 +127,32 @@ void LoadTexture(const wchar_t *path, Rebuild rebuild = Rebuild::Always)
     }
 
     load->oddTexture = s_graphicsDevice->CreateTexture(
-      width, 
-      height/2, 
-      1, 
-      NTSCify::TextureFormat::RGBA_Unorm8, 
-      NTSCify::TextureFlags::None, 
-      oddScanlines.data(), 
+      width,
+      height/2,
+      1,
+      NTSCify::TextureFormat::RGBA_Unorm8,
+      NTSCify::TextureFlags::None,
+      oddScanlines.data(),
       width * sizeof(uint32_t));
 
     load->evenTexture = s_graphicsDevice->CreateTexture(
-      width, 
-      height/2, 
-      1, 
-      NTSCify::TextureFormat::RGBA_Unorm8, 
-      NTSCify::TextureFlags::None, 
-      evenScanlines.data(), 
+      width,
+      height/2,
+      1,
+      NTSCify::TextureFormat::RGBA_Unorm8,
+      NTSCify::TextureFlags::None,
+      evenScanlines.data(),
       width * sizeof(uint32_t));
   }
   else
   {
     load->oddTexture = s_graphicsDevice->CreateTexture(
-      width, 
-      height, 
-      1, 
-      NTSCify::TextureFormat::RGBA_Unorm8, 
-      NTSCify::TextureFlags::None, 
-      load->data.data(), 
+      width,
+      height,
+      1,
+      NTSCify::TextureFormat::RGBA_Unorm8,
+      NTSCify::TextureFlags::None,
+      load->data.data(),
       width * sizeof(uint32_t));
     load->evenTexture = nullptr;
   }
@@ -211,10 +211,10 @@ void ToggleFullscreen()
     SetWindowLongPtr(s_hwnd, GWL_STYLE, GetWindowLongPtr(s_hwnd, GWL_STYLE) & ~WS_POPUP| WS_OVERLAPPEDWINDOW);
     SetMenu(s_hwnd, s_menu);
     SetWindowPos(
-      s_hwnd, 
-      nullptr, 
-      s_oldWindowedRect.left, 
-      s_oldWindowedRect.top, 
+      s_hwnd,
+      nullptr,
+      s_oldWindowedRect.left,
+      s_oldWindowedRect.top,
       s_oldWindowedRect.right - s_oldWindowedRect.left,
       s_oldWindowedRect.bottom - s_oldWindowedRect.top,
       SWP_NOZORDER);
@@ -252,9 +252,16 @@ LRESULT FAR PASCAL WindowProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
     case ID_OPTIONS_FULLSCREEN:
       ToggleFullscreen();
       break;
-    
+
     case ID_OPTIONS_SETTINGS:
-      RunSettingsDialog(hWnd, &s_signalType, &s_sourceSettings, &s_artifactSettings, &s_knobSettings, &s_overscanSettings, &s_screenSettings);
+      RunSettingsDialog(
+        hWnd,
+        &s_signalType,
+        &s_sourceSettings,
+        &s_artifactSettings,
+        &s_knobSettings,
+        &s_overscanSettings,
+        &s_screenSettings);
       break;
     }
     break;
@@ -267,9 +274,16 @@ LRESULT FAR PASCAL WindowProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
       break;
 
     case 'S':
-      RunSettingsDialog(hWnd, &s_signalType, &s_sourceSettings, &s_artifactSettings, &s_knobSettings, &s_overscanSettings, &s_screenSettings);
+      RunSettingsDialog(
+        hWnd,
+        &s_signalType,
+        &s_sourceSettings,
+        &s_artifactSettings,
+        &s_knobSettings,
+        &s_overscanSettings,
+        &s_screenSettings);
       break;
-      
+
      case VK_ESCAPE:
       ToggleFullscreen();
       break;
@@ -300,7 +314,7 @@ static void DoInit( HINSTANCE hInstance )
   wc.lpszMenuName = nullptr;
   wc.lpszClassName = L"NTSCify";
   RegisterClass( &wc );
-  
+
   RECT screenRect;
   screenRect.left = 0;
   screenRect.right = 256*3;
@@ -311,17 +325,17 @@ static void DoInit( HINSTANCE hInstance )
   s_instance = hInstance;
 
   hwnd = CreateWindowEx(
-    0, 
-    L"NTSCify", 
-    L"NTSCify", 
-    WS_OVERLAPPEDWINDOW, 
-    0, 
-    0, 
-    screenRect.right - screenRect.left, 
-    screenRect.bottom - screenRect.top, 
-    nullptr, 
-    nullptr, 
-    hInstance, 
+    0,
+    L"NTSCify",
+    L"NTSCify",
+    WS_OVERLAPPEDWINDOW,
+    0,
+    0,
+    screenRect.right - screenRect.left,
+    screenRect.bottom - screenRect.top,
+    nullptr,
+    nullptr,
+    hInstance,
     nullptr);
   s_hwnd = hwnd;
 
@@ -339,13 +353,13 @@ void RenderLoadedTexture(NTSCify::ITexture *output, Rebuild rebuild = Rebuild::A
   }
 
   static auto scanlineType = ScanlineType::Odd;
-  
+
   if (loadedTexture->evenTexture == nullptr)
   {
     scanlineType = ScanlineType::Progressive;
   }
   else if (scanlineType == ScanlineType::Odd)
-  { 
+  {
     scanlineType = ScanlineType::Even;
   }
   else
@@ -353,11 +367,11 @@ void RenderLoadedTexture(NTSCify::ITexture *output, Rebuild rebuild = Rebuild::A
     scanlineType = ScanlineType::Odd;
   }
 
-  const ITexture *input = (scanlineType == ScanlineType::Even && loadedTexture->evenTexture != nullptr) 
-    ? loadedTexture->evenTexture.get() 
+  const ITexture *input = (scanlineType == ScanlineType::Even && loadedTexture->evenTexture != nullptr)
+    ? loadedTexture->evenTexture.get()
     : loadedTexture->oddTexture.get();
-  const ITexture *input2 = (scanlineType == ScanlineType::Odd && loadedTexture->evenTexture != nullptr) 
-    ? loadedTexture->evenTexture.get() 
+  const ITexture *input2 = (scanlineType == ScanlineType::Odd && loadedTexture->evenTexture != nullptr)
+    ? loadedTexture->evenTexture.get()
     : loadedTexture->oddTexture.get();
 
   loadedTexture->ntscify->UpdateSettings(
@@ -396,9 +410,8 @@ void RenderThreadProc()
 }
 
 
-
-// Do some absolutely not-at-all legit threading to put the drawing in the background so the settings dialog can change things on the fly. Please don't actually write
-//  multithreaded code with as few guards on data transfer as I have here.
+// Do some absolutely not-at-all legit threading to put the drawing in the background so the settings dialog can change things on the fly.
+//  Please don't actually write multithreaded code with as few guards on data transfer as I have here.
 void StopRenderThread()
 {
   if (s_renderThread.joinable())
@@ -417,7 +430,6 @@ void StartRenderThread()
 
   s_renderThread = std::thread(RenderThreadProc);
 }
-
 
 
 int CALLBACK WinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int)

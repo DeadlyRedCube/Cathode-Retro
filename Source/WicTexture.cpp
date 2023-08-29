@@ -32,15 +32,20 @@ void SaveWicTexture(const wchar_t *inputPath, uint32_t width, uint32_t height, c
   std::vector<uint32_t> swizzledColors(colors.size());
   for (uint32_t i = 0; i < colors.size(); i++)
   {
-    swizzledColors[i] = 
+    swizzledColors[i] =
       (colors[i] & 0xFF00FF00)
       | ((colors[i] & 0x000000FF) << 16)
       |((colors[i] & 0x00FF0000) >> 16);
   }
-  
+
   ComPtr<IWICImagingFactory> imagingFactory;
   CHECK_HRESULT(
-    CoCreateInstance(CLSID_WICImagingFactory, nullptr, CLSCTX_INPROC_SERVER, IID_IWICImagingFactory, (void**)imagingFactory.AddressForReplace()),
+    CoCreateInstance(
+      CLSID_WICImagingFactory,
+      nullptr,
+      CLSCTX_INPROC_SERVER,
+      IID_IWICImagingFactory,
+      (void**)imagingFactory.AddressForReplace()),
     "creating imaging factory");
 
   ComPtr<IWICStream> stream;
@@ -59,7 +64,7 @@ void SaveWicTexture(const wchar_t *inputPath, uint32_t width, uint32_t height, c
     "creating encoder");
 
   CHECK_HRESULT(
-    encoder->Initialize(stream,  WICBitmapEncoderNoCache), 
+    encoder->Initialize(stream,  WICBitmapEncoderNoCache),
     "initializing encoder");
 
   ComPtr<IWICBitmapFrameEncode> frameEncode;
@@ -87,9 +92,9 @@ void SaveWicTexture(const wchar_t *inputPath, uint32_t width, uint32_t height, c
 
   CHECK_HRESULT(
     frameEncode->WritePixels(
-      height, 
-      width * sizeof(uint32_t), 
-      width * height * sizeof(uint32_t), 
+      height,
+      width * sizeof(uint32_t),
+      width * height * sizeof(uint32_t),
       const_cast<uint8_t *>(reinterpret_cast<const uint8_t*>(swizzledColors.data()))),
     "writing pixels");
 
@@ -113,7 +118,12 @@ std::vector<uint32_t> ReadWicTexture(const wchar_t *inputPath, uint32_t *width, 
 {
   ComPtr<IWICImagingFactory> imagingFactory;
   CHECK_HRESULT(
-    CoCreateInstance(CLSID_WICImagingFactory, nullptr, CLSCTX_INPROC_SERVER, IID_IWICImagingFactory, (void**)imagingFactory.AddressForReplace()),
+    CoCreateInstance(
+      CLSID_WICImagingFactory,
+      nullptr,
+      CLSCTX_INPROC_SERVER,
+      IID_IWICImagingFactory,
+      (void**)imagingFactory.AddressForReplace()),
     "Creating imaging factory");
 
   ComPtr<IWICBitmapDecoder> decoder;
@@ -123,7 +133,12 @@ std::vector<uint32_t> ReadWicTexture(const wchar_t *inputPath, uint32_t *width, 
   // Create a decoder for the given file
 
   CHECK_HRESULT(
-    imagingFactory->CreateDecoderFromFilename(inputPath, nullptr, GENERIC_READ, WICDecodeMetadataCacheOnDemand, decoder.AddressForReplace()),
+    imagingFactory->CreateDecoderFromFilename(
+      inputPath,
+      nullptr,
+      GENERIC_READ,
+      WICDecodeMetadataCacheOnDemand,
+      decoder.AddressForReplace()),
     "Creating image decoder");
 
   CHECK_HRESULT(decoder->GetFrame(0, frameDecode.AddressForReplace()), "Getting decoder frame");

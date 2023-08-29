@@ -20,16 +20,16 @@ public:
     m_pointer = var.m_pointer;
     var.m_pointer = nullptr;
   }
-   
+
   ComPtr(T *pT)
-  { 
+  {
     m_pointer = nullptr;
     *this = pT;
   }
-   
-  ~ComPtr()  
-  { 
-    if(m_pointer != nullptr) 
+
+  ~ComPtr()
+  {
+    if(m_pointer != nullptr)
     {
       m_pointer->Release();
     }
@@ -39,11 +39,11 @@ public:
   {
     // Add a reference to the other pointer then remove ours (just in case they're the same pointer)
 
-    if(var.m_pointer != nullptr) 
+    if(var.m_pointer != nullptr)
     {
       var.m_pointer->AddRef();
     }
-    if(m_pointer != nullptr) 
+    if(m_pointer != nullptr)
     {
       m_pointer->Release();
     }
@@ -64,15 +64,15 @@ public:
     var.m_pointer = nullptr;
     return *this;
   }
-   
+
   inline ComPtr<T> &operator = (T *var)
   {
     // Much the same as assignment from another ComPtr
-    if(var != nullptr) 
+    if(var != nullptr)
     {
       var->AddRef();
     }
-    if(m_pointer != nullptr) 
+    if(m_pointer != nullptr)
     {
       m_pointer->Release();
     }
@@ -81,37 +81,37 @@ public:
   }
 
   // Conversion to the type in question (so that this pointer acts just like a normal pointer)
-  inline operator T *() const 
+  inline operator T *() const
     { return m_pointer; }
 
-  inline T *operator -> () const 
-  { 
-    return m_pointer; 
+  inline T *operator -> () const
+  {
+    return m_pointer;
   }
 
   // Make sure we can compare correctly between SPs
-  inline bool operator == (const ComPtr<T> &rhs) const 
+  inline bool operator == (const ComPtr<T> &rhs) const
     { return (m_pointer == rhs.m_pointer); }
-  
-  inline bool operator == (ComPtr<T> &rhs) const 
+
+  inline bool operator == (ComPtr<T> &rhs) const
     { return (m_pointer == rhs.m_pointer); }
-  
+
   inline bool operator == (ComPtr<T> &rhs)
     { return (m_pointer == rhs.m_pointer); }
-  
+
   inline bool operator == (const ComPtr<T> &rhs)
     { return (m_pointer == rhs.m_pointer); }
-  
+
   inline bool operator == (const T *rhs) const
     { return (m_pointer == rhs); }
 
   inline bool operator == (T *rhs)
     { return (m_pointer == rhs); }
 
-  inline bool operator != (const ComPtr<T> &rhs) const 
+  inline bool operator != (const ComPtr<T> &rhs) const
     { return (m_pointer != rhs.m_pointer); }
 
-  inline bool operator != (ComPtr<T> &rhs) const 
+  inline bool operator != (ComPtr<T> &rhs) const
     { return (m_pointer != rhs.m_pointer); }
 
   inline bool operator != (const ComPtr<T> &rhs)
@@ -131,7 +131,7 @@ public:
 
   inline T *Ptr() const
     { return m_pointer; }
-  
+
   // This is for when you need to pass it into a T** parameter to a function.
   // For instance:
   //   Foo(a, b, thisPointer.Address());
@@ -147,10 +147,10 @@ public:
     m_pointer = 0;
     return &m_pointer;
   }
-  
+
   inline T * const * ConstAddress() const
   {
-    return &m_pointer; 
+    return &m_pointer;
   }
 
 private:
