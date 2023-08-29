@@ -7,7 +7,7 @@
 #include "NTSCify/Generator/ApplyArtifacts.h"
 #include "NTSCify/Generator/RGBToSVideoOrComposite.h"
 
-namespace NTSCify
+namespace NTSCify::Generator
 {
   class SignalGenerator
   {
@@ -28,8 +28,8 @@ namespace NTSCify
       signalProps.colorCyclesPerInputPixel = float(inputSettings.colorCyclesPerInputPixel) / float(inputSettings.denominator);
       signalProps.inputPixelAspectRatio = inputSettings.inputPixelAspectRatio;
       
-      rgbToSVideoOrComposite = std::make_unique<GeneratorComponents::RGBToSVideoOrComposite>(device, inputWidth, signalProps.scanlineWidth, signalProps.scanlineCount);
-      applyArtifacts = std::make_unique<GeneratorComponents::ApplyArtifacts>(device, signalProps.scanlineWidth, signalProps.scanlineCount);
+      rgbToSVideoOrComposite = std::make_unique<RGBToSVideoOrComposite>(device, inputWidth, signalProps.scanlineWidth, signalProps.scanlineCount);
+      applyArtifacts = std::make_unique<ApplyArtifacts>(device, signalProps.scanlineWidth, signalProps.scanlineCount);
 
       phasesTextureSingle = device->CreateTexture(signalProps.scanlineCount, 1, 1, TextureFormat::R_Float32, TextureFlags::RenderTarget);
       phasesTextureDoubled = device->CreateTexture(signalProps.scanlineCount, 1, 1, TextureFormat::RG_Float32, TextureFlags::RenderTarget);
@@ -126,8 +126,8 @@ namespace NTSCify
   private:
     IGraphicsDevice *device;
 
-    std::unique_ptr<GeneratorComponents::RGBToSVideoOrComposite> rgbToSVideoOrComposite;
-    std::unique_ptr<GeneratorComponents::ApplyArtifacts> applyArtifacts;
+    std::unique_ptr<RGBToSVideoOrComposite> rgbToSVideoOrComposite;
+    std::unique_ptr<ApplyArtifacts> applyArtifacts;
     std::unique_ptr<ITexture> phasesTextureSingle;
     std::unique_ptr<ITexture> phasesTextureDoubled;
     

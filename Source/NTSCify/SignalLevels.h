@@ -11,6 +11,5 @@ namespace NTSCify
     float whiteLevel;
     float blackLevel;
     float saturationScale;
-    
   };
 }

@@ -7,7 +7,7 @@
 #include "NTSCify/Decoder/YIQToRGB.h"
 
 
-namespace NTSCify
+namespace NTSCify::Decoder
 {
   class SignalDecoder
   {
@@ -18,14 +18,14 @@ namespace NTSCify
     {
       if (signalProps.type == SignalType::Composite)
       {
-        compositeToSVideo = std::make_unique<DecodeComponents::CompositeToSVideo>(device, signalProps.scanlineWidth, signalProps.scanlineCount);
+        compositeToSVideo = std::make_unique<CompositeToSVideo>(device, signalProps.scanlineWidth, signalProps.scanlineCount);
         decodedSVideoTextureSingle = device->CreateTexture(signalProps.scanlineWidth, signalProps.scanlineCount, 1, TextureFormat::RG_Float32, TextureFlags::RenderTarget);
         decodedSVideoTextureDouble = device->CreateTexture(signalProps.scanlineWidth, signalProps.scanlineCount, 1, TextureFormat::RGBA_Float32, TextureFlags::RenderTarget);
       }
 
-      sVideoToYIQ = std::make_unique<DecodeComponents::SVideoToYIQ>(device, signalProps.scanlineWidth, signalProps.scanlineCount);
-      yiqToRGB = std::make_unique<DecodeComponents::YIQToRGB>(device, signalProps.scanlineWidth, signalProps.scanlineCount);
-      filterRGB = std::make_unique<DecodeComponents::FilterRGB>(device, signalProps.colorCyclesPerInputPixel, signalProps.scanlineWidth, signalProps.scanlineCount);
+      sVideoToYIQ = std::make_unique<SVideoToYIQ>(device, signalProps.scanlineWidth, signalProps.scanlineCount);
+      yiqToRGB = std::make_unique<YIQToRGB>(device, signalProps.scanlineWidth, signalProps.scanlineCount);
+      filterRGB = std::make_unique<FilterRGB>(device, signalProps.colorCyclesPerInputPixel, signalProps.scanlineWidth, signalProps.scanlineCount);
 
       yiqTexture = device->CreateTexture(signalProps.scanlineWidth, signalProps.scanlineCount, 1, TextureFormat::RGBA_Float32, TextureFlags::RenderTarget);
       rgbTexture = device->CreateTexture(signalProps.scanlineWidth, signalProps.scanlineCount, 1, TextureFormat::RGBA_Unorm8, TextureFlags::RenderTarget);
@@ -75,10 +75,10 @@ namespace NTSCify
     std::unique_ptr<ITexture> prevFrameRGBTexture;
     std::unique_ptr<ITexture> scratchRGBTexture;
 
-    std::unique_ptr<DecodeComponents::CompositeToSVideo> compositeToSVideo;
-    std::unique_ptr<DecodeComponents::SVideoToYIQ> sVideoToYIQ;
-    std::unique_ptr<DecodeComponents::YIQToRGB> yiqToRGB;
-    std::unique_ptr<DecodeComponents::FilterRGB> filterRGB;
+    std::unique_ptr<CompositeToSVideo> compositeToSVideo;
+    std::unique_ptr<SVideoToYIQ> sVideoToYIQ;
+    std::unique_ptr<YIQToRGB> yiqToRGB;
+    std::unique_ptr<FilterRGB> filterRGB;
 
     SignalProperties signalProps;
     TVKnobSettings knobSettings;

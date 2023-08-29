@@ -539,7 +539,7 @@
     <ClInclude Include="Source\NTSCify\Generator\ApplyArtifacts.h" />
     <ClInclude Include="Source\NTSCify\Generator\RGBToSVideoOrComposite.h" />
     <ClInclude Include="Source\NTSCify\OverscanSettings.h" />
-    <ClInclude Include="Source\NTSCify\RGBToCRT.h" />
+    <ClInclude Include="Source\NTSCify\CRT\RGBToCRT.h" />
     <ClInclude Include="Source\NTSCify\ScreenSettings.h" />
     <ClInclude Include="Source\NTSCify\Decoder\SignalDecoder.h" />
     <ClInclude Include="Source\NTSCify\Generator\SignalGenerator.h" />

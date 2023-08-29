@@ -7,7 +7,7 @@
 #include <mutex>
 #include <thread>
 
-#include "NTSCify/RGBToCRT.h"
+#include "NTSCify/CRT/RGBToCRT.h"
 #include "NTSCify/Generator/SignalGenerator.h"
 #include "NTSCify/Decoder/SignalDecoder.h"
 #include "D3D11GraphicsDevice.h"
@@ -42,8 +42,8 @@ struct LoadedTexture
   std::unique_ptr<ITexture> oddTexture;
   std::unique_ptr<ITexture> evenTexture;
 
-  std::unique_ptr<NTSCify::SignalGenerator> signalGenerator;
-  std::unique_ptr<NTSCify::SignalDecoder> signalDecoder;
+  std::unique_ptr<NTSCify::Generator::SignalGenerator> signalGenerator;
+  std::unique_ptr<NTSCify::Decoder::SignalDecoder> signalDecoder;
   std::unique_ptr<NTSCify::RGBToCRT> rgbToCRT;
 
   NTSCify::SignalType cachedSignalType {};
@@ -79,13 +79,13 @@ void RebuildGeneratorsIfNecessary(Rebuild rebuild)
     || signalType != loadedTexture->cachedSignalType
     || memcmp(&sourceSettings, &loadedTexture->cachedSourceSettings, sizeof(sourceSettings)) != 0)
   {
-    loadedTexture->signalGenerator = std::make_unique<NTSCify::SignalGenerator>(
+    loadedTexture->signalGenerator = std::make_unique<NTSCify::Generator::SignalGenerator>(
       s_graphicsDevice.get(), 
       s_signalType,
       loadedTexture->oddTexture->Width(),
       loadedTexture->oddTexture->Height(),
       s_sourceSettings);
-    loadedTexture->signalDecoder = std::make_unique<NTSCify::SignalDecoder>(
+    loadedTexture->signalDecoder = std::make_unique<NTSCify::Decoder::SignalDecoder>(
       s_graphicsDevice.get(), 
       loadedTexture->signalGenerator->SignalProperties());
     loadedTexture->rgbToCRT = std::make_unique<NTSCify::RGBToCRT>(

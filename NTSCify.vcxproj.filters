@@ -178,7 +178,7 @@
     <ClInclude Include="Source\NTSCify\Decoder\FilterRGB.h">
       <Filter>Headers\NTSCify\DecoderComponents</Filter>
     </ClInclude>
-    <ClInclude Include="Source\NTSCify\RGBToCRT.h">
+    <ClInclude Include="Source\NTSCify\CRT\RGBToCRT.h">
       <Filter>Headers\NTSCify</Filter>
     </ClInclude>
     <ClInclude Include="Source\NTSCify\Generator\RGBToSVideoOrComposite.h">

@@ -10,7 +10,7 @@
 #include "Util.h"
 
 
-namespace NTSCify::DecodeComponents
+namespace NTSCify::Decoder
 {
   // This takes an SVideo signal and decodes it into a YIQ (NTSC's native color space) output (this is the process of "NTSC color demodulation").
   class SVideoToYIQ

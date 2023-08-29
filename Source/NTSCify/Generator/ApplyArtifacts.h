@@ -10,7 +10,7 @@
 #include "resource.h"
 #include "Util.h"
 
-namespace NTSCify::GeneratorComponents
+namespace NTSCify::Generator
 {
   // Apply any ghosting or noise that we want to the input (which might be an SVideo texture or it might be Composite)
   class ApplyArtifacts
