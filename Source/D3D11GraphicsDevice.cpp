@@ -32,11 +32,16 @@
 
 #define DEBUG_DEVICE 1
 
+using namespace NTSCify;
+
+// TODO: We shouldn't have this here, but there's stuff that's in Internal/Util that should be elsewhere.
+using namespace NTSCify::Internal;
+
 struct Vertex
 {
   float x, y;
 };
-    
+
 
     // A rather minimal wrapper around a D3D device and related functionality
 class D3D11GraphicsDevice : public ID3D11GraphicsDevice

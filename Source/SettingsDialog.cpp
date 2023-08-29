@@ -11,6 +11,9 @@
 #pragma comment(linker,"\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #pragma comment(lib, "comctl32.lib")
 
+// $TODO: This shouldn't be here, but Util needs to be rearranged.
+using namespace NTSCify::Internal;
+
 // This file is a whole bunch of garbage code to run the dialog. I'm not proud of it, but it took like 3 hours to make and it works enough.
 
 template <typename Type>

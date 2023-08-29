@@ -39,8 +39,8 @@ struct LoadedTexture
   uint32_t height = 0;
   std::vector<uint32_t> data;
 
-  std::unique_ptr<ITexture> oddTexture;
-  std::unique_ptr<ITexture> evenTexture;
+  std::unique_ptr<NTSCify::ITexture> oddTexture;
+  std::unique_ptr<NTSCify::ITexture> evenTexture;
 
   std::unique_ptr<NTSCify::Internal::Generator::SignalGenerator> signalGenerator;
   std::unique_ptr<NTSCify::Internal::Decoder::SignalDecoder> signalDecoder;
@@ -134,12 +134,34 @@ void LoadTexture(const wchar_t *path, Rebuild rebuild = Rebuild::Always)
       memcpy(evenScanlines.data() + width * y, load->data.data() + width * (y * 2 + 1), width * sizeof(uint32_t));
     }
 
-    load->oddTexture = s_graphicsDevice->CreateTexture(width, height/2, 1, TextureFormat::RGBA_Unorm8, TextureFlags::None, oddScanlines.data(), width * sizeof(uint32_t));
-    load->evenTexture = s_graphicsDevice->CreateTexture(width, height/2, 1, TextureFormat::RGBA_Unorm8, TextureFlags::None, evenScanlines.data(), width * sizeof(uint32_t));
+    load->oddTexture = s_graphicsDevice->CreateTexture(
+      width, 
+      height/2, 
+      1, 
+      NTSCify::TextureFormat::RGBA_Unorm8, 
+      NTSCify::TextureFlags::None, 
+      oddScanlines.data(), 
+      width * sizeof(uint32_t));
+
+    load->evenTexture = s_graphicsDevice->CreateTexture(
+      width, 
+      height/2, 
+      1, 
+      NTSCify::TextureFormat::RGBA_Unorm8, 
+      NTSCify::TextureFlags::None, 
+      evenScanlines.data(), 
+      width * sizeof(uint32_t));
   }
   else
   {
-    load->oddTexture = s_graphicsDevice->CreateTexture(width, height, 1, TextureFormat::RGBA_Unorm8, TextureFlags::None, load->data.data(), width * sizeof(uint32_t));
+    load->oddTexture = s_graphicsDevice->CreateTexture(
+      width, 
+      height, 
+      1, 
+      NTSCify::TextureFormat::RGBA_Unorm8, 
+      NTSCify::TextureFlags::None, 
+      load->data.data(), 
+      width * sizeof(uint32_t));
     load->evenTexture = nullptr;
   }
 
@@ -158,13 +180,13 @@ static void OpenFile()
 {
   wchar_t filename[1024] = {0};
   OPENFILENAME ofn;
-  ZeroType(&ofn);
+  NTSCify::Internal::ZeroType(&ofn);
   ofn.lStructSize = sizeof(OPENFILENAME);
   ofn.hInstance = static_cast<HINSTANCE>(GetModuleHandle(nullptr));
   ofn.hwndOwner = s_hwnd;
   ofn.lpstrFilter = L"Images (*.jpg;*.jpeg;*.png;*.bmp)\0*.jpg;*.jpeg;*.png;*.bmp\0\0";
   ofn.lpstrFile = filename;
-  ofn.nMaxFile = DWORD(k_arrayLength<decltype(filename)>);
+  ofn.nMaxFile = DWORD(NTSCify::Internal::k_arrayLength<decltype(filename)>);
   ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
 
   if (GetOpenFileName(&ofn))
@@ -185,7 +207,7 @@ void ToggleFullscreen()
 
     HMONITOR primaryMon = MonitorFromPoint({s_oldWindowedRect.left, s_oldWindowedRect.top}, MONITOR_DEFAULTTOPRIMARY);
     MONITORINFO info;
-    ZeroType(&info);
+    NTSCify::Internal::ZeroType(&info);
     info.cbSize = sizeof(MONITORINFO);
     GetMonitorInfo(primaryMon, &info);
 
@@ -316,7 +338,7 @@ static void DoInit( HINSTANCE hInstance )
 }
 
 
-void RenderLoadedTexture(ITexture *output, Rebuild rebuild = Rebuild::AsNeeded)
+void RenderLoadedTexture(NTSCify::ITexture *output, Rebuild rebuild = Rebuild::AsNeeded)
 {
   using namespace NTSCify::Internal;
 
@@ -341,10 +363,10 @@ void RenderLoadedTexture(ITexture *output, Rebuild rebuild = Rebuild::AsNeeded)
     scanlineType = CRT::ScanlineType::Odd;
   }
 
-  const ITexture *input = (scanlineType == CRT::ScanlineType::Even && loadedTexture->evenTexture != nullptr) 
+  const NTSCify::ITexture *input = (scanlineType == CRT::ScanlineType::Even && loadedTexture->evenTexture != nullptr) 
     ? loadedTexture->evenTexture.get() 
     : loadedTexture->oddTexture.get();
-  const ITexture *input2 = (scanlineType == CRT::ScanlineType::Odd && loadedTexture->evenTexture != nullptr) 
+  const NTSCify::ITexture *input2 = (scanlineType == CRT::ScanlineType::Odd && loadedTexture->evenTexture != nullptr) 
     ? loadedTexture->evenTexture.get() 
     : loadedTexture->oddTexture.get();
   if (s_signalType != NTSCify::SignalType::RGB)

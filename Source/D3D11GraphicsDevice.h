@@ -8,7 +8,7 @@
 #include "NTSCify/GraphicsDevice.h"
 
 
-class ID3D11GraphicsDevice : public IGraphicsDevice
+class ID3D11GraphicsDevice : public NTSCify::IGraphicsDevice
 {
 public:
   virtual ~ID3D11GraphicsDevice() = default;
