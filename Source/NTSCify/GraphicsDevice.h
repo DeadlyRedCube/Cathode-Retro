@@ -127,15 +127,13 @@ namespace NTSCify
       uint32_t initialDataPitch = 0) = 0;
 
     virtual std::unique_ptr<IConstantBuffer> CreateConstantBuffer(size_t size) = 0;
-
     virtual std::unique_ptr<IShader> CreateShader(ShaderID id) = 0;
+    virtual void UpdateConstantBuffer(IConstantBuffer *buffer, const void *data, size_t dataSize) = 0;
 
-    virtual void DiscardAndUpdateBuffer(IConstantBuffer *buffer, const void *data, size_t dataSize) = 0;
-
-    template <typename T>
-    void DiscardAndUpdateBuffer(IConstantBuffer *buffer, const T *data)
+    template <typename T> requires (!std::is_pointer_v<T>)
+    void UpdateConstantBuffer(IConstantBuffer *buffer, const T &data)
     {
-      DiscardAndUpdateBuffer(buffer, data, sizeof(T));
+      UpdateConstantBuffer(buffer, &data, sizeof(T));
     }
 
     virtual void RenderQuad(

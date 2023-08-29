@@ -23,8 +23,9 @@ namespace NTSCify::Internal::Decoder
 
     void Apply(IGraphicsDevice *device, const ITexture *compositeIn, ITexture *sVideoOut)
     {
-      ConstantData cd = { k_signalSamplesPerColorCycle, 1.0f / float(signalTextureWidth), 1.0f / float(scanlineCount) };
-      device->DiscardAndUpdateBuffer(constantBuffer.get(), &cd);
+      device->UpdateConstantBuffer(
+        constantBuffer.get(),
+        ConstantData{ k_signalSamplesPerColorCycle, 1.0f / float(signalTextureWidth), 1.0f / float(scanlineCount) });
 
       device->RenderQuad(
         compositeToSVideoShader.get(),

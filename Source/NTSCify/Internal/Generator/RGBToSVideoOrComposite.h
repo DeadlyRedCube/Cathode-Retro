@@ -42,51 +42,45 @@ namespace NTSCify::Internal::Generator
       const ArtifactSettings &artifactSettings)
     {
       // Update our scanline phases texture
-      {
-        GeneratePhaseTextureConstantData cd =
-        {
-          initialFramePhase,
-          prevFrameStartPhase,
-          phaseIncrementPerScanline,
-          k_signalSamplesPerColorCycle,
-          artifactSettings.instabilityScale,
-          noiseSeed,
-          signalTextureWidth,
-          scanlineCount,
-        };
+      device->UpdateConstantBuffer(
+        constantBuffer.get(),
+        GeneratePhaseTextureConstantData{
+          .initialFrameStartPhase = initialFramePhase,
+          .prevFrameStartPhase = prevFrameStartPhase,
+          .phaseIncrementPerScanline = phaseIncrementPerScanline,
+          .samplesPerColorburstCycle = k_signalSamplesPerColorCycle,
+          .instabilityScale = artifactSettings.instabilityScale,
+          .noiseSeed = noiseSeed,
+          .signalTextureWidth = signalTextureWidth,
+          .scanlineCount = scanlineCount,
+        });
 
-        device->DiscardAndUpdateBuffer(constantBuffer.get(), &cd);
-
-        device->RenderQuad(
-          generatePhaseTextureShader.get(),
-          phaseTextureOut,
-          {},
-          {SamplerType::LinearClamp},
-          {constantBuffer.get()});
-      }
+      device->RenderQuad(
+        generatePhaseTextureShader.get(),
+        phaseTextureOut,
+        {},
+        {SamplerType::LinearClamp},
+        {constantBuffer.get()});
 
       // Now run the actual shader
-      {
-        RGBToSVideoConstantData cd =
-        {
-          k_signalSamplesPerColorCycle,
-          rgbTextureWidth,
-          signalTextureWidth,
-          scanlineCount,
-          (signalType == SignalType::Composite) ? 1.0f : 0.0f,
-          artifactSettings.instabilityScale,
-          noiseSeed,
-        };
+      device->UpdateConstantBuffer(
+        constantBuffer.get(),
+        RGBToSVideoConstantData{
+          .outputTexelsPerColorburstCycle = k_signalSamplesPerColorCycle,
+          .inputWidth = rgbTextureWidth,
+          .outputWidth = signalTextureWidth,
+          .scanlineCount = scanlineCount,
+          .compositeBlend = (signalType == SignalType::Composite) ? 1.0f : 0.0f,
+          .instabilityScale = artifactSettings.instabilityScale,
+          .noiseSeed = noiseSeed,
+        });
 
-        device->DiscardAndUpdateBuffer(constantBuffer.get(), &cd);
-
-        device->RenderQuad(
-          rgbToSVideoShader.get(),
-          signalTextureOut,
-          {rgbTexture, phaseTextureOut},
-          {SamplerType::LinearClamp},
-          {constantBuffer.get()});
-      }
+      device->RenderQuad(
+        rgbToSVideoShader.get(),
+        signalTextureOut,
+        {rgbTexture, phaseTextureOut},
+        {SamplerType::LinearClamp},
+        {constantBuffer.get()});
 
       levelsOut->blackLevel = 0.0f;
       levelsOut->whiteLevel = 1.0f;
@@ -109,10 +103,10 @@ namespace NTSCify::Internal::Generator
 
     struct GeneratePhaseTextureConstantData
     {
-      float g_initialFrameStartPhase;                 // The phase at the start of the first scanline of this frame
-      float g_prevFrameStartPhase;                    // The phase at the start of the previous scanline of this frame (if relevant)
-      float g_phaseIncrementPerScanline;              // The amount to increment the phase each scanline
-      uint32_t g_samplesPerColorburstCycle;           // Should match k_signalSamplesPerColorCycle
+      float initialFrameStartPhase;                   // The phase at the start of the first scanline of this frame
+      float prevFrameStartPhase;                      // The phase at the start of the previous scanline of this frame (if relevant)
+      float phaseIncrementPerScanline;                // The amount to increment the phase each scanline
+      uint32_t samplesPerColorburstCycle;             // Should match k_signalSamplesPerColorCycle
       float instabilityScale;
       uint32_t noiseSeed;
       uint32_t signalTextureWidth;

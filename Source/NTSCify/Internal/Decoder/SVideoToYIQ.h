@@ -35,19 +35,19 @@ namespace NTSCify::Internal::Decoder
       ITexture *yiqOutput,
       const TVKnobSettings &knobSettings)
     {
-      ConstantData data =
-      {
-        k_signalSamplesPerColorCycle,
-        knobSettings.tint,
-        // Saturation needs brightness scaled into it as well or else the output is weird when the brightness is set below 1.0
-        knobSettings.saturation / levels.saturationScale * knobSettings.brightness,
-        knobSettings.brightness,
-        levels.blackLevel,
-        levels.whiteLevel,
-        levels.temporalArtifactReduction,
-      };
+      device->UpdateConstantBuffer(
+        constantBuffer.get(),
+        ConstantData {
+          .samplesPerColorburstCycle = k_signalSamplesPerColorCycle,
+          .tint = knobSettings.tint,
 
-      device->DiscardAndUpdateBuffer(constantBuffer.get(), &data);
+          // Saturation needs brightness scaled into it as well or else the output is weird when the brightness is set below 1.0
+          .saturation = knobSettings.saturation / levels.saturationScale * knobSettings.brightness,
+          .brightness = knobSettings.brightness,
+          .blackLevel = levels.blackLevel,
+          .whiteLevel = levels.whiteLevel,
+          .temporalArtifactReduction = levels.temporalArtifactReduction,
+        });
 
       device->RenderQuad(
         sVideoToYIQShader.get(),

@@ -82,9 +82,9 @@ namespace NTSCify::Internal::CRT
     {
       assert(screenTexture != nullptr);
 
-      // Next up: Set up our shader constants
-      {
-        RGBToScreenConstants data = {
+      device->UpdateConstantBuffer(
+        rgbToScreenConstantBuffer.get(),
+        RGBToScreenConstants{
           .common = CalculateCommonConstants(CalculateAspectData()),
 
             // $TODO: may want to artificially increase phosphorDecay if we're interlaced
@@ -94,10 +94,7 @@ namespace NTSCify::Internal::CRT
           .curEvenOddTexelOffset = (scanType != ScanlineType::Even) ? 0.5f : -0.5f,
           .prevEvenOddTexelOffset = (prevScanlineType != ScanlineType::Even) ? 0.5f : -0.5f,
           .diffusionStrength = screenSettings.diffusionStrength,
-        };
-
-        device->DiscardAndUpdateBuffer(rgbToScreenConstantBuffer.get(), &data);
-      }
+        });
 
       if (screenSettings.diffusionStrength > 0.0f)
       {
@@ -284,8 +281,8 @@ namespace NTSCify::Internal::CRT
       data.shadowMaskScaleY = shadowMaskScaleNormalization / screenSettings.shadowMaskScale;
       data.shadowMaskStrength = screenSettings.shadowMaskStrength;
 
-      device->DiscardAndUpdateBuffer(screenTextureConstantBuffer.get(), &data);
-      device->DiscardAndUpdateBuffer(samplePatternConstantBuffer.get(), &k_samplingPattern16X);
+      device->UpdateConstantBuffer(screenTextureConstantBuffer.get(), data);
+      device->UpdateConstantBuffer(samplePatternConstantBuffer.get(), k_samplingPattern16X);
 
       device->RenderQuad(
         generateScreenTextureShader.get(),
@@ -370,15 +367,15 @@ namespace NTSCify::Internal::CRT
           float texHeight;
         };
 
-        GenerateShadowMaskConstants consts;
-        consts.blackLevel = 0.0;
-        consts.coordinateScale = 1.0f / float(k_size);
-        consts.texWidth = float(k_size);
-        consts.texHeight = float(k_size / 2);
-
         auto constBuf = device->CreateConstantBuffer(sizeof(GenerateShadowMaskConstants));
-
-        device->DiscardAndUpdateBuffer(constBuf.get(), &consts, sizeof(consts));
+        device->UpdateConstantBuffer(
+          constBuf.get(),
+          GenerateShadowMaskConstants {
+            .blackLevel = 0.0,
+            .coordinateScale = 1.0f / float(k_size),
+            .texWidth = float(k_size),
+            .texHeight = float(k_size / 2),
+          });
 
         device->RenderQuad(
           generateShadowMaskShader.get(),
@@ -406,15 +403,16 @@ namespace NTSCify::Internal::CRT
       // Step one: abuse the downsample2x shader to scale to whatever size we need.
       // $TODO: This is slightly inaccurate, we should really be using the max of inputTexture and prevFrameTexture * g_phosphorDecay but
       //  for now, this is fine.
-      ToneMapConstants tmc;
-      tmc.downsampleDirX = downsampleDirX;
-      tmc.downsampleDirY = downsampleDirY;
+      device->UpdateConstantBuffer(
+        toneMapConstantBuffer.get(),
+        ToneMapConstants {
+          .downsampleDirX = downsampleDirX,
+          .downsampleDirY = downsampleDirY,
 
-      // $TODO: Probably want to expose these values too, since everything else is an option
-      tmc.minLuminosity = 0.0f;
-      tmc.colorPower = 1.3f;
-
-      device->DiscardAndUpdateBuffer(toneMapConstantBuffer.get(), &tmc);
+          // $TODO: Probably want to expose these values too, since everything else is an option
+          .minLuminosity = 0.0f,
+          .colorPower = 1.3f,
+        });
       device->RenderQuad(
         toneMapShader.get(),
         toneMapTexture.get(),
@@ -429,8 +427,7 @@ namespace NTSCify::Internal::CRT
         {SamplerType::LinearClamp},
         {});
 
-      GaussianBlurConstants blurH{1.0f, 0.0f};
-      device->DiscardAndUpdateBuffer(gaussianBlurConstantBufferH.get(), &blurH);
+      device->UpdateConstantBuffer(gaussianBlurConstantBufferH.get(), GaussianBlurConstants{1.0f, 0.0f});
       device->RenderQuad(
         gaussianBlurShader.get(),
         blurScratchTexture.get(),
@@ -438,8 +435,7 @@ namespace NTSCify::Internal::CRT
         {SamplerType::LinearClamp},
         {gaussianBlurConstantBufferH.get()});
 
-      GaussianBlurConstants blurV{0.0f, 1.0f};
-      device->DiscardAndUpdateBuffer(gaussianBlurConstantBufferV.get(), &blurV);
+      device->UpdateConstantBuffer(gaussianBlurConstantBufferV.get(), GaussianBlurConstants{0.0f, 1.0f});
       device->RenderQuad(
         gaussianBlurShader.get(),
         blurTexture.get(),

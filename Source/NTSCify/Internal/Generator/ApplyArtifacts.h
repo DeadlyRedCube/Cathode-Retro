@@ -36,22 +36,22 @@ namespace NTSCify::Internal::Generator
       }
 
       // First step: Convert the luma/chroma at signalUAVTwoComponentA into a composite texture at signalUAVOneComponentA
-      ConstantData cd =
-      {
-        options.ghostSpreadScale,
-        options.ghostVisibility,
-        options.ghostDistance,
-        noiseSeed,
-        options.noiseStrength,
-        signalTextureWidth,
-        scanlineCount,
-        k_signalSamplesPerColorCycle,
-      };
-
+      // These parameters affect the ghosting.
       levelsInOut->whiteLevel *= (1.0f + options.ghostVisibility);
       levelsInOut->blackLevel *= (1.0f + options.ghostVisibility);
 
-      device->DiscardAndUpdateBuffer(constantBuffer.get(), &cd);
+      device->UpdateConstantBuffer(
+        constantBuffer.get(),
+        ConstantData {
+          .ghostSpreadScale = options.ghostSpreadScale,
+          .ghostBrightness = options.ghostVisibility,
+          .ghostDistance = options.ghostDistance,
+          .noiseSeed = noiseSeed,
+          .noiseStrength = options.noiseStrength,
+          .signalTextureWidth = signalTextureWidth,
+          .scanlineCount = scanlineCount,
+          .samplesPerColorburstCycle = k_signalSamplesPerColorCycle,
+        });
 
       device->RenderQuad(
         applyArtifactsShader.get(),

@@ -69,7 +69,7 @@ public:
   std::unique_ptr<IShader> CreateShader(ShaderID id) override;
   std::unique_ptr<IConstantBuffer> CreateConstantBuffer(size_t size) override;
 
-  void DiscardAndUpdateBuffer(IConstantBuffer *buffer, const void *data, size_t dataSize) override;
+  void UpdateConstantBuffer(IConstantBuffer *buffer, const void *data, size_t dataSize) override;
 
   std::vector<uint32_t> GetTexturePixels(ITexture *texture);
 
@@ -433,7 +433,7 @@ std::unique_ptr<IConstantBuffer> D3D11GraphicsDevice::CreateConstantBuffer(size_
 }
 
 
-void D3D11GraphicsDevice::DiscardAndUpdateBuffer(IConstantBuffer *bufferIn, const void *data, size_t dataSize)
+void D3D11GraphicsDevice::UpdateConstantBuffer(IConstantBuffer *bufferIn, const void *data, size_t dataSize)
 {
   D3D11_MAPPED_SUBRESOURCE map;
   ID3D11Buffer *buffer = static_cast<ConstantBuffer *>(bufferIn)->buffer.Ptr();

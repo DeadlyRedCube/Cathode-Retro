@@ -31,13 +31,12 @@ namespace NTSCify::Internal::Decoder
       // We don't have to do anything if the sharpness is 0
       if (knobSettings.sharpness != 0)
       {
-        ConstantData data =
-        {
-          -knobSettings.sharpness,
-          colorCyclesPerInputPixel * float(k_signalSamplesPerColorCycle)
-        };
-
-        device->DiscardAndUpdateBuffer(constantBuffer.get(), &data);
+        device->UpdateConstantBuffer(
+          constantBuffer.get(),
+          ConstantData {
+            .blurStrength = -knobSettings.sharpness,
+            .blurSampleStepSize = colorCyclesPerInputPixel * float(k_signalSamplesPerColorCycle)
+          });
 
         device->RenderQuad(
           blurRGBShader.get(),
