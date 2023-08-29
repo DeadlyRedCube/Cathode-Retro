@@ -1,6 +1,6 @@
 #pragma once
 
-#include "NTSCify/Internal/Util.h"
+#include "NTSCify/FlagEnum.h"
 
 namespace NTSCify
 {

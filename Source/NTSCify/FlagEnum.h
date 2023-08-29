@@ -6,7 +6,7 @@
 #include <vector>
 
 
-namespace NTSCify::Internal
+namespace NTSCify
 {
   // What follows is a bunch of template garbage to help deal with enum classes / flag enum classes
 

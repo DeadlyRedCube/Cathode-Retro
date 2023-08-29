@@ -5,7 +5,6 @@
 #include "NTSCify/Internal/Constants.h"
 #include "NTSCify/Internal/SignalLevels.h"
 #include "NTSCify/Internal/SignalProperties.h"
-#include "NTSCify/Internal/Util.h"
 #include "NTSCify/SourceSettings.h"
 
 namespace NTSCify::Internal::Generator

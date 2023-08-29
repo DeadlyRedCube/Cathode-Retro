@@ -545,7 +545,7 @@
     <ClInclude Include="Source\WicTexture.h" />
     <ClInclude Include="Source\resource.h" />
     <ClInclude Include="Source\SettingsDialog.h" />
-    <ClInclude Include="Source\NTSCify\Internal\Util.h" />
+    <ClInclude Include="Source\NTSCify\FlagEnum.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

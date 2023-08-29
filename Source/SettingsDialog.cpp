@@ -3,8 +3,6 @@
 #include <cinttypes>
 #include <functional>
 
-#include "NTSCify/Internal/Util.h"
-
 #include "resource.h"
 #include "SettingsDialog.h"
 

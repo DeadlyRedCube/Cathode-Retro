@@ -160,7 +160,7 @@
     <ClInclude Include="Source\resource.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Source\NTSCify\Internal\Util.h">
+    <ClInclude Include="Source\NTSCify\FlagEnum.h">
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="Source\NTSCify\Internal\Generator\ApplyArtifacts.h">

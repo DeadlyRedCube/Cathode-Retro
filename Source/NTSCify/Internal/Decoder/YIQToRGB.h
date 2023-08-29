@@ -2,7 +2,6 @@
 
 #include <algorithm>
 
-#include "NTSCify/Internal/Util.h"
 #include "NTSCify/GraphicsDevice.h"
 #include "NTSCify/TVKnobSettings.h"
 

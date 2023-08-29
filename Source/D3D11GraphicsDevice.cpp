@@ -9,8 +9,6 @@
 #include <memory>
 #include <vector>
 
-#include "NTSCify/Internal/Util.h"
-
 #include "ComPtr.h"
 #include "D3D11GraphicsDevice.h"
 #include "resource.h"
@@ -40,9 +38,6 @@ constexpr auto EnumValue(T v)
 #define DEBUG_DEVICE 1
 
 using namespace NTSCify;
-
-// TODO: We shouldn't have this here, but there's stuff that's in Internal/Util that should be elsewhere.
-using namespace NTSCify::Internal;
 
 struct Vertex
 {
