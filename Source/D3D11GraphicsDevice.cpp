@@ -29,6 +29,13 @@
   } \
   while (false)
 
+template <typename T>
+constexpr auto EnumValue(T v)
+{
+  return static_cast<std::underlying_type_t<T>>(v);
+}
+
+
 
 #define DEBUG_DEVICE 1
 
@@ -310,8 +317,7 @@ std::unique_ptr<ITexture> D3D11GraphicsDevice::CreateTexture(
 
 
   {
-    D3D11_TEXTURE2D_DESC desc;
-    ZeroType(&desc);
+    D3D11_TEXTURE2D_DESC desc = {};
     desc.Width = width;
     desc.Height = height;
     desc.ArraySize = 1;
@@ -326,11 +332,10 @@ std::unique_ptr<ITexture> D3D11GraphicsDevice::CreateTexture(
       desc.BindFlags |= D3D11_BIND_RENDER_TARGET;
     }
 
-    D3D11_SUBRESOURCE_DATA initialDataStorage;
+    D3D11_SUBRESOURCE_DATA initialDataStorage = {};
     D3D11_SUBRESOURCE_DATA *initialData = nullptr;
     if (initialDataTexels != nullptr)
     {
-      ZeroType(&initialDataStorage);
       initialData = &initialDataStorage;
 
       initialData->pSysMem = initialDataTexels;
@@ -351,8 +356,7 @@ std::unique_ptr<ITexture> D3D11GraphicsDevice::CreateTexture(
   for (uint32_t mip = 0; mip < tex->mipCount; mip++)
   {
     {
-      D3D11_SHADER_RESOURCE_VIEW_DESC desc;
-      ZeroType(&desc);
+      D3D11_SHADER_RESOURCE_VIEW_DESC desc = {};
       desc.Format = dxgiFormat;
       desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
       desc.Texture2D.MipLevels = 1;
@@ -365,8 +369,7 @@ std::unique_ptr<ITexture> D3D11GraphicsDevice::CreateTexture(
 
     if (((flags & TextureFlags::RenderTarget) != TextureFlags::None))
     {
-      D3D11_RENDER_TARGET_VIEW_DESC desc;
-      ZeroType(&desc);
+      D3D11_RENDER_TARGET_VIEW_DESC desc = {};
       desc.Format = dxgiFormat;
       desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
       desc.Texture2D.MipSlice = mip;
@@ -423,8 +426,7 @@ std::unique_ptr<IConstantBuffer> D3D11GraphicsDevice::CreateConstantBuffer(size_
     size = (size & ~0x0F) + 0x10;
   }
 
-  D3D11_BUFFER_DESC desc;
-  ZeroType(&desc);
+  D3D11_BUFFER_DESC desc = {};
   desc.ByteWidth = UINT(size);
   desc.Usage = D3D11_USAGE_DYNAMIC;
   desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -450,8 +452,7 @@ D3D11GraphicsDevice::D3D11GraphicsDevice(HWND hwnd)
 {
   window = hwnd;
 
-  DXGI_SWAP_CHAIN_DESC swapDesc;
-  ZeroType(&swapDesc);
+  DXGI_SWAP_CHAIN_DESC swapDesc = {};
   swapDesc.BufferCount = 2;
   swapDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
   swapDesc.OutputWindow = hwnd;
@@ -529,8 +530,7 @@ void D3D11GraphicsDevice::InitializeBuiltIns()
       {0.0f, 1.0f},
     };
 
-    D3D11_BUFFER_DESC vbDesc;
-    ZeroType(&vbDesc);
+    D3D11_BUFFER_DESC vbDesc = {};
     vbDesc.ByteWidth = sizeof(data);
     vbDesc.Usage = D3D11_USAGE_DEFAULT;
     vbDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
@@ -553,15 +553,14 @@ void D3D11GraphicsDevice::InitializeBuiltIns()
     CreateVertexShaderAndInputLayout(
       IDR_BASIC_VERTEX_SHADER, 
       elements,
-      k_arrayLength<decltype(elements)>,
+      1,
       &vertexShader, 
       &inputLayout);
   }
 
   // Samplers!
   {
-    D3D11_SAMPLER_DESC desc;
-    ZeroType(&desc);
+    D3D11_SAMPLER_DESC desc = {};
     desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
     desc.MaxAnisotropy = 16;
     desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
@@ -574,8 +573,7 @@ void D3D11GraphicsDevice::InitializeBuiltIns()
   }
 
   {
-    D3D11_SAMPLER_DESC desc;
-    ZeroType(&desc);
+    D3D11_SAMPLER_DESC desc = {};
     desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
     desc.MaxAnisotropy = 16;
     desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -589,16 +587,14 @@ void D3D11GraphicsDevice::InitializeBuiltIns()
 
   // Rasterizer/blend states!
   {
-    D3D11_RASTERIZER_DESC desc;
-    ZeroType(&desc);
+    D3D11_RASTERIZER_DESC desc = {};
     desc.FillMode = D3D11_FILL_SOLID;
     desc.CullMode = D3D11_CULL_NONE;
     CHECK_HRESULT(device->CreateRasterizerState(&desc, rasterizerState.AddressForReplace()), "create rasterizer state");
   }
 
   {
-    D3D11_BLEND_DESC desc;
-    ZeroType(&desc);
+    D3D11_BLEND_DESC desc = {};
     desc.RenderTarget[0].BlendEnable = false;
     desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
     CHECK_HRESULT(device->CreateBlendState(&desc, blendState.AddressForReplace()), "create blend state");

@@ -4,6 +4,8 @@ namespace NTSCify
 {
   struct ArtifactSettings
   {
+    bool operator==(const ArtifactSettings &other) const = default;
+
     float ghostVisibility = 0.0f;           // How visible is the ghost
     float ghostSpreadScale = 0.71f;         // How far does each sample of the ghost spread from the last
     float ghostDistance    = 3.1f;          // How far from center is the ghost's center

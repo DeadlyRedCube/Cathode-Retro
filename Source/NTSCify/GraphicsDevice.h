@@ -14,6 +14,7 @@ namespace NTSCify
   };
 
 
+
   class IConstantBuffer
   {
   public:

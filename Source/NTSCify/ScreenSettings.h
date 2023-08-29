@@ -6,6 +6,8 @@ namespace NTSCify
 {
   struct ScreenSettings
   {
+    bool operator==(const ScreenSettings &other) const = default;
+
     // How much to barrel distort our picture horizontally and vertically to emulate a curved screen
     float horizontalDistortion = 0.0f;
     float verticalDistortion = 0.0f;

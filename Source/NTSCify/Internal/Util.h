@@ -8,34 +8,6 @@
 
 namespace NTSCify::Internal
 {
-  template <typename T>
-  void ZeroType(T *t, size_t count = 1)
-  {
-    memset(t, 0, sizeof(T) * count);
-  }
-
-
-  template <typename T>
-  void CopyType(T *dest, const T *src, size_t count = 1)
-  {
-    memcpy(dest, src, sizeof(T) * count);
-  }
-
-
-  template <typename T>
-  constexpr auto EnumValue(T v)
-  {
-    return static_cast<std::underlying_type_t<T>>(v);
-  }
-
-
-  template <typename T>
-  bool AreBitwiseEqual(const T &a, const T &b)
-  {
-    return memcmp(&a, &b, sizeof(T)) == 0;
-  }
-
-
   // What follows is a bunch of template garbage to help deal with enum classes / flag enum classes
 
 
@@ -115,11 +87,4 @@ namespace NTSCify::Internal
     a = a ^ b;
     return a;
   }
-
-
-  // Get the length of an array from its type
-
-  template <typename T> size_t k_arrayLength = 0;
-  template <typename T> size_t k_arrayLength<T &> = k_arrayLength<T>;
-  template <typename T, size_t N> size_t k_arrayLength<T[N]> = N;
 }

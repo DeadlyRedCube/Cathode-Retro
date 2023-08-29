@@ -16,6 +16,8 @@ namespace NTSCify
   //  signal (i.e. the "machine" that is generating the signal)
   struct SourceSettings
   {
+    bool operator==(const SourceSettings &other) const = default;
+
     // The display aspect ratio of an input pixel when displayed.
     //  Use 1/1 for square input pixels, but for the NES/SNES it's 8/7
     float inputPixelAspectRatio = 1.0f;     

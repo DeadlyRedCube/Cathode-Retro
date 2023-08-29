@@ -178,15 +178,15 @@ void LoadTexture(const wchar_t *path, Rebuild rebuild = Rebuild::Always)
 
 static void OpenFile()
 {
-  wchar_t filename[1024] = {0};
-  OPENFILENAME ofn;
-  NTSCify::Internal::ZeroType(&ofn);
+  constexpr DWORD k_maxLen = 1024;
+  wchar_t filename[k_maxLen] = {};
+  OPENFILENAME ofn = {};
   ofn.lStructSize = sizeof(OPENFILENAME);
   ofn.hInstance = static_cast<HINSTANCE>(GetModuleHandle(nullptr));
   ofn.hwndOwner = s_hwnd;
   ofn.lpstrFilter = L"Images (*.jpg;*.jpeg;*.png;*.bmp)\0*.jpg;*.jpeg;*.png;*.bmp\0\0";
   ofn.lpstrFile = filename;
-  ofn.nMaxFile = DWORD(NTSCify::Internal::k_arrayLength<decltype(filename)>);
+  ofn.nMaxFile = k_maxLen;
   ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
 
   if (GetOpenFileName(&ofn))
@@ -206,8 +206,7 @@ void ToggleFullscreen()
     SetMenu(s_hwnd, nullptr);
 
     HMONITOR primaryMon = MonitorFromPoint({s_oldWindowedRect.left, s_oldWindowedRect.top}, MONITOR_DEFAULTTOPRIMARY);
-    MONITORINFO info;
-    NTSCify::Internal::ZeroType(&info);
+    MONITORINFO info = {};
     info.cbSize = sizeof(MONITORINFO);
     GetMonitorInfo(primaryMon, &info);
 

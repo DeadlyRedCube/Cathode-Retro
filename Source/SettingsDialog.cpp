@@ -11,8 +11,18 @@
 #pragma comment(linker,"\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #pragma comment(lib, "comctl32.lib")
 
-// $TODO: This shouldn't be here, but Util needs to be rearranged.
-using namespace NTSCify::Internal;
+template <typename T>
+constexpr auto EnumValue(T v)
+{
+  return static_cast<std::underlying_type_t<T>>(v);
+}
+
+
+// Get the length of an array from its type
+template <typename T> size_t k_arrayLength = 0;
+template <typename T> size_t k_arrayLength<T &> = k_arrayLength<T>;
+template <typename T, size_t N> size_t k_arrayLength<T[N]> = N;
+
 
 // This file is a whole bunch of garbage code to run the dialog. I'm not proud of it, but it took like 3 hours to make and it works enough.
 
@@ -323,7 +333,7 @@ private:
       bool found = false;
       for (uint32_t i = 0; i < k_arrayLength<decltype(NTSCify::k_sourcePresets)>; i++)
       {
-        if (AreBitwiseEqual(*sourceSettings, NTSCify::k_sourcePresets[i].settings))
+        if (*sourceSettings == NTSCify::k_sourcePresets[i].settings)
         {
           SendDlgItemMessage(dialog, IDC_SIGNAL_TIMING, CB_SETCURSEL, WPARAM(i), 0);
           found = true;
@@ -341,7 +351,7 @@ private:
       bool found = false;
       for (uint32_t i = 0; i < k_arrayLength<decltype(NTSCify::k_artifactPresets)>; i++)
       {
-        if (AreBitwiseEqual(*artifactSettings, NTSCify::k_artifactPresets[i].settings))
+        if (*artifactSettings == NTSCify::k_artifactPresets[i].settings)
         {
           SendDlgItemMessage(dialog, IDC_ARTIFACT_PRESET, CB_SETCURSEL, WPARAM(i), 0);
           found = true;
@@ -359,7 +369,7 @@ private:
       bool found = false;
       for (uint32_t i = 0; i < k_arrayLength<decltype(NTSCify::k_screenPresets)>; i++)
       {
-        if (AreBitwiseEqual(*screenSettings, NTSCify::k_screenPresets[i].settings))
+        if (*screenSettings == NTSCify::k_screenPresets[i].settings)
         {
           SendDlgItemMessage(dialog, IDC_SCREEN_PRESET, CB_SETCURSEL, WPARAM(i), 0);
           found = true;
