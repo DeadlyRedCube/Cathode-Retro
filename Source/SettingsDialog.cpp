@@ -187,7 +187,7 @@ public:
 
 
 private:
-  INT_PTR DialogProc(UINT message, [[maybe_unused]] WPARAM wparam, [[maybe_unused]] LPARAM lparam)
+  INT_PTR DialogProc(UINT message, WPARAM wparam, LPARAM)
   {
     switch (message)
     {
@@ -372,30 +372,30 @@ private:
 
   void UpdateSliders()
   {
-    noiseStrengthSlider = Slider(dialog, IDC_NOISE_STRENGTH_SLIDER, IDC_NOISE_STRENGTH_LABEL, &artifactSettings->noiseStrength, 0.0f, 1.0f, 41, [this]() { UpdateDisplay(); });
-    pictureInstabilitySlider = Slider(dialog, IDC_INSTABILITY_SLIDER, IDC_INSTABILITY_LABEL, &artifactSettings->instabilityScale,  0.0f, 5.0f, 41, [this]() { UpdateDisplay(); });
-    ghostVisibilitySlider = Slider(dialog, IDC_GHOST_VISIBILITY_SLIDER, IDC_GHOST_VISIBILITY_LABEL, &artifactSettings->ghostVisibility, 0.0f, 1.0f, 21, [this]() { UpdateDisplay(); });
-    ghostBlurWidthSlider = Slider(dialog, IDC_GHOST_BLUR_WIDTH_SLIDER, IDC_GHOST_BLUR_WIDTH_LABEL, &artifactSettings->ghostSpreadScale, 0.0f, 5.0f, 51, [this]() { UpdateDisplay(); });
-    ghostDistanceSlider = Slider(dialog, IDC_GHOST_DISTANCE_SLIDER, IDC_GHOST_DISTANCE_LABEL, &artifactSettings->ghostDistance, 0.0f, 10.0f, 51, [this]() { UpdateDisplay(); });
-    temporalArtifactReductionSlider = Slider(dialog, IDC_ARTIFACT_REDUCTION_SLIDER, IDC_ARTIFACT_REDUCTION_LABEL, &artifactSettings->temporalArtifactReduction, 0.0f, 1.0f, 50, [this]() { UpdateDisplay(); });
-    tintSlider = Slider(dialog, IDC_TINT_SLIDER, IDC_TINT_LABEL, &knobSettings->tint, -0.5f, 0.5f, 41, [this]() { UpdateDisplay(); });
-    saturationSlider = Slider(dialog, IDC_SATURATION_SLIDER, IDC_SATURATION_LABEL, &knobSettings->saturation, 0.0f, 1.0f, 20, [this]() { UpdateDisplay(); });
-    brightnessSlider = Slider(dialog, IDC_BRIGHTNESS_SLIDER, IDC_BRIGHTNESS_LABEL, &knobSettings->brightness, 0.0f, 1.0f, 20, [this]() { UpdateDisplay(); });
-    sharpnessSlider = Slider(dialog, IDC_SHARPNESS_SLIDER, IDC_SHARPNESS_LABEL, &knobSettings->sharpness, -1.0f, 1.0f, 41, [this]() { UpdateDisplay(); });
-    hDistortionSlider = Slider(dialog, IDC_H_DISTORTION_SLIDER, IDC_H_DISTORTION_LABEL, &screenSettings->horizontalDistortion, 0.0f, 0.6f, 13, [this]() { UpdateDisplay(); });
-    vDistortionSlider = Slider(dialog, IDC_V_DISTORTION_SLIDER, IDC_V_DISTORTION_LABEL, &screenSettings->verticalDistortion, 0.0f, 0.6f, 13, [this]() { UpdateDisplay(); });
-    cornerRoundnessSlider = Slider(dialog, IDC_CORNER_ROUNDNESS_SLIDER, IDC_CORNER_ROUNDNESS_LABEL, &screenSettings->cornerRounding, 0.0f, 0.2f, 9, [this]() { UpdateDisplay(); });
-    lrEdgeRoundingSlider = Slider(dialog, IDC_LR_EDGE_ROUNDING_SLIDER, IDC_LR_EDGE_ROUNDING_LABEL, &screenSettings->screenEdgeRoundingX, 0.0f, 0.45f, 10, [this]() { UpdateDisplay(); });
-    tbEdgeRoundingSlider = Slider(dialog, IDC_TB_EDGE_ROUNDING_SLIDER, IDC_TB_EDGE_ROUNDING_LABEL, &screenSettings->screenEdgeRoundingY, 0.0f, 0.45f, 10, [this]() { UpdateDisplay(); });
-    overscanLeftSlider = Slider(dialog, IDC_OVERSCAN_LEFT_SLIDER, IDC_OVERSCAN_LEFT_LABEL, &overscanSettings->overscanLeft, 0U, 32U, 32, [this]() { UpdateDisplay(); });
-    overscanRightSlider = Slider(dialog, IDC_OVERSCAN_RIGHT_SLIDER, IDC_OVERSCAN_RIGHT_LABEL, &overscanSettings->overscanRight, 0U, 32U, 32, [this]() { UpdateDisplay(); });
-    overscanTopSlider = Slider(dialog, IDC_OVERSCAN_TOP_SLIDER, IDC_OVERSCAN_TOP_LABEL, &overscanSettings->overscanTop, 0U, 32U, 32, [this]() { UpdateDisplay(); });
-    overscanBottomSlider = Slider(dialog, IDC_OVERSCAN_BOTTOM_SLIDER, IDC_OVERSCAN_BOTTOM_LABEL, &overscanSettings->overscanBottom, 0U, 32U, 32, [this]() { UpdateDisplay(); });
-    shadowMaskScaleSlider = Slider(dialog, IDC_SHADOW_MASK_SCALE_SLIDER, IDC_SHADOW_MASK_SCALE_LABEL, &screenSettings->shadowMaskScale, 0.8f, 2.0f, 44, [this]() { UpdateDisplay(); });
-    shadowMaskStrengthSlider = Slider(dialog, IDC_SHADOW_MASK_STRENGTH_SLIDER, IDC_SHADOW_MASK_STRENGTH_LABEL, &screenSettings->shadowMaskStrength, 0.0f, 1.0f, 20, [this]() { UpdateDisplay(); });
-    scanlineStrengthSlider = Slider(dialog, IDC_SCANLINE_STRENGTH_SLIDER, IDC_SCANLINE_STRENGTH_LABEL, &screenSettings->scanlineStrength, 0.0f, 1.0f, 20, [this]() { UpdateDisplay(); });
-    phosphorDecaySlider = Slider(dialog, IDC_PHOSPHOR_DECAY_SLIDER, IDC_PHOSPHOR_DECAY_LABEL, &screenSettings->phosphorDecay, 0.0f, 0.9f, 19, [this]() { UpdateDisplay(); });
-    diffusionSlider = Slider(dialog, IDC_DIFFUSION_SLIDER, IDC_DIFFUSION_LABEL, &screenSettings->diffusionStrength, 0.0f, 0.9f, 19, [this]() { UpdateDisplay(); });
+    noiseStrengthSlider = {dialog, IDC_NOISE_STRENGTH_SLIDER, IDC_NOISE_STRENGTH_LABEL, &artifactSettings->noiseStrength, 0.0f, 1.0f, 41, [this]() { UpdateDisplay(); }};
+    pictureInstabilitySlider = {dialog, IDC_INSTABILITY_SLIDER, IDC_INSTABILITY_LABEL, &artifactSettings->instabilityScale,  0.0f, 5.0f, 41, [this]() { UpdateDisplay(); }};
+    ghostVisibilitySlider = {dialog, IDC_GHOST_VISIBILITY_SLIDER, IDC_GHOST_VISIBILITY_LABEL, &artifactSettings->ghostVisibility, 0.0f, 1.0f, 21, [this]() { UpdateDisplay(); }};
+    ghostBlurWidthSlider = {dialog, IDC_GHOST_BLUR_WIDTH_SLIDER, IDC_GHOST_BLUR_WIDTH_LABEL, &artifactSettings->ghostSpreadScale, 0.0f, 5.0f, 51, [this]() { UpdateDisplay(); }};
+    ghostDistanceSlider = {dialog, IDC_GHOST_DISTANCE_SLIDER, IDC_GHOST_DISTANCE_LABEL, &artifactSettings->ghostDistance, 0.0f, 10.0f, 51, [this]() { UpdateDisplay(); }};
+    temporalArtifactReductionSlider = {dialog, IDC_ARTIFACT_REDUCTION_SLIDER, IDC_ARTIFACT_REDUCTION_LABEL, &artifactSettings->temporalArtifactReduction, 0.0f, 1.0f, 50, [this]() { UpdateDisplay(); }};
+    tintSlider = {dialog, IDC_TINT_SLIDER, IDC_TINT_LABEL, &knobSettings->tint, -0.5f, 0.5f, 41, [this]() { UpdateDisplay(); }};
+    saturationSlider = {dialog, IDC_SATURATION_SLIDER, IDC_SATURATION_LABEL, &knobSettings->saturation, 0.0f, 1.0f, 20, [this]() { UpdateDisplay(); }};
+    brightnessSlider = {dialog, IDC_BRIGHTNESS_SLIDER, IDC_BRIGHTNESS_LABEL, &knobSettings->brightness, 0.0f, 1.0f, 20, [this]() { UpdateDisplay(); }};
+    sharpnessSlider = {dialog, IDC_SHARPNESS_SLIDER, IDC_SHARPNESS_LABEL, &knobSettings->sharpness, -1.0f, 1.0f, 41, [this]() { UpdateDisplay(); }};
+    hDistortionSlider = {dialog, IDC_H_DISTORTION_SLIDER, IDC_H_DISTORTION_LABEL, &screenSettings->horizontalDistortion, 0.0f, 0.6f, 13, [this]() { UpdateDisplay(); }};
+    vDistortionSlider = {dialog, IDC_V_DISTORTION_SLIDER, IDC_V_DISTORTION_LABEL, &screenSettings->verticalDistortion, 0.0f, 0.6f, 13, [this]() { UpdateDisplay(); }};
+    cornerRoundnessSlider = {dialog, IDC_CORNER_ROUNDNESS_SLIDER, IDC_CORNER_ROUNDNESS_LABEL, &screenSettings->cornerRounding, 0.0f, 0.2f, 9, [this]() { UpdateDisplay(); }};
+    lrEdgeRoundingSlider = {dialog, IDC_LR_EDGE_ROUNDING_SLIDER, IDC_LR_EDGE_ROUNDING_LABEL, &screenSettings->screenEdgeRoundingX, 0.0f, 0.45f, 10, [this]() { UpdateDisplay(); }};
+    tbEdgeRoundingSlider = {dialog, IDC_TB_EDGE_ROUNDING_SLIDER, IDC_TB_EDGE_ROUNDING_LABEL, &screenSettings->screenEdgeRoundingY, 0.0f, 0.45f, 10, [this]() { UpdateDisplay(); }};
+    overscanLeftSlider = {dialog, IDC_OVERSCAN_LEFT_SLIDER, IDC_OVERSCAN_LEFT_LABEL, &overscanSettings->overscanLeft, 0U, 32U, 32, [this]() { UpdateDisplay(); }};
+    overscanRightSlider = {dialog, IDC_OVERSCAN_RIGHT_SLIDER, IDC_OVERSCAN_RIGHT_LABEL, &overscanSettings->overscanRight, 0U, 32U, 32, [this]() { UpdateDisplay(); }};
+    overscanTopSlider = {dialog, IDC_OVERSCAN_TOP_SLIDER, IDC_OVERSCAN_TOP_LABEL, &overscanSettings->overscanTop, 0U, 32U, 32, [this]() { UpdateDisplay(); }};
+    overscanBottomSlider = {dialog, IDC_OVERSCAN_BOTTOM_SLIDER, IDC_OVERSCAN_BOTTOM_LABEL, &overscanSettings->overscanBottom, 0U, 32U, 32, [this]() { UpdateDisplay(); }};
+    shadowMaskScaleSlider = {dialog, IDC_SHADOW_MASK_SCALE_SLIDER, IDC_SHADOW_MASK_SCALE_LABEL, &screenSettings->shadowMaskScale, 0.8f, 2.0f, 44, [this]() { UpdateDisplay(); }};
+    shadowMaskStrengthSlider = {dialog, IDC_SHADOW_MASK_STRENGTH_SLIDER, IDC_SHADOW_MASK_STRENGTH_LABEL, &screenSettings->shadowMaskStrength, 0.0f, 1.0f, 20, [this]() { UpdateDisplay(); }};
+    scanlineStrengthSlider = {dialog, IDC_SCANLINE_STRENGTH_SLIDER, IDC_SCANLINE_STRENGTH_LABEL, &screenSettings->scanlineStrength, 0.0f, 1.0f, 20, [this]() { UpdateDisplay(); }};
+    phosphorDecaySlider = {dialog, IDC_PHOSPHOR_DECAY_SLIDER, IDC_PHOSPHOR_DECAY_LABEL, &screenSettings->phosphorDecay, 0.0f, 0.9f, 19, [this]() { UpdateDisplay(); }};
+    diffusionSlider = {dialog, IDC_DIFFUSION_SLIDER, IDC_DIFFUSION_LABEL, &screenSettings->diffusionStrength, 0.0f, 0.9f, 19, [this]() { UpdateDisplay(); }};
     UpdateDisplay();
   }
 

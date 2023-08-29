@@ -45,7 +45,7 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\GraphicsDevice.cpp">
+    <ClCompile Include="Source\D3D11GraphicsDevice.cpp">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\Main.cpp">
