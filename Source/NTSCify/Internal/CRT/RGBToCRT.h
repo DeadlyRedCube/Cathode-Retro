@@ -8,7 +8,7 @@
 #include "resource.h"
 #include "Util.h"
 
-namespace NTSCify
+namespace NTSCify::Internal::CRT
 {
   enum class ScanlineType
   {

@@ -8,7 +8,7 @@
 #include "Util.h"
 
 
-namespace NTSCify::Decoder
+namespace NTSCify::Internal::Decoder
 {
   // Take a composite input and break the luma and chroma back up so that it's "SVideo" (this is the NTSC luma/chroma separation process)
   class CompositeToSVideo

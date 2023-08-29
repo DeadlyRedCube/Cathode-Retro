@@ -8,7 +8,7 @@
 #include "Util.h"
 
 
-namespace NTSCify::Decoder
+namespace NTSCify::Internal::Decoder
 {
   // Apply a blur or sharpen filter to an RGB texture
   class FilterRGB

@@ -7,7 +7,7 @@
 #include "NTSCify/Internal/Decoder/YIQToRGB.h"
 
 
-namespace NTSCify::Decoder
+namespace NTSCify::Internal::Decoder
 {
   class SignalDecoder
   {

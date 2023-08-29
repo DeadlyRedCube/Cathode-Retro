@@ -1,6 +1,6 @@
 #pragma once
 
-namespace NTSCify
+namespace NTSCify::Internal
 {
   struct SignalLevels
   {

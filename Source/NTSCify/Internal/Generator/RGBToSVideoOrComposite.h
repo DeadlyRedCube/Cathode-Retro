@@ -11,7 +11,7 @@
 #include "Util.h"
 
 
-namespace NTSCify::Generator
+namespace NTSCify::Internal::Generator
 {
   // Take an RGB input texture (usually the output of the game or emulator) and convert it into either an SVideo (separate luma/chroma) or Composite
   //  (a single combined channel) output. We will also, if temporalArtifactReduction is non-zero, generate a second signal into the output texture:

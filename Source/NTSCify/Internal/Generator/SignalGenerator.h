@@ -7,7 +7,7 @@
 #include "NTSCify/Internal/Generator/ApplyArtifacts.h"
 #include "NTSCify/Internal/Generator/RGBToSVideoOrComposite.h"
 
-namespace NTSCify::Generator
+namespace NTSCify::Internal::Generator
 {
   class SignalGenerator
   {
@@ -137,8 +137,8 @@ namespace NTSCify::Generator
     std::unique_ptr<ITexture> scratchSignalTextureDoubled;
 
     SourceSettings sourceSettings;
-    NTSCify::SignalProperties signalProps;
-    NTSCify::SignalLevels levels;
+    Internal::SignalProperties signalProps;
+    Internal::SignalLevels levels;
 
     ArtifactSettings artifactSettings;
     uint32_t frameStartPhaseNumerator = 0;

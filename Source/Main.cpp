@@ -42,9 +42,9 @@ struct LoadedTexture
   std::unique_ptr<ITexture> oddTexture;
   std::unique_ptr<ITexture> evenTexture;
 
-  std::unique_ptr<NTSCify::Generator::SignalGenerator> signalGenerator;
-  std::unique_ptr<NTSCify::Decoder::SignalDecoder> signalDecoder;
-  std::unique_ptr<NTSCify::RGBToCRT> rgbToCRT;
+  std::unique_ptr<NTSCify::Internal::Generator::SignalGenerator> signalGenerator;
+  std::unique_ptr<NTSCify::Internal::Decoder::SignalDecoder> signalDecoder;
+  std::unique_ptr<NTSCify::Internal::CRT::RGBToCRT> rgbToCRT;
 
   NTSCify::SignalType cachedSignalType {};
   NTSCify::SourceSettings cachedSourceSettings {};
@@ -62,6 +62,8 @@ enum class Rebuild
 
 void RebuildGeneratorsIfNecessary(Rebuild rebuild)
 { 
+  using namespace NTSCify::Internal;
+
   if (loadedTexture == nullptr)
   {
     return;
@@ -79,16 +81,16 @@ void RebuildGeneratorsIfNecessary(Rebuild rebuild)
     || signalType != loadedTexture->cachedSignalType
     || memcmp(&sourceSettings, &loadedTexture->cachedSourceSettings, sizeof(sourceSettings)) != 0)
   {
-    loadedTexture->signalGenerator = std::make_unique<NTSCify::Generator::SignalGenerator>(
+    loadedTexture->signalGenerator = std::make_unique<Generator::SignalGenerator>(
       s_graphicsDevice.get(), 
       s_signalType,
       loadedTexture->oddTexture->Width(),
       loadedTexture->oddTexture->Height(),
       s_sourceSettings);
-    loadedTexture->signalDecoder = std::make_unique<NTSCify::Decoder::SignalDecoder>(
+    loadedTexture->signalDecoder = std::make_unique<Decoder::SignalDecoder>(
       s_graphicsDevice.get(), 
       loadedTexture->signalGenerator->SignalProperties());
-    loadedTexture->rgbToCRT = std::make_unique<NTSCify::RGBToCRT>(
+    loadedTexture->rgbToCRT = std::make_unique<CRT::RGBToCRT>(
       s_graphicsDevice.get(), 
       loadedTexture->oddTexture->Width(), 
       loadedTexture->signalGenerator->SignalProperties().scanlineWidth, 
@@ -316,31 +318,33 @@ static void DoInit( HINSTANCE hInstance )
 
 void RenderLoadedTexture(ITexture *output, Rebuild rebuild = Rebuild::AsNeeded)
 {
+  using namespace NTSCify::Internal;
+
   if (rebuild != Rebuild::Never)
   {
     RebuildGeneratorsIfNecessary(rebuild);
   }
 
-  static auto scanlineType = NTSCify::ScanlineType::Odd;
+  static auto scanlineType = CRT::ScanlineType::Odd;
 
   
   if (loadedTexture->evenTexture == nullptr)
   {
-    scanlineType = NTSCify::ScanlineType::FauxProgressive;
+    scanlineType = CRT::ScanlineType::FauxProgressive;
   }
-  else if (scanlineType == NTSCify::ScanlineType::Odd)
+  else if (scanlineType == CRT::ScanlineType::Odd)
   { 
-    scanlineType = NTSCify::ScanlineType::Even;
+    scanlineType = CRT::ScanlineType::Even;
   }
   else
   {
-    scanlineType = NTSCify::ScanlineType::Odd;
+    scanlineType = CRT::ScanlineType::Odd;
   }
 
-  const ITexture *input = (scanlineType == NTSCify::ScanlineType::Even && loadedTexture->evenTexture != nullptr) 
+  const ITexture *input = (scanlineType == CRT::ScanlineType::Even && loadedTexture->evenTexture != nullptr) 
     ? loadedTexture->evenTexture.get() 
     : loadedTexture->oddTexture.get();
-  const ITexture *input2 = (scanlineType == NTSCify::ScanlineType::Odd && loadedTexture->evenTexture != nullptr) 
+  const ITexture *input2 = (scanlineType == CRT::ScanlineType::Odd && loadedTexture->evenTexture != nullptr) 
     ? loadedTexture->evenTexture.get() 
     : loadedTexture->oddTexture.get();
   if (s_signalType != NTSCify::SignalType::RGB)

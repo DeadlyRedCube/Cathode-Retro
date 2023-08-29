@@ -8,7 +8,7 @@
 #include "Util.h"
 
 
-namespace NTSCify::Decoder
+namespace NTSCify::Internal::Decoder
 {
   // This takes a YIQ input texture and converts its color space to be RGB.
   class YIQToRGB
