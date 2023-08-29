@@ -56,10 +56,10 @@ public:
 
   void UpdateWindowSize() override;
 
-  uint32_t OutputWidth() const override
+  uint32_t BackbufferWidth() const override
     { return backbufferWidth; }
 
-  uint32_t OutputHeight() const override
+  uint32_t BackbufferHeight() const override
     { return backbufferHeight; }
 
   void ClearBackbuffer() override;

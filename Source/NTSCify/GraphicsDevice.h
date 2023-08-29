@@ -117,9 +117,6 @@ namespace NTSCify
   public:
     virtual ~IGraphicsDevice() = default;
 
-    virtual uint32_t OutputWidth() const = 0;
-    virtual uint32_t OutputHeight() const = 0;
-
     virtual std::unique_ptr<ITexture> CreateTexture(
       uint32_t width,
       uint32_t height,
