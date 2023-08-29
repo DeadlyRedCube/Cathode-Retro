@@ -218,5 +218,7 @@
       <Filter>Headers\NTSCify</Filter>
     </ClInclude>
     <ClInclude Include="Source\D3D11GraphicsDevice.h" />
+    <ClInclude Include="Source\NTSCify\NTSCify.h" />
+    <ClInclude Include="Source\NTSCify\ScanlineType.h" />
   </ItemGroup>
 </Project>

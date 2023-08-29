@@ -7,6 +7,8 @@ namespace NTSCify::Internal
 {
   struct SignalProperties
   {
+    bool operator==(const SignalProperties &) const = default;
+
     SignalType type;
     uint32_t scanlineWidth;
     uint32_t scanlineCount;

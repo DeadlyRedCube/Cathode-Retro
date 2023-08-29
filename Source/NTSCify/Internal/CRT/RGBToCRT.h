@@ -5,20 +5,12 @@
 
 #include "NTSCify/GraphicsDevice.h"
 #include "NTSCify/OverscanSettings.h"
+#include "NTSCify/ScanlineType.h"
 #include "NTSCify/ScreenSettings.h"
 
 
 namespace NTSCify::Internal::CRT
 {
-  enum class ScanlineType
-  {
-    Progressive,     // Input scanline count is 1:1 with screen scanline count
-    FauxProgressive, // Input scanline count is 1:2 with screen scanline count but the fields don't move (same positionas "Odd")
-    Odd,             // This is an "odd" interlaced frame, the (1-based) odd scanlines will be full brightness.
-    Even,            // This is an "even" interlaced frame
-  };
-
-
   // This class takes RGB data (either the input or SVideo/composite filtering final output) and draws it as if it were on a CRT screen
   class RGBToCRT
   {

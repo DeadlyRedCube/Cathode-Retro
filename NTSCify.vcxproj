@@ -533,8 +533,10 @@
     <ClInclude Include="Source\NTSCify\Internal\Decoder\YIQToRGB.h" />
     <ClInclude Include="Source\NTSCify\Internal\Generator\ApplyArtifacts.h" />
     <ClInclude Include="Source\NTSCify\Internal\Generator\RGBToSVideoOrComposite.h" />
+    <ClInclude Include="Source\NTSCify\NTSCify.h" />
     <ClInclude Include="Source\NTSCify\OverscanSettings.h" />
     <ClInclude Include="Source\NTSCify\Internal\CRT\RGBToCRT.h" />
+    <ClInclude Include="Source\NTSCify\ScanlineType.h" />
     <ClInclude Include="Source\NTSCify\ScreenSettings.h" />
     <ClInclude Include="Source\NTSCify\Internal\Decoder\SignalDecoder.h" />
     <ClInclude Include="Source\NTSCify\Internal\Generator\SignalGenerator.h" />

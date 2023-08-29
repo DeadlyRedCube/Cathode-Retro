@@ -7,9 +7,8 @@
 #include <mutex>
 #include <thread>
 
-#include "NTSCify/Internal/CRT/RGBToCRT.h"
-#include "NTSCify/Internal/Generator/SignalGenerator.h"
-#include "NTSCify/Internal/Decoder/SignalDecoder.h"
+#include "NTSCify/NTSCify.h"
+
 #include "D3D11GraphicsDevice.h"
 #include "WicTexture.h"
 #include "resource.h"
@@ -42,9 +41,7 @@ struct LoadedTexture
   std::unique_ptr<NTSCify::ITexture> oddTexture;
   std::unique_ptr<NTSCify::ITexture> evenTexture;
 
-  std::unique_ptr<NTSCify::Internal::Generator::SignalGenerator> signalGenerator;
-  std::unique_ptr<NTSCify::Internal::Decoder::SignalDecoder> signalDecoder;
-  std::unique_ptr<NTSCify::Internal::CRT::RGBToCRT> rgbToCRT;
+  std::unique_ptr<NTSCify::NTSCify> ntscify;
 
   NTSCify::SignalType cachedSignalType {};
   NTSCify::SourceSettings cachedSourceSettings {};
@@ -81,21 +78,16 @@ void RebuildGeneratorsIfNecessary(Rebuild rebuild)
     || signalType != loadedTexture->cachedSignalType
     || memcmp(&sourceSettings, &loadedTexture->cachedSourceSettings, sizeof(sourceSettings)) != 0)
   {
-    loadedTexture->signalGenerator = std::make_unique<Generator::SignalGenerator>(
-      s_graphicsDevice.get(), 
+    loadedTexture->ntscify = std::make_unique<NTSCify::NTSCify>(
+      s_graphicsDevice.get(),
       s_signalType,
       loadedTexture->oddTexture->Width(),
       loadedTexture->oddTexture->Height(),
-      s_sourceSettings);
-    loadedTexture->signalDecoder = std::make_unique<Decoder::SignalDecoder>(
-      s_graphicsDevice.get(), 
-      loadedTexture->signalGenerator->SignalProperties());
-    loadedTexture->rgbToCRT = std::make_unique<CRT::RGBToCRT>(
-      s_graphicsDevice.get(), 
-      loadedTexture->oddTexture->Width(), 
-      loadedTexture->signalGenerator->SignalProperties().scanlineWidth, 
-      loadedTexture->oddTexture->Height(),
-      loadedTexture->signalGenerator->SignalProperties().inputPixelAspectRatio);
+      s_sourceSettings,
+      s_artifactSettings,
+      s_knobSettings,
+      s_overscanSettings,
+      s_screenSettings);
 
     loadedTexture->cachedSignalType = signalType;
     loadedTexture->cachedSourceSettings = sourceSettings;
@@ -339,54 +331,48 @@ static void DoInit( HINSTANCE hInstance )
 
 void RenderLoadedTexture(NTSCify::ITexture *output, Rebuild rebuild = Rebuild::AsNeeded)
 {
-  using namespace NTSCify::Internal;
+  using namespace NTSCify;
 
   if (rebuild != Rebuild::Never)
   {
     RebuildGeneratorsIfNecessary(rebuild);
   }
 
-  static auto scanlineType = CRT::ScanlineType::Odd;
+  static auto scanlineType = ScanlineType::Odd;
 
   
   if (loadedTexture->evenTexture == nullptr)
   {
-    scanlineType = CRT::ScanlineType::FauxProgressive;
+    scanlineType = ScanlineType::FauxProgressive;
   }
-  else if (scanlineType == CRT::ScanlineType::Odd)
+  else if (scanlineType == ScanlineType::Odd)
   { 
-    scanlineType = CRT::ScanlineType::Even;
+    scanlineType = ScanlineType::Even;
   }
   else
   {
-    scanlineType = CRT::ScanlineType::Odd;
+    scanlineType = ScanlineType::Odd;
   }
 
-  const NTSCify::ITexture *input = (scanlineType == CRT::ScanlineType::Even && loadedTexture->evenTexture != nullptr) 
+  const ITexture *input = (scanlineType == ScanlineType::Even && loadedTexture->evenTexture != nullptr) 
     ? loadedTexture->evenTexture.get() 
     : loadedTexture->oddTexture.get();
-  const NTSCify::ITexture *input2 = (scanlineType == CRT::ScanlineType::Odd && loadedTexture->evenTexture != nullptr) 
+  const ITexture *input2 = (scanlineType == ScanlineType::Odd && loadedTexture->evenTexture != nullptr) 
     ? loadedTexture->evenTexture.get() 
     : loadedTexture->oddTexture.get();
-  if (s_signalType != NTSCify::SignalType::RGB)
-  {
-    loadedTexture->signalGenerator->SetArtifactSettings(s_artifactSettings);
-    loadedTexture->signalGenerator->Generate(input);
 
-    loadedTexture->signalDecoder->SetKnobSettings(s_knobSettings);
-    loadedTexture->signalDecoder->Decode(
-      loadedTexture->signalGenerator->SignalTexture(), 
-      loadedTexture->signalGenerator->PhasesTexture(), 
-      loadedTexture->signalGenerator->SignalLevels());
-
-    input = loadedTexture->signalDecoder->CurrentFrameRGBOutput();
-    input2 = loadedTexture->signalDecoder->PreviousFrameRGBOutput();
-  }
-
-  // $TODO Currently artifacts are not applied to RGB, and we might still want to at least have some noise in there?
-  loadedTexture->rgbToCRT->SetScreenSettings(s_screenSettings);
-  loadedTexture->rgbToCRT->Render(input, input2, output, scanlineType);
+  loadedTexture->ntscify->UpdateSettings(
+    s_signalType,
+    input->Width(),
+    input->Height(),
+    s_sourceSettings,
+    s_artifactSettings,
+    s_knobSettings,
+    s_overscanSettings,
+    s_screenSettings);
+  loadedTexture->ntscify->Render(input, input2, scanlineType, output);
 }
+
 
 void RenderThreadProc()
 {
