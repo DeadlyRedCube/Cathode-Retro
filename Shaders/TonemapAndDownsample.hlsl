@@ -56,8 +56,8 @@ float4 main(float2 inTexCoord: TEX): SV_TARGET
     
     float inLuma = dot(samp.rgb, float3(0.3, 0.59, 0.11));
     
-    float outLuma = saturate(inLuma - g_minLuminosity) / (1.0 - g_minLuminosity);
-    outLuma = pow(outLuma, g_colorPower);
+    float outLuma = (inLuma - g_minLuminosity) / (1.0 - g_minLuminosity);
+    outLuma = pow(saturate(outLuma), g_colorPower);
     
     samp.rgb *= outLuma / inLuma;
     
