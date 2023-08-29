@@ -4,6 +4,7 @@
 #include <Windows.h>
 #include <dxgi1_3.h>
 
+#include <assert.h>
 #include <cmath>
 #include <exception>
 #include <memory>
@@ -69,8 +70,6 @@ public:
   std::unique_ptr<IShader> CreateShader(ShaderID id) override;
   std::unique_ptr<IConstantBuffer> CreateConstantBuffer(size_t size) override;
 
-  void UpdateConstantBuffer(IConstantBuffer *buffer, const void *data, size_t dataSize) override;
-
   std::vector<uint32_t> GetTexturePixels(ITexture *texture);
 
   std::unique_ptr<ITexture> CreateTexture(
@@ -82,6 +81,9 @@ public:
     void *initialDataTexels = nullptr,
     uint32_t initialDataPitch = 0);
 
+  void BeginRendering() override;
+
+  void UpdateConstantBuffer(IConstantBuffer *buffer, const void *data, size_t dataSize) override;
 
   void RenderQuad(
     IShader *ps,
@@ -89,6 +91,8 @@ public:
     std::initializer_list<ShaderResourceView> inputs,
     std::initializer_list<SamplerType> samplers,
     std::initializer_list<IConstantBuffer *> constantBuffers) override;
+
+  void EndRendering();
 
 private:
   class Texture : public ITexture
@@ -185,7 +189,12 @@ private:
   ComPtr<ID3D11VertexShader> vertexShader;
 
   HWND window;
+  uint32_t prevSamplerCount = 0;
+  uint32_t prevConstantBufferCount = 0;
+  bool isRendering = false;
 };
+
+
 // Load a resource from the current executable. Used because I packed the shaders into the RC like a weirdo
 static std::vector<uint8_t> LoadResourceBytes(int resourceId)
 {
@@ -225,6 +234,7 @@ void D3D11GraphicsDevice::CreateVertexShaderAndInputLayout(
   ComPtr<ID3D11VertexShader> *shaderOut,
   ComPtr<ID3D11InputLayout> *layoutOut)
 {
+  assert(!isRendering);
   auto data = LoadResourceBytes(resourceID);
   CHECK_HRESULT(
     device->CreateVertexShader(
@@ -247,6 +257,7 @@ void D3D11GraphicsDevice::CreateVertexShaderAndInputLayout(
 
 std::unique_ptr<IShader> D3D11GraphicsDevice::CreateShader(ShaderID id)
 {
+  assert(!isRendering);
   int resourceID = 0;
   switch (id)
   {
@@ -288,6 +299,7 @@ std::unique_ptr<ITexture> D3D11GraphicsDevice::CreateTexture(
   void *initialDataTexels,
   uint32_t initialDataPitch)
 {
+  assert(!isRendering);
   std::unique_ptr<Texture> tex = std::make_unique<Texture>();
 
   DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -415,6 +427,7 @@ std::vector<uint32_t> D3D11GraphicsDevice::GetTexturePixels(ITexture *texture)
 
 std::unique_ptr<IConstantBuffer> D3D11GraphicsDevice::CreateConstantBuffer(size_t size)
 {
+  assert(!isRendering);
   // Constant buffers must be multiples of 16 bytes in size so round up if we're off.
   if (size & 0x0F)
   {
@@ -435,6 +448,7 @@ std::unique_ptr<IConstantBuffer> D3D11GraphicsDevice::CreateConstantBuffer(size_
 
 void D3D11GraphicsDevice::UpdateConstantBuffer(IConstantBuffer *bufferIn, const void *data, size_t dataSize)
 {
+  assert(isRendering);
   D3D11_MAPPED_SUBRESOURCE map;
   ID3D11Buffer *buffer = static_cast<ConstantBuffer *>(bufferIn)->buffer.Ptr();
   context->Map(buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &map);
@@ -512,7 +526,6 @@ D3D11GraphicsDevice::D3D11GraphicsDevice(HWND hwnd)
 
 void D3D11GraphicsDevice::InitializeBuiltIns()
 {
-
   // Create the basic vertex buffer (just a square made of 6 vertices, it wasn't even worth dealing with an index buffer for a single quad)
   {
     Vertex data[]
@@ -630,7 +643,31 @@ void D3D11GraphicsDevice::UpdateWindowSize()
 
 void D3D11GraphicsDevice::Present()
 {
+  assert(!isRendering);
   swapChain->Present(1, 0);
+}
+
+
+void D3D11GraphicsDevice::BeginRendering()
+{
+  assert(!isRendering);
+  float color[] = {0.0f, 0.0f, 0.0f, 0.0f};
+  context->OMSetBlendState(blendState, color, 0xFFFFFFFF);
+  context->RSSetState(rasterizerState);
+  context->IASetInputLayout(inputLayout);
+  context->VSSetShader(vertexShader, nullptr, 0);
+  context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+  isRendering = true;
+}
+
+
+void D3D11GraphicsDevice::EndRendering()
+{
+  assert(isRendering);
+  ID3D11Buffer *cbs[16] = {};
+  context->PSSetConstantBuffers(0, UINT(prevConstantBufferCount), cbs);
+  prevConstantBufferCount = 0;
+  isRendering = false;
 }
 
 
@@ -711,6 +748,8 @@ void D3D11GraphicsDevice::RenderQuad(
   std::initializer_list<SamplerType> samplers,
   std::initializer_list<IConstantBuffer *> constantBuffers)
 {
+  assert(isRendering);
+
   {
     context->OMSetRenderTargets(1, &outputRtv, nullptr);
 
@@ -725,13 +764,7 @@ void D3D11GraphicsDevice::RenderQuad(
     context->RSSetViewports(1, &vp);
   }
 
-  float color[] = {0.0f, 0.0f, 0.0f, 0.0f};
-  context->OMSetBlendState(blendState, color, 0xFFFFFFFF);
-  context->RSSetState(rasterizerState);
-  context->IASetInputLayout(inputLayout);
-  context->VSSetShader(vertexShader, nullptr, 0);
   context->PSSetShader(static_cast<PixelShader *>(ps)->shader, nullptr, 0);
-  context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
   {
     auto ptr = vertexBuffer.Ptr();
@@ -760,7 +793,12 @@ void D3D11GraphicsDevice::RenderQuad(
       cbs[i] = static_cast<ConstantBuffer *>(constantBuffers.begin()[i])->buffer;
     }
 
-    context->PSSetConstantBuffers(0, UINT(constantBuffers.size()), cbs);
+    for (uint32_t i = uint32_t(constantBuffers.size()); i < prevConstantBufferCount; i++)
+    {
+      cbs[i] = nullptr;
+    }
+
+    context->PSSetConstantBuffers(0, std::max(UINT(constantBuffers.size()), UINT(prevConstantBufferCount)), cbs);
   }
 
   if (srvCount > 0)
@@ -778,6 +816,7 @@ void D3D11GraphicsDevice::RenderQuad(
 
   outputRtv = nullptr;
   context->OMSetRenderTargets(1, &outputRtv, nullptr);
+  prevConstantBufferCount = uint32_t(constantBuffers.size());
 }
 
 

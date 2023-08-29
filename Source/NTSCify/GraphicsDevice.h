@@ -128,6 +128,9 @@ namespace NTSCify
 
     virtual std::unique_ptr<IConstantBuffer> CreateConstantBuffer(size_t size) = 0;
     virtual std::unique_ptr<IShader> CreateShader(ShaderID id) = 0;
+
+    virtual void BeginRendering() = 0;
+
     virtual void UpdateConstantBuffer(IConstantBuffer *buffer, const void *data, size_t dataSize) = 0;
 
     template <typename T> requires (!std::is_pointer_v<T>)
@@ -142,6 +145,8 @@ namespace NTSCify
       std::initializer_list<ShaderResourceView> inputs,
       std::initializer_list<SamplerType> samplers,
       std::initializer_list<IConstantBuffer *> constantBuffers) = 0;
+
+    virtual void EndRendering() = 0;
   };
 }
 

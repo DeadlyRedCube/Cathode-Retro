@@ -136,6 +136,8 @@ namespace NTSCify
       ScanlineType scanlineType,
       ITexture *output)
     {
+      device->BeginRendering();
+
       if (signalType != SignalType::RGB)
       {
         signalGenerator->Generate(currentFrameInputRGB);
@@ -153,6 +155,8 @@ namespace NTSCify
         previousFrameInputRGB,
         output,
         scanlineType);
+
+      device->EndRendering();
     }
 
   private:

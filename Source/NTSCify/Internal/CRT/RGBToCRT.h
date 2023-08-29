@@ -281,6 +281,8 @@ namespace NTSCify::Internal::CRT
       data.shadowMaskScaleY = shadowMaskScaleNormalization / screenSettings.shadowMaskScale;
       data.shadowMaskStrength = screenSettings.shadowMaskStrength;
 
+      device->BeginRendering();
+
       device->UpdateConstantBuffer(screenTextureConstantBuffer.get(), data);
       device->UpdateConstantBuffer(samplePatternConstantBuffer.get(), k_samplingPattern16X);
 
@@ -290,6 +292,7 @@ namespace NTSCify::Internal::CRT
         {shadowMaskTexture.get()},
         {SamplerType::LinearWrap},
         {screenTextureConstantBuffer.get(), samplePatternConstantBuffer.get()});
+      device->EndRendering();
     }
 
 
@@ -356,18 +359,20 @@ namespace NTSCify::Internal::CRT
       shadowMaskTexture = device->CreateTexture(k_size, k_size / 2, k_mipCount, TextureFormat::RGBA_Unorm8, TextureFlags::RenderTarget);
 
       // First step is the generate the texture at the largest mip level
+      auto generateShadowMaskShader = device->CreateShader(ShaderID::GenerateShadowMask);
+
+      struct GenerateShadowMaskConstants
       {
-        auto generateShadowMaskShader = device->CreateShader(ShaderID::GenerateShadowMask);
+        float blackLevel;
+        float coordinateScale;
+        float texWidth;
+        float texHeight;
+      };
 
-        struct GenerateShadowMaskConstants
-        {
-          float blackLevel;
-          float coordinateScale;
-          float texWidth;
-          float texHeight;
-        };
+      auto constBuf = device->CreateConstantBuffer(sizeof(GenerateShadowMaskConstants));
 
-        auto constBuf = device->CreateConstantBuffer(sizeof(GenerateShadowMaskConstants));
+      device->BeginRendering();
+      {
         device->UpdateConstantBuffer(
           constBuf.get(),
           GenerateShadowMaskConstants {
@@ -383,18 +388,19 @@ namespace NTSCify::Internal::CRT
           {},
           {SamplerType::LinearClamp},
           {constBuf.get()});
-      }
 
-      // Now it's generated so we need to generate the mips by using our lanczos downsample
-      for (uint32_t destMip = 1; destMip < k_mipCount; destMip++)
-      {
-        device->RenderQuad(
-          downsample2XShader.get(),
-          {shadowMaskTexture.get(), destMip},
-          {{shadowMaskTexture.get(), destMip - 1}},
-          {SamplerType::LinearWrap},
-          {});
+        // Now it's generated so we need to generate the mips by using our lanczos downsample
+        for (uint32_t destMip = 1; destMip < k_mipCount; destMip++)
+        {
+          device->RenderQuad(
+            downsample2XShader.get(),
+            {shadowMaskTexture.get(), destMip},
+            {{shadowMaskTexture.get(), destMip - 1}},
+            {SamplerType::LinearWrap},
+            {});
+        }
       }
+      device->EndRendering();
     }
 
 
