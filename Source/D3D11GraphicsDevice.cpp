@@ -9,10 +9,11 @@
 #include <memory>
 #include <vector>
 
+#include "NTSCify/Internal/Util.h"
+
 #include "ComPtr.h"
 #include "D3D11GraphicsDevice.h"
 #include "resource.h"
-#include "Util.h"
 
 #define UUID_AND_ADDRESS(pObj) __uuidof(decltype(pObj.Ptr())), reinterpret_cast<void**>(pObj.AddressForReplace())
 

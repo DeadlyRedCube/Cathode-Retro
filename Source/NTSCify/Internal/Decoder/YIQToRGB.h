@@ -2,10 +2,9 @@
 
 #include <algorithm>
 
+#include "NTSCify/Internal/Util.h"
+#include "NTSCify/GraphicsDevice.h"
 #include "NTSCify/TVKnobSettings.h"
-#include "GraphicsDevice.h"
-#include "resource.h"
-#include "Util.h"
 
 
 namespace NTSCify::Internal::Decoder

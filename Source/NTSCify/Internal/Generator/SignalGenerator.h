@@ -1,11 +1,12 @@
 #pragma once
 
+#include "NTSCify/Internal/Generator/ApplyArtifacts.h"
+#include "NTSCify/Internal/Generator/RGBToSVideoOrComposite.h"
 #include "NTSCify/Internal/Constants.h"
 #include "NTSCify/Internal/SignalLevels.h"
 #include "NTSCify/Internal/SignalProperties.h"
+#include "NTSCify/Internal/Util.h"
 #include "NTSCify/SourceSettings.h"
-#include "NTSCify/Internal/Generator/ApplyArtifacts.h"
-#include "NTSCify/Internal/Generator/RGBToSVideoOrComposite.h"
 
 namespace NTSCify::Internal::Generator
 {

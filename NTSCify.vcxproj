@@ -529,7 +529,7 @@
   <ItemGroup>
     <ClInclude Include="Source\ComPtr.h" />
     <ClInclude Include="Source\D3D11GraphicsDevice.h" />
-    <ClInclude Include="Source\GraphicsDevice.h" />
+    <ClInclude Include="Source\NTSCify\GraphicsDevice.h" />
     <ClInclude Include="Source\NTSCify\ArtifactSettings.h" />
     <ClInclude Include="Source\NTSCify\Internal\Constants.h" />
     <ClInclude Include="Source\NTSCify\Internal\Decoder\CompositeToSVideo.h" />
@@ -550,7 +550,7 @@
     <ClInclude Include="Source\WicTexture.h" />
     <ClInclude Include="Source\resource.h" />
     <ClInclude Include="Source\SettingsDialog.h" />
-    <ClInclude Include="Source\Util.h" />
+    <ClInclude Include="Source\NTSCify\Internal\Util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

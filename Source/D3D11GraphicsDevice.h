@@ -5,7 +5,7 @@
 #define NOMINMAX
 #include <Windows.h>
 
-#include "GraphicsDevice.h"
+#include "NTSCify/GraphicsDevice.h"
 
 
 class ID3D11GraphicsDevice : public IGraphicsDevice

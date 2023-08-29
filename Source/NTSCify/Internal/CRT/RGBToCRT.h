@@ -2,11 +2,12 @@
 
 #include <cassert>
 #include <cinttypes>
+
+#include "NTSCify/Internal/Util.h"
+#include "NTSCify/GraphicsDevice.h"
 #include "NTSCify/OverscanSettings.h"
 #include "NTSCify/ScreenSettings.h"
-#include "GraphicsDevice.h"
-#include "resource.h"
-#include "Util.h"
+
 
 namespace NTSCify::Internal::CRT
 {

@@ -151,7 +151,7 @@
     <ClInclude Include="Source\ComPtr.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Source\GraphicsDevice.h">
+    <ClInclude Include="Source\NTSCify\GraphicsDevice.h">
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="Source\WicTexture.h">
@@ -160,7 +160,7 @@
     <ClInclude Include="Source\resource.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Util.h">
+    <ClInclude Include="Source\NTSCify\Internal\Util.h">
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="Source\NTSCify\Internal\Generator\ApplyArtifacts.h">

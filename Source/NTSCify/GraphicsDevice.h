@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Util.h"
+#include "NTSCify/Internal/Util.h"
 
 enum class TextureFlags
 {

@@ -2,10 +2,9 @@
 
 #include <algorithm>
 
-#include "GraphicsDevice.h"
 #include "NTSCify/Internal/Constants.h"
-#include "resource.h"
-#include "Util.h"
+#include "NTSCify/Internal/Util.h"
+#include "NTSCify/GraphicsDevice.h"
 
 
 namespace NTSCify::Internal::Decoder
