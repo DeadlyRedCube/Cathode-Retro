@@ -29,11 +29,11 @@ sampler g_sampler : register(s0);
 float4 main(float2 signalTexCoord: TEX): SV_TARGET
 {
   uint2 signalTexelIndex = uint2(round(signalTexCoord * float2(g_outputWidth, g_scanlineCount) - 0.5));
-  float2 texCoord = (float2(signalTexelIndex) * float2(float(g_inputWidth) / float(g_outputWidth), 1) + float2(0.25, 0.5)) 
+  float2 texCoord = (float2(signalTexelIndex) * float2(float(g_inputWidth) / float(g_outputWidth), 1) + float2(0.25, 0.5))
     / float2(g_inputWidth, g_scanlineCount);
-  
+
   float instability = CalculateTrackingInstabilityOffset(
-    signalTexelIndex.y, 
+    signalTexelIndex.y,
     g_scanlineCount,
     g_noiseSeed,
     g_instabilityScale,
@@ -41,8 +41,8 @@ float4 main(float2 signalTexCoord: TEX): SV_TARGET
 
   texCoord.x += instability;
 
-  float3 RGB = g_sourceTexture.Sample(g_sampler, texCoord).rgb; 
-  
+  float3 RGB = g_sourceTexture.Sample(g_sampler, texCoord).rgb;
+
   float3x3 mat = float3x3(
     0.3000,  0.5990,  0.2130,  // r
     0.5900, -0.2773, -0.5251,  // g
@@ -55,7 +55,7 @@ float4 main(float2 signalTexCoord: TEX): SV_TARGET
   YIQ.x = pow(saturate(YIQ.x), 2.2 / 2);
   float iqSat = saturate(length(YIQ.yz));
   YIQ.yz *= pow(iqSat, 2.2 / 2) / max(0.00001, iqSat);
-  
+
   // Separate them out because YIQ.y ended up being confusing (is it y? no it's i! but also it's y!)
   float Y = YIQ.x;
   float I = YIQ.y;

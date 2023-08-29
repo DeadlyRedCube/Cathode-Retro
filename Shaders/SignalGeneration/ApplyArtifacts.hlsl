@@ -26,7 +26,7 @@ float4 main(float2 inputTexCoord: TEX): SV_TARGET
   float4 lumaChroma = g_sourceTexture.Sample(g_sampler, inputTexCoord);
 
   // Ghosting basically is what happens when a copy of your signal "skips" its intended path through the cable and mixes
-  //  in with your normal signal (like an EM leak of the signal) and is basically a pre-echo of the signal. So just 
+  //  in with your normal signal (like an EM leak of the signal) and is basically a pre-echo of the signal. So just
   //  take the signal and add a pre-echoed version of it
   if (g_ghostBrightness != 0)
   {

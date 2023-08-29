@@ -24,7 +24,7 @@ sampler g_sampler;
 
 static const uint k_sampleCount = 7;
 static const float k_coeffs[k_sampleCount] =
-{ 
+{
   3.586488181e-2,
   1.278779997e-1,
   2.589758386e-1,
@@ -35,7 +35,7 @@ static const float k_coeffs[k_sampleCount] =
 };
 
 static const float k_offsets[k_sampleCount] =
-{ 
+{
   -5.308886854,
   -3.374611919,
   -1.445310910,
@@ -60,7 +60,7 @@ float4 Blur(float2 centerTexCoord, float2 blurDirection)
   }
 
   return v;
-} 
+}
 
 
 cbuffer consts : register(b0)

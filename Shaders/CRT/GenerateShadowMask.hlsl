@@ -14,7 +14,7 @@ float4 main(float2 inTexCoord: TEX): SV_TARGET
 
   if (t.x > 0.5)
   {
-    // We're in the right-most half of the texture, so offset our y coordinate by 0.5 (and wrap it to within 0..1) so this set draws 
+    // We're in the right-most half of the texture, so offset our y coordinate by 0.5 (and wrap it to within 0..1) so this set draws
     //  offset vertically
     t.y = frac(t.y + 0.5);
 
@@ -65,6 +65,6 @@ float4 main(float2 inTexCoord: TEX): SV_TARGET
   color *= mul;
 
   color = color / (1.0 - g_blackLevel) + g_blackLevel;
-  
+
   return float4(color, 1);
 }

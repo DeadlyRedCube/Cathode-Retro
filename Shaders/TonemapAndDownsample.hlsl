@@ -8,11 +8,11 @@
 
 // However, it's been optimized to take advantage of the linear filtering using the same technique I used for the gaussian filters at
 //  https://drilian.com/gaussian-kernel/
-// That means it's only 4 texture samples for an 8-tap lanczos instead of a full 8, meaning this dumb 8x8 filter is 16 taps instead of 
+// That means it's only 4 texture samples for an 8-tap lanczos instead of a full 8, meaning this dumb 8x8 filter is 16 taps instead of
 //  64. Obviously this could be done in two 4-tap passes (horizontal then vertical) but this is done as a preprocess at the moment so
 //  I didn't bother.
 static const uint k_sampleCount = 4;
-static const float k_coeffs[4] = 
+static const float k_coeffs[4] =
 {
   -0.051,
    0.551,
@@ -20,7 +20,7 @@ static const float k_coeffs[4] =
   -0.051,
 };
 
-static const float k_offsets[4] = 
+static const float k_offsets[4] =
 {
   -2.67647052,
   -0.712341249,
@@ -51,16 +51,16 @@ float4 main(float2 inTexCoord: TEX): SV_TARGET
   for (uint i = 0; i < k_sampleCount; i++)
   {
     float2 c = inTexCoord + g_downsampleDir * inputTexelSize * k_offsets[i];
-    
+
     float4 samp = g_sourceTexture.Sample(g_sampler, c);
-    
+
     float inLuma = dot(samp.rgb, float3(0.3, 0.59, 0.11));
-    
+
     float outLuma = (inLuma - g_minLuminosity) / (1.0 - g_minLuminosity);
     outLuma = pow(saturate(outLuma), g_colorPower);
-    
+
     samp.rgb *= outLuma / inLuma;
-    
+
     v += samp * k_coeffs[i];
   }
 

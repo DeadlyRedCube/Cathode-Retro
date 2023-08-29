@@ -1,10 +1,10 @@
 // Perform a centered box filter - which means we might need to sample a half-texel off of either end of the filter, if the filter width is even (and it probably is)
 float2 BoxFilter(
-  Texture2D<float2> sourceTexture, 
-  sampler samp, 
+  Texture2D<float2> sourceTexture,
+  sampler samp,
   float2 invTextureSize,
-  uint filterWidth, 
-  float2 texCoord, 
+  uint filterWidth,
+  float2 texCoord,
   out float2 centerSample)
 {
   // Get the center sample (which we'll write out to the caller)

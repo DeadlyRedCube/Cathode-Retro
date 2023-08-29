@@ -25,7 +25,7 @@ static const float pi = 3.1415926535897932384626433832795028841971f;
 // the absolute best results I've gotten were from a super-basic average (which very nicely removes a very specific frequency and all integer
 //  multiples of it), which is also exactly what we need here.
 //
-// Additionally, if we want temporal artifact reduction, we're doing this whole calculation twice (we have a float4(lumaA, chromaA, lumaB, chromaB) 
+// Additionally, if we want temporal artifact reduction, we're doing this whole calculation twice (we have a float4(lumaA, chromaA, lumaB, chromaB)
 //  texture representing the same frame with two different color phases), and we use the temporal artifact reduction value to blend between them,
 //  which eliminates alternating-phase-related flickering that systems like the NES could generate.
 float4 main(float2 inTexCoord : TEX): SV_TARGET
@@ -41,7 +41,7 @@ float4 main(float2 inTexCoord : TEX): SV_TARGET
 
   float2 relativePhase = g_scanlinePhases.Sample(g_sampler, inTexCoord.y) + g_tint;
 
-  // This is the chroma decode process, it's a QAM demodulation. 
+  // This is the chroma decode process, it's a QAM demodulation.
   //  You multiply the chroma signal by a reference waveform and its quadrature (Basically, sin and cos at a given time) and then filter
   //  out the chroma frequency (here done by a box filter (an average)). What you're left with are the approximate I and Q color space
   //  values for this part of the image.

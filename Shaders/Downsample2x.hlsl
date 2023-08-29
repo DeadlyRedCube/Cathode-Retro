@@ -7,11 +7,11 @@
 
 // However, it's been optimized to take advantage of the linear filtering using the same technique I used for the gaussian filters at
 //  https://drilian.com/gaussian-kernel/
-// That means it's only 4 texture samples for an 8-tap lanczos instead of a full 8, meaning this dumb 8x8 filter is 16 taps instead of 
+// That means it's only 4 texture samples for an 8-tap lanczos instead of a full 8, meaning this dumb 8x8 filter is 16 taps instead of
 //  64. Obviously this could be done in two 4-tap passes (horizontal then vertical) but this is done as a preprocess at the moment so
 //  I didn't bother.
 static const uint k_sampleCount = 4;
-static const float k_coeffs[4] = 
+static const float k_coeffs[4] =
 {
   -0.051,
    0.551,
@@ -19,7 +19,7 @@ static const float k_coeffs[4] =
   -0.051,
 };
 
-static const float k_offsets[4] = 
+static const float k_offsets[4] =
 {
   -2.67647052,
   -0.712341249,

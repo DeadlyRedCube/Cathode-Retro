@@ -11,8 +11,8 @@ cbuffer consts : register(b0)
   float2 g_invTextureSize;
 }
 
-// This shader takes a composite signal (like you'd get via a console's composite input) and separates out the luma chroma so it is effectively an SVideo 
-//  signal. I tried all sorts of wacky hijinks to filter these things out in a solid emulation of what old hardware was doing, but all of those filters 
+// This shader takes a composite signal (like you'd get via a console's composite input) and separates out the luma chroma so it is effectively an SVideo
+//  signal. I tried all sorts of wacky hijinks to filter these things out in a solid emulation of what old hardware was doing, but all of those filters
 //  were both VERY expensive and also had annoying artifacts (like ringing). tried all sorts of low pass and band stop solutions to get the luma separated
 //  from the chroma.
 //
@@ -38,7 +38,7 @@ float4 main(float2 inTex: TEX): SV_TARGET
 {
   float2 inputTexDim;
   g_sourceTexture.GetDimensions(inputTexDim.x, inputTexDim.y);
-  
+
   uint2 texelIndex = uint2(inTex * inputTexDim);
 
   // Average the luma samples
