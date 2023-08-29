@@ -1,10 +1,10 @@
 #pragma once
 
 #include "NTSCify/SignalProperties.h"
-#include "NTSCify/DecoderComponents/CompositeToSVideo.h"
-#include "NTSCify/DecoderComponents/FilterRGB.h"
-#include "NTSCify/DecoderComponents/SVideoToYIQ.h"
-#include "NTSCify/DecoderComponents/YIQToRGB.h"
+#include "NTSCify/Decoder/CompositeToSVideo.h"
+#include "NTSCify/Decoder/FilterRGB.h"
+#include "NTSCify/Decoder/SVideoToYIQ.h"
+#include "NTSCify/Decoder/YIQToRGB.h"
 
 
 namespace NTSCify

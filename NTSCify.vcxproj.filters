@@ -163,34 +163,34 @@
     <ClInclude Include="Source\Util.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Source\NTSCify\GeneratorComponents\ApplyArtifacts.h">
+    <ClInclude Include="Source\NTSCify\Generator\ApplyArtifacts.h">
       <Filter>Headers\NTSCify\GeneratorComponents</Filter>
     </ClInclude>
     <ClInclude Include="Source\NTSCify\ArtifactSettings.h">
       <Filter>Headers\NTSCify</Filter>
     </ClInclude>
-    <ClInclude Include="Source\NTSCify\DecoderComponents\CompositeToSVideo.h">
+    <ClInclude Include="Source\NTSCify\Decoder\CompositeToSVideo.h">
       <Filter>Headers\NTSCify\DecoderComponents</Filter>
     </ClInclude>
     <ClInclude Include="Source\NTSCify\Constants.h">
       <Filter>Headers\NTSCify</Filter>
     </ClInclude>
-    <ClInclude Include="Source\NTSCify\DecoderComponents\FilterRGB.h">
+    <ClInclude Include="Source\NTSCify\Decoder\FilterRGB.h">
       <Filter>Headers\NTSCify\DecoderComponents</Filter>
     </ClInclude>
     <ClInclude Include="Source\NTSCify\RGBToCRT.h">
       <Filter>Headers\NTSCify</Filter>
     </ClInclude>
-    <ClInclude Include="Source\NTSCify\GeneratorComponents\RGBToSVideoOrComposite.h">
+    <ClInclude Include="Source\NTSCify\Generator\RGBToSVideoOrComposite.h">
       <Filter>Headers\NTSCify\GeneratorComponents</Filter>
     </ClInclude>
     <ClInclude Include="Source\NTSCify\ScreenSettings.h">
       <Filter>Headers\NTSCify</Filter>
     </ClInclude>
-    <ClInclude Include="Source\NTSCify\SignalDecoder.h">
+    <ClInclude Include="Source\NTSCify\Decoder\SignalDecoder.h">
       <Filter>Headers\NTSCify</Filter>
     </ClInclude>
-    <ClInclude Include="Source\NTSCify\SignalGenerator.h">
+    <ClInclude Include="Source\NTSCify\Generator\SignalGenerator.h">
       <Filter>Headers\NTSCify</Filter>
     </ClInclude>
     <ClInclude Include="Source\NTSCify\SignalLevels.h">
@@ -202,10 +202,10 @@
     <ClInclude Include="Source\NTSCify\SourceSettings.h">
       <Filter>Headers\NTSCify</Filter>
     </ClInclude>
-    <ClInclude Include="Source\NTSCify\DecoderComponents\SVideoToYIQ.h">
+    <ClInclude Include="Source\NTSCify\Decoder\SVideoToYIQ.h">
       <Filter>Headers\NTSCify\DecoderComponents</Filter>
     </ClInclude>
-    <ClInclude Include="Source\NTSCify\DecoderComponents\YIQToRGB.h">
+    <ClInclude Include="Source\NTSCify\Decoder\YIQToRGB.h">
       <Filter>Headers\NTSCify\DecoderComponents</Filter>
     </ClInclude>
     <ClInclude Include="Source\NTSCify\TVKnobSettings.h">

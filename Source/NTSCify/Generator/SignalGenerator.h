@@ -4,8 +4,8 @@
 #include "NTSCify/SignalLevels.h"
 #include "NTSCify/SignalProperties.h"
 #include "NTSCify/SourceSettings.h"
-#include "NTSCify/GeneratorComponents/ApplyArtifacts.h"
-#include "NTSCify/GeneratorComponents/RGBToSVideoOrComposite.h"
+#include "NTSCify/Generator/ApplyArtifacts.h"
+#include "NTSCify/Generator/RGBToSVideoOrComposite.h"
 
 namespace NTSCify
 {

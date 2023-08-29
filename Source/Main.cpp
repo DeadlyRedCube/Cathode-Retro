@@ -8,8 +8,8 @@
 #include <thread>
 
 #include "NTSCify/RGBToCRT.h"
-#include "NTSCify/SignalGenerator.h"
-#include "NTSCify/SignalDecoder.h"
+#include "NTSCify/Generator/SignalGenerator.h"
+#include "NTSCify/Decoder/SignalDecoder.h"
 #include "D3D11GraphicsDevice.h"
 #include "WicTexture.h"
 #include "resource.h"

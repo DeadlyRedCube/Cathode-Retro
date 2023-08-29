@@ -31,11 +31,13 @@ namespace NTSCify
     float diffusionStrength = 0.0f;
   };
 
+
   struct ScreenSettingsPreset
   {
     const char *name;
     ScreenSettings settings;
   };
+
 
   static constexpr ScreenSettingsPreset k_screenPresets[] =
   {
