@@ -312,7 +312,7 @@ static void DoInit( HINSTANCE hInstance )
   wc.hCursor = LoadCursor( NULL, IDC_ARROW );
   wc.hbrBackground = CreateSolidBrush(0);
   wc.lpszMenuName = nullptr;
-  wc.lpszClassName = L"NTSCify";
+  wc.lpszClassName = L"NTSCify D3D Test App";
   RegisterClass( &wc );
 
   RECT screenRect;
@@ -326,8 +326,8 @@ static void DoInit( HINSTANCE hInstance )
 
   hwnd = CreateWindowEx(
     0,
-    L"NTSCify",
-    L"NTSCify",
+    L"NTSCify D3D Test App",
+    L"NTSCify D3D Test App",
     WS_OVERLAPPEDWINDOW,
     0,
     0,

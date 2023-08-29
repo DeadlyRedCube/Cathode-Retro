@@ -3,11 +3,11 @@
 #include <Windows.h>
 #include <functional>
 
-#include "NTSCify\ArtifactSettings.h" 
-#include "NTSCify\OverscanSettings.h" 
-#include "NTSCify\ScreenSettings.h" 
+#include "NTSCify\ArtifactSettings.h"
+#include "NTSCify\OverscanSettings.h"
+#include "NTSCify\ScreenSettings.h"
 #include "NTSCify\SourceSettings.h"
-#include "NTSCify\TVKnobSettings.h" 
+#include "NTSCify\TVKnobSettings.h"
 
 
 bool RunSettingsDialog(

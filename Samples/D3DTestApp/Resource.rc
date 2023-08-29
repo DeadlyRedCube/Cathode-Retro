@@ -25,18 +25,18 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE 
+1 TEXTINCLUDE
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE 
+2 TEXTINCLUDE
 BEGIN
     "#include ""winres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE 
+3 TEXTINCLUDE
 BEGIN
     "\r\n"
     "\0"
@@ -180,33 +180,33 @@ END
 // RT_RCDATA
 //
 
-IDR_BASIC_VERTEX_SHADER RT_RCDATA               "..\\Generated\\BasicVertexShader.vso"
+IDR_BASIC_VERTEX_SHADER RT_RCDATA               "Generated\\BasicVertexShader.shad"
 
-IDR_RGB_TO_SVIDEO_OR_COMPOSITE RT_RCDATA               "..\\Generated\\RGBToSVideoOrComposite.pso"
+IDR_RGB_TO_SVIDEO_OR_COMPOSITE RT_RCDATA               "Generated\\RGBToSVideoOrComposite.shad"
 
-IDR_APPLY_ARTIFACTS     RT_RCDATA               "..\\Generated\\ApplyArtifacts.pso"
+IDR_APPLY_ARTIFACTS     RT_RCDATA               "Generated\\ApplyArtifacts.shad"
 
-IDR_COMPOSITE_TO_SVIDEO RT_RCDATA               "..\\Generated\\CompositeToSVideo.pso"
+IDR_COMPOSITE_TO_SVIDEO RT_RCDATA               "Generated\\CompositeToSVideo.shad"
 
-IDR_SVIDEO_TO_YIQ       RT_RCDATA               "..\\Generated\\SVideoToYIQ.pso"
+IDR_SVIDEO_TO_YIQ       RT_RCDATA               "Generated\\SVideoToYIQ.shad"
 
-IDR_YIQ_TO_RGB          RT_RCDATA               "..\\Generated\\YIQToRGB.pso"
+IDR_YIQ_TO_RGB          RT_RCDATA               "Generated\\YIQToRGB.shad"
 
-IDR_FILTER_RGB          RT_RCDATA               "..\\Generated\\FilterRGB.pso"
+IDR_FILTER_RGB          RT_RCDATA               "Generated\\FilterRGB.shad"
 
-IDR_GENERATE_SHADOW_MASK RT_RCDATA               "..\\Generated\\GenerateShadowMask.pso"
+IDR_GENERATE_SHADOW_MASK RT_RCDATA               "Generated\\GenerateShadowMask.shad"
 
-IDR_DOWNSAMPLE_2X       RT_RCDATA               "..\\Generated\\Downsample2X.pso"
+IDR_DOWNSAMPLE_2X       RT_RCDATA               "Generated\\Downsample2X.shad"
 
-IDR_RGB_TO_CRT          RT_RCDATA               "..\\Generated\\RGBToCRT.pso"
+IDR_RGB_TO_CRT          RT_RCDATA               "Generated\\RGBToCRT.shad"
 
-IDR_GENERATE_PHASE_TEXTURE RT_RCDATA               "..\\Generated\\GeneratePhaseTexture.pso"
+IDR_GENERATE_PHASE_TEXTURE RT_RCDATA               "Generated\\GeneratePhaseTexture.shad"
 
-IDR_GENERATE_SCREEN_TEXTURE RT_RCDATA               "..\\Generated\\GenerateScreenTexture.pso"
+IDR_GENERATE_SCREEN_TEXTURE RT_RCDATA               "Generated\\GenerateScreenTexture.shad"
 
-IDR_GAUSSIAN_BLUR_13    RT_RCDATA               "..\\Generated\\GaussianBlur13.pso"
+IDR_GAUSSIAN_BLUR_13    RT_RCDATA               "Generated\\GaussianBlur13.shad"
 
-IDR_TONEMAP_AND_DOWNSAMPLE RT_RCDATA               "..\\Generated\\TonemapAndDownsample.pso"
+IDR_TONEMAP_AND_DOWNSAMPLE RT_RCDATA               "Generated\\TonemapAndDownsample.shad"
 
 
 /////////////////////////////////////////////////////////////////////////////
