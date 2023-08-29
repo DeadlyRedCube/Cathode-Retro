@@ -13,11 +13,7 @@ cbuffer consts : register(b0)
   float2 g_overscanScale;               // overscanSize / standardSize;
   float2 g_overscanOffset;              // texture coordinate offset due to overscan
   float2 g_distortion;                  // How much to distort (from 0 .. 1)
-  float2 g_maskDistortionUnused; 
 
-  float2 g_shadowMaskScaleUnused;
-  float  g_shadowMaskStrengthUnused;
-  float  g_roundedCornerSizeUnused;
   float  g_phosphorDecay;
   float  g_scanlineCount;               // How many scanlines there are
   float  g_scanlineStrength;            // How strong the scanlines are (0 == none, 1 == whoa)
@@ -33,20 +29,20 @@ static const float pi = 3.141592653;
 float4 main(float2 inTexCoord : TEX) : SV_TARGET
 {
   float4 screenMask = g_screenMaskTexture.Sample(g_sampler, inTexCoord);
-  
+
   // Now distort our actual texture coordinates to get our texture into the correct space for display
   float2 t = DistortCRTCoordinates((inTexCoord * 2 - 1) * g_viewScale, g_distortion) * g_overscanScale + g_overscanOffset * 2.0;
-  
+
   // Use "t" (before we do the even/odd update or the scanline-sharpening) to load our diffusion texture, which is an approximation of
   //  the glass in front of the phosphors scattering light a little bit due to imperfections.
   float3 diffusionColor = g_diffusionTexture.Sample(g_sampler, t * 0.5 + 0.5).rgb;
- 
+
   // Offset based on whether we're an even or odd frame
   t.y += g_curEvenOddTexelOffset / g_scanlineCount;
-    
+
   // Before we adjust the y coordinate to sharpen the scanline interpolation, grab our scanline-space y coordinate.
   float scanlineSpaceY = t.y * g_scanlineCount + g_scanlineCount;
-  
+
   // Because t.y is currently in [-1, 1], this derivative multiplied by the scanline count ends up being the number of total scanlines
   //  involved (including the empty ones). So this is "how much along y does one output pixel move us relative to g_scanlineCount*2"
   float pixelLengthInScanlineSpace = length(ddy(t)) * g_scanlineCount;
@@ -72,7 +68,7 @@ float4 main(float2 inTexCoord : TEX) : SV_TARGET
   {
     t = t * 0.5 + 0.5; // t has been in -1..1 range this whole time, scale it to 0..1 for sampling.
     sourceColor = g_currentFrameTexture.Sample(g_sampler, t).rgb;
-    
+
     // Reduce the influence of the scanlines as we get small enough that aliasing is unavoidable (fully fading out at 0.7x nyquist)
     float scanlineStrength = lerp(g_scanlineStrength, 0, smoothstep(1.0, 1.4, length(ddy(inTexCoord)) * g_scanlineCount * 2));
 
@@ -92,11 +88,11 @@ float4 main(float2 inTexCoord : TEX) : SV_TARGET
       //  got something that looked good at 1080p and up and introduced minimal moiré (minimal meaning "it's not visible when the shadow
       //  mask is also enabled).
       float scale = pow(abs(pixelLengthInScanlineSpace), 2.6) * 7;
-      
+
       float ya = scanlineSpaceY - scale;
       float yb = scanlineSpaceY + scale;
       scanline = (0.5 * (yb - ya) + 1.0 / (2 * pi) * (sin(pi * ya) - sin(pi * yb))) / (2 * scale);
-      
+
       // Now multiply in the scanline darkening according to the scanline strength.
       sourceColor *= lerp(1 - scanlineStrength, 1.0, scanline);
     }
@@ -110,25 +106,25 @@ float4 main(float2 inTexCoord : TEX) : SV_TARGET
       prevT.y += g_prevEvenOddTexelOffset / g_scanlineCount;
       prevScanline = 1 - prevScanline;
     }
-    
+
     float3 prevSourceColor = g_previousFrameTexture.Sample(g_sampler, prevT).rgb;
     prevSourceColor *= lerp(1 - scanlineStrength, 1.0, prevScanline);
 
     // If a phosphor hasn't decayed all the way keep its brightness
     sourceColor = max(prevSourceColor * g_phosphorDecay, sourceColor);
-    
+
     // We want to adjust the brightness to somewhat compensate for the darkening due to scanlines
     sourceColor *= 1.0 + scanlineStrength * 0.5;
   }
 
   // Time to put it all together: first, by applying the screen mask (i.e. the shadow mask/aperture grill, etc)...
   float3 res = sourceColor * screenMask.rgb;
-  
-  // ... then bringing in some diffusion on top (This isn't physically accurate (it should really be a lerp between res and diffusionColor) 
+
+  // ... then bringing in some diffusion on top (This isn't physically accurate (it should really be a lerp between res and diffusionColor)
   //  but doing it this way preserves the brightness and still looks reasonable, especially when displaying bright things on a dark
   //  background)
   res = max(diffusionColor * g_diffusionStrength, res);
-  
+
   // Finally, mask out everything outside of the edges
   return float4(lerp((0.05).xxx, res, screenMask.a), 1);
 }

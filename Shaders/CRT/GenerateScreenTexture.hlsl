@@ -13,11 +13,8 @@ cbuffer consts : register(b0)
   float2 g_maskDistortion;      // Where to put the mask sides
 
   float2 g_shadowMaskScale;     // Scale of the shadow mask texture lookup
-  float  g_shadowMaskStrength;  // 
+  float  g_shadowMaskStrength;  //
   float  g_roundedCornerSize;   // 0 == no corner, 1 == screen is an oval
-  float  g_phosphorDecayUnused;
-  float  g_scanlineCountUnused;     
-  float  g_scanlineStrengthUnused; 
 }
 
 cbuffer moreConsts : register(b1)
@@ -30,7 +27,7 @@ float3 ScreenTint(float2 coord)
 {
   // Sample the shadow mask
   float3 shadowMaskColor = g_shadowMaskTexture.SampleBias(
-    g_sampler, 
+    g_sampler,
     coord * g_shadowMaskScale,
     -1).rgb;
 

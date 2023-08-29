@@ -383,6 +383,10 @@ void RenderLoadedTexture(NTSCify::ITexture *output, Rebuild rebuild = Rebuild::A
     s_knobSettings,
     s_overscanSettings,
     s_screenSettings);
+
+  loadedTexture->ntscify->SetOutputSize(
+    (output != nullptr) ? output->Width() : s_graphicsDevice->OutputWidth(),
+    (output != nullptr) ? output->Height() : s_graphicsDevice->OutputHeight());
   loadedTexture->ntscify->Render(input, input2, scanlineType, output);
 }
 

@@ -51,10 +51,9 @@ namespace NTSCify
         inputWidth,
         signalGenerator->SignalProperties().scanlineWidth,
         inputHeight,
-        signalGenerator->SignalProperties().inputPixelAspectRatio);
-
-      rgbToCRT->SetOverscanSettings(overscanSettings);
-      rgbToCRT->SetScreenSettings(screenSettings);
+        signalGenerator->SignalProperties().inputPixelAspectRatio,
+        overscanSettings,
+        screenSettings);
     }
 
 
@@ -114,11 +113,20 @@ namespace NTSCify
           inputWidth,
           signalGenerator->SignalProperties().scanlineWidth,
           inputHeight,
-          signalGenerator->SignalProperties().inputPixelAspectRatio);
+          signalGenerator->SignalProperties().inputPixelAspectRatio,
+          overscanSettings,
+          screenSettings);
       }
+      else
+      {
+        rgbToCRT->SetSettings(overscanSettings, screenSettings);
+      }
+    }
 
-      rgbToCRT->SetOverscanSettings(overscanSettings);
-      rgbToCRT->SetScreenSettings(screenSettings);
+
+    void SetOutputSize(uint32_t outputWidth, uint32_t outputHeight)
+    {
+      rgbToCRT->SetOutputSize(outputWidth, outputHeight);
     }
 
 
