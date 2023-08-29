@@ -339,11 +339,10 @@ void RenderLoadedTexture(NTSCify::ITexture *output, Rebuild rebuild = Rebuild::A
   }
 
   static auto scanlineType = ScanlineType::Odd;
-
   
   if (loadedTexture->evenTexture == nullptr)
   {
-    scanlineType = ScanlineType::FauxProgressive;
+    scanlineType = ScanlineType::Progressive;
   }
   else if (scanlineType == ScanlineType::Odd)
   { 

@@ -165,7 +165,7 @@ namespace NTSCify::Internal::CRT
         data.phosphorDecay = screenSettings.phosphorDecay;
 
         data.scanlineCount = float(scanlineCount);
-        data.scanlineStrength = (scanType != ScanlineType::Progressive) ? screenSettings.scanlineStrength : 0.0f;
+        data.scanlineStrength = screenSettings.scanlineStrength;
 
         data.curEvenOddTexelOffset = (scanType != ScanlineType::Even) ? 0.5f : -0.5f;
         data.prevEvenOddTexelOffset = (m_prevScanlineType != ScanlineType::Even) ? 0.5f : -0.5f;
