@@ -3,7 +3,7 @@
 #include <algorithm>
 
 #include "NTSCify/ArtifactSettings.h"
-#include "NTSCify/SignalLevels.h"
+#include "NTSCify/Internal/SignalLevels.h"
 #include "NTSCify/TVKnobSettings.h"
 #include "GraphicsDevice.h"
 #include "resource.h"

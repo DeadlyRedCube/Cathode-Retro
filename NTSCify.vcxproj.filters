@@ -163,49 +163,49 @@
     <ClInclude Include="Source\Util.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Source\NTSCify\Generator\ApplyArtifacts.h">
+    <ClInclude Include="Source\NTSCify\Internal\Generator\ApplyArtifacts.h">
       <Filter>Headers\NTSCify\GeneratorComponents</Filter>
     </ClInclude>
     <ClInclude Include="Source\NTSCify\ArtifactSettings.h">
       <Filter>Headers\NTSCify</Filter>
     </ClInclude>
-    <ClInclude Include="Source\NTSCify\Decoder\CompositeToSVideo.h">
+    <ClInclude Include="Source\NTSCify\Internal\Decoder\CompositeToSVideo.h">
       <Filter>Headers\NTSCify\DecoderComponents</Filter>
     </ClInclude>
-    <ClInclude Include="Source\NTSCify\Constants.h">
+    <ClInclude Include="Source\NTSCify\Internal\Constants.h">
       <Filter>Headers\NTSCify</Filter>
     </ClInclude>
-    <ClInclude Include="Source\NTSCify\Decoder\FilterRGB.h">
+    <ClInclude Include="Source\NTSCify\Internal\Decoder\FilterRGB.h">
       <Filter>Headers\NTSCify\DecoderComponents</Filter>
     </ClInclude>
-    <ClInclude Include="Source\NTSCify\CRT\RGBToCRT.h">
+    <ClInclude Include="Source\NTSCify\Internal\CRT\RGBToCRT.h">
       <Filter>Headers\NTSCify</Filter>
     </ClInclude>
-    <ClInclude Include="Source\NTSCify\Generator\RGBToSVideoOrComposite.h">
+    <ClInclude Include="Source\NTSCify\Internal\Generator\RGBToSVideoOrComposite.h">
       <Filter>Headers\NTSCify\GeneratorComponents</Filter>
     </ClInclude>
     <ClInclude Include="Source\NTSCify\ScreenSettings.h">
       <Filter>Headers\NTSCify</Filter>
     </ClInclude>
-    <ClInclude Include="Source\NTSCify\Decoder\SignalDecoder.h">
+    <ClInclude Include="Source\NTSCify\Internal\Decoder\SignalDecoder.h">
       <Filter>Headers\NTSCify</Filter>
     </ClInclude>
-    <ClInclude Include="Source\NTSCify\Generator\SignalGenerator.h">
+    <ClInclude Include="Source\NTSCify\Internal\Generator\SignalGenerator.h">
       <Filter>Headers\NTSCify</Filter>
     </ClInclude>
-    <ClInclude Include="Source\NTSCify\SignalLevels.h">
+    <ClInclude Include="Source\NTSCify\Internal\SignalLevels.h">
       <Filter>Headers\NTSCify</Filter>
     </ClInclude>
-    <ClInclude Include="Source\NTSCify\SignalProperties.h">
+    <ClInclude Include="Source\NTSCify\Internal\SignalProperties.h">
       <Filter>Headers\NTSCify</Filter>
     </ClInclude>
     <ClInclude Include="Source\NTSCify\SourceSettings.h">
       <Filter>Headers\NTSCify</Filter>
     </ClInclude>
-    <ClInclude Include="Source\NTSCify\Decoder\SVideoToYIQ.h">
+    <ClInclude Include="Source\NTSCify\Internal\Decoder\SVideoToYIQ.h">
       <Filter>Headers\NTSCify\DecoderComponents</Filter>
     </ClInclude>
-    <ClInclude Include="Source\NTSCify\Decoder\YIQToRGB.h">
+    <ClInclude Include="Source\NTSCify\Internal\Decoder\YIQToRGB.h">
       <Filter>Headers\NTSCify\DecoderComponents</Filter>
     </ClInclude>
     <ClInclude Include="Source\NTSCify\TVKnobSettings.h">

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SourceSettings.h"
+#include "NTSCify/SourceSettings.h"
 
 
 namespace NTSCify

@@ -7,9 +7,9 @@
 #include <mutex>
 #include <thread>
 
-#include "NTSCify/CRT/RGBToCRT.h"
-#include "NTSCify/Generator/SignalGenerator.h"
-#include "NTSCify/Decoder/SignalDecoder.h"
+#include "NTSCify/Internal/CRT/RGBToCRT.h"
+#include "NTSCify/Internal/Generator/SignalGenerator.h"
+#include "NTSCify/Internal/Decoder/SignalDecoder.h"
 #include "D3D11GraphicsDevice.h"
 #include "WicTexture.h"
 #include "resource.h"

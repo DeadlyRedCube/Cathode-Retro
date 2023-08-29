@@ -3,8 +3,8 @@
 #include <algorithm>
 
 #include "NTSCify/ArtifactSettings.h"
-#include "NTSCify/Constants.h"
-#include "NTSCify/SignalLevels.h"
+#include "NTSCify/Internal/Constants.h"
+#include "NTSCify/Internal/SignalLevels.h"
 
 #include "GraphicsDevice.h"
 #include "resource.h"

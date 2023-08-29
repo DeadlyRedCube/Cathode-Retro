@@ -3,7 +3,7 @@
 #include <algorithm>
 
 #include "GraphicsDevice.h"
-#include "NTSCify/Constants.h"
+#include "NTSCify/Internal/Constants.h"
 #include "resource.h"
 #include "Util.h"
 
