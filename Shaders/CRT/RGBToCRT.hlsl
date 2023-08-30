@@ -20,6 +20,7 @@ cbuffer consts : register(b0)
   float  g_curEvenOddTexelOffset;       // This is 0.5 if it's an odd frame and -0.5 if it's even.
   float  g_prevEvenOddTexelOffset;      // This is 0.5 if it's an odd frame and -0.5 if it's even.
   float  g_diffusionStrength;           // This is a 0..1
+  float  g_shadowMaskStrength;          // How much to blend the shadow mask in. 0 means "no shadow mask" and 1 means "fully apply"
 }
 
 
@@ -118,7 +119,9 @@ float4 main(float2 inTexCoord : TEX) : SV_TARGET
   }
 
   // Time to put it all together: first, by applying the screen mask (i.e. the shadow mask/aperture grill, etc)...
-  float3 res = sourceColor * screenMask.rgb;
+  // $TODO: Figure out why this 0.15 is here - I'm sure it's some eyeballed "this looks good" value, but it would be nice to document
+  //  why, specifically, if possible. Or maybe expose it as "Shadow map bias" or something.
+  float3 res = sourceColor * ((screenMask.rgb - 0.15) * g_shadowMaskStrength + 1.0);
 
   // ... then bringing in some diffusion on top (This isn't physically accurate (it should really be a lerp between res and diffusionColor)
   //  but doing it this way preserves the brightness and still looks reasonable, especially when displaying bright things on a dark

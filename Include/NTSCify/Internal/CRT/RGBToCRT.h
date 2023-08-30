@@ -94,6 +94,7 @@ namespace NTSCify::Internal::CRT
           .curEvenOddTexelOffset = (scanType != ScanlineType::Even) ? 0.5f : -0.5f,
           .prevEvenOddTexelOffset = (prevScanlineType != ScanlineType::Even) ? 0.5f : -0.5f,
           .diffusionStrength = screenSettings.diffusionStrength,
+          .shadowMaskStrength = screenSettings.shadowMaskStrength,
         });
 
       if (screenSettings.diffusionStrength > 0.0f)
@@ -180,7 +181,6 @@ namespace NTSCify::Internal::CRT
 
       float shadowMaskScaleX;       // Scale of the shadow mask texture lookup
       float shadowMaskScaleY;       // Scale of the shadow mask texture lookup
-      float shadowMaskStrength;     //
       float roundedCornerSize;      // 0 == no corner, 1 == screen is an oval
     };
 
@@ -194,6 +194,7 @@ namespace NTSCify::Internal::CRT
       float curEvenOddTexelOffset;  // This is 0.5 if it's an odd frame (or progressive) and -0.5 if it's even.
       float prevEvenOddTexelOffset; // This is 0.5 if it's an odd frame (or progressive) and -0.5 if it's even.
       float diffusionStrength;      // The strength of the diffusion blur that is blended into the signal.
+      float shadowMaskStrength;     // How much to blend the shadow mask in. 0 means "no shadow mask" and 1 means "fully apply"
     };
 
 
@@ -279,7 +280,6 @@ namespace NTSCify::Internal::CRT
                             * 0.45f
                             / screenSettings.shadowMaskScale;
       data.shadowMaskScaleY = shadowMaskScaleNormalization / screenSettings.shadowMaskScale;
-      data.shadowMaskStrength = screenSettings.shadowMaskStrength;
 
       device->BeginRendering();
 

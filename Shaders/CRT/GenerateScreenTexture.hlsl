@@ -13,27 +13,12 @@ cbuffer consts : register(b0)
   float2 g_maskDistortion;      // Where to put the mask sides
 
   float2 g_shadowMaskScale;     // Scale of the shadow mask texture lookup
-  float  g_shadowMaskStrength;  //
   float  g_roundedCornerSize;   // 0 == no corner, 1 == screen is an oval
 }
 
 cbuffer moreConsts : register(b1)
 {
   float2 g_samplePoints[16];
-}
-
-
-float3 ScreenTint(float2 coord)
-{
-  // Sample the shadow mask
-  float3 shadowMaskColor = g_shadowMaskTexture.SampleBias(
-    g_sampler,
-    coord * g_shadowMaskScale,
-    -1).rgb;
-
-  shadowMaskColor = (shadowMaskColor - 0.15) * g_shadowMaskStrength + 1.0;
-
-  return shadowMaskColor;
 }
 
 
@@ -73,7 +58,10 @@ float4 main(float2 inTexCoord : TEX) : SV_TARGET
   float3 color = 0;
   for (uint i = 0; i < 16; i++)
   {
-    color += ScreenTint(t + g_samplePoints[i].x * dxT + g_samplePoints[i].y * dyT);
+    color += g_shadowMaskTexture.SampleBias(
+      g_sampler,
+      (t + g_samplePoints[i].x * dxT + g_samplePoints[i].y * dyT) * g_shadowMaskScale,
+    -1).rgb;
   }
 
   color /= 16.0;
