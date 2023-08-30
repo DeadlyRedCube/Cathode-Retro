@@ -41,6 +41,7 @@ namespace NTSCify::Internal::CRT
       rgbToScreenConstantBuffer = device->CreateConstantBuffer(sizeof(RGBToScreenConstants));
       samplePatternConstantBuffer = device->CreateConstantBuffer(sizeof(k_samplingPattern16X));
       toneMapConstantBuffer = device->CreateConstantBuffer(sizeof(ToneMapConstants));
+      blurDownsampleConstantBuffer = device->CreateConstantBuffer(sizeof(Vec2));
       gaussianBlurConstantBufferH = device->CreateConstantBuffer(sizeof(GaussianBlurConstants));
       gaussianBlurConstantBufferV = device->CreateConstantBuffer(sizeof(GaussianBlurConstants));
 
@@ -214,6 +215,13 @@ namespace NTSCify::Internal::CRT
     };
 
 
+    struct Vec2
+    {
+      float x;
+      float y;
+    };
+
+
     AspectData CalculateAspectData()
     {
       // Figure out how to adjust our viewed texture area for overscan
@@ -354,13 +362,13 @@ namespace NTSCify::Internal::CRT
     {
       // $TODO this texture could be pre-made and the one being generated here is WAY overkill for how tiny it shows up on-screen, but it does look nice!
       static constexpr uint32_t k_size = 512;
-      static constexpr uint32_t k_mipCount = 8;
 
-      shadowMaskTexture = device->CreateTexture(k_size, k_size / 2, k_mipCount, TextureFormat::RGBA_Unorm8, TextureFlags::RenderTarget);
+      shadowMaskTexture = device->CreateTexture(k_size, k_size / 2, 0, TextureFormat::RGBA_Unorm8, TextureFlags::RenderTarget);
 
       // First step is the generate the texture at the largest mip level
       auto generateShadowMaskShader = device->CreateShader(ShaderID::GenerateShadowMask);
 
+      auto halfWidthTexture = device->CreateTexture(k_size / 2, k_size / 2, 0, TextureFormat::RGBA_Unorm8, TextureFlags::RenderTarget);
       struct GenerateShadowMaskConstants
       {
         float blackLevel;
@@ -370,6 +378,9 @@ namespace NTSCify::Internal::CRT
       };
 
       auto constBuf = device->CreateConstantBuffer(sizeof(GenerateShadowMaskConstants));
+
+      auto downsampleHConstBuf = device->CreateConstantBuffer(sizeof(Vec2));
+      auto downsampleVConstBuf = device->CreateConstantBuffer(sizeof(Vec2));
 
       device->BeginRendering();
       {
@@ -382,6 +393,14 @@ namespace NTSCify::Internal::CRT
             .texHeight = float(k_size / 2),
           });
 
+        device->UpdateConstantBuffer(
+          downsampleHConstBuf.get(),
+          Vec2{ 1.0f, 0.0f });
+
+        device->UpdateConstantBuffer(
+          downsampleVConstBuf.get(),
+          Vec2{ 0.0f, 1.0f });
+
         device->RenderQuad(
           generateShadowMaskShader.get(),
           shadowMaskTexture.get(),
@@ -390,14 +409,21 @@ namespace NTSCify::Internal::CRT
           {constBuf.get()});
 
         // Now it's generated so we need to generate the mips by using our lanczos downsample
-        for (uint32_t destMip = 1; destMip < k_mipCount; destMip++)
+        for (uint32_t destMip = 1; destMip < shadowMaskTexture->MipCount(); destMip++)
         {
           device->RenderQuad(
             downsample2XShader.get(),
-            {shadowMaskTexture.get(), destMip},
+            {halfWidthTexture.get(), destMip - 1},
             {{shadowMaskTexture.get(), destMip - 1}},
             {SamplerType::LinearWrap},
-            {});
+            {downsampleHConstBuf.get()});
+
+          device->RenderQuad(
+            downsample2XShader.get(),
+            {shadowMaskTexture.get(), destMip},
+            {{halfWidthTexture.get(), destMip - 1}},
+            {SamplerType::LinearWrap},
+            {downsampleVConstBuf.get()});
         }
       }
       device->EndRendering();
@@ -406,7 +432,6 @@ namespace NTSCify::Internal::CRT
 
     void RenderBlur(const ITexture *inputTexture)
     {
-      // Step one: abuse the downsample2x shader to scale to whatever size we need.
       // $TODO: This is slightly inaccurate, we should really be using the max of inputTexture and prevFrameTexture * g_phosphorDecay but
       //  for now, this is fine.
       device->UpdateConstantBuffer(
@@ -419,6 +444,13 @@ namespace NTSCify::Internal::CRT
           .minLuminosity = 0.0f,
           .colorPower = 1.3f,
         });
+
+      // We're downsampling "2x" horizontally (scare quotes because it isn't always exactly 2x but it's close enough that we can just
+      //  abuse this shader as if it were)
+      device->UpdateConstantBuffer(
+        blurDownsampleConstantBuffer.get(),
+        Vec2{ 1.0f, 0.0f });
+
       device->RenderQuad(
         toneMapShader.get(),
         toneMapTexture.get(),
@@ -431,7 +463,7 @@ namespace NTSCify::Internal::CRT
         blurTexture.get(),
         {toneMapTexture.get()},
         {SamplerType::LinearClamp},
-        {});
+        {blurDownsampleConstantBuffer.get()});
 
       device->UpdateConstantBuffer(gaussianBlurConstantBufferH.get(), GaussianBlurConstants{1.0f, 0.0f});
       device->RenderQuad(
@@ -462,6 +494,7 @@ namespace NTSCify::Internal::CRT
     std::unique_ptr<IConstantBuffer> rgbToScreenConstantBuffer;
     std::unique_ptr<IConstantBuffer> samplePatternConstantBuffer;
     std::unique_ptr<IConstantBuffer> toneMapConstantBuffer;
+    std::unique_ptr<IConstantBuffer> blurDownsampleConstantBuffer;
     std::unique_ptr<IConstantBuffer> gaussianBlurConstantBufferH;
     std::unique_ptr<IConstantBuffer> gaussianBlurConstantBufferV;
     std::unique_ptr<IShader> rgbToScreenShader;
