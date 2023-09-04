@@ -587,11 +587,11 @@ private:
       1.0f,
       20,
       [this]() { UpdateDisplay(); }};
-    phosphorDecaySlider = {
+    phosphorPersistenceSlider = {
       dialog,
-      IDC_PHOSPHOR_DECAY_SLIDER,
-      IDC_PHOSPHOR_DECAY_LABEL,
-      &screenSettings->phosphorDecay,
+      IDC_PHOSPHOR_PERSISTENCE_SLIDER,
+      IDC_PHOSPHOR_PERSISTENCE_LABEL,
+      &screenSettings->phosphorPersistence,
       0.0f,
       0.9f,
       19,
@@ -647,7 +647,7 @@ private:
   Slider<float> shadowMaskScaleSlider;
   Slider<float> shadowMaskStrengthSlider;
   Slider<float> scanlineStrengthSlider;
-  Slider<float> phosphorDecaySlider;
+  Slider<float> phosphorPersistenceSlider;
   Slider<float> diffusionSlider;
 };
 

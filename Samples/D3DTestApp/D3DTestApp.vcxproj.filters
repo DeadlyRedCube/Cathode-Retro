@@ -103,6 +103,20 @@
     <None Include="..\..\Shaders\CRT\DistortCRTCoordinates.hlsli">
       <Filter>Shaders\CRT</Filter>
     </None>
+    <None Include="Generated\BasicVertexShader.shad" />
+    <None Include="Generated\RGBToSVideoOrComposite.shad" />
+    <None Include="Generated\ApplyArtifacts.shad" />
+    <None Include="Generated\CompositeToSVideo.shad" />
+    <None Include="Generated\SVideoToYIQ.shad" />
+    <None Include="Generated\YIQToRGB.shad" />
+    <None Include="Generated\FilterRGB.shad" />
+    <None Include="Generated\GenerateShadowMask.shad" />
+    <None Include="Generated\Downsample2X.shad" />
+    <None Include="Generated\RGBToCRT.shad" />
+    <None Include="Generated\GeneratePhaseTexture.shad" />
+    <None Include="Generated\GenerateScreenTexture.shad" />
+    <None Include="Generated\GaussianBlur13.shad" />
+    <None Include="Generated\TonemapAndDownsample.shad" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ComPtr.h">

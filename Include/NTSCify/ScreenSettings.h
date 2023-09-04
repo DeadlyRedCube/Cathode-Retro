@@ -24,7 +24,7 @@ namespace NTSCify
     float shadowMaskStrength = 0.0f;
 
     // How much of the previous frame to keep around on the next frame.
-    float phosphorDecay = 0.0f;
+    float phosphorPersistence = 0.0f;
 
     // How powerful the scanlines are
     float scanlineStrength = 0.0f;
@@ -152,21 +152,21 @@ namespace NTSCify
       "Old CRT",
       {
         0.30f,
-        0.35f,
+        0.40f,
 
-        0.1f,
-        0.1f,
+        0.3f,
+        0.15f,
 
-        0.1f,
+        0.17f,
 
         1.2f,
         0.65f,
 
         0.25f,
 
-        0.47f,
+        0.63f,
 
-        0.7f,
+        0.5f,
       }
     },
   };

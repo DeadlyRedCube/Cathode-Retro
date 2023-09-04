@@ -23,9 +23,10 @@ namespace NTSCify::Internal::Decoder
 
     void Apply(IGraphicsDevice *device, const ITexture *compositeIn, ITexture *sVideoOut)
     {
+      assert(signalTextureWidth == compositeIn->Width() && scanlineCount == compositeIn->Height());
       device->UpdateConstantBuffer(
         constantBuffer.get(),
-        ConstantData{ k_signalSamplesPerColorCycle, 1.0f / float(signalTextureWidth), 1.0f / float(scanlineCount) });
+        ConstantData{ k_signalSamplesPerColorCycle });
 
       device->RenderQuad(
         compositeToSVideoShader.get(),
@@ -39,8 +40,6 @@ namespace NTSCify::Internal::Decoder
     struct ConstantData
     {
       uint32_t outputTexelsPerColorburstCycle;        // This value should match k_signalSamplesPerColorCycle
-      float invInputWidth;
-      float invInputHeight;
     };
 
     uint32_t scanlineCount;

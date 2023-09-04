@@ -43,11 +43,13 @@ namespace NTSCify::Internal::Generator
       device->UpdateConstantBuffer(
         constantBuffer.get(),
         ConstantData {
-          .ghostSpreadScale = options.ghostSpreadScale,
-          .ghostBrightness = options.ghostVisibility,
+          .ghostVisibility = options.ghostVisibility,
           .ghostDistance = options.ghostDistance,
-          .noiseSeed = noiseSeed,
+          .ghostSpreadScale = options.ghostSpreadScale,
+
           .noiseStrength = options.noiseStrength,
+          .noiseSeed = noiseSeed,
+
           .signalTextureWidth = signalTextureWidth,
           .scanlineCount = scanlineCount,
           .samplesPerColorburstCycle = k_signalSamplesPerColorCycle,
@@ -68,13 +70,13 @@ namespace NTSCify::Internal::Generator
     struct ConstantData
     {
       // These parameters affect the ghosting.
-      float ghostSpreadScale;
-      float ghostBrightness;
+      float ghostVisibility;
       float ghostDistance;
+      float ghostSpreadScale;
 
       // Noise strength and seed to adjust how much noise there is (And how to animate it)
-      int32_t noiseSeed;
       float noiseStrength;
+      int32_t noiseSeed;
 
       // The width of the signal texture, in texels.
       uint32_t signalTextureWidth;

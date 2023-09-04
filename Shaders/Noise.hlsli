@@ -1,7 +1,8 @@
 #ifndef __NOISE__HLSLI__
 #define __NOISE__HLSLI__
 
-// WangHash+XorShift used to generate noise to add to the signal. Thanks to Nathan Reed (http://www.reedbeta.com/blog/quick-and-easy-gpu-random-numbers-in-d3d11/)
+// WangHash + XorShift used to generate noise to add to the signal.
+//  Thanks to Nathan Reed, at http://www.reedbeta.com/blog/quick-and-easy-gpu-random-numbers-in-d3d11/
 float WangHashAndXorShift(uint seed)
 {
   // wang hash

@@ -1,4 +1,9 @@
-// 13-tap gaussian kernel coefficients for bilinear shading, generated using https://drilian.com/gaussian-kernel/
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// This shader does a 1D gaussian blur using a 13-tap filter.
+
+
+// 13-tap gaussian kernel coefficients for bilinear shading, optimized to only require 7 texture samples by taking advantage of linear
+//  texture filtering. These coefficients were generated using https://drilian.com/gaussian-kernel/
 
 /*
   The actual coefficients for this blur are:
@@ -45,7 +50,7 @@ static const float k_offsets[k_sampleCount] =
   5.308886854,
 };
 
-// Blur a texture along the blur direction (for a horizontal blur, use [1, 0] and for vertical use [0, 1]), centered at "centerTexCoord"
+// Blur a texture along the blur direction (for a horizontal blur, use (1, 0) and for vertical use (0, 1)), centered at "centerTexCoord"
 //  (which is in standard [0..1] texture space).
 float4 Blur(float2 centerTexCoord, float2 blurDirection)
 {
@@ -65,6 +70,7 @@ float4 Blur(float2 centerTexCoord, float2 blurDirection)
 
 cbuffer consts : register(b0)
 {
+  // The direction to blur along. Should be (1, 0) to do a horizontal blur and (0, 1) to do a vertical blur.
   float2 g_blurDir;
 }
 

@@ -39,7 +39,6 @@ namespace NTSCify::Internal::CRT
 
       screenTextureConstantBuffer = device->CreateConstantBuffer(sizeof(ScreenTextureConstants));
       rgbToScreenConstantBuffer = device->CreateConstantBuffer(sizeof(RGBToScreenConstants));
-      samplePatternConstantBuffer = device->CreateConstantBuffer(sizeof(k_samplingPattern16X));
       toneMapConstantBuffer = device->CreateConstantBuffer(sizeof(ToneMapConstants));
       blurDownsampleConstantBuffer = device->CreateConstantBuffer(sizeof(Vec2));
       gaussianBlurConstantBufferH = device->CreateConstantBuffer(sizeof(GaussianBlurConstants));
@@ -88,8 +87,8 @@ namespace NTSCify::Internal::CRT
         RGBToScreenConstants{
           .common = CalculateCommonConstants(CalculateAspectData()),
 
-            // $TODO: may want to artificially increase phosphorDecay if we're interlaced
-          .phosphorDecay = screenSettings.phosphorDecay,
+          // $TODO: may want to artificially increase phosphorPersistence if we're interlaced
+          .phosphorPersistence = screenSettings.phosphorPersistence,
           .scanlineCount = float(scanlineCount),
           .scanlineStrength = screenSettings.scanlineStrength,
           .curEvenOddTexelOffset = (scanType != ScanlineType::Even) ? 0.5f : -0.5f,
@@ -114,42 +113,18 @@ namespace NTSCify::Internal::CRT
     }
 
   protected:
-    // These are float2 sampling patterns, but they need to be float4 aligned for the constant buffers, so there's 2 padding floats per
-    //  coordinate.
-    // $TODO: Is that actually true in non-D3D graphics APIs? I guess I could make them float4s so that it IS true.
-    // These are standard 8x and 16x sampling patterns (found in the D3D docs here:
-    //  https://docs.microsoft.com/en-us/windows/win32/api/d3d11/ne-d3d11-d3d11_standard_multisample_quality_levels )
-    static constexpr float k_samplingPattern8X[] =
+    struct Vec2
     {
-       1.0f / 8.0, -3.0f / 8.0,   0.0f, 0.0f,
-      -1.0f / 8.0,  3.0f / 8.0,   0.0f, 0.0f,
-       5.0f / 8.0,  1.0f / 8.0,   0.0f, 0.0f,
-      -3.0f / 8.0, -5.0f / 8.0,   0.0f, 0.0f,
-      -5.0f / 8.0,  5.0f / 8.0,   0.0f, 0.0f,
-      -7.0f / 8.0, -1.0f / 8.0,   0.0f, 0.0f,
-       3.0f / 8.0,  7.0f / 8.0,   0.0f, 0.0f,
-       7.0f / 8.0, -7.0f / 8.0,   0.0f, 0.0f,
+      float x;
+      float y;
     };
 
 
-    static constexpr float k_samplingPattern16X[] =
+    struct AspectData
     {
-       1.0f / 8.0,  1.0f / 8.0,   0.0f, 0.0f,
-      -1.0f / 8.0, -3.0f / 8.0,   0.0f, 0.0f,
-      -3.0f / 8.0,  2.0f / 8.0,   0.0f, 0.0f,
-       4.0f / 8.0, -1.0f / 8.0,   0.0f, 0.0f,
-      -5.0f / 8.0, -2.0f / 8.0,   0.0f, 0.0f,
-       2.0f / 8.0,  5.0f / 8.0,   0.0f, 0.0f,
-       5.0f / 8.0,  3.0f / 8.0,   0.0f, 0.0f,
-       3.0f / 8.0, -5.0f / 8.0,   0.0f, 0.0f,
-      -2.0f / 8.0,  6.0f / 8.0,   0.0f, 0.0f,
-       0.0f / 8.0, -7.0f / 8.0,   0.0f, 0.0f,
-      -4.0f / 8.0, -6.0f / 8.0,   0.0f, 0.0f,
-      -6.0f / 8.0,  4.0f / 8.0,   0.0f, 0.0f,
-      -8.0f / 8.0,  0.0f / 8.0,   0.0f, 0.0f,
-       7.0f / 8.0, -4.0f / 8.0,   0.0f, 0.0f,
-       6.0f / 8.0,  7.0f / 8.0,   0.0f, 0.0f,
-      -7.0f / 8.0, -8.0f / 8.0,   0.0f, 0.0f,
+      float overscanSizeX;
+      float overscanSizeY;
+      float aspect;
     };
 
 
@@ -166,17 +141,10 @@ namespace NTSCify::Internal::CRT
     };
 
 
-    struct AspectData
-    {
-      float overscanSizeX;
-      float overscanSizeY;
-      float aspect;
-    };
-
-
     struct ScreenTextureConstants
     {
       CommonConstants common;
+
       float maskDistortionX;        // Where to put the mask sides
       float maskDistortionY;        // ...
 
@@ -189,7 +157,7 @@ namespace NTSCify::Internal::CRT
     struct RGBToScreenConstants
     {
       CommonConstants common;
-      float phosphorDecay;          // $TODO: Should really be named phosphorPersistence or something
+      float phosphorPersistence;
       float scanlineCount;          // How many scanlines there are
       float scanlineStrength;       // How strong the scanlines are (0 == none, 1 == whoa)
       float curEvenOddTexelOffset;  // This is 0.5 if it's an odd frame (or progressive) and -0.5 if it's even.
@@ -212,13 +180,6 @@ namespace NTSCify::Internal::CRT
       float downsampleDirY;
       float minLuminosity;
       float colorPower;
-    };
-
-
-    struct Vec2
-    {
-      float x;
-      float y;
     };
 
 
@@ -292,14 +253,13 @@ namespace NTSCify::Internal::CRT
       device->BeginRendering();
 
       device->UpdateConstantBuffer(screenTextureConstantBuffer.get(), data);
-      device->UpdateConstantBuffer(samplePatternConstantBuffer.get(), k_samplingPattern16X);
 
       device->RenderQuad(
         generateScreenTextureShader.get(),
         screenTexture.get(),
         {shadowMaskTexture.get()},
         {SamplerType::LinearWrap},
-        {screenTextureConstantBuffer.get(), samplePatternConstantBuffer.get()});
+        {screenTextureConstantBuffer.get()});
       device->EndRendering();
     }
 
@@ -371,10 +331,10 @@ namespace NTSCify::Internal::CRT
       auto halfWidthTexture = device->CreateTexture(k_size / 2, k_size / 2, 0, TextureFormat::RGBA_Unorm8, TextureFlags::RenderTarget);
       struct GenerateShadowMaskConstants
       {
-        float blackLevel;
-        float coordinateScale;
         float texWidth;
         float texHeight;
+
+        float blackLevel;
       };
 
       auto constBuf = device->CreateConstantBuffer(sizeof(GenerateShadowMaskConstants));
@@ -387,10 +347,9 @@ namespace NTSCify::Internal::CRT
         device->UpdateConstantBuffer(
           constBuf.get(),
           GenerateShadowMaskConstants {
-            .blackLevel = 0.0,
-            .coordinateScale = 1.0f / float(k_size),
             .texWidth = float(k_size),
             .texHeight = float(k_size / 2),
+            .blackLevel = 0.0,
           });
 
         device->UpdateConstantBuffer(
@@ -432,8 +391,8 @@ namespace NTSCify::Internal::CRT
 
     void RenderBlur(const ITexture *inputTexture)
     {
-      // $TODO: This is slightly inaccurate, we should really be using the max of inputTexture and prevFrameTexture * g_phosphorDecay but
-      //  for now, this is fine.
+      // $TODO: This is slightly inaccurate, we should really be using the max of inputTexture and prevFrameTexture * phosphorPersistence
+      //  but for now, this is fine.
       device->UpdateConstantBuffer(
         toneMapConstantBuffer.get(),
         ToneMapConstants {
@@ -492,7 +451,6 @@ namespace NTSCify::Internal::CRT
 
     std::unique_ptr<IConstantBuffer> screenTextureConstantBuffer;
     std::unique_ptr<IConstantBuffer> rgbToScreenConstantBuffer;
-    std::unique_ptr<IConstantBuffer> samplePatternConstantBuffer;
     std::unique_ptr<IConstantBuffer> toneMapConstantBuffer;
     std::unique_ptr<IConstantBuffer> blurDownsampleConstantBuffer;
     std::unique_ptr<IConstantBuffer> gaussianBlurConstantBufferH;
