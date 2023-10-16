@@ -129,31 +129,22 @@ void LoadTexture(const wchar_t *path, Rebuild rebuild = Rebuild::Always)
     load->oddTexture = s_graphicsDevice->CreateTexture(
       width,
       height/2,
-      1,
       NTSCify::TextureFormat::RGBA_Unorm8,
-      NTSCify::TextureFlags::None,
-      oddScanlines.data(),
-      width * sizeof(uint32_t));
+      oddScanlines.data());
 
     load->evenTexture = s_graphicsDevice->CreateTexture(
       width,
       height/2,
-      1,
       NTSCify::TextureFormat::RGBA_Unorm8,
-      NTSCify::TextureFlags::None,
-      evenScanlines.data(),
-      width * sizeof(uint32_t));
+      evenScanlines.data());
   }
   else
   {
     load->oddTexture = s_graphicsDevice->CreateTexture(
       width,
       height,
-      1,
       NTSCify::TextureFormat::RGBA_Unorm8,
-      NTSCify::TextureFlags::None,
-      load->data.data(),
-      width * sizeof(uint32_t));
+      load->data.data());
     load->evenTexture = nullptr;
   }
 

@@ -72,7 +72,7 @@ namespace NTSCify::Internal::CRT
         || screenTexture->Height() != outputHeight)
       {
         // Rebuild the texture at the correct resolution
-        screenTexture = device->CreateTexture(outputWidth, outputHeight, 1, TextureFormat::RGBA_Unorm8, TextureFlags::RenderTarget);
+        screenTexture = device->CreateRenderTarget(outputWidth, outputHeight, 1, TextureFormat::RGBA_Unorm8);
         RenderScreenTexture();
       }
     }
@@ -292,26 +292,23 @@ namespace NTSCify::Internal::CRT
       if (toneMapTexture == nullptr || toneMapTexture->Width() != tonemapTexWidth || toneMapTexture->Height() != tonemapTexHeight)
       {
         // Rebuild our blur textures.
-        toneMapTexture = device->CreateTexture(
+        toneMapTexture = device->CreateRenderTarget(
           tonemapTexWidth,
           tonemapTexHeight,
           1,
-          TextureFormat::RGBA_Unorm8,
-          TextureFlags::RenderTarget);
+          TextureFormat::RGBA_Unorm8);
 
-        blurTexture = device->CreateTexture(
+        blurTexture = device->CreateRenderTarget(
           blurTextureWidth,
           tonemapTexHeight,
           1,
-          TextureFormat::RGBA_Unorm8,
-          TextureFlags::RenderTarget);
+          TextureFormat::RGBA_Unorm8);
 
-        blurScratchTexture = device->CreateTexture(
+        blurScratchTexture = device->CreateRenderTarget(
           blurTextureWidth,
           tonemapTexHeight,
           1,
-          TextureFormat::RGBA_Unorm8,
-          TextureFlags::RenderTarget);
+          TextureFormat::RGBA_Unorm8);
       }
     }
 
@@ -322,12 +319,12 @@ namespace NTSCify::Internal::CRT
       // $TODO this texture could be pre-made and the one being generated here is WAY overkill for how tiny it shows up on-screen, but it does look nice!
       static constexpr uint32_t k_size = 512;
 
-      shadowMaskTexture = device->CreateTexture(k_size, k_size / 2, 0, TextureFormat::RGBA_Unorm8, TextureFlags::RenderTarget);
+      shadowMaskTexture = device->CreateRenderTarget(k_size, k_size / 2, 0, TextureFormat::RGBA_Unorm8);
 
       // First step is the generate the texture at the largest mip level
       auto generateShadowMaskShader = device->CreateShader(ShaderID::GenerateShadowMask);
 
-      auto halfWidthTexture = device->CreateTexture(k_size / 2, k_size / 2, 0, TextureFormat::RGBA_Unorm8, TextureFlags::RenderTarget);
+      auto halfWidthTexture = device->CreateRenderTarget(k_size / 2, k_size / 2, 0, TextureFormat::RGBA_Unorm8);
       struct GenerateShadowMaskConstants
       {
         float texWidth;

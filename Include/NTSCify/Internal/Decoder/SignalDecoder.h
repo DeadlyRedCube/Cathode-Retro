@@ -18,41 +18,36 @@ namespace NTSCify::Internal::Decoder
       if (signalProps.type == SignalType::Composite)
       {
         compositeToSVideo = std::make_unique<CompositeToSVideo>(device, signalProps.scanlineWidth, signalProps.scanlineCount);
-        decodedSVideoTextureSingle = device->CreateTexture(
+        decodedSVideoTextureSingle = device->CreateRenderTarget(
           signalProps.scanlineWidth,
           signalProps.scanlineCount,
           1,
-          TextureFormat::RG_Float32,
-          TextureFlags::RenderTarget);
-        decodedSVideoTextureDouble = device->CreateTexture(
+          TextureFormat::RG_Float32);
+        decodedSVideoTextureDouble = device->CreateRenderTarget(
           signalProps.scanlineWidth,
           signalProps.scanlineCount,
           1,
-          TextureFormat::RGBA_Float32,
-          TextureFlags::RenderTarget);
+          TextureFormat::RGBA_Float32);
       }
 
       sVideoToRGB = std::make_unique<SVideoToRGB>(device, signalProps.scanlineWidth, signalProps.scanlineCount);
       filterRGB = std::make_unique<FilterRGB>(device, signalProps.colorCyclesPerInputPixel, signalProps.scanlineWidth, signalProps.scanlineCount);
 
-      rgbTexture = device->CreateTexture(
+      rgbTexture = device->CreateRenderTarget(
         signalProps.scanlineWidth,
         signalProps.scanlineCount,
         1,
-        TextureFormat::RGBA_Unorm8,
-        TextureFlags::RenderTarget);
-      prevFrameRGBTexture = device->CreateTexture(
+        TextureFormat::RGBA_Unorm8);
+      prevFrameRGBTexture = device->CreateRenderTarget(
         signalProps.scanlineWidth,
         signalProps.scanlineCount,
         1,
-        TextureFormat::RGBA_Unorm8,
-        TextureFlags::RenderTarget);
-      scratchRGBTexture = device->CreateTexture(
+        TextureFormat::RGBA_Unorm8);
+      scratchRGBTexture = device->CreateRenderTarget(
         signalProps.scanlineWidth,
         signalProps.scanlineCount,
         1,
-        TextureFormat::RGBA_Unorm8,
-        TextureFlags::RenderTarget);
+        TextureFormat::RGBA_Unorm8);
     }
 
     void SetKnobSettings(const TVKnobSettings &settings)

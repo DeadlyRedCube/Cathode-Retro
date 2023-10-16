@@ -32,63 +32,55 @@ namespace NTSCify::Internal::Generator
       rgbToSVideoOrComposite = std::make_unique<RGBToSVideoOrComposite>(device, inputWidth, signalProps.scanlineWidth, signalProps.scanlineCount);
       applyArtifacts = std::make_unique<ApplyArtifacts>(device, signalProps.scanlineWidth, signalProps.scanlineCount);
 
-      phasesTextureSingle = device->CreateTexture(signalProps.scanlineCount, 1, 1, TextureFormat::R_Float32, TextureFlags::RenderTarget);
-      phasesTextureDoubled = device->CreateTexture(signalProps.scanlineCount, 1, 1, TextureFormat::RG_Float32, TextureFlags::RenderTarget);
+      phasesTextureSingle = device->CreateRenderTarget(signalProps.scanlineCount, 1, 1, TextureFormat::R_Float32);
+      phasesTextureDoubled = device->CreateRenderTarget(signalProps.scanlineCount, 1, 1, TextureFormat::RG_Float32);
 
       switch (type)
       {
       case SignalType::SVideo:
-        signalTextureSingle = device->CreateTexture(
+        signalTextureSingle = device->CreateRenderTarget(
           signalProps.scanlineWidth,
           signalProps.scanlineCount,
           1,
-          TextureFormat::RG_Float32,
-          TextureFlags::RenderTarget);
-        scratchSignalTextureSingle = device->CreateTexture(
+          TextureFormat::RG_Float32);
+        scratchSignalTextureSingle = device->CreateRenderTarget(
           signalProps.scanlineWidth,
           signalProps.scanlineCount,
           1,
-          TextureFormat::RG_Float32,
-          TextureFlags::RenderTarget);
-        signalTextureDoubled = device->CreateTexture(
+          TextureFormat::RG_Float32);
+        signalTextureDoubled = device->CreateRenderTarget(
           signalProps.scanlineWidth,
           signalProps.scanlineCount,
           1,
-          TextureFormat::RGBA_Float32,
-          TextureFlags::RenderTarget);
-        scratchSignalTextureDoubled = device->CreateTexture(
+          TextureFormat::RGBA_Float32);
+        scratchSignalTextureDoubled = device->CreateRenderTarget(
           signalProps.scanlineWidth,
           signalProps.scanlineCount,
           1,
-          TextureFormat::RGBA_Float32,
-          TextureFlags::RenderTarget);
+          TextureFormat::RGBA_Float32);
         break;
 
       case SignalType::Composite:
-        signalTextureSingle = device->CreateTexture(
+        signalTextureSingle = device->CreateRenderTarget(
           signalProps.scanlineWidth,
           signalProps.scanlineCount,
           1,
-          TextureFormat::R_Float32,
-          TextureFlags::RenderTarget);
-        scratchSignalTextureSingle = device->CreateTexture(
+          TextureFormat::R_Float32);
+        scratchSignalTextureSingle = device->CreateRenderTarget(
           signalProps.scanlineWidth,
           signalProps.scanlineCount,
           1,
-          TextureFormat::R_Float32,
-          TextureFlags::RenderTarget);
-        signalTextureDoubled = device->CreateTexture(
+          TextureFormat::R_Float32);
+        signalTextureDoubled = device->CreateRenderTarget(
           signalProps.scanlineWidth,
           signalProps.scanlineCount,
           1,
-          TextureFormat::RG_Float32,
-          TextureFlags::RenderTarget);
-        scratchSignalTextureDoubled = device->CreateTexture(
+          TextureFormat::RG_Float32);
+        scratchSignalTextureDoubled = device->CreateRenderTarget(
           signalProps.scanlineWidth,
           signalProps.scanlineCount,
           1,
-          TextureFormat::RG_Float32,
-          TextureFlags::RenderTarget);
+          TextureFormat::RG_Float32);
         break;
       }
     }

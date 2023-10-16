@@ -12,6 +12,12 @@ public:
 
   static std::unique_ptr<ID3D11GraphicsDevice> Create(HWND hwnd);
 
+  virtual std::unique_ptr<NTSCify::ITexture> CreateTexture(
+    uint32_t width,
+    uint32_t height,
+    NTSCify::TextureFormat format,
+    void *initialDataTexels) = 0;
+
   virtual uint32_t BackbufferWidth() const = 0;
   virtual uint32_t BackbufferHeight() const = 0;
 

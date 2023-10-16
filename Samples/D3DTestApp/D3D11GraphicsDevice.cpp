@@ -72,15 +72,6 @@ public:
 
   std::vector<uint32_t> GetTexturePixels(ITexture *texture);
 
-  std::unique_ptr<ITexture> CreateTexture(
-    uint32_t width,
-    uint32_t height,
-    uint32_t mipCount,
-    TextureFormat format,
-    TextureFlags flags,
-    void *initialDataTexels = nullptr,
-    uint32_t initialDataPitch = 0);
-
   void BeginRendering() override;
 
   void RenderQuad(
@@ -92,7 +83,35 @@ public:
 
   void EndRendering();
 
+  std::unique_ptr<ITexture> CreateTexture(
+    uint32_t width,
+    uint32_t height,
+    TextureFormat format,
+    void *initialDataTexels) override
+  {
+    return CreateTexture(width, height, 1, format, false, initialDataTexels);
+  }
+
+
+  std::unique_ptr<ITexture> CreateRenderTarget(
+    uint32_t width,
+    uint32_t height,
+    uint32_t mipCount, // 0 means "all mip levels"
+    TextureFormat format) override
+  {
+    return CreateTexture(width, height, mipCount, format, true, nullptr);
+  }
+
 private:
+  std::unique_ptr<ITexture> CreateTexture(
+    uint32_t width,
+    uint32_t height,
+    uint32_t mipCount,
+    TextureFormat format,
+    bool isRenderTarget,
+    void *initialDataTexels);
+
+
   class Texture : public ITexture
   {
   public:
@@ -304,30 +323,34 @@ std::unique_ptr<ITexture> D3D11GraphicsDevice::CreateTexture(
   uint32_t height,
   uint32_t mipCount,
   TextureFormat format,
-  TextureFlags flags,
-  void *initialDataTexels,
-  uint32_t initialDataPitch)
+  bool isRenderTarget,
+  void *initialDataTexels)
 {
   assert(!isRendering);
   std::unique_ptr<Texture> tex = std::make_unique<Texture>();
 
   DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+  uint32_t texelByteCount = 0;
   switch (format)
   {
   case TextureFormat::RGBA_Unorm8:
     dxgiFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+    texelByteCount = 4 * sizeof(uint8_t);
     break;
 
   case TextureFormat::R_Float32:
     dxgiFormat = DXGI_FORMAT_R32_FLOAT;
+    texelByteCount = 1 * sizeof(float);
     break;
 
   case TextureFormat::RG_Float32:
     dxgiFormat = DXGI_FORMAT_R32G32_FLOAT;
+    texelByteCount = 2 * sizeof(float);
     break;
 
   case TextureFormat::RGBA_Float32:
     dxgiFormat = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    texelByteCount = 4 * sizeof(float);
     break;
   }
 
@@ -339,11 +362,11 @@ std::unique_ptr<ITexture> D3D11GraphicsDevice::CreateTexture(
     desc.ArraySize = 1;
     desc.Format = dxgiFormat;
     desc.SampleDesc.Count = 1;
-    desc.Usage = ((flags & TextureFlags::Dynamic) != TextureFlags::None) ? D3D11_USAGE_DYNAMIC : D3D11_USAGE_DEFAULT;
-    desc.CPUAccessFlags = ((flags & TextureFlags::Dynamic) != TextureFlags::None) ? D3D11_CPU_ACCESS_WRITE : 0;
+    desc.Usage = D3D11_USAGE_DEFAULT;
+    desc.CPUAccessFlags = (isRenderTarget) ? D3D11_CPU_ACCESS_WRITE : 0;
     desc.MipLevels = mipCount;
     desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-    if (((flags & TextureFlags::RenderTarget) != TextureFlags::None))
+    if (isRenderTarget)
     {
       desc.BindFlags |= D3D11_BIND_RENDER_TARGET;
     }
@@ -355,7 +378,7 @@ std::unique_ptr<ITexture> D3D11GraphicsDevice::CreateTexture(
       initialData = &initialDataStorage;
 
       initialData->pSysMem = initialDataTexels;
-      initialData->SysMemPitch = initialDataPitch;
+      initialData->SysMemPitch = width * texelByteCount;
     }
 
     tex->width = width;
@@ -383,7 +406,7 @@ std::unique_ptr<ITexture> D3D11GraphicsDevice::CreateTexture(
       tex->mipSRVs.push_back(std::move(srv));
     }
 
-    if (((flags & TextureFlags::RenderTarget) != TextureFlags::None))
+    if (isRenderTarget)
     {
       D3D11_RENDER_TARGET_VIEW_DESC desc = {};
       desc.Format = dxgiFormat;

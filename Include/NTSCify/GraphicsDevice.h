@@ -5,17 +5,6 @@
 
 namespace NTSCify
 {
-  enum class TextureFlags
-  {
-    Dynamic       = 0x01,
-    RenderTarget  = 0x02,
-
-    None          = 0x00,
-    All           = 0x03,
-  };
-
-
-
   class IConstantBuffer
   {
   public:
@@ -126,14 +115,11 @@ namespace NTSCify
   public:
     virtual ~IGraphicsDevice() = default;
 
-    virtual std::unique_ptr<ITexture> CreateTexture(
+    virtual std::unique_ptr<ITexture> CreateRenderTarget(
       uint32_t width,
       uint32_t height,
       uint32_t mipCount, // 0 means "all mip levels"
-      TextureFormat format,
-      TextureFlags flags,
-      void *initialDataTexels = nullptr,
-      uint32_t initialDataPitch = 0) = 0;
+      TextureFormat format) = 0;
 
     virtual std::unique_ptr<IConstantBuffer> CreateConstantBuffer(size_t size) = 0;
     virtual std::unique_ptr<IShader> CreateShader(ShaderID id) = 0;
