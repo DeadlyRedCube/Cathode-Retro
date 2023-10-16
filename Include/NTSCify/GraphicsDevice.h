@@ -48,8 +48,7 @@ namespace NTSCify
     ApplyArtifacts,
 
     CompositeToSVideo,
-    SVideoToYIQ,
-    YIQToRGB,
+    SVideoToRGB,
     FilterRGB,
 
     GenerateScreenTexture,

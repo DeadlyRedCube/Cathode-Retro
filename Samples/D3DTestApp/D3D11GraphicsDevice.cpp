@@ -276,8 +276,7 @@ std::unique_ptr<IShader> D3D11GraphicsDevice::CreateShader(ShaderID id)
     case ShaderID::RGBToSVideoOrComposite: resourceID = IDR_RGB_TO_SVIDEO_OR_COMPOSITE; break;
     case ShaderID::ApplyArtifacts: resourceID = IDR_APPLY_ARTIFACTS; break;
     case ShaderID::CompositeToSVideo: resourceID = IDR_COMPOSITE_TO_SVIDEO; break;
-    case ShaderID::SVideoToYIQ: resourceID = IDR_SVIDEO_TO_YIQ; break;
-    case ShaderID::YIQToRGB: resourceID = IDR_YIQ_TO_RGB; break;
+    case ShaderID::SVideoToRGB: resourceID = IDR_SVIDEO_TO_RGB; break;
     case ShaderID::FilterRGB: resourceID = IDR_FILTER_RGB; break;
     case ShaderID::GenerateScreenTexture: resourceID = IDR_GENERATE_SCREEN_TEXTURE; break;
     case ShaderID::GenerateShadowMask: resourceID = IDR_GENERATE_SHADOW_MASK; break;

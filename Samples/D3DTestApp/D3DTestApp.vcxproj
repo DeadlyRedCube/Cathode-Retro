@@ -265,7 +265,7 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
-    <FxCompile Include="..\..\Shaders\SignalDecode\SVideoToYIQ.hlsl">
+    <FxCompile Include="..\..\Shaders\SignalDecode\SVideoToRGB.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
@@ -301,12 +301,6 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
-    <FxCompile Include="..\..\Shaders\SignalDecode\YIQToRGB.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-    </FxCompile>
     <FxCompile Include="..\..\Shaders\TonemapAndDownsample.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
@@ -332,9 +326,7 @@
     <None Include="Generated\GenerateShadowMask.shad" />
     <None Include="Generated\RGBToCRT.shad" />
     <None Include="Generated\RGBToSVideoOrComposite.shad" />
-    <None Include="Generated\SVideoToYIQ.shad" />
     <None Include="Generated\TonemapAndDownsample.shad" />
-    <None Include="Generated\YIQToRGB.shad" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ComPtr.h" />
@@ -344,8 +336,7 @@
     <ClInclude Include="..\..\Include\NTSCify\Internal\Constants.h" />
     <ClInclude Include="..\..\Include\NTSCify\Internal\Decoder\CompositeToSVideo.h" />
     <ClInclude Include="..\..\Include\NTSCify\Internal\Decoder\FilterRGB.h" />
-    <ClInclude Include="..\..\Include\NTSCify\Internal\Decoder\SVideoToYIQ.h" />
-    <ClInclude Include="..\..\Include\NTSCify\Internal\Decoder\YIQToRGB.h" />
+    <ClInclude Include="..\..\Include\NTSCify\Internal\Decoder\SVideoToRGB.h" />
     <ClInclude Include="..\..\Include\NTSCify\Internal\Generator\ApplyArtifacts.h" />
     <ClInclude Include="..\..\Include\NTSCify\Internal\Generator\RGBToSVideoOrComposite.h" />
     <ClInclude Include="..\..\Include\NTSCify\NTSCify.h" />

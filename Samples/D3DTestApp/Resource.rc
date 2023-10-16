@@ -25,18 +25,18 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE 
+1 TEXTINCLUDE
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE 
+2 TEXTINCLUDE
 BEGIN
     "#include ""winres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE 
+3 TEXTINCLUDE
 BEGIN
     "\r\n"
     "\0"
@@ -188,9 +188,7 @@ IDR_APPLY_ARTIFACTS     RT_RCDATA               "Generated\\ApplyArtifacts.shad"
 
 IDR_COMPOSITE_TO_SVIDEO RT_RCDATA               "Generated\\CompositeToSVideo.shad"
 
-IDR_SVIDEO_TO_YIQ       RT_RCDATA               "Generated\\SVideoToYIQ.shad"
-
-IDR_YIQ_TO_RGB          RT_RCDATA               "Generated\\YIQToRGB.shad"
+IDR_SVIDEO_TO_RGB       RT_RCDATA               "Generated\\SVideoToRGB.shad"
 
 IDR_FILTER_RGB          RT_RCDATA               "Generated\\FilterRGB.shad"
 

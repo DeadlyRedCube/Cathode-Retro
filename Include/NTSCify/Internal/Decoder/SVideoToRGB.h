@@ -12,10 +12,10 @@
 namespace NTSCify::Internal::Decoder
 {
   // This performs NTSC color demodulation: it takes an SVideo signal and decodes it into a YIQ (NTSC's native color space) output
-  class SVideoToYIQ
+  class SVideoToRGB
   {
   public:
-    SVideoToYIQ(
+    SVideoToRGB(
       IGraphicsDevice *device,
       uint32_t signalTextureWidthIn,
       uint32_t scanlineCountIn)
@@ -23,7 +23,7 @@ namespace NTSCify::Internal::Decoder
     , signalTextureWidth(signalTextureWidthIn)
     {
       constantBuffer = device->CreateConstantBuffer(sizeof(ConstantData));
-      sVideoToYIQShader = device->CreateShader(ShaderID::SVideoToYIQ);
+      sVideoToYIQShader = device->CreateShader(ShaderID::SVideoToRGB);
     }
 
 

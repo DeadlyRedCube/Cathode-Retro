@@ -167,7 +167,13 @@ float4 Main(float2 inTexCoord)
   float iqSat = saturate(length(IQ.xy));
   IQ.xy *= pow(iqSat, 2.0 / 2.2) / max(0.00001, iqSat);
 
-  return float4(Y.x, IQ.xy, 1);
+  // Finally, run the YIQ values through the standard (SMPTE C) YIQ to RGB conversion matrix (from https://en.wikipedia.org/wiki/YIQ)
+  float3 yiq = float3(Y.x, IQ.xy);
+  return float4(
+    dot(yiq, float3(1.0, 0.946882, 0.623557)),
+    dot(yiq, float3(1.0, -0.274788, -0.635691)),
+    dot(yiq, float3(1.0, -1.108545, 1.7090047)),
+    1.0);
 }
 
 

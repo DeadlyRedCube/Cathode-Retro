@@ -3,8 +3,7 @@
 #include "NTSCify/Internal/SignalProperties.h"
 #include "NTSCify/Internal/Decoder/CompositeToSVideo.h"
 #include "NTSCify/Internal/Decoder/FilterRGB.h"
-#include "NTSCify/Internal/Decoder/SVideoToYIQ.h"
-#include "NTSCify/Internal/Decoder/YIQToRGB.h"
+#include "NTSCify/Internal/Decoder/SVideoToRGB.h"
 
 
 namespace NTSCify::Internal::Decoder
@@ -33,16 +32,9 @@ namespace NTSCify::Internal::Decoder
           TextureFlags::RenderTarget);
       }
 
-      sVideoToYIQ = std::make_unique<SVideoToYIQ>(device, signalProps.scanlineWidth, signalProps.scanlineCount);
-      yiqToRGB = std::make_unique<YIQToRGB>(device, signalProps.scanlineWidth, signalProps.scanlineCount);
+      sVideoToRGB = std::make_unique<SVideoToRGB>(device, signalProps.scanlineWidth, signalProps.scanlineCount);
       filterRGB = std::make_unique<FilterRGB>(device, signalProps.colorCyclesPerInputPixel, signalProps.scanlineWidth, signalProps.scanlineCount);
 
-      yiqTexture = device->CreateTexture(
-        signalProps.scanlineWidth,
-        signalProps.scanlineCount,
-        1,
-        TextureFormat::RGBA_Float32,
-        TextureFlags::RenderTarget);
       rgbTexture = device->CreateTexture(
         signalProps.scanlineWidth,
         signalProps.scanlineCount,
@@ -87,8 +79,7 @@ namespace NTSCify::Internal::Decoder
         sVideoTexture = inputSignal;
       }
 
-      sVideoToYIQ->Apply(device, levels, sVideoTexture, inputPhases, yiqTexture.get(), knobSettings);
-      yiqToRGB->Apply(device, yiqTexture.get(), rgbTexture.get());
+      sVideoToRGB->Apply(device, levels, sVideoTexture, inputPhases, rgbTexture.get(), knobSettings);
       if (filterRGB->Apply(device, rgbTexture.get(), scratchRGBTexture.get(), knobSettings))
       {
         // We applied RGB to scratch so swap scratch in for our RGB texture it's now our output
@@ -100,14 +91,12 @@ namespace NTSCify::Internal::Decoder
     IGraphicsDevice *device;
     std::unique_ptr<ITexture> decodedSVideoTextureSingle;
     std::unique_ptr<ITexture> decodedSVideoTextureDouble;
-    std::unique_ptr<ITexture> yiqTexture;
     std::unique_ptr<ITexture> rgbTexture;
     std::unique_ptr<ITexture> prevFrameRGBTexture;
     std::unique_ptr<ITexture> scratchRGBTexture;
 
     std::unique_ptr<CompositeToSVideo> compositeToSVideo;
-    std::unique_ptr<SVideoToYIQ> sVideoToYIQ;
-    std::unique_ptr<YIQToRGB> yiqToRGB;
+    std::unique_ptr<SVideoToRGB> sVideoToRGB;
     std::unique_ptr<FilterRGB> filterRGB;
 
     SignalProperties signalProps;

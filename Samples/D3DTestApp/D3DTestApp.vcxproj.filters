@@ -10,9 +10,6 @@
     <FxCompile Include="..\..\Shaders\SignalDecode\FilterRGB.hlsl">
       <Filter>Shaders\SignalDecode</Filter>
     </FxCompile>
-    <FxCompile Include="..\..\Shaders\SignalDecode\YIQToRGB.hlsl">
-      <Filter>Shaders\SignalDecode</Filter>
-    </FxCompile>
     <FxCompile Include="..\..\Shaders\SignalGeneration\RGBToSVideoOrComposite.hlsl">
       <Filter>Shaders\SignalGeneration</Filter>
     </FxCompile>
@@ -25,7 +22,7 @@
     <FxCompile Include="..\..\Shaders\CRT\RGBToCRT.hlsl">
       <Filter>Shaders\CRT</Filter>
     </FxCompile>
-    <FxCompile Include="..\..\Shaders\SignalDecode\SVideoToYIQ.hlsl">
+    <FxCompile Include="..\..\Shaders\SignalDecode\SVideoToRGB.hlsl">
       <Filter>Shaders\SignalDecode</Filter>
     </FxCompile>
     <FxCompile Include="..\..\Shaders\SignalDecode\CompositeToSVideo.hlsl">
@@ -136,13 +133,7 @@
     <None Include="Generated\RGBToSVideoOrComposite.shad">
       <Filter>Generated</Filter>
     </None>
-    <None Include="Generated\SVideoToYIQ.shad">
-      <Filter>Generated</Filter>
-    </None>
     <None Include="Generated\TonemapAndDownsample.shad">
-      <Filter>Generated</Filter>
-    </None>
-    <None Include="Generated\YIQToRGB.shad">
       <Filter>Generated</Filter>
     </None>
     <None Include="..\..\Shaders\Lanczos2.hlsli">
@@ -207,10 +198,7 @@
     <ClInclude Include="..\..\Include\NTSCify\SourceSettings.h">
       <Filter>Headers\NTSCify</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Include\NTSCify\Internal\Decoder\SVideoToYIQ.h">
-      <Filter>Headers\NTSCify\DecoderComponents</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Include\NTSCify\Internal\Decoder\YIQToRGB.h">
+    <ClInclude Include="..\..\Include\NTSCify\Internal\Decoder\SVideoToRGB.h">
       <Filter>Headers\NTSCify\DecoderComponents</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Include\NTSCify\TVKnobSettings.h">
