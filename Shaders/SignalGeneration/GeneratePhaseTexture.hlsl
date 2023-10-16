@@ -6,10 +6,11 @@
 //  do that we have a set of emulated timings for the virtual system that is generating our output.
 
 
+#include "../ntsc-util-lang.hlsli"
 #include "../TrackingInstability.hlsli"
 
 
-cbuffer consts : register (b0)
+CBUFFER consts
 {
   // This is the colorburst phase (in fractional multiples of the colorburst wavelength) for the first scanline in our generated signal.
   float g_initialFrameStartPhase;
@@ -38,10 +39,10 @@ cbuffer consts : register (b0)
 
   // The number of scanlines for this field of video.
   uint g_scanlineCount;
-}
+};
 
 
-float4 main(float2 texCoord: TEX): SV_TARGET
+float4 Main(float2 texCoord)
 {
   uint scanlineIndex = uint(round(texCoord.x * g_scanlineCount - 0.5));
 
@@ -67,3 +68,5 @@ float4 main(float2 texCoord: TEX): SV_TARGET
 
   return float4(frac(phases), 0, 0);
 }
+
+PS_MAIN

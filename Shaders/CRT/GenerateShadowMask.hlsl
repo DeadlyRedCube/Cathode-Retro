@@ -5,7 +5,9 @@
 //  where the right-most set is offset 50% vertically (so it wraps from bottom to top).
 
 
-cbuffer consts : register(b0)
+#include "../ntsc-util-lang.hlsli"
+
+CBUFFER consts
 {
   // The size of the render target we are rendering to.
   //  NOTE: It is expected that width == 2 * height.
@@ -13,14 +15,10 @@ cbuffer consts : register(b0)
 
   // The darkest output value in the shadow mask. 0 means the bits inbetween the R, G, and B values will be black.
   float g_blackLevel;
-}
+};
 
 
-float4 main(
-  // The input texture coordinate is expected to be in [0..1], and is expected to be 0, 0 in the upper-left corner of the output render
-  //  target and [1, 1] in the lower-right corner.
-  float2 inTexCoord: TEX)
-  : SV_TARGET
+float4 Main(float2 inTexCoord)
 {
   uint2 texelIndex = uint2(inTexCoord * g_texSize - 0.5);
   float2 t = float2(texelIndex) / g_texSize.x * float2(1.0, 2.0);
@@ -69,7 +67,7 @@ float4 main(
   // These are the positions of where the border of the colored rectangles will go in our third, as well as how round the edges will be.
   //  $NOTE: These are technically constants (and should compile down to such), but border isn't written as such because
   float2 border = float2(1.0/3.0 * (1.0 / 4.0), 1.0/6.0);
-  const float rounding = border.x / 3.0;
+  float rounding = border.x / 3.0;
   border -= rounding;
 
   // Center the rectangle so we can do a distance calculation from center to find the bounds of the rectangle, using that to make a final
@@ -78,7 +76,7 @@ float4 main(
   t = abs(t);
   t -= (float2(1.0 / 6.0, 0.5)) - (rounding + border);
   t /= rounding;
-  t = max(0.0, t);
+  t = max(float2(0.0, 0.0), t);
 
   float distance = length(t);
   float delta = 1.0 / (g_texSize.x * rounding);
@@ -91,3 +89,6 @@ float4 main(
 
   return float4(color, 1);
 }
+
+
+PS_MAIN

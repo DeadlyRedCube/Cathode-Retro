@@ -115,6 +115,7 @@
       <ShaderModel>4.0</ShaderModel>
       <ObjectFileOutput>Generated\%(Filename).shad</ObjectFileOutput>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <PreprocessorDefinitions>HLSL</PreprocessorDefinitions>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -148,6 +149,7 @@
       <ShaderModel>4.0</ShaderModel>
       <ObjectFileOutput>Generated\%(Filename).shad</ObjectFileOutput>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <PreprocessorDefinitions>HLSL</PreprocessorDefinitions>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -183,6 +185,7 @@
       <ShaderModel>4.0</ShaderModel>
       <ObjectFileOutput>Generated\%(Filename).shad</ObjectFileOutput>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <PreprocessorDefinitions>HLSL</PreprocessorDefinitions>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -216,6 +219,7 @@
       <ShaderModel>4.0</ShaderModel>
       <ObjectFileOutput>Generated\%(Filename).shad</ObjectFileOutput>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <PreprocessorDefinitions>HLSL</PreprocessorDefinitions>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -315,6 +319,7 @@
     <None Include="..\..\Shaders\Lanczos2.hlsli" />
     <None Include="..\..\Shaders\Noise.hlsli" />
     <None Include="..\..\Shaders\BoxFilter.hlsli" />
+    <None Include="..\..\Shaders\ntsc-util-lang.hlsli" />
     <None Include="..\..\Shaders\TrackingInstability.hlsli" />
     <None Include="Generated\ApplyArtifacts.shad" />
     <None Include="Generated\BasicVertexShader.shad" />

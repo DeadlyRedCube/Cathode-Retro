@@ -103,20 +103,54 @@
     <None Include="..\..\Shaders\CRT\DistortCRTCoordinates.hlsli">
       <Filter>Shaders\CRT</Filter>
     </None>
-    <None Include="Generated\BasicVertexShader.shad" />
-    <None Include="Generated\RGBToSVideoOrComposite.shad" />
-    <None Include="Generated\ApplyArtifacts.shad" />
-    <None Include="Generated\CompositeToSVideo.shad" />
-    <None Include="Generated\SVideoToYIQ.shad" />
-    <None Include="Generated\YIQToRGB.shad" />
-    <None Include="Generated\FilterRGB.shad" />
-    <None Include="Generated\GenerateShadowMask.shad" />
-    <None Include="Generated\Downsample2X.shad" />
-    <None Include="Generated\RGBToCRT.shad" />
-    <None Include="Generated\GeneratePhaseTexture.shad" />
-    <None Include="Generated\GenerateScreenTexture.shad" />
-    <None Include="Generated\GaussianBlur13.shad" />
-    <None Include="Generated\TonemapAndDownsample.shad" />
+    <None Include="Generated\ApplyArtifacts.shad">
+      <Filter>Generated</Filter>
+    </None>
+    <None Include="Generated\BasicVertexShader.shad">
+      <Filter>Generated</Filter>
+    </None>
+    <None Include="Generated\CompositeToSVideo.shad">
+      <Filter>Generated</Filter>
+    </None>
+    <None Include="Generated\Downsample2X.shad">
+      <Filter>Generated</Filter>
+    </None>
+    <None Include="Generated\FilterRGB.shad">
+      <Filter>Generated</Filter>
+    </None>
+    <None Include="Generated\GaussianBlur13.shad">
+      <Filter>Generated</Filter>
+    </None>
+    <None Include="Generated\GeneratePhaseTexture.shad">
+      <Filter>Generated</Filter>
+    </None>
+    <None Include="Generated\GenerateScreenTexture.shad">
+      <Filter>Generated</Filter>
+    </None>
+    <None Include="Generated\GenerateShadowMask.shad">
+      <Filter>Generated</Filter>
+    </None>
+    <None Include="Generated\RGBToCRT.shad">
+      <Filter>Generated</Filter>
+    </None>
+    <None Include="Generated\RGBToSVideoOrComposite.shad">
+      <Filter>Generated</Filter>
+    </None>
+    <None Include="Generated\SVideoToYIQ.shad">
+      <Filter>Generated</Filter>
+    </None>
+    <None Include="Generated\TonemapAndDownsample.shad">
+      <Filter>Generated</Filter>
+    </None>
+    <None Include="Generated\YIQToRGB.shad">
+      <Filter>Generated</Filter>
+    </None>
+    <None Include="..\..\Shaders\Lanczos2.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\Shaders\ntsc-util-lang.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ComPtr.h">
@@ -199,6 +233,8 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Resource.rc" />
+    <ResourceCompile Include="Resource.rc">
+      <Filter>Source</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

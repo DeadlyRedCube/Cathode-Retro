@@ -7,30 +7,31 @@
 //  unneeded).
 
 
+#include "../ntsc-util-lang.hlsli"
 #include "DistortCRTCoordinates.hlsli"
 
 
 // This sampler should be set up with linear texture sampling (there are no mipmaps on the input textures so that sampling mode doesn't
 //  matter), and should be set to clamp the textures involved (no wrapping).
-sampler g_sampler : register(s0);
+DECLARE_SAMPLER(g_sampler);
 
 // This is the RGB current frame texture - the output of the NTSC decode shaders if decoding was needed.
-Texture2D<float4> g_currentFrameTexture: register(t0);
+DECLARE_TEXTURE2D(g_currentFrameTexture);
 
 // This is the previous frame's texture (i.e. last frame's g_currentFrameTexture).
-Texture2D<float4> g_previousFrameTexture : register(t1);
+DECLARE_TEXTURE2D(g_previousFrameTexture);
 
 // This texture is the output of the GenerateScreenTexture shader, containing the (scaled, tiled, and antialiased) shadow mask texture in
 //  the rgb channels and the edge-of-screen mask value in the alpha channel. It is expected to have been generated at our output resolution
 //  (i.e. it's 1:1 pixels with our output render target)
-Texture2D<float4> g_screenMaskTexture : register(t2);
+DECLARE_TEXTURE2D(g_screenMaskTexture);
 
 // This texture contains a tonemapped/blurred version of the input texture, to emulate the diffusion of the light from the phosphors
 //  through the glass on the front of a CRT screen.
-Texture2D<float4> g_diffusionTexture : register(t3);
+DECLARE_TEXTURE2D(g_diffusionTexture);
 
 
-cbuffer consts : register(b0)
+CBUFFER consts
 {
   // $NOTE: The first four values here are the same as the first four in GenerateScreenTexture.hlsl, and are expected to match.
 
@@ -94,23 +95,23 @@ cbuffer consts : register(b0)
 
   // How much we want to blend in the shadow mask. 0 means "shadow mask is not visible" and 1 means "shadow mask is fully visible"
   float  g_shadowMaskStrength;
-}
+};
 
 
-static const float pi = 3.141592653;
+CONST float pi = 3.141592653;
 
 
-float4 main(float2 inTexCoord : TEX) : SV_TARGET
+float4 Main(float2 inTexCoord)
 {
   // The screen texture is 1:1 with the output render target so sample it directly off of the input texture coordinates.
-  float4 screenMask = g_screenMaskTexture.Sample(g_sampler, inTexCoord);
+  float4 screenMask = SAMPLE_TEXTURE(g_screenMaskTexture, g_sampler, inTexCoord);
 
   // Now distort the texture coordinates to get our texture into the correct space for display.
   float2 t = DistortCRTCoordinates((inTexCoord * 2 - 1) * g_viewScale, g_distortion) * g_overscanScale + g_overscanOffset * 2.0;
 
   // Use "t" (before we do the even/odd update or the scanline-sharpening) to load our diffusion texture, which is an approximation of
   //  the glass in front of the phosphors scattering light a little bit due to imperfections.
-  float3 diffusionColor = g_diffusionTexture.Sample(g_sampler, t * 0.5 + 0.5).rgb;
+  float3 diffusionColor = SAMPLE_TEXTURE(g_diffusionTexture, g_sampler, t * 0.5 + 0.5).rgb;
 
   // Offset based on whether we're an even or odd frame
   t.y += g_curEvenOddTexelOffset / g_scanlineCount;
@@ -142,7 +143,7 @@ float4 main(float2 inTexCoord : TEX) : SV_TARGET
   float3 sourceColor;
   {
     t = t * 0.5 + 0.5; // t has been in -1..1 range this whole time, scale it to 0..1 for sampling.
-    sourceColor = g_currentFrameTexture.Sample(g_sampler, t).rgb;
+    sourceColor = SAMPLE_TEXTURE(g_currentFrameTexture, g_sampler, t).rgb;
 
     // Reduce the influence of the scanlines as we get small enough that aliasing is unavoidable (fully fading out at 0.7x nyquist - early
     //  to ensure that we don't introduce any aliasing as we get too close).
@@ -185,7 +186,7 @@ float4 main(float2 inTexCoord : TEX) : SV_TARGET
     }
 
     // Sample the previous texture and darken the area between scanlines accordingly.
-    float3 prevSourceColor = g_previousFrameTexture.Sample(g_sampler, prevT).rgb;
+    float3 prevSourceColor = SAMPLE_TEXTURE(g_previousFrameTexture, g_sampler, prevT).rgb;
     prevSourceColor *= lerp(1 - scanlineStrength, 1.0, prevScanline);
 
     // Blend our previous frame into the current one based on how much phosphor persistence we have between frames.
@@ -206,5 +207,9 @@ float4 main(float2 inTexCoord : TEX) : SV_TARGET
   res = max(diffusionColor * g_diffusionStrength, res);
 
   // Finally, mask out everything outside of the edges to get our final output value.
-  return float4(lerp((0.05).xxx, res, screenMask.a), 1);
+  float3 gray = float3(0.05, 0.05, 0.05);
+  return float4(lerp(gray, res, screenMask.a), 1);
 }
+
+
+PS_MAIN

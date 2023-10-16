@@ -2,13 +2,16 @@
 // This shader does a horizontal three-tap blur or sharpen to each input scanline.
 
 
+#include "../ntsc-util-lang.hlsli"
+
+
 // The input RGB texture that will be filtered.
-Texture2D<float4> g_sourceTexture : register(t0);
+DECLARE_TEXTURE2D(g_sourceTexture);
 
 // This sampler should be set up for linear filtering and clamp addressing (no wrapping).
-sampler g_sampler : register(s0);
+DECLARE_SAMPLER(g_sampler);
 
-cbuffer consts : register(b0)
+CBUFFER consts
 {
   // This is the strength of the blur - 0.0 will leave the output texture unchanged from the input, 1.0 will do a full 3-texel average,
   //  and -1 will do a very extreme sharpen pass.
@@ -19,10 +22,10 @@ cbuffer consts : register(b0)
   //  the NTSC signal generator and have gotten a signal straight from a real NTSC signal, then you'd just want to pick some nice-on-
   //  average value instead)
   float g_stepSize;
-}
+};
 
 
-float4 main(float2 inTexCoord: TEX): SV_TARGET
+float4 Main(float2 inTexCoord)
 {
   float2 inputTexelSize = float2(ddx(inTexCoord).x, ddy(inTexCoord).y);
 
@@ -31,9 +34,12 @@ float4 main(float2 inTexCoord: TEX): SV_TARGET
   //  in the gaussian/lanczos filters.
   float blurSide = g_blurStrength / 3.0;
   float blurCenter = 1.0 - 2.0 * blurSide;
-  float4 color = g_sourceTexture.Sample(g_sampler, inTexCoord - float2(g_stepSize, 0) * inputTexelSize) * blurSide
-               + g_sourceTexture.Sample(g_sampler, inTexCoord)                                          * blurCenter
-               + g_sourceTexture.Sample(g_sampler, inTexCoord + float2(g_stepSize, 0) * inputTexelSize) * blurSide;
+  float4 color = SAMPLE_TEXTURE(g_sourceTexture, g_sampler, (inTexCoord - float2(g_stepSize, 0) * inputTexelSize)) * blurSide
+               + SAMPLE_TEXTURE(g_sourceTexture, g_sampler, (inTexCoord))                                          * blurCenter
+               + SAMPLE_TEXTURE(g_sourceTexture, g_sampler, (inTexCoord + float2(g_stepSize, 0) * inputTexelSize)) * blurSide;
 
   return color;
 }
+
+
+PS_MAIN

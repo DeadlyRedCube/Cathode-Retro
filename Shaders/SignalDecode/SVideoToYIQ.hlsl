@@ -18,19 +18,22 @@
 // The output of this shader is a texture that contains the decoded Y, I, and Q channels in R, G, and B  (plus 1.0 in alpha).
 
 
+#include "../ntsc-util-lang.hlsli"
+
+
 // This is a 2- or 4-component texture that contains either a single luma, chroma sample pair or two luma, chroma pairs of S-Video-like
 //  signal. It's 2 components if we have no temporal artifact reduction (we're not blending two versions of the same frame), 4 if we do.
-Texture2D<float4> g_sourceTexture : register(t0);
+DECLARE_TEXTURE2D(g_sourceTexture);
 
 // This is a 1- or 2-component texture that contains the colorburst phase offsets for each scanline. It's 1 component if we have no
 //  temporal artifact reduction, and 2 if we do.
 // Each phase value in this texture is the phase in (fractional) multiples of the colorburst wavelength.
-Texture2D<float2> g_scanlinePhases : register(t1);
+DECLARE_TEXTURE2D(g_scanlinePhases);
 
 // This sampler should be set up for linear filtering and clamped addressing (no wrapping).
-sampler g_sampler : register(s0);
+DECLARE_SAMPLER(g_sampler);
 
-cbuffer consts : register(b0)
+CBUFFER consts
 {
   // How many samples (horizontal texels) there are per each color wave cycle.
   uint g_samplesPerColorburstCycle;
@@ -65,12 +68,13 @@ cbuffer consts : register(b0)
   //  between successive frames. 0 means we only have (or want to use) a single input luma/chroma pair. A value > 0 means we are going to
   //  blend the results of two parallel-computed versions of our YIQ values, with a value of 1.0 being a pure average of the two.
   float g_temporalArtifactReduction;
-}
-
-static const float k_pi = 3.141592653;
+};
 
 
-float4 main(float2 inTexCoord : TEX): SV_TARGET
+CONST float k_pi = 3.141592653;
+
+
+float4 Main(float2 inTexCoord)
 {
   float2 inputTexelSize = float2(ddx(inTexCoord).x, ddy(inTexCoord).y);
 
@@ -83,15 +87,15 @@ float4 main(float2 inTexCoord : TEX): SV_TARGET
   //  extra blurring on the color channel (it needs to be an integer multiple of our cycle sample count for the filtering to work).
   // $TODO: This could actually be reduced to 1 when we're doing an decode of a signal that was not originally composite, since there are
   //  no areas where luma changes will have crept into the color channel, which is typically the artifacting we see.
-  uint filterWidth = g_samplesPerColorburstCycle * 2;
+  uint filterWidth = g_samplesPerColorburstCycle * 2U;
 
-  float2 relativePhase = g_scanlinePhases.Sample(g_sampler, inTexCoord.y) + g_tint;
+  float2 relativePhase = SAMPLE_TEXTURE(g_scanlinePhases, g_sampler, inTexCoord.yy).xy + g_tint;
 
   // This is the chroma decode process, it's a QAM demodulation.
   //  You multiply the chroma signal by a reference waveform and its quadrature (Basically, sin and cos at a given time) and then filter
   //  out the chroma frequency (here done by a box filter (an average)). What you're left with are the approximate I and Q color space
   //  values for this part of the image.
-  float4 centerSample = g_sourceTexture.Sample(g_sampler, inTexCoord);
+  float4 centerSample = SAMPLE_TEXTURE(g_sourceTexture, g_sampler, inTexCoord);
   float2 Y = centerSample.xz;
 
   // $TODO: This could be made likely more efficient by basically doing two passes: one to generate a four-component texture with both sets
@@ -105,12 +109,12 @@ float4 main(float2 inTexCoord : TEX): SV_TARGET
   }
 
   {
-    int iterEnd = int((filterWidth - 1) / 2);
-    for (int i = 1; i <= iterEnd; i++)
+    uint iterEnd = (filterWidth - 1U) / 2U;
+    for (uint i = 1U; i <= iterEnd; i++)
     {
       {
         float2 coord = inTexCoord + float2(i, 0) * inputTexelSize;
-        float2 chroma = g_sourceTexture.Sample(g_sampler, coord).yw;
+        float2 chroma = SAMPLE_TEXTURE(g_sourceTexture, g_sampler, coord).yw;
         float2 s, c;
         sincos(2.0 * k_pi * (float(sampleXIndex + i) / g_samplesPerColorburstCycle + relativePhase), s, c);
         IQ += chroma.xxyy  * float4(s, -c).xzyw;
@@ -118,29 +122,29 @@ float4 main(float2 inTexCoord : TEX): SV_TARGET
 
       {
         float2 coord = inTexCoord - float2(i, 0) * inputTexelSize;
-        float2 chroma = g_sourceTexture.Sample(g_sampler, coord).yw;
+        float2 chroma = SAMPLE_TEXTURE(g_sourceTexture, g_sampler, coord).yw;
         float2 s, c;
         sincos(2.0 * k_pi * (float(sampleXIndex - i) / g_samplesPerColorburstCycle + relativePhase), s, c);
         IQ += chroma.xxyy  * float4(s, -c).xzyw;
       }
     }
 
-    if ((filterWidth & 1) == 0)
+    if ((filterWidth & 1U) == 0U)
     {
       // We have an odd remainder (because we have an even filter width), so sample 0.5x each endpoint
       {
-        float2 coord = inTexCoord + float2(iterEnd + 1, 0) * inputTexelSize;
-        float2 chroma = g_sourceTexture.Sample(g_sampler, coord).yw;
+        float2 coord = inTexCoord + float2(iterEnd + 1U, 0) * inputTexelSize;
+        float2 chroma = SAMPLE_TEXTURE(g_sourceTexture, g_sampler, coord).yw;
         float2 s, c;
-        sincos(2.0 * k_pi * (float(sampleXIndex + iterEnd + 1) / g_samplesPerColorburstCycle + relativePhase), s, c);
+        sincos(2.0 * k_pi * (float(sampleXIndex + iterEnd + 1U) / g_samplesPerColorburstCycle + relativePhase), s, c);
         IQ += 0.5 * chroma.xxyy  * float4(s, -c).xzyw;
       }
 
       {
-        float2 coord = inTexCoord - float2(iterEnd + 1, 0) * inputTexelSize;
-        float2 chroma = g_sourceTexture.Sample(g_sampler, coord).yw;
+        float2 coord = inTexCoord - float2(iterEnd + 1U, 0) * inputTexelSize;
+        float2 chroma = SAMPLE_TEXTURE(g_sourceTexture, g_sampler, coord).yw;
         float2 s, c;
-        sincos(2.0 * k_pi * (float(sampleXIndex - iterEnd - 1) / g_samplesPerColorburstCycle + relativePhase), s, c);
+        sincos(2.0 * k_pi * (float(sampleXIndex - iterEnd - 1U) / g_samplesPerColorburstCycle + relativePhase), s, c);
         IQ += 0.5 * chroma.xxyy  * float4(s, -c).xzyw;
       }
     }
@@ -151,7 +155,7 @@ float4 main(float2 inTexCoord : TEX): SV_TARGET
   // Adjust our components, first Y to account for the signal's black/white level (and user-chosen brightness), then IQ for saturation
   //  (Which should also include the signal's brightness scale)
   Y = (Y - g_blackLevel) / (g_whiteLevel - g_blackLevel) * g_brightness;
-  IQ *= g_saturation.xxxx;
+  IQ *= float4(g_saturation, g_saturation, g_saturation, g_saturation);
 
   // we have 1 or 2 components of Y, and 2 or 4 of IQ. Blend them together based on our temporal aliasing reduction to get our final
   //  decoded YIQ values.
@@ -165,3 +169,6 @@ float4 main(float2 inTexCoord : TEX): SV_TARGET
 
   return float4(Y.x, IQ.xy, 1);
 }
+
+
+PS_MAIN

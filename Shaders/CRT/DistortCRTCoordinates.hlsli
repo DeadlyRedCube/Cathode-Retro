@@ -1,4 +1,7 @@
 // Do a barrel distortion to a given texture coordinate to emulate a curved CRT screen.
+
+#include "../ntsc-util-lang.hlsli"
+
 float2 DistortCRTCoordinates(
   // The original texture coordinate, intended to come straight from the full-render-target quad, in [-1..1] range (not standard [0..1])
   float2 texCoord,
@@ -6,9 +9,9 @@ float2 DistortCRTCoordinates(
   // a [horizontal, vertical] distortion pair which describes the effective curvature of the virtual screen.
   float2 distortion)
 {
-  static const float k_viewAspect = 16.0 / 9.0;
-  static const float k_piOver4 = 0.78539816339;
-  static const float k_hFOV = 1.0471975512; // 60 degrees
+  const float k_viewAspect = 16.0 / 9.0;
+  const float k_piOver4 = 0.78539816339;
+  const float k_hFOV = 1.0471975512; // 60 degrees
 
   // $TODO: I would love to actually graph these coordinates and see how correct they appear - it's possible this is not quite the right
   //  type of curvature used for CRT glass but I haven't found any easy references as to how a CRT screen's curve needed to work.

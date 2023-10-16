@@ -8,18 +8,17 @@
 
 // The shadow mask texture for the CRT. That is, if you think of an old CRT and how you could see the
 //  R, G, and B dots, this is that texture.
-Texture2D<float4> g_shadowMaskTexture : register(t0);
+DECLARE_TEXTURE2D(g_shadowMaskTexture);
 
 // The sampler to use for the shadow mask texture. Needs to be set up to wrap, as well as to have mip mapping (and, ideally, anisotropic
 //  filtering too, if rendering as a curved screen, to help with sharpness and aliasing).
-sampler g_sampler : register(s0);
+DECLARE_SAMPLER(g_sampler);
 
 // These are standard 8x and 16x sampling patterns (found in the D3D docs here:
 //  https://docs.microsoft.com/en-us/windows/win32/api/d3d11/ne-d3d11-d3d11_standard_multisample_quality_levels )
 #if 1
-  static const uint k_samplePointCount = 16;
-  static const float2 k_samplingPattern[] =
-  {
+  CONST int k_samplePointCount = 16;
+  BEGIN_CONST_ARRAY(float2, k_samplingPattern, k_samplePointCount)
     float2( 1.0f / 8.0,  1.0f / 8.0),
     float2(-1.0f / 8.0, -3.0f / 8.0),
     float2(-3.0f / 8.0,  2.0f / 8.0),
@@ -35,12 +34,11 @@ sampler g_sampler : register(s0);
     float2(-8.0f / 8.0,  0.0f / 8.0),
     float2( 7.0f / 8.0, -4.0f / 8.0),
     float2( 6.0f / 8.0,  7.0f / 8.0),
-    float2(-7.0f / 8.0, -8.0f / 8.0),
-  };
+    float2(-7.0f / 8.0, -8.0f / 8.0)
+  END_CONST_ARRAY
 #else
-  static const uint k_samplePointCount = 8;
-  static const float2 k_samplingPattern[] =
-  {
+  CONST uint k_samplePointCount = 8;
+  BEGIN_CONST_ARRAY(float2, k_samplingPattern, k_samplePointCount)
     float2( 1.0f / 8.0, -3.0f / 8.0),
     float2(-1.0f / 8.0,  3.0f / 8.0),
     float2( 5.0f / 8.0,  1.0f / 8.0),
@@ -48,13 +46,13 @@ sampler g_sampler : register(s0);
     float2(-5.0f / 8.0,  5.0f / 8.0),
     float2(-7.0f / 8.0, -1.0f / 8.0),
     float2( 3.0f / 8.0,  7.0f / 8.0),
-    float2( 7.0f / 8.0, -7.0f / 8.0),
-  };
+    float2( 7.0f / 8.0, -7.0f / 8.0)
+  END_CONST_ARRAY
 #endif
 
 
 
-cbuffer consts : register(b0)
+CBUFFER consts
 {
   // $NOTE: The first four values here are the same as the first four in RGBToCRT.hlsl, and are expected to match.
 
@@ -99,15 +97,11 @@ cbuffer consts : register(b0)
   //  0 indicates no rounding (squared-off corners), while a value of 1.0 means "the whole screen is an oval." Values <= 0.2 are
   //  recommended.
   float  g_roundedCornerSize;
-}
+};
 
 
 
-float4 main(
-  // The input texture coordinate is expected to be in [0..1], and is expected to be 0, 0 in the upper-left corner of the output render
-  //  target and [1, 1] in the lower-right corner.
-  float2 inTexCoord : TEX)
-  : SV_TARGET
+float4 Main(float2 inTexCoord)
 {
   // First thing we want to do is scale our input texture coordinate to be in [-1..1] instead of [0..1]
   inTexCoord = inTexCoord * 2 - 1;
@@ -145,13 +139,14 @@ float4 main(
   //  give us a sharp shadow mask with minimal-to-no aliasing.
   float2 dxT = ddx(t);
   float2 dyT = ddy(t);
-  float3 color = 0;
-  for (uint i = 0; i < k_samplePointCount; i++)
+  float3 color = float3(0, 0, 0);
+  for (int i = 0; i < k_samplePointCount; i++)
   {
-    color += g_shadowMaskTexture.SampleBias(
+    color += SAMPLE_TEXTURE_BIAS(
+      g_shadowMaskTexture,
       g_sampler,
       (t + k_samplingPattern[i].x * dxT + k_samplingPattern[i].y * dyT) * g_shadowMaskScale,
-    -1).rgb;
+      -1).rgb;
   }
 
   color /= float(k_samplePointCount);
@@ -160,3 +155,7 @@ float4 main(
   //  Note that the color channel has not been premultiplied with the mask.
   return float4(color, maskAlpha);
 }
+
+
+PS_MAIN
+

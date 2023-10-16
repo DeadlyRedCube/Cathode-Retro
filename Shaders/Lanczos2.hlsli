@@ -6,38 +6,37 @@
 //  https://drilian.com/gaussian-kernel/
 // That means it's only 4 texture samples for an 8-tap lanczos, which is, if I did my math correctly, twice as good!
 
-static const uint k_sampleCount = 4;
-static const float k_coeffs[4] =
-{
-  -0.051,
-   0.551,
-   0.551,
-  -0.051,
-};
+#include "ntsc-util-lang.hlsli"
 
-static const float k_offsets[4] =
-{
+CONST int k_sampleCount = 4;
+BEGIN_CONST_ARRAY(float, k_coeffs, 4)
+  -0.051,
+   0.551,
+   0.551,
+  -0.051
+END_CONST_ARRAY
+
+BEGIN_CONST_ARRAY(float, k_offsets, 4)
   -2.67647052,
   -0.712341249,
    0.712341189,
-   2.67647052,
-};
+   2.67647052
+END_CONST_ARRAY
 
 
 float4 Lanczos2xDownsample(
-  Texture2D<unorm float4> sourceTexture,
-  sampler samp,
+  DECLARE_TEXTURE2D_AND_SAMPLER_PARAM(sourceTexture, samp),
   float2 centerTexCoord,
   float2 filterDir)
 {
-  uint2 dim;
-  sourceTexture.GetDimensions(dim.x, dim.y);
+  int2 dim;
+  GET_TEXTURE_SIZE(sourceTexture, dim);
 
-  float4 v = float4(0, 0, 0, 0);
-  for (uint i = 0; i < k_sampleCount; i++)
+  float4 v = float4(0.0, 0.0, 0.0, 0.0);
+  for (int i = 0; i < k_sampleCount; i++)
   {
     float2 c = centerTexCoord + filterDir / float2(dim) * k_offsets[i];
-    v += sourceTexture.Sample(samp, c) * k_coeffs[i];
+    v += SAMPLE_TEXTURE(sourceTexture, samp, c) * k_coeffs[i];
   }
 
   return v;

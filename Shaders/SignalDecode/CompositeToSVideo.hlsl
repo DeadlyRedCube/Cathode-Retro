@@ -32,6 +32,7 @@
 //  frame by frame (the NES and SNES do this, for instance).
 
 
+#include "../ntsc-util-lang.hlsli"
 #include "../BoxFilter.hlsli"
 
 
@@ -41,33 +42,41 @@
 //  on alternating frames, and we can pass a variant of the current frame with a different phase to average and reduce the flickering of
 //  temporal artifacts from frame to frame ... this doesn't make much difference if your emulator is running at a perfectly smooth 60fps,
 //  but it can make a big difference if there are frame drops).
-Texture2D<float2> g_sourceTexture : register(t0);
+DECLARE_TEXTURE2D(g_sourceTexture);
 
 // This is the sampler to use to sample the source. It should be set to linear sampling, and clamped addressing (no wrapping).
-sampler g_sampler : register(s0);
+DECLARE_SAMPLER(g_sampler);
 
-cbuffer consts : register(b0)
+CBUFFER consts
 {
   // How many samples (texels along a scanline) there are per colorburst cycle (the color wave in the composite signal). This shader
   //  currently assumes that it's integral (hence the int input) but it is totally possible to make the shader support a floating-point
   //  value instead - it would just need to do an extra fractional addition of the last texel.
   uint g_samplesPerColorburstCycle;
-}
+};
 
 
-float4 main(float2 inTex: TEX): SV_TARGET
+float4 Main(float2 inTex)
 {
   float2 inputTexDim;
-  g_sourceTexture.GetDimensions(inputTexDim.x, inputTexDim.y);
+  GET_TEXTURE_SIZE(g_sourceTexture, inputTexDim);
 
   // Doing a box filter (an average) at exactly the colorburst cycle length is a *very* effective and efficient way to remove the chroma
   //  information completely, leaving with just the luma.
-  float2 centerSample;
-  float2 luma = BoxFilter(g_sourceTexture, g_sampler, 1.0 / inputTexDim, g_samplesPerColorburstCycle, inTex, centerSample);
+  float4 centerSample;
+  float2 luma = BoxFilter(
+    PASS_TEXTURE2D_AND_SAMPLER_PARAM(g_sourceTexture, g_sampler),
+    1.0 / inputTexDim,
+    g_samplesPerColorburstCycle,
+    inTex,
+    centerSample).xy;
 
   // Take our one or two computed luma channels and output them (swizzled) as r and b, then subtract those one or two two lumas and
   //  subtract them from the corresponding input waves to get the separated chroma component, output as g and a.
   // This way, if our render target is just a two-component texture (we're not doing any temporal aliasing reduction), then r will be the
   //   luma and g will be the chroma.
-  return float4(luma, centerSample - luma).rbga;
+  return float4(luma, centerSample.xy - luma).rbga;
 }
+
+
+PS_MAIN

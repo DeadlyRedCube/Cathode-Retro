@@ -7,23 +7,26 @@
 #include "Lanczos2.hlsli"
 
 
-Texture2D<unorm float4> g_sourceTexture : register(t0);
-sampler g_sampler : register(s0);
+DECLARE_TEXTURE2D(g_sourceTexture);
+DECLARE_SAMPLER(g_sampler);
 
 
-cbuffer consts : register(b0)
+CBUFFER consts
 {
   // The direction we want to apply the downsample.
   float2 g_downsampleDir;
   float g_minLuminosity;
 
   float g_colorPower;
-}
+};
 
 
-float4 main(float2 inTexCoord: TEX): SV_TARGET
+float4 Main(float2 inTexCoord)
 {
-  float4 samp = Lanczos2xDownsample(g_sourceTexture, g_sampler, inTexCoord, g_downsampleDir);
+  float4 samp = Lanczos2xDownsample(
+    PASS_TEXTURE2D_AND_SAMPLER_PARAM(g_sourceTexture, g_sampler),
+    inTexCoord,
+    g_downsampleDir);
 
   // Calculate the luminosity of the input.
   float inLuma = dot(samp.rgb, float3(0.30, 0.59, 0.11));
@@ -36,3 +39,5 @@ float4 main(float2 inTexCoord: TEX): SV_TARGET
   samp.rgb *= outLuma / inLuma;
   return samp;
 }
+
+PS_MAIN
