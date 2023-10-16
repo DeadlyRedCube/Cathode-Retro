@@ -78,7 +78,6 @@ public:
     IShader *ps,
     RenderTargetView output,
     std::initializer_list<ShaderResourceView> inputs,
-    std::initializer_list<SamplerType> samplers,
     std::initializer_list<IConstantBuffer *> constantBuffers) override;
 
   void EndRendering();
@@ -178,7 +177,6 @@ private:
     uint32_t viewportHeight,
     ID3D11RenderTargetView *outputRtv,
     std::initializer_list<ShaderResourceView> inputs,
-    std::initializer_list<SamplerType> samplers,
     std::initializer_list<IConstantBuffer *> constantBuffers);
 
   void RenderQuad(
@@ -187,8 +185,8 @@ private:
     uint32_t viewportHeight,
     ID3D11RenderTargetView *outputRtv,
     ID3D11ShaderResourceView **srvs,
+    ID3D11SamplerState **samplers,
     uint32_t srvCount,
-    std::initializer_list<SamplerType> samplers,
     std::initializer_list<IConstantBuffer *> constantBuffers);
 
   void CreateVertexShaderAndInputLayout(
@@ -696,7 +694,6 @@ void D3D11GraphicsDevice::RenderQuad(
   IShader *ps,
   RenderTargetView output,
   std::initializer_list<ShaderResourceView> inputs,
-  std::initializer_list<SamplerType> samplers,
   std::initializer_list<IConstantBuffer *> constantBuffers)
 {
   if (output.texture == nullptr)
@@ -707,7 +704,6 @@ void D3D11GraphicsDevice::RenderQuad(
       backbufferHeight,
       backbufferView,
       inputs,
-      samplers,
       constantBuffers);
   }
   else
@@ -718,7 +714,6 @@ void D3D11GraphicsDevice::RenderQuad(
       std::max(1U, output.texture->Height() >> output.mipLevel),
       static_cast<Texture *>(output.texture)->mipRTVs[output.mipLevel],
       inputs,
-      samplers,
       constantBuffers);
   }
 }
@@ -730,10 +725,10 @@ void D3D11GraphicsDevice::RenderQuad(
   uint32_t viewportHeight,
   ID3D11RenderTargetView *outputRtv,
   std::initializer_list<ShaderResourceView> inputs,
-  std::initializer_list<SamplerType> samplers,
   std::initializer_list<IConstantBuffer *> constantBuffers)
 {
   ID3D11ShaderResourceView *srvs[16] = {};
+  ID3D11SamplerState *samps[16];
   for (uint32_t i = 0; i < inputs.size(); i++)
   {
     const ShaderResourceView &input = inputs.begin()[i];
@@ -745,6 +740,8 @@ void D3D11GraphicsDevice::RenderQuad(
     {
       srvs[i] = static_cast<const Texture *>(input.texture)->mipSRVs[input.mipLevel];
     }
+
+    samps[i] = samplerStates[EnumValue(input.samplerType)];
   }
 
   RenderQuad(
@@ -753,8 +750,8 @@ void D3D11GraphicsDevice::RenderQuad(
     viewportHeight,
     outputRtv,
     srvs,
+    samps,
     uint32_t(inputs.size()),
-    samplers,
     constantBuffers);
 }
 
@@ -765,8 +762,8 @@ void D3D11GraphicsDevice::RenderQuad(
   uint32_t viewportHeight,
   ID3D11RenderTargetView *outputRtv,
   ID3D11ShaderResourceView **srvs,
+  ID3D11SamplerState **samplers,
   uint32_t srvCount,
-  std::initializer_list<SamplerType> samplers,
   std::initializer_list<IConstantBuffer *> constantBuffers)
 {
   assert(isRendering);
@@ -794,18 +791,6 @@ void D3D11GraphicsDevice::RenderQuad(
     context->IASetVertexBuffers(0, 1, &ptr, &stride, &offsets);
   }
 
-  if (samplers.size() > 0)
-  {
-    ID3D11SamplerState *samps[16];
-
-    for (uint32_t i = 0; i < samplers.size(); i++)
-    {
-      samps[i] = samplerStates[EnumValue(samplers.begin()[i])];
-    }
-
-    context->PSSetSamplers(0, UINT(samplers.size()), samps);
-  }
-
   if (constantBuffers.size() > 0)
   {
     ID3D11Buffer *cbs[16];
@@ -825,6 +810,7 @@ void D3D11GraphicsDevice::RenderQuad(
   if (srvCount > 0)
   {
     context->PSSetShaderResources(0, UINT(srvCount), srvs);
+    context->PSSetSamplers(0, UINT(srvCount), samplers);
   }
 
   context->Draw(6, 0);

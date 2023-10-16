@@ -42,10 +42,8 @@
 //  on alternating frames, and we can pass a variant of the current frame with a different phase to average and reduce the flickering of
 //  temporal artifacts from frame to frame ... this doesn't make much difference if your emulator is running at a perfectly smooth 60fps,
 //  but it can make a big difference if there are frame drops).
-DECLARE_TEXTURE2D(g_sourceTexture);
-
-// This is the sampler to use to sample the source. It should be set to linear sampling, and clamped addressing (no wrapping).
-DECLARE_SAMPLER(g_sampler);
+// The sampler should be set to linear sampling, and clamped addressing (no wrapping).
+DECLARE_TEXTURE2D(g_sourceTexture, g_sampler);
 
 CBUFFER consts
 {

@@ -23,15 +23,15 @@
 
 // This is a 2- or 4-component texture that contains either a single luma, chroma sample pair or two luma, chroma pairs of S-Video-like
 //  signal. It's 2 components if we have no temporal artifact reduction (we're not blending two versions of the same frame), 4 if we do.
-DECLARE_TEXTURE2D(g_sourceTexture);
+// This sampler should be set up for linear filtering and clamped addressing (no wrapping).
+DECLARE_TEXTURE2D(g_sourceTexture, g_sourceSampler);
 
 // This is a 1- or 2-component texture that contains the colorburst phase offsets for each scanline. It's 1 component if we have no
 //  temporal artifact reduction, and 2 if we do.
 // Each phase value in this texture is the phase in (fractional) multiples of the colorburst wavelength.
-DECLARE_TEXTURE2D(g_scanlinePhases);
-
 // This sampler should be set up for linear filtering and clamped addressing (no wrapping).
-DECLARE_SAMPLER(g_sampler);
+DECLARE_TEXTURE2D(g_scanlinePhases, g_scanlinePhasesSampler);
+
 
 CBUFFER consts
 {
@@ -89,13 +89,13 @@ float4 Main(float2 inTexCoord)
   //  no areas where luma changes will have crept into the color channel, which is typically the artifacting we see.
   uint filterWidth = g_samplesPerColorburstCycle * 2U;
 
-  float2 relativePhase = SAMPLE_TEXTURE(g_scanlinePhases, g_sampler, inTexCoord.yy).xy + g_tint;
+  float2 relativePhase = SAMPLE_TEXTURE(g_scanlinePhases, g_scanlinePhasesSampler, inTexCoord.yy).xy + g_tint;
 
   // This is the chroma decode process, it's a QAM demodulation.
   //  You multiply the chroma signal by a reference waveform and its quadrature (Basically, sin and cos at a given time) and then filter
   //  out the chroma frequency (here done by a box filter (an average)). What you're left with are the approximate I and Q color space
   //  values for this part of the image.
-  float4 centerSample = SAMPLE_TEXTURE(g_sourceTexture, g_sampler, inTexCoord);
+  float4 centerSample = SAMPLE_TEXTURE(g_sourceTexture, g_sourceSampler, inTexCoord);
   float2 Y = centerSample.xz;
 
   // $TODO: This could be made likely more efficient by basically doing two passes: one to generate a four-component texture with both sets
@@ -114,7 +114,7 @@ float4 Main(float2 inTexCoord)
     {
       {
         float2 coord = inTexCoord + float2(i, 0) * inputTexelSize;
-        float2 chroma = SAMPLE_TEXTURE(g_sourceTexture, g_sampler, coord).yw;
+        float2 chroma = SAMPLE_TEXTURE(g_sourceTexture, g_sourceSampler, coord).yw;
         float2 s, c;
         sincos(2.0 * k_pi * (float(sampleXIndex + i) / g_samplesPerColorburstCycle + relativePhase), s, c);
         IQ += chroma.xxyy  * float4(s, -c).xzyw;
@@ -122,7 +122,7 @@ float4 Main(float2 inTexCoord)
 
       {
         float2 coord = inTexCoord - float2(i, 0) * inputTexelSize;
-        float2 chroma = SAMPLE_TEXTURE(g_sourceTexture, g_sampler, coord).yw;
+        float2 chroma = SAMPLE_TEXTURE(g_sourceTexture, g_sourceSampler, coord).yw;
         float2 s, c;
         sincos(2.0 * k_pi * (float(sampleXIndex - i) / g_samplesPerColorburstCycle + relativePhase), s, c);
         IQ += chroma.xxyy  * float4(s, -c).xzyw;
@@ -134,7 +134,7 @@ float4 Main(float2 inTexCoord)
       // We have an odd remainder (because we have an even filter width), so sample 0.5x each endpoint
       {
         float2 coord = inTexCoord + float2(iterEnd + 1U, 0) * inputTexelSize;
-        float2 chroma = SAMPLE_TEXTURE(g_sourceTexture, g_sampler, coord).yw;
+        float2 chroma = SAMPLE_TEXTURE(g_sourceTexture, g_sourceSampler, coord).yw;
         float2 s, c;
         sincos(2.0 * k_pi * (float(sampleXIndex + iterEnd + 1U) / g_samplesPerColorburstCycle + relativePhase), s, c);
         IQ += 0.5 * chroma.xxyy  * float4(s, -c).xzyw;
@@ -142,7 +142,7 @@ float4 Main(float2 inTexCoord)
 
       {
         float2 coord = inTexCoord - float2(iterEnd + 1U, 0) * inputTexelSize;
-        float2 chroma = SAMPLE_TEXTURE(g_sourceTexture, g_sampler, coord).yw;
+        float2 chroma = SAMPLE_TEXTURE(g_sourceTexture, g_sourceSampler, coord).yw;
         float2 s, c;
         sincos(2.0 * k_pi * (float(sampleXIndex - iterEnd - 1U) / g_samplesPerColorburstCycle + relativePhase), s, c);
         IQ += 0.5 * chroma.xxyy  * float4(s, -c).xzyw;

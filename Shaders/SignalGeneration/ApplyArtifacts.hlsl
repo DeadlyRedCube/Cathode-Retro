@@ -17,10 +17,8 @@
 //  - a 2-channel luma/chroma S-Video signal
 //  - a 2-channel doubled composite texture (two composite versions of the same frame for temporal artifact reduction)
 //  - a 4-channel luma/chroma/luma/chroma doubled S-Video signal (two S-Video versions of the same frame for temporal artifact reduction)
-DECLARE_TEXTURE2D(g_sourceTexture);
-
 // This sampler should be set to linear sampling, and either clamp addressing or perhaps border mode, depending.
-DECLARE_SAMPLER(g_sampler);
+DECLARE_TEXTURE2D(g_sourceTexture, g_sampler);
 
 
 CBUFFER consts

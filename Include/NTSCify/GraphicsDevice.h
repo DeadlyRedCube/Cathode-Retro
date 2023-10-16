@@ -80,17 +80,20 @@ namespace NTSCify
 
   struct ShaderResourceView
   {
-    ShaderResourceView(const ITexture *tex)
+    ShaderResourceView(const ITexture *tex, SamplerType samp)
       : texture(tex)
+      , samplerType(samp)
       { }
 
-    ShaderResourceView(const ITexture *tex, uint32_t mip)
+    ShaderResourceView(const ITexture *tex, uint32_t mip, SamplerType samp)
       : texture(tex)
       , mipLevel(int32_t(mip))
+      , samplerType(samp)
       { }
 
     const ITexture *texture;
     int32_t mipLevel = -1;
+    SamplerType samplerType;
   };
 
 
@@ -130,7 +133,6 @@ namespace NTSCify
       IShader *ps,
       RenderTargetView output,
       std::initializer_list<ShaderResourceView> inputs,
-      std::initializer_list<SamplerType> samplers,
       std::initializer_list<IConstantBuffer *> constantBuffers) = 0;
 
     virtual void EndRendering() = 0;

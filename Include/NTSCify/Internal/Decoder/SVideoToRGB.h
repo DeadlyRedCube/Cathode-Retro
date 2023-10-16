@@ -51,8 +51,10 @@ namespace NTSCify::Internal::Decoder
       device->RenderQuad(
         sVideoToYIQShader.get(),
         yiqOutput,
-        {signalInput, phasesInput},
-        {SamplerType::LinearClamp},
+        {
+          {signalInput, SamplerType::LinearClamp},
+          {phasesInput, SamplerType::LinearClamp},
+        },
         {constantBuffer.get()});
     }
 

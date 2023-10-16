@@ -7,12 +7,9 @@
 #include "DistortCRTCoordinates.hlsli"
 
 // The shadow mask texture for the CRT. That is, if you think of an old CRT and how you could see the
-//  R, G, and B dots, this is that texture.
-DECLARE_TEXTURE2D(g_shadowMaskTexture);
-
-// The sampler to use for the shadow mask texture. Needs to be set up to wrap, as well as to have mip mapping (and, ideally, anisotropic
+//  R, G, and B dots, this is that texture. Needs to be set up to wrap, as well as to have mip mapping (and, ideally, anisotropic
 //  filtering too, if rendering as a curved screen, to help with sharpness and aliasing).
-DECLARE_SAMPLER(g_sampler);
+DECLARE_TEXTURE2D(g_shadowMaskTexture, g_sampler);
 
 // These are standard 8x and 16x sampling patterns (found in the D3D docs here:
 //  https://docs.microsoft.com/en-us/windows/win32/api/d3d11/ne-d3d11-d3d11_standard_multisample_quality_levels )

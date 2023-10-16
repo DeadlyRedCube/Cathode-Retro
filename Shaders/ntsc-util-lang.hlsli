@@ -77,8 +77,7 @@
     #define END_CONST_ARRAY );
 
     // GLSL doesn't have separate samplers and textures, so we're using texName for everything
-    #define DECLARE_TEXTURE2D(texName) uniform sampler2D texName
-    #define DECLARE_SAMPLER(samplerName)
+    #define DECLARE_TEXTURE2D(texName, samplerName) uniform sampler2D texName
 
     #define DECLARE_TEXTURE2D_AND_SAMPLER_PARAM(texName, samplerName) sampler2D texName
     #define PASS_TEXTURE2D_AND_SAMPLER_PARAM(texName, samplerName) texName
@@ -97,8 +96,7 @@
     #define BEGIN_CONST_ARRAY(type, name, size) static const type name[size] = {
     #define END_CONST_ARRAY };
 
-    #define DECLARE_TEXTURE2D(texName) Texture2D<float4> texName
-    #define DECLARE_SAMPLER(samplerName) sampler samplerName
+    #define DECLARE_TEXTURE2D(texName, samplerName) Texture2D<float4> texName; sampler samplerName
 
     #define DECLARE_TEXTURE2D_AND_SAMPLER_PARAM(texName, samplerName) Texture2D<float4> texName, sampler samplerName
     #define PASS_TEXTURE2D_AND_SAMPLER_PARAM(texName, samplerName) texName, samplerName

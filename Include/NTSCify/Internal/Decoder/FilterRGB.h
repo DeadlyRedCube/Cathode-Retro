@@ -37,12 +37,7 @@ namespace NTSCify::Internal::Decoder
             .blurSampleStepSize = colorCyclesPerInputPixel * float(k_signalSamplesPerColorCycle)
           });
 
-        device->RenderQuad(
-          blurRGBShader.get(),
-          output,
-          {input},
-          {SamplerType::LinearClamp},
-          {constantBuffer.get()});
+        device->RenderQuad(blurRGBShader.get(), output, {{input, SamplerType::LinearClamp}}, {constantBuffer.get()});
 
         return true;
       }

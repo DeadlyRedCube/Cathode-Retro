@@ -27,8 +27,7 @@
 */
 
 
-DECLARE_TEXTURE2D(g_sourceTex);
-DECLARE_SAMPLER(g_sampler);
+DECLARE_TEXTURE2D(g_sourceTex, g_sampler);
 
 CONST int k_sampleCount = 7;
 BEGIN_CONST_ARRAY(float, k_coeffs, k_sampleCount)

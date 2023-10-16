@@ -5,11 +5,8 @@
 #include "../ntsc-util-lang.hlsli"
 
 
-// The input RGB texture that will be filtered.
-DECLARE_TEXTURE2D(g_sourceTexture);
-
-// This sampler should be set up for linear filtering and clamp addressing (no wrapping).
-DECLARE_SAMPLER(g_sampler);
+// The input RGB texture that will be filtered. It should be set up for linear filtering and clamp addressing (no wrapping).
+DECLARE_TEXTURE2D(g_sourceTexture, g_sampler);
 
 CBUFFER consts
 {
@@ -22,7 +19,7 @@ CBUFFER consts
   //  the NTSC signal generator and have gotten a signal straight from a real NTSC signal, then you'd just want to pick some nice-on-
   //  average value instead)
   float g_stepSize;
-};
+}
 
 
 float4 Main(float2 inTexCoord)
@@ -35,7 +32,7 @@ float4 Main(float2 inTexCoord)
   float blurSide = g_blurStrength / 3.0;
   float blurCenter = 1.0 - 2.0 * blurSide;
   float4 color = SAMPLE_TEXTURE(g_sourceTexture, g_sampler, (inTexCoord - float2(g_stepSize, 0) * inputTexelSize)) * blurSide
-               + SAMPLE_TEXTURE(g_sourceTexture, g_sampler, (inTexCoord))                                          * blurCenter
+               + SAMPLE_TEXTURE(g_sourceTexture, g_sampler, (inTexCoord))                                           * blurCenter
                + SAMPLE_TEXTURE(g_sourceTexture, g_sampler, (inTexCoord + float2(g_stepSize, 0) * inputTexelSize)) * blurSide;
 
   return color;

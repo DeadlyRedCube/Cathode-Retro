@@ -4,8 +4,7 @@
 #include "ntsc-util-lang.hlsli"
 #include "Lanczos2.hlsli"
 
-DECLARE_TEXTURE2D(g_sourceTexture);
-DECLARE_SAMPLER(g_sampler);
+DECLARE_TEXTURE2D(g_sourceTexture, g_sampler);
 
 CBUFFER consts
 {
