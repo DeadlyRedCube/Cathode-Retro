@@ -40,8 +40,7 @@ namespace NTSCify::Internal::Generator
       levelsInOut->whiteLevel *= (1.0f + options.ghostVisibility);
       levelsInOut->blackLevel *= (1.0f + options.ghostVisibility);
 
-      device->UpdateConstantBuffer(
-        constantBuffer.get(),
+      constantBuffer->Update(
         ConstantData {
           .ghostVisibility = options.ghostVisibility,
           .ghostDistance = options.ghostDistance,

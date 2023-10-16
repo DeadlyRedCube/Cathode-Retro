@@ -42,8 +42,7 @@ namespace NTSCify::Internal::Generator
       const ArtifactSettings &artifactSettings)
     {
       // Update our scanline phases texture
-      device->UpdateConstantBuffer(
-        constantBuffer.get(),
+      constantBuffer->Update(
         GeneratePhaseTextureConstantData{
           .initialFrameStartPhase = initialFramePhase,
           .prevFrameStartPhase = prevFrameStartPhase,
@@ -63,8 +62,7 @@ namespace NTSCify::Internal::Generator
         {constantBuffer.get()});
 
       // Now run the actual shader
-      device->UpdateConstantBuffer(
-        constantBuffer.get(),
+      constantBuffer->Update(
         RGBToSVideoConstantData{
           .outputTexelsPerColorburstCycle = k_signalSamplesPerColorCycle,
           .inputWidth = rgbTextureWidth,

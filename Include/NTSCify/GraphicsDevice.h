@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include "NTSCify/FlagEnum.h"
 
 namespace NTSCify
@@ -19,6 +20,15 @@ namespace NTSCify
   {
   public:
     virtual ~IConstantBuffer() = default;
+
+    virtual void Update(const void *data, size_t dataSize) = 0;
+
+    // Templated version of Update that takes a type and updates the whole type.
+    template <typename T> requires (!std::is_pointer_v<T>)
+    void Update(const T &data)
+    {
+      Update(&data, sizeof(T));
+    }
   };
 
 
@@ -130,14 +140,6 @@ namespace NTSCify
     virtual std::unique_ptr<IShader> CreateShader(ShaderID id) = 0;
 
     virtual void BeginRendering() = 0;
-
-    virtual void UpdateConstantBuffer(IConstantBuffer *buffer, const void *data, size_t dataSize) = 0;
-
-    template <typename T> requires (!std::is_pointer_v<T>)
-    void UpdateConstantBuffer(IConstantBuffer *buffer, const T &data)
-    {
-      UpdateConstantBuffer(buffer, &data, sizeof(T));
-    }
 
     virtual void RenderQuad(
       IShader *ps,

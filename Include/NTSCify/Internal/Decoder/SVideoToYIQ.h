@@ -35,8 +35,7 @@ namespace NTSCify::Internal::Decoder
       ITexture *yiqOutput,
       const TVKnobSettings &knobSettings)
     {
-      device->UpdateConstantBuffer(
-        constantBuffer.get(),
+      constantBuffer->Update(
         ConstantData {
           .samplesPerColorburstCycle = k_signalSamplesPerColorCycle,
           .tint = knobSettings.tint,

@@ -31,8 +31,7 @@ namespace NTSCify::Internal::Decoder
       // We don't have to do anything if the sharpness is 0
       if (knobSettings.sharpness != 0)
       {
-        device->UpdateConstantBuffer(
-          constantBuffer.get(),
+        constantBuffer->Update(
           ConstantData {
             .blurStrength = -knobSettings.sharpness,
             .blurSampleStepSize = colorCyclesPerInputPixel * float(k_signalSamplesPerColorCycle)

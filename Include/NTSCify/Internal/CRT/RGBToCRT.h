@@ -82,8 +82,7 @@ namespace NTSCify::Internal::CRT
     {
       assert(screenTexture != nullptr);
 
-      device->UpdateConstantBuffer(
-        rgbToScreenConstantBuffer.get(),
+      rgbToScreenConstantBuffer->Update(
         RGBToScreenConstants{
           .common = CalculateCommonConstants(CalculateAspectData()),
 
@@ -252,7 +251,7 @@ namespace NTSCify::Internal::CRT
 
       device->BeginRendering();
 
-      device->UpdateConstantBuffer(screenTextureConstantBuffer.get(), data);
+      screenTextureConstantBuffer->Update(data);
 
       device->RenderQuad(
         generateScreenTextureShader.get(),
@@ -344,21 +343,15 @@ namespace NTSCify::Internal::CRT
 
       device->BeginRendering();
       {
-        device->UpdateConstantBuffer(
-          constBuf.get(),
+        constBuf->Update(
           GenerateShadowMaskConstants {
             .texWidth = float(k_size),
             .texHeight = float(k_size / 2),
             .blackLevel = 0.0,
           });
 
-        device->UpdateConstantBuffer(
-          downsampleHConstBuf.get(),
-          Vec2{ 1.0f, 0.0f });
-
-        device->UpdateConstantBuffer(
-          downsampleVConstBuf.get(),
-          Vec2{ 0.0f, 1.0f });
+        downsampleHConstBuf->Update(Vec2{ 1.0f, 0.0f });
+        downsampleVConstBuf->Update(Vec2{ 0.0f, 1.0f });
 
         device->RenderQuad(
           generateShadowMaskShader.get(),
@@ -393,8 +386,7 @@ namespace NTSCify::Internal::CRT
     {
       // $TODO: This is slightly inaccurate, we should really be using the max of inputTexture and prevFrameTexture * phosphorPersistence
       //  but for now, this is fine.
-      device->UpdateConstantBuffer(
-        toneMapConstantBuffer.get(),
+      toneMapConstantBuffer->Update(
         ToneMapConstants {
           .downsampleDirX = downsampleDirX,
           .downsampleDirY = downsampleDirY,
@@ -406,9 +398,7 @@ namespace NTSCify::Internal::CRT
 
       // We're downsampling "2x" horizontally (scare quotes because it isn't always exactly 2x but it's close enough that we can just
       //  abuse this shader as if it were)
-      device->UpdateConstantBuffer(
-        blurDownsampleConstantBuffer.get(),
-        Vec2{ 1.0f, 0.0f });
+      blurDownsampleConstantBuffer->Update(Vec2{ 1.0f, 0.0f });
 
       device->RenderQuad(
         toneMapShader.get(),
@@ -424,7 +414,7 @@ namespace NTSCify::Internal::CRT
         {SamplerType::LinearClamp},
         {blurDownsampleConstantBuffer.get()});
 
-      device->UpdateConstantBuffer(gaussianBlurConstantBufferH.get(), GaussianBlurConstants{1.0f, 0.0f});
+      gaussianBlurConstantBufferH->Update(GaussianBlurConstants{1.0f, 0.0f});
       device->RenderQuad(
         gaussianBlurShader.get(),
         blurScratchTexture.get(),
@@ -432,7 +422,7 @@ namespace NTSCify::Internal::CRT
         {SamplerType::LinearClamp},
         {gaussianBlurConstantBufferH.get()});
 
-      device->UpdateConstantBuffer(gaussianBlurConstantBufferV.get(), GaussianBlurConstants{0.0f, 1.0f});
+      gaussianBlurConstantBufferV->Update(GaussianBlurConstants{0.0f, 1.0f});
       device->RenderQuad(
         gaussianBlurShader.get(),
         blurTexture.get(),

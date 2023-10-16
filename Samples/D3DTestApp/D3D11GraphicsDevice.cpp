@@ -83,8 +83,6 @@ public:
 
   void BeginRendering() override;
 
-  void UpdateConstantBuffer(IConstantBuffer *buffer, const void *data, size_t dataSize) override;
-
   void RenderQuad(
     IShader *ps,
     RenderTargetView output,
@@ -135,11 +133,23 @@ private:
   class ConstantBuffer : public IConstantBuffer
   {
   public:
-    ConstantBuffer(ID3D11Buffer *b)
+    ConstantBuffer(ID3D11Buffer *b, ID3D11DeviceContext *ctx)
       : buffer(b)
+      , context(ctx)
       { }
 
+    void Update(const void *data, size_t dataSize) override
+    {
+      D3D11_MAPPED_SUBRESOURCE map;
+      context->Map(buffer.Ptr(), 0, D3D11_MAP_WRITE_DISCARD, 0, &map);
+      memcpy(map.pData, data, size_t(dataSize));
+      context->Unmap(buffer.Ptr(), 0);
+    }
+
+
+
     ComPtr<ID3D11Buffer> buffer;
+    ComPtr<ID3D11DeviceContext> context;
   };
 
 
@@ -442,18 +452,7 @@ std::unique_ptr<IConstantBuffer> D3D11GraphicsDevice::CreateConstantBuffer(size_
   ComPtr<ID3D11Buffer> buffer;
   CHECK_HRESULT(device->CreateBuffer(&desc, nullptr, buffer.AddressForReplace()), "create constant buffer");
 
-  return std::make_unique<ConstantBuffer>(buffer.Ptr());
-}
-
-
-void D3D11GraphicsDevice::UpdateConstantBuffer(IConstantBuffer *bufferIn, const void *data, size_t dataSize)
-{
-  assert(isRendering);
-  D3D11_MAPPED_SUBRESOURCE map;
-  ID3D11Buffer *buffer = static_cast<ConstantBuffer *>(bufferIn)->buffer.Ptr();
-  context->Map(buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &map);
-  memcpy(map.pData, data, size_t(dataSize));
-  context->Unmap(buffer, 0);
+  return std::make_unique<ConstantBuffer>(buffer.Ptr(), context);
 }
 
 
