@@ -6,7 +6,7 @@
 #include "NTSCify/Internal/Decoder/SignalDecoder.h"
 #include "NTSCify/Internal/Generator/SignalGenerator.h"
 #include "NTSCify/GraphicsDevice.h"
-#include "NTSCify/ScanlineTYpe.h"
+#include "NTSCify/ScanlineType.h"
 
 
 namespace NTSCify
