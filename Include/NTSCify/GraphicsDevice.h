@@ -31,6 +31,8 @@ namespace NTSCify
   enum class ShaderID
   {
     Downsample2X,
+    TonemapAndDownsample,
+    GaussianBlur13,
 
     GeneratePhaseTexture,
     RGBToSVideoOrComposite,
@@ -42,8 +44,6 @@ namespace NTSCify
 
     GenerateScreenTexture,
     GenerateShadowMask,
-    TonemapAndDownsample,
-    GaussianBlur13,
     RGBToCRT,
   };
 
