@@ -20,7 +20,7 @@ float4 BoxFilter(
   // Excluding the center texel, iterate over every two samples to either side of the center sampling in the middle to get a nice bilinear
   //  average of the two (getting two texel samples for free). Multiply by 2 so that we get 1.0 of each of them.
   uint iterEnd = uint((filterWidth - 1U) / 2U);
-  for (uint i = 2U; i < iterEnd; i += 2)
+  for (uint i = 2U; i < iterEnd; i += 2U)
   {
     avg += 2 * SAMPLE_TEXTURE(sourceTexture, samp, (texCoord + float2(i - 0.5, 0) * invTextureSize));
     avg += 2 * SAMPLE_TEXTURE(sourceTexture, samp, (texCoord - float2(i - 0.5, 0) * invTextureSize));

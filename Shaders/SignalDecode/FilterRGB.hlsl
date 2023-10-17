@@ -19,7 +19,7 @@ CBUFFER consts
   //  the NTSC signal generator and have gotten a signal straight from a real NTSC signal, then you'd just want to pick some nice-on-
   //  average value instead)
   float g_stepSize;
-}
+};
 
 
 float4 Main(float2 inTexCoord)
