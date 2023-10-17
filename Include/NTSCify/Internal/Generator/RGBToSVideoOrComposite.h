@@ -58,7 +58,7 @@ namespace NTSCify::Internal::Generator
         generatePhaseTextureShader.get(),
         phaseTextureOut,
         {},
-        {constantBuffer.get()});
+        constantBuffer.get());
 
       // Now run the actual shader
       constantBuffer->Update(
@@ -76,7 +76,7 @@ namespace NTSCify::Internal::Generator
         rgbToSVideoShader.get(),
         signalTextureOut,
         {{rgbTexture, SamplerType::LinearClamp}, {phaseTextureOut, SamplerType::LinearClamp}},
-        {constantBuffer.get()});
+        constantBuffer.get());
 
       levelsOut->blackLevel = 0.0f;
       levelsOut->whiteLevel = 1.0f;

@@ -55,7 +55,7 @@ namespace NTSCify::Internal::Decoder
           {signalInput, SamplerType::LinearClamp},
           {phasesInput, SamplerType::LinearClamp},
         },
-        {constantBuffer.get()});
+        constantBuffer.get());
     }
 
   private:

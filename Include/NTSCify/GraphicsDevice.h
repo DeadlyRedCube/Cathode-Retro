@@ -133,7 +133,7 @@ namespace NTSCify
       IShader *ps,
       RenderTargetView output,
       std::initializer_list<ShaderResourceView> inputs,
-      std::initializer_list<IConstantBuffer *> constantBuffers) = 0;
+      IConstantBuffer *constantBuffer = nullptr) = 0;
 
     virtual void EndRendering() = 0;
   };

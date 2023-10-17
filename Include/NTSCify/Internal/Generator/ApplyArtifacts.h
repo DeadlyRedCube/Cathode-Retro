@@ -54,7 +54,7 @@ namespace NTSCify::Internal::Generator
           .samplesPerColorburstCycle = k_signalSamplesPerColorCycle,
         });
 
-      device->RenderQuad(applyArtifactsShader.get(), outputSignal, {{inputSignal, SamplerType::LinearClamp}}, {constantBuffer.get()});
+      device->RenderQuad(applyArtifactsShader.get(), outputSignal, {{inputSignal, SamplerType::LinearClamp}}, constantBuffer.get());
       noiseSeed = (noiseSeed + 1) % (60*60);
       return true;
     }

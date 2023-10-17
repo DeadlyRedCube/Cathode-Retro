@@ -110,7 +110,7 @@ namespace NTSCify::Internal::CRT
           {screenTexture.get(), SamplerType::LinearClamp},
           {blurTexture.get(), SamplerType::LinearClamp},
         },
-        {rgbToScreenConstantBuffer.get()});
+        rgbToScreenConstantBuffer.get());
 
       prevScanlineType = scanType;
     }
@@ -261,7 +261,7 @@ namespace NTSCify::Internal::CRT
         generateScreenTextureShader.get(),
         screenTexture.get(),
         {{shadowMaskTexture.get(), SamplerType::LinearWrap}},
-        {screenTextureConstantBuffer.get()});
+        screenTextureConstantBuffer.get());
       device->EndRendering();
     }
 
@@ -357,7 +357,7 @@ namespace NTSCify::Internal::CRT
           generateShadowMaskShader.get(),
           shadowMaskTexture.get(),
           {},
-          {constBuf.get()});
+          constBuf.get());
 
         // Now it's generated so we need to generate the mips by using our lanczos downsample
         for (uint32_t destMip = 1; destMip < shadowMaskTexture->MipCount(); destMip++)
@@ -366,13 +366,13 @@ namespace NTSCify::Internal::CRT
             downsample2XShader.get(),
             {halfWidthTexture.get(), destMip - 1},
             {{shadowMaskTexture.get(), destMip - 1, SamplerType::LinearWrap}},
-            {downsampleHConstBuf.get()});
+            downsampleHConstBuf.get());
 
           device->RenderQuad(
             downsample2XShader.get(),
             {shadowMaskTexture.get(), destMip},
             {{halfWidthTexture.get(), destMip - 1, SamplerType::LinearWrap}},
-            {downsampleVConstBuf.get()});
+            downsampleVConstBuf.get());
         }
       }
       device->EndRendering();
@@ -401,27 +401,27 @@ namespace NTSCify::Internal::CRT
         toneMapShader.get(),
         toneMapTexture.get(),
         {{inputTexture, SamplerType::LinearClamp}},
-        {toneMapConstantBuffer.get()});
+        toneMapConstantBuffer.get());
 
       device->RenderQuad(
         downsample2XShader.get(),
         blurTexture.get(),
         {{toneMapTexture.get(), SamplerType::LinearClamp}},
-        {blurDownsampleConstantBuffer.get()});
+        blurDownsampleConstantBuffer.get());
 
       gaussianBlurConstantBufferH->Update(GaussianBlurConstants{1.0f, 0.0f});
       device->RenderQuad(
         gaussianBlurShader.get(),
         blurScratchTexture.get(),
         {{blurTexture.get(), SamplerType::LinearClamp}},
-        {gaussianBlurConstantBufferH.get()});
+        gaussianBlurConstantBufferH.get());
 
       gaussianBlurConstantBufferV->Update(GaussianBlurConstants{0.0f, 1.0f});
       device->RenderQuad(
         gaussianBlurShader.get(),
         blurTexture.get(),
         {{blurScratchTexture.get(), SamplerType::LinearClamp}},
-        {gaussianBlurConstantBufferV.get()});
+        gaussianBlurConstantBufferV.get());
     }
 
 

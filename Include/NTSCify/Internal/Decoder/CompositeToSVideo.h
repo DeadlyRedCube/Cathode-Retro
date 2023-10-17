@@ -25,7 +25,7 @@ namespace NTSCify::Internal::Decoder
     {
       assert(signalTextureWidth == compositeIn->Width() && scanlineCount == compositeIn->Height());
       constantBuffer->Update(ConstantData{ k_signalSamplesPerColorCycle });
-      device->RenderQuad(compositeToSVideoShader.get(), sVideoOut, {{compositeIn, SamplerType::LinearClamp}}, {constantBuffer.get()});
+      device->RenderQuad(compositeToSVideoShader.get(), sVideoOut, {{compositeIn, SamplerType::LinearClamp}}, constantBuffer.get());
     }
 
   private:
