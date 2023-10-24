@@ -85,42 +85,6 @@
     <None Include="..\..\Shaders\cathode-retro-util-noise.hlsli">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Generated\ApplyArtifacts.shad">
-      <Filter>Shaders\Generated</Filter>
-    </None>
-    <None Include="Generated\BasicVertexShader.shad">
-      <Filter>Shaders\Generated</Filter>
-    </None>
-    <None Include="Generated\CompositeToSVideo.shad">
-      <Filter>Shaders\Generated</Filter>
-    </None>
-    <None Include="Generated\Downsample2X.shad">
-      <Filter>Shaders\Generated</Filter>
-    </None>
-    <None Include="Generated\FilterRGB.shad">
-      <Filter>Shaders\Generated</Filter>
-    </None>
-    <None Include="Generated\GaussianBlur13.shad">
-      <Filter>Shaders\Generated</Filter>
-    </None>
-    <None Include="Generated\GeneratePhaseTexture.shad">
-      <Filter>Shaders\Generated</Filter>
-    </None>
-    <None Include="Generated\GenerateScreenTexture.shad">
-      <Filter>Shaders\Generated</Filter>
-    </None>
-    <None Include="Generated\GenerateShadowMask.shad">
-      <Filter>Shaders\Generated</Filter>
-    </None>
-    <None Include="Generated\RGBToCRT.shad">
-      <Filter>Shaders\Generated</Filter>
-    </None>
-    <None Include="Generated\RGBToSVideoOrComposite.shad">
-      <Filter>Shaders\Generated</Filter>
-    </None>
-    <None Include="Generated\TonemapAndDownsample.shad">
-      <Filter>Shaders\Generated</Filter>
-    </None>
     <None Include="..\..\Shaders\cathode-retro-util-lanczos.hlsli">
       <Filter>Shaders</Filter>
     </None>
@@ -129,6 +93,45 @@
     </None>
     <None Include="..\..\Shaders\cathode-retro-crt-distort-coordinates.hlsli">
       <Filter>Shaders</Filter>
+    </None>
+    <None Include="Generated\cathode-retro-crt-generate-screen-texture.shad">
+      <Filter>Shaders\Generated</Filter>
+    </None>
+    <None Include="Generated\cathode-retro-crt-generate-shadow-mask.shad">
+      <Filter>Shaders\Generated</Filter>
+    </None>
+    <None Include="Generated\cathode-retro-crt-rgb-to-crt.shad">
+      <Filter>Shaders\Generated</Filter>
+    </None>
+    <None Include="Generated\cathode-retro-decoder-composite-to-svideo.shad">
+      <Filter>Shaders\Generated</Filter>
+    </None>
+    <None Include="Generated\cathode-retro-decoder-filter-rgb.shad">
+      <Filter>Shaders\Generated</Filter>
+    </None>
+    <None Include="Generated\cathode-retro-decoder-svideo-to-rgb.shad">
+      <Filter>Shaders\Generated</Filter>
+    </None>
+    <None Include="Generated\cathode-retro-generator-apply-artifacts.shad">
+      <Filter>Shaders\Generated</Filter>
+    </None>
+    <None Include="Generated\cathode-retro-generator-gen-phase.shad">
+      <Filter>Shaders\Generated</Filter>
+    </None>
+    <None Include="Generated\cathode-retro-generator-rgb-to-svideo-or-composite.shad">
+      <Filter>Shaders\Generated</Filter>
+    </None>
+    <None Include="Generated\cathode-retro-util-basic-vertex-shader.shad">
+      <Filter>Shaders\Generated</Filter>
+    </None>
+    <None Include="Generated\cathode-retro-util-downsample.shad">
+      <Filter>Shaders\Generated</Filter>
+    </None>
+    <None Include="Generated\cathode-retro-util-gaussian-blur.shad">
+      <Filter>Shaders\Generated</Filter>
+    </None>
+    <None Include="Generated\cathode-retro-util-tonemap-and-downsample.shad">
+      <Filter>Shaders\Generated</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
