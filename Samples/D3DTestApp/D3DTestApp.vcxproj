@@ -329,6 +329,9 @@
     <None Include="Generated\TonemapAndDownsample.shad" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Include\NTSCify\Internal\RGBToCRT.h" />
+    <ClInclude Include="..\..\Include\NTSCify\Internal\SignalDecoder.h" />
+    <ClInclude Include="..\..\Include\NTSCify\Internal\SignalGenerator.h" />
     <ClInclude Include="ComPtr.h" />
     <ClInclude Include="D3D11GraphicsDevice.h" />
     <ClInclude Include="..\..\Include\NTSCify\GraphicsDevice.h" />
@@ -336,11 +339,8 @@
     <ClInclude Include="..\..\Include\NTSCify\Internal\Constants.h" />
     <ClInclude Include="..\..\Include\NTSCify\NTSCify.h" />
     <ClInclude Include="..\..\Include\NTSCify\OverscanSettings.h" />
-    <ClInclude Include="..\..\Include\NTSCify\Internal\CRT\RGBToCRT.h" />
     <ClInclude Include="..\..\Include\NTSCify\ScanlineType.h" />
     <ClInclude Include="..\..\Include\NTSCify\ScreenSettings.h" />
-    <ClInclude Include="..\..\Include\NTSCify\Internal\Decoder\SignalDecoder.h" />
-    <ClInclude Include="..\..\Include\NTSCify\Internal\Generator\SignalGenerator.h" />
     <ClInclude Include="..\..\Include\NTSCify\Internal\SignalLevels.h" />
     <ClInclude Include="..\..\Include\NTSCify\Internal\SignalProperties.h" />
     <ClInclude Include="..\..\Include\NTSCify\SourceSettings.h" />

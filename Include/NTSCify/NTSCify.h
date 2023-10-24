@@ -2,9 +2,9 @@
 
 #include <memory>
 
-#include "NTSCify/Internal/CRT/RGBToCRT.h"
-#include "NTSCify/Internal/Decoder/SignalDecoder.h"
-#include "NTSCify/Internal/Generator/SignalGenerator.h"
+#include "NTSCify/Internal/RGBToCRT.h"
+#include "NTSCify/Internal/SignalDecoder.h"
+#include "NTSCify/Internal/SignalGenerator.h"
 #include "NTSCify/GraphicsDevice.h"
 #include "NTSCify/ScanlineType.h"
 
