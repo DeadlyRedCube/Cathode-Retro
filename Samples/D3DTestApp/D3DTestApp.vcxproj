@@ -330,7 +330,6 @@
     <None Include="Generated\cathode-retro-util-tonemap-and-downsample.shad" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Include\CathodeRetro\FlagEnum.h" />
     <ClInclude Include="..\..\Include\CathodeRetro\GraphicsDevice.h" />
     <ClInclude Include="..\..\Include\CathodeRetro\Internal\Constants.h" />
     <ClInclude Include="..\..\Include\CathodeRetro\Internal\RGBToCRT.h" />

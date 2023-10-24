@@ -1,7 +1,6 @@
 #pragma once
 
 #include <memory>
-#include "CathodeRetro/FlagEnum.h"
 
 namespace CathodeRetro
 {

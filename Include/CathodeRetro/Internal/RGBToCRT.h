@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <cinttypes>
+#include <cmath>
 
 #include "CathodeRetro/GraphicsDevice.h"
 #include "CathodeRetro/Settings.h"

@@ -153,9 +153,6 @@
     <ClInclude Include="..\..\Include\CathodeRetro\CathodeRetro.h">
       <Filter>Headers\CathodeRetro</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Include\CathodeRetro\FlagEnum.h">
-      <Filter>Headers\CathodeRetro</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Include\CathodeRetro\GraphicsDevice.h">
       <Filter>Headers\CathodeRetro</Filter>
     </ClInclude>
