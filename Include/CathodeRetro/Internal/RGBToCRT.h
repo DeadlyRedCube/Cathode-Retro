@@ -7,7 +7,7 @@
 #include "CathodeRetro/Settings.h"
 
 
-namespace CathodeRetro::Internal::CRT
+namespace CathodeRetro::Internal
 {
   // This class takes RGB data (either the input or SVideo/composite filtering final output) and draws it as if it were on a CRT screen
   class RGBToCRT

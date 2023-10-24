@@ -5,7 +5,7 @@
 #include "CathodeRetro/Internal/SignalProperties.h"
 #include "CathodeRetro/Settings.h"
 
-namespace CathodeRetro::Internal::Generator
+namespace CathodeRetro::Internal
 {
   class SignalGenerator
   {

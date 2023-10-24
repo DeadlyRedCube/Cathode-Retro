@@ -31,7 +31,7 @@ namespace CathodeRetro
     {
       using namespace Internal;
 
-      signalGenerator = std::make_unique<Generator::SignalGenerator>(
+      signalGenerator = std::make_unique<SignalGenerator>(
         device,
         signalType,
         inputWidth,
@@ -40,13 +40,13 @@ namespace CathodeRetro
 
       signalGenerator->SetArtifactSettings(artifactSettings);
 
-      signalDecoder = std::make_unique<Decoder::SignalDecoder>(
+      signalDecoder = std::make_unique<SignalDecoder>(
         device,
         signalGenerator->SignalProperties());
 
       signalDecoder->SetKnobSettings(knobSettings);
 
-      rgbToCRT = std::make_unique<CRT::RGBToCRT>(
+      rgbToCRT = std::make_unique<RGBToCRT>(
         device,
         inputWidth,
         signalGenerator->SignalProperties().scanlineWidth,
@@ -85,7 +85,7 @@ namespace CathodeRetro
         inWidth = inputWidth;
         inHeight = inputHeight;
 
-        signalGenerator = std::make_unique<Generator::SignalGenerator>(
+        signalGenerator = std::make_unique<SignalGenerator>(
           device,
           signalType,
           inputWidth,
@@ -97,7 +97,7 @@ namespace CathodeRetro
 
       if (signalGenerator->SignalProperties() != oldSignalProps)
       {
-        signalDecoder = std::make_unique<Decoder::SignalDecoder>(
+        signalDecoder = std::make_unique<SignalDecoder>(
           device,
           signalGenerator->SignalProperties());
       }
@@ -108,7 +108,7 @@ namespace CathodeRetro
         || signalGenerator->SignalProperties().scanlineWidth != oldSignalProps.scanlineWidth
         || signalGenerator->SignalProperties().inputPixelAspectRatio != oldSignalProps.inputPixelAspectRatio)
       {
-        rgbToCRT = std::make_unique<CRT::RGBToCRT>(
+        rgbToCRT = std::make_unique<RGBToCRT>(
           device,
           inputWidth,
           signalGenerator->SignalProperties().scanlineWidth,
@@ -166,8 +166,8 @@ namespace CathodeRetro
     uint32_t inWidth;
     uint32_t inHeight;
 
-    std::unique_ptr<Internal::Generator::SignalGenerator> signalGenerator;
-    std::unique_ptr<Internal::Decoder::SignalDecoder> signalDecoder;
-    std::unique_ptr<Internal::CRT::RGBToCRT> rgbToCRT;
+    std::unique_ptr<Internal::SignalGenerator> signalGenerator;
+    std::unique_ptr<Internal::SignalDecoder> signalDecoder;
+    std::unique_ptr<Internal::RGBToCRT> rgbToCRT;
   };
 };

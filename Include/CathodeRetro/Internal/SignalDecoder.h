@@ -6,7 +6,7 @@
 #include "CathodeRetro/Settings.h"
 
 
-namespace CathodeRetro::Internal::Decoder
+namespace CathodeRetro::Internal
 {
   class SignalDecoder
   {
