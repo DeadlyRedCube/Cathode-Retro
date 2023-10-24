@@ -11,6 +11,10 @@
 
 namespace CathodeRetro
 {
+  // This class handles the whole CathodeRetro pipeline. Besides the constructor, it has three functions:
+  //  - UpdateSettings, which should be called whenever any of the overall settings for the rendering are changed
+  //  - SetOutputSize, which should be called when the output render target size changes (i.e. the output window resizes)
+  //  - Render, which use the supplied IGraphicsDevice to do the magic.
   class CathodeRetro
   {
   public:

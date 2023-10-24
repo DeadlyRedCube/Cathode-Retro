@@ -9,7 +9,7 @@ namespace CathodeRetro
   {
     RGB,          // Perfect RGB end to end.
     SVideo,       // Keep luma and chroma separate - meaning you get chroma modulation artifacting but not channel mixing artifacts.
-    Composite,    // Blend luma and chroma, necessitating a separation pass which will introduce channel mixing artifacts
+    Composite,    // Blend luma and chroma, necessitating a separation pass which will introduce channel mixing artifacts.
   };
 
 
