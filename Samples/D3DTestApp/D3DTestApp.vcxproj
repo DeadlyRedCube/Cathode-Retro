@@ -329,26 +329,26 @@
     <None Include="Generated\TonemapAndDownsample.shad" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Include\NTSCify\Internal\RGBToCRT.h" />
-    <ClInclude Include="..\..\Include\NTSCify\Internal\SignalDecoder.h" />
-    <ClInclude Include="..\..\Include\NTSCify\Internal\SignalGenerator.h" />
+    <ClInclude Include="..\..\Include\CathodeRetro\ArtifactSettings.h" />
+    <ClInclude Include="..\..\Include\CathodeRetro\FlagEnum.h" />
+    <ClInclude Include="..\..\Include\CathodeRetro\GraphicsDevice.h" />
+    <ClInclude Include="..\..\Include\CathodeRetro\Internal\Constants.h" />
+    <ClInclude Include="..\..\Include\CathodeRetro\Internal\RGBToCRT.h" />
+    <ClInclude Include="..\..\Include\CathodeRetro\Internal\SignalDecoder.h" />
+    <ClInclude Include="..\..\Include\CathodeRetro\Internal\SignalGenerator.h" />
+    <ClInclude Include="..\..\Include\CathodeRetro\Internal\SignalLevels.h" />
+    <ClInclude Include="..\..\Include\CathodeRetro\Internal\SignalProperties.h" />
+    <ClInclude Include="..\..\Include\CathodeRetro\CathodeRetro.h" />
+    <ClInclude Include="..\..\Include\CathodeRetro\OverscanSettings.h" />
+    <ClInclude Include="..\..\Include\CathodeRetro\ScanlineType.h" />
+    <ClInclude Include="..\..\Include\CathodeRetro\ScreenSettings.h" />
+    <ClInclude Include="..\..\Include\CathodeRetro\SourceSettings.h" />
+    <ClInclude Include="..\..\Include\CathodeRetro\TVKnobSettings.h" />
     <ClInclude Include="ComPtr.h" />
     <ClInclude Include="D3D11GraphicsDevice.h" />
-    <ClInclude Include="..\..\Include\NTSCify\GraphicsDevice.h" />
-    <ClInclude Include="..\..\Include\NTSCify\ArtifactSettings.h" />
-    <ClInclude Include="..\..\Include\NTSCify\Internal\Constants.h" />
-    <ClInclude Include="..\..\Include\NTSCify\NTSCify.h" />
-    <ClInclude Include="..\..\Include\NTSCify\OverscanSettings.h" />
-    <ClInclude Include="..\..\Include\NTSCify\ScanlineType.h" />
-    <ClInclude Include="..\..\Include\NTSCify\ScreenSettings.h" />
-    <ClInclude Include="..\..\Include\NTSCify\Internal\SignalLevels.h" />
-    <ClInclude Include="..\..\Include\NTSCify\Internal\SignalProperties.h" />
-    <ClInclude Include="..\..\Include\NTSCify\SourceSettings.h" />
-    <ClInclude Include="..\..\Include\NTSCify\TVKnobSettings.h" />
     <ClInclude Include="WicTexture.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SettingsDialog.h" />
-    <ClInclude Include="..\..\Include\NTSCify\FlagEnum.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc" />

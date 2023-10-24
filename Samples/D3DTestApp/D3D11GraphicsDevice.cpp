@@ -38,7 +38,7 @@ constexpr auto EnumValue(T v)
 
 #define DEBUG_DEVICE 1
 
-using namespace NTSCify;
+using namespace CathodeRetro;
 
 struct Vertex
 {

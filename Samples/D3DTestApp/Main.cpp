@@ -7,7 +7,7 @@
 #include <mutex>
 #include <thread>
 
-#include "NTSCify/NTSCify.h"
+#include "CathodeRetro/CathodeRetro.h"
 
 #include "D3D11GraphicsDevice.h"
 #include "WicTexture.h"
@@ -21,12 +21,12 @@ static bool s_fullscreen = false;
 static RECT s_oldWindowedRect;
 static std::unique_ptr<ID3D11GraphicsDevice> s_graphicsDevice;
 
-static auto s_signalType = NTSCify::SignalType::Composite;
-static auto s_sourceSettings = NTSCify::k_sourcePresets[1].settings;
-static auto s_artifactSettings = NTSCify::k_artifactPresets[1].settings;
-static auto s_knobSettings = NTSCify::TVKnobSettings();
-static auto s_overscanSettings = NTSCify::OverscanSettings();
-static auto s_screenSettings = NTSCify::k_screenPresets[2].settings;
+static auto s_signalType = CathodeRetro::SignalType::Composite;
+static auto s_sourceSettings = CathodeRetro::k_sourcePresets[1].settings;
+static auto s_artifactSettings = CathodeRetro::k_artifactPresets[1].settings;
+static auto s_knobSettings = CathodeRetro::TVKnobSettings();
+static auto s_overscanSettings = CathodeRetro::OverscanSettings();
+static auto s_screenSettings = CathodeRetro::k_screenPresets[2].settings;
 
 static std::thread s_renderThread;
 static std::atomic<bool> s_stopRenderThread = false;
@@ -38,13 +38,13 @@ struct LoadedTexture
   uint32_t height = 0;
   std::vector<uint32_t> data;
 
-  std::unique_ptr<NTSCify::ITexture> oddTexture;
-  std::unique_ptr<NTSCify::ITexture> evenTexture;
+  std::unique_ptr<CathodeRetro::ITexture> oddTexture;
+  std::unique_ptr<CathodeRetro::ITexture> evenTexture;
 
-  std::unique_ptr<NTSCify::NTSCify> ntscify;
+  std::unique_ptr<CathodeRetro::CathodeRetro> cathodeRetro;
 
-  NTSCify::SignalType cachedSignalType {};
-  NTSCify::SourceSettings cachedSourceSettings {};
+  CathodeRetro::SignalType cachedSignalType {};
+  CathodeRetro::SourceSettings cachedSourceSettings {};
 };
 
 std::unique_ptr<LoadedTexture> loadedTexture;
@@ -59,7 +59,7 @@ enum class Rebuild
 
 void RebuildGeneratorsIfNecessary(Rebuild rebuild)
 {
-  using namespace NTSCify::Internal;
+  using namespace CathodeRetro::Internal;
 
   if (loadedTexture == nullptr)
   {
@@ -78,7 +78,7 @@ void RebuildGeneratorsIfNecessary(Rebuild rebuild)
     || signalType != loadedTexture->cachedSignalType
     || memcmp(&sourceSettings, &loadedTexture->cachedSourceSettings, sizeof(sourceSettings)) != 0)
   {
-    loadedTexture->ntscify = std::make_unique<NTSCify::NTSCify>(
+    loadedTexture->cathodeRetro = std::make_unique<CathodeRetro::CathodeRetro>(
       s_graphicsDevice.get(),
       s_signalType,
       loadedTexture->oddTexture->Width(),
@@ -129,13 +129,13 @@ void LoadTexture(const wchar_t *path, Rebuild rebuild = Rebuild::Always)
     load->oddTexture = s_graphicsDevice->CreateTexture(
       width,
       height/2,
-      NTSCify::TextureFormat::RGBA_Unorm8,
+      CathodeRetro::TextureFormat::RGBA_Unorm8,
       oddScanlines.data());
 
     load->evenTexture = s_graphicsDevice->CreateTexture(
       width,
       height/2,
-      NTSCify::TextureFormat::RGBA_Unorm8,
+      CathodeRetro::TextureFormat::RGBA_Unorm8,
       evenScanlines.data());
   }
   else
@@ -143,7 +143,7 @@ void LoadTexture(const wchar_t *path, Rebuild rebuild = Rebuild::Always)
     load->oddTexture = s_graphicsDevice->CreateTexture(
       width,
       height,
-      NTSCify::TextureFormat::RGBA_Unorm8,
+      CathodeRetro::TextureFormat::RGBA_Unorm8,
       load->data.data());
     load->evenTexture = nullptr;
   }
@@ -220,7 +220,7 @@ void ToggleFullscreen()
 
 LRESULT FAR PASCAL WindowProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
 {
-  switch( message )
+  switch (message)
   {
   case WM_CREATE:
     break;
@@ -303,7 +303,7 @@ static void DoInit( HINSTANCE hInstance )
   wc.hCursor = LoadCursor( NULL, IDC_ARROW );
   wc.hbrBackground = CreateSolidBrush(0);
   wc.lpszMenuName = nullptr;
-  wc.lpszClassName = L"NTSCify D3D Test App";
+  wc.lpszClassName = L"Cathode Retro D3D Test App";
   RegisterClass( &wc );
 
   RECT screenRect;
@@ -317,8 +317,8 @@ static void DoInit( HINSTANCE hInstance )
 
   hwnd = CreateWindowEx(
     0,
-    L"NTSCify D3D Test App",
-    L"NTSCify D3D Test App",
+    L"Cathode Retro D3D Test App",
+    L"Cathode Retro D3D Test App",
     WS_OVERLAPPEDWINDOW,
     0,
     0,
@@ -334,9 +334,9 @@ static void DoInit( HINSTANCE hInstance )
 }
 
 
-void RenderLoadedTexture(NTSCify::ITexture *output, Rebuild rebuild = Rebuild::AsNeeded)
+void RenderLoadedTexture(CathodeRetro::ITexture *output, Rebuild rebuild = Rebuild::AsNeeded)
 {
-  using namespace NTSCify;
+  using namespace CathodeRetro;
 
   if (rebuild != Rebuild::Never)
   {
@@ -365,7 +365,7 @@ void RenderLoadedTexture(NTSCify::ITexture *output, Rebuild rebuild = Rebuild::A
     ? loadedTexture->evenTexture.get()
     : loadedTexture->oddTexture.get();
 
-  loadedTexture->ntscify->UpdateSettings(
+  loadedTexture->cathodeRetro->UpdateSettings(
     s_signalType,
     input->Width(),
     input->Height(),
@@ -375,10 +375,10 @@ void RenderLoadedTexture(NTSCify::ITexture *output, Rebuild rebuild = Rebuild::A
     s_overscanSettings,
     s_screenSettings);
 
-  loadedTexture->ntscify->SetOutputSize(
+  loadedTexture->cathodeRetro->SetOutputSize(
     (output != nullptr) ? output->Width() : s_graphicsDevice->BackbufferWidth(),
     (output != nullptr) ? output->Height() : s_graphicsDevice->BackbufferHeight());
-  loadedTexture->ntscify->Render(input, input2, scanlineType, output);
+  loadedTexture->cathodeRetro->Render(input, input2, scanlineType, output);
 }
 
 
@@ -449,7 +449,7 @@ int CALLBACK WinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, 
     StartRenderThread();
     for (;;)
     {
-      if(!GetMessage(&msg, NULL, 0, 0))
+      if(!GetMessage(&msg, nullptr, 0, 0))
       {
         break;
       }

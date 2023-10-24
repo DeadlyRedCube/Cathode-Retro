@@ -1,6 +1,6 @@
 #pragma once
 
-namespace NTSCify::Internal
+namespace CathodeRetro::Internal
 {
   struct SignalLevels
   {

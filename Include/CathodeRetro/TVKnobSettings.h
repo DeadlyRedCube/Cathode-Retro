@@ -1,6 +1,6 @@
 #pragma once
 
-namespace NTSCify
+namespace CathodeRetro
 {
   struct TVKnobSettings
   {

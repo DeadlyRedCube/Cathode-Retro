@@ -74,14 +74,14 @@
     <Filter Include="Shaders\SignalGeneration">
       <UniqueIdentifier>{e0b73a31-31a2-4150-a4c0-0c5e239955e6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Headers\NTSCify">
-      <UniqueIdentifier>{26cc2ab4-693e-4798-92ad-0f6debc68961}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Headers\NTSCify\DecoderComponents">
-      <UniqueIdentifier>{f3934dff-ea00-4a0f-95e6-e5c61d9236d7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Generated">
       <UniqueIdentifier>{60a883dc-944c-4f5b-bbe0-64d5ba28d3a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\CathodeRetro">
+      <UniqueIdentifier>{26cc2ab4-693e-4798-92ad-0f6debc68961}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\CathodeRetro\Internal">
+      <UniqueIdentifier>{7644c093-98cd-409d-9598-888e7cdca61c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -144,71 +144,62 @@
     <ClInclude Include="ComPtr.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Include\NTSCify\GraphicsDevice.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
     <ClInclude Include="WicTexture.h">
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Include\NTSCify\FlagEnum.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Include\NTSCify\ArtifactSettings.h">
-      <Filter>Headers\NTSCify</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Include\NTSCify\Internal\Decoder\CompositeToSVideo.h">
-      <Filter>Headers\NTSCify\DecoderComponents</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Include\NTSCify\Internal\Constants.h">
-      <Filter>Headers\NTSCify</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Include\NTSCify\Internal\Decoder\FilterRGB.h">
-      <Filter>Headers\NTSCify\DecoderComponents</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Include\NTSCify\Internal\CRT\RGBToCRT.h">
-      <Filter>Headers\NTSCify</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Include\NTSCify\ScreenSettings.h">
-      <Filter>Headers\NTSCify</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Include\NTSCify\Internal\Decoder\SignalDecoder.h">
-      <Filter>Headers\NTSCify</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Include\NTSCify\Internal\Generator\SignalGenerator.h">
-      <Filter>Headers\NTSCify</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Include\NTSCify\Internal\SignalLevels.h">
-      <Filter>Headers\NTSCify</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Include\NTSCify\Internal\SignalProperties.h">
-      <Filter>Headers\NTSCify</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Include\NTSCify\SourceSettings.h">
-      <Filter>Headers\NTSCify</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Include\NTSCify\Internal\Decoder\SVideoToRGB.h">
-      <Filter>Headers\NTSCify\DecoderComponents</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Include\NTSCify\TVKnobSettings.h">
-      <Filter>Headers\NTSCify</Filter>
-    </ClInclude>
     <ClInclude Include="SettingsDialog.h">
       <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Include\NTSCify\OverscanSettings.h">
-      <Filter>Headers\NTSCify</Filter>
     </ClInclude>
     <ClInclude Include="D3D11GraphicsDevice.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Include\NTSCify\NTSCify.h">
-      <Filter>Headers\NTSCify</Filter>
+    <ClInclude Include="..\..\Include\CathodeRetro\TVKnobSettings.h">
+      <Filter>Headers\CathodeRetro</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Include\NTSCify\ScanlineType.h">
-      <Filter>Headers\NTSCify</Filter>
+    <ClInclude Include="..\..\Include\CathodeRetro\CathodeRetro.h">
+      <Filter>Headers\CathodeRetro</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\CathodeRetro\FlagEnum.h">
+      <Filter>Headers\CathodeRetro</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\CathodeRetro\GraphicsDevice.h">
+      <Filter>Headers\CathodeRetro</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\CathodeRetro\OverscanSettings.h">
+      <Filter>Headers\CathodeRetro</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\CathodeRetro\ScanlineType.h">
+      <Filter>Headers\CathodeRetro</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\CathodeRetro\ScreenSettings.h">
+      <Filter>Headers\CathodeRetro</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\CathodeRetro\SourceSettings.h">
+      <Filter>Headers\CathodeRetro</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\CathodeRetro\ArtifactSettings.h">
+      <Filter>Headers\CathodeRetro</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\CathodeRetro\Internal\SignalProperties.h">
+      <Filter>Headers\CathodeRetro\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\CathodeRetro\Internal\SignalLevels.h">
+      <Filter>Headers\CathodeRetro\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\CathodeRetro\Internal\SignalGenerator.h">
+      <Filter>Headers\CathodeRetro\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\CathodeRetro\Internal\SignalDecoder.h">
+      <Filter>Headers\CathodeRetro\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\CathodeRetro\Internal\RGBToCRT.h">
+      <Filter>Headers\CathodeRetro\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\CathodeRetro\Internal\Constants.h">
+      <Filter>Headers\CathodeRetro\Internal</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -3,7 +3,7 @@
 #include <cinttypes>
 
 
-namespace NTSCify::Internal
+namespace CathodeRetro::Internal
 {
   static constexpr uint32_t k_signalSamplesPerColorCycle = 4;
 }

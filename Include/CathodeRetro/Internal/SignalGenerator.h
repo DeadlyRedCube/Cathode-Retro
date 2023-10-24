@@ -1,12 +1,12 @@
 #pragma once
 
-#include "NTSCify/Internal/Constants.h"
-#include "NTSCify/Internal/SignalLevels.h"
-#include "NTSCify/Internal/SignalProperties.h"
-#include "NTSCify/ArtifactSettings.h"
-#include "NTSCify/SourceSettings.h"
+#include "CathodeRetro/Internal/Constants.h"
+#include "CathodeRetro/Internal/SignalLevels.h"
+#include "CathodeRetro/Internal/SignalProperties.h"
+#include "CathodeRetro/ArtifactSettings.h"
+#include "CathodeRetro/SourceSettings.h"
 
-namespace NTSCify::Internal::Generator
+namespace CathodeRetro::Internal::Generator
 {
   class SignalGenerator
   {

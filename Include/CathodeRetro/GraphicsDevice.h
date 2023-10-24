@@ -1,9 +1,9 @@
 #pragma once
 
 #include <memory>
-#include "NTSCify/FlagEnum.h"
+#include "CathodeRetro/FlagEnum.h"
 
-namespace NTSCify
+namespace CathodeRetro
 {
   class IConstantBuffer
   {

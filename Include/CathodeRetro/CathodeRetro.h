@@ -2,19 +2,19 @@
 
 #include <memory>
 
-#include "NTSCify/Internal/RGBToCRT.h"
-#include "NTSCify/Internal/SignalDecoder.h"
-#include "NTSCify/Internal/SignalGenerator.h"
-#include "NTSCify/GraphicsDevice.h"
-#include "NTSCify/ScanlineType.h"
+#include "CathodeRetro/Internal/RGBToCRT.h"
+#include "CathodeRetro/Internal/SignalDecoder.h"
+#include "CathodeRetro/Internal/SignalGenerator.h"
+#include "CathodeRetro/GraphicsDevice.h"
+#include "CathodeRetro/ScanlineType.h"
 
 
-namespace NTSCify
+namespace CathodeRetro
 {
-  class NTSCify
+  class CathodeRetro
   {
   public:
-    NTSCify(IGraphicsDevice *graphicsDevice,
+    CathodeRetro(IGraphicsDevice *graphicsDevice,
       SignalType sigType,
       uint32_t inputWidth,
       uint32_t inputHeight,

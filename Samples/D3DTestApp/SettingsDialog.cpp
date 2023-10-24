@@ -169,12 +169,12 @@ class SettingsDialog
 public:
   SettingsDialog(
     HWND parentIn,
-    NTSCify::SignalType *signalTypeInOut,
-    NTSCify::SourceSettings *sourceSettingsInOut,
-    NTSCify::ArtifactSettings *artifactSettingsInOut,
-    NTSCify::TVKnobSettings *knobSettingsInOut,
-    NTSCify::OverscanSettings *overscanSettingsInOut,
-    NTSCify::ScreenSettings *screenSettingsInOut)
+    CathodeRetro::SignalType *signalTypeInOut,
+    CathodeRetro::SourceSettings *sourceSettingsInOut,
+    CathodeRetro::ArtifactSettings *artifactSettingsInOut,
+    CathodeRetro::TVKnobSettings *knobSettingsInOut,
+    CathodeRetro::OverscanSettings *overscanSettingsInOut,
+    CathodeRetro::ScreenSettings *screenSettingsInOut)
   : parent(parentIn)
   , signalType(signalTypeInOut)
   , sourceSettings(sourceSettingsInOut)
@@ -209,17 +209,17 @@ private:
     switch (message)
     {
     case WM_INITDIALOG:
-      for (const auto &preset : NTSCify::k_artifactPresets)
+      for (const auto &preset : CathodeRetro::k_artifactPresets)
       {
         SendDlgItemMessageA(dialog, IDC_ARTIFACT_PRESET, CB_ADDSTRING, 0, LPARAM(preset.name));
       }
 
-      for (const auto &preset : NTSCify::k_screenPresets)
+      for (const auto &preset : CathodeRetro::k_screenPresets)
       {
         SendDlgItemMessageA(dialog, IDC_SCREEN_PRESET, CB_ADDSTRING, 0, LPARAM(preset.name));
       }
 
-      for (const auto &preset : NTSCify::k_sourcePresets)
+      for (const auto &preset : CathodeRetro::k_sourcePresets)
       {
         SendDlgItemMessageA(dialog, IDC_SIGNAL_TIMING, CB_ADDSTRING, 0, LPARAM(preset.name));
       }
@@ -254,7 +254,7 @@ private:
           int32_t sel = uint32_t(SendDlgItemMessage(dialog, IDC_SIGNAL_TYPE, CB_GETCURSEL, 0, 0));
           if (sel >= 0)
           {
-            *signalType = NTSCify::SignalType(sel);
+            *signalType = CathodeRetro::SignalType(sel);
           }
           UpdateSliders();
         }
@@ -265,9 +265,9 @@ private:
         if (HIWORD(wparam) == CBN_SELCHANGE)
         {
           uint32_t sel = uint32_t(SendDlgItemMessage(dialog, IDC_SIGNAL_TIMING, CB_GETCURSEL, 0, 0));
-          if (sel < k_arrayLength<decltype(NTSCify::k_sourcePresets)>)
+          if (sel < k_arrayLength<decltype(CathodeRetro::k_sourcePresets)>)
           {
-            *sourceSettings = NTSCify::k_sourcePresets[sel].settings;
+            *sourceSettings = CathodeRetro::k_sourcePresets[sel].settings;
             UpdateSliders();
           }
         }
@@ -278,9 +278,9 @@ private:
         if (HIWORD(wparam) == CBN_SELCHANGE)
         {
           uint32_t sel = uint32_t(SendDlgItemMessage(dialog, IDC_ARTIFACT_PRESET, CB_GETCURSEL, 0, 0));
-          if (sel < k_arrayLength<decltype(NTSCify::k_artifactPresets)>)
+          if (sel < k_arrayLength<decltype(CathodeRetro::k_artifactPresets)>)
           {
-            *artifactSettings = NTSCify::k_artifactPresets[sel].settings;
+            *artifactSettings = CathodeRetro::k_artifactPresets[sel].settings;
             UpdateSliders();
           }
         }
@@ -291,9 +291,9 @@ private:
         if (HIWORD(wparam) == CBN_SELCHANGE)
         {
           uint32_t sel = uint32_t(SendDlgItemMessage(dialog, IDC_SCREEN_PRESET, CB_GETCURSEL, 0, 0));
-          if (sel < k_arrayLength<decltype(NTSCify::k_screenPresets)>)
+          if (sel < k_arrayLength<decltype(CathodeRetro::k_screenPresets)>)
           {
-            *screenSettings = NTSCify::k_screenPresets[sel].settings;
+            *screenSettings = CathodeRetro::k_screenPresets[sel].settings;
             UpdateSliders();
           }
         }
@@ -334,9 +334,9 @@ private:
     SendDlgItemMessage(dialog, IDC_SIGNAL_TYPE, CB_SETCURSEL, WPARAM(EnumValue(*signalType)), 0);
     {
       bool found = false;
-      for (uint32_t i = 0; i < k_arrayLength<decltype(NTSCify::k_sourcePresets)>; i++)
+      for (uint32_t i = 0; i < k_arrayLength<decltype(CathodeRetro::k_sourcePresets)>; i++)
       {
-        if (*sourceSettings == NTSCify::k_sourcePresets[i].settings)
+        if (*sourceSettings == CathodeRetro::k_sourcePresets[i].settings)
         {
           SendDlgItemMessage(dialog, IDC_SIGNAL_TIMING, CB_SETCURSEL, WPARAM(i), 0);
           found = true;
@@ -352,9 +352,9 @@ private:
 
     {
       bool found = false;
-      for (uint32_t i = 0; i < k_arrayLength<decltype(NTSCify::k_artifactPresets)>; i++)
+      for (uint32_t i = 0; i < k_arrayLength<decltype(CathodeRetro::k_artifactPresets)>; i++)
       {
-        if (*artifactSettings == NTSCify::k_artifactPresets[i].settings)
+        if (*artifactSettings == CathodeRetro::k_artifactPresets[i].settings)
         {
           SendDlgItemMessage(dialog, IDC_ARTIFACT_PRESET, CB_SETCURSEL, WPARAM(i), 0);
           found = true;
@@ -370,9 +370,9 @@ private:
 
     {
       bool found = false;
-      for (uint32_t i = 0; i < k_arrayLength<decltype(NTSCify::k_screenPresets)>; i++)
+      for (uint32_t i = 0; i < k_arrayLength<decltype(CathodeRetro::k_screenPresets)>; i++)
       {
-        if (*screenSettings == NTSCify::k_screenPresets[i].settings)
+        if (*screenSettings == CathodeRetro::k_screenPresets[i].settings)
         {
           SendDlgItemMessage(dialog, IDC_SCREEN_PRESET, CB_SETCURSEL, WPARAM(i), 0);
           found = true;
@@ -610,19 +610,19 @@ private:
 
   HWND parent = nullptr;
   HWND dialog = nullptr;
-  NTSCify::SignalType *signalType;
-  NTSCify::SourceSettings *sourceSettings;
-  NTSCify::ArtifactSettings *artifactSettings;
-  NTSCify::TVKnobSettings *knobSettings;
-  NTSCify::OverscanSettings *overscanSettings;
-  NTSCify::ScreenSettings *screenSettings;
+  CathodeRetro::SignalType *signalType;
+  CathodeRetro::SourceSettings *sourceSettings;
+  CathodeRetro::ArtifactSettings *artifactSettings;
+  CathodeRetro::TVKnobSettings *knobSettings;
+  CathodeRetro::OverscanSettings *overscanSettings;
+  CathodeRetro::ScreenSettings *screenSettings;
 
-  NTSCify::SignalType initialSignalType;
-  NTSCify::SourceSettings initialSourceSettings;
-  NTSCify::ArtifactSettings initialArtifactSettings;
-  NTSCify::TVKnobSettings initialKnobSettings;
-  NTSCify::OverscanSettings initialOverscanSettings;
-  NTSCify::ScreenSettings initialScreenSettings;
+  CathodeRetro::SignalType initialSignalType;
+  CathodeRetro::SourceSettings initialSourceSettings;
+  CathodeRetro::ArtifactSettings initialArtifactSettings;
+  CathodeRetro::TVKnobSettings initialKnobSettings;
+  CathodeRetro::OverscanSettings initialOverscanSettings;
+  CathodeRetro::ScreenSettings initialScreenSettings;
 
 
   Slider<float> noiseStrengthSlider;
@@ -654,12 +654,12 @@ private:
 
 bool RunSettingsDialog(
   HWND parentWindow,
-  NTSCify::SignalType *signalTypeInOut,
-  NTSCify::SourceSettings *sourceSettingsInOut,
-  NTSCify::ArtifactSettings *artifactSettingsInOut,
-  NTSCify::TVKnobSettings *knobSettingsInOut,
-  NTSCify::OverscanSettings *overscanSettingsInOut,
-  NTSCify::ScreenSettings *screenSettingsInOut)
+  CathodeRetro::SignalType *signalTypeInOut,
+  CathodeRetro::SourceSettings *sourceSettingsInOut,
+  CathodeRetro::ArtifactSettings *artifactSettingsInOut,
+  CathodeRetro::TVKnobSettings *knobSettingsInOut,
+  CathodeRetro::OverscanSettings *overscanSettingsInOut,
+  CathodeRetro::ScreenSettings *screenSettingsInOut)
 {
   SettingsDialog dlg{
     parentWindow,

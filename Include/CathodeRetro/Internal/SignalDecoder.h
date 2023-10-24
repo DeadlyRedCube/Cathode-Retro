@@ -1,12 +1,12 @@
 #pragma once
 
-#include "NTSCify/Internal/Constants.h"
-#include "NTSCify/Internal/SignalLevels.h"
-#include "NTSCify/Internal/SignalProperties.h"
-#include "NTSCify/TVKnobSettings.h"
+#include "CathodeRetro/Internal/Constants.h"
+#include "CathodeRetro/Internal/SignalLevels.h"
+#include "CathodeRetro/Internal/SignalProperties.h"
+#include "CathodeRetro/TVKnobSettings.h"
 
 
-namespace NTSCify::Internal::Decoder
+namespace CathodeRetro::Internal::Decoder
 {
   class SignalDecoder
   {

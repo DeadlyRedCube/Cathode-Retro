@@ -1,9 +1,9 @@
 #pragma once
 
-#include "NTSCify/SourceSettings.h"
+#include "CathodeRetro/SourceSettings.h"
 
 
-namespace NTSCify::Internal
+namespace CathodeRetro::Internal
 {
   struct SignalProperties
   {

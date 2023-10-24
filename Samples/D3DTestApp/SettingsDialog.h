@@ -3,18 +3,18 @@
 #include <Windows.h>
 #include <functional>
 
-#include "NTSCify\ArtifactSettings.h"
-#include "NTSCify\OverscanSettings.h"
-#include "NTSCify\ScreenSettings.h"
-#include "NTSCify\SourceSettings.h"
-#include "NTSCify\TVKnobSettings.h"
+#include "CathodeRetro/ArtifactSettings.h"
+#include "CathodeRetro/OverscanSettings.h"
+#include "CathodeRetro/ScreenSettings.h"
+#include "CathodeRetro/SourceSettings.h"
+#include "CathodeRetro/TVKnobSettings.h"
 
 
 bool RunSettingsDialog(
   HWND parentWindow,
-  NTSCify::SignalType *signalTypeInOut,
-  NTSCify::SourceSettings *sourceSettingsInOut,
-  NTSCify::ArtifactSettings *artifactSettingsInOut,
-  NTSCify::TVKnobSettings *knobSettingsInOut,
-  NTSCify::OverscanSettings *overscanSettingsInOut,
-  NTSCify::ScreenSettings *screenSettingsInOut);
+  CathodeRetro::SignalType *signalTypeInOut,
+  CathodeRetro::SourceSettings *sourceSettingsInOut,
+  CathodeRetro::ArtifactSettings *artifactSettingsInOut,
+  CathodeRetro::TVKnobSettings *knobSettingsInOut,
+  CathodeRetro::OverscanSettings *overscanSettingsInOut,
+  CathodeRetro::ScreenSettings *screenSettingsInOut);

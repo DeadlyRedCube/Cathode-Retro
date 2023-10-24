@@ -2,7 +2,7 @@
 
 #include <cinttypes>
 
-namespace NTSCify
+namespace CathodeRetro
 {
   struct OverscanSettings
   {

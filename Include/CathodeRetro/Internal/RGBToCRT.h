@@ -3,13 +3,13 @@
 #include <cassert>
 #include <cinttypes>
 
-#include "NTSCify/GraphicsDevice.h"
-#include "NTSCify/OverscanSettings.h"
-#include "NTSCify/ScanlineType.h"
-#include "NTSCify/ScreenSettings.h"
+#include "CathodeRetro/GraphicsDevice.h"
+#include "CathodeRetro/OverscanSettings.h"
+#include "CathodeRetro/ScanlineType.h"
+#include "CathodeRetro/ScreenSettings.h"
 
 
-namespace NTSCify::Internal::CRT
+namespace CathodeRetro::Internal::CRT
 {
   // This class takes RGB data (either the input or SVideo/composite filtering final output) and draws it as if it were on a CRT screen
   class RGBToCRT

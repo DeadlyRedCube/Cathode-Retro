@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // This shader does a tonemap and 1D downsample of a texture, which is intended to be for the diffusion emulation in the CRT side of the
-//  whole NTSCify process. It's worth noting that in practice we're not doing a true 2x downsample, it's going to be something in that
-//  ballpark, but not exact. However, the output of this shader is going to be blurred so it doesn't actually matter in practice.
+//  whole Cathode Retro process. It's worth noting that in practice we're not doing a true 2x downsample, it's going to be something in
+//  that ballpark, but not exact. However, the output of this shader is going to be blurred so it doesn't actually matter in practice.
 
 
 #include "Lanczos2.hlsli"
