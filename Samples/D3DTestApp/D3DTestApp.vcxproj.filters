@@ -80,9 +80,6 @@
     <Filter Include="Headers\NTSCify\DecoderComponents">
       <UniqueIdentifier>{f3934dff-ea00-4a0f-95e6-e5c61d9236d7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Headers\NTSCify\GeneratorComponents">
-      <UniqueIdentifier>{37816f4a-9b53-4198-9b0b-db16230dd27f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Generated">
       <UniqueIdentifier>{60a883dc-944c-4f5b-bbe0-64d5ba28d3a9}</UniqueIdentifier>
     </Filter>
@@ -159,9 +156,6 @@
     <ClInclude Include="..\..\Include\NTSCify\FlagEnum.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Include\NTSCify\Internal\Generator\ApplyArtifacts.h">
-      <Filter>Headers\NTSCify\GeneratorComponents</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Include\NTSCify\ArtifactSettings.h">
       <Filter>Headers\NTSCify</Filter>
     </ClInclude>
@@ -176,9 +170,6 @@
     </ClInclude>
     <ClInclude Include="..\..\Include\NTSCify\Internal\CRT\RGBToCRT.h">
       <Filter>Headers\NTSCify</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Include\NTSCify\Internal\Generator\RGBToSVideoOrComposite.h">
-      <Filter>Headers\NTSCify\GeneratorComponents</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Include\NTSCify\ScreenSettings.h">
       <Filter>Headers\NTSCify</Filter>

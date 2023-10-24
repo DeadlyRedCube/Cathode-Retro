@@ -65,7 +65,9 @@ namespace NTSCify::Internal::Decoder
       const ITexture *sVideoTexture;
       if (signalProps.type == SignalType::Composite)
       {
-        ITexture *outTex = (levels.isDoubled) ? decodedSVideoTextureDouble.get() : decodedSVideoTextureSingle.get();
+        ITexture *outTex = (levels.temporalArtifactReduction > 0.0f)
+          ? decodedSVideoTextureDouble.get()
+          : decodedSVideoTextureSingle.get();
         sVideoTexture = outTex;
         compositeToSVideo->Apply(device, inputSignal, outTex);
       }

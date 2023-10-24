@@ -337,8 +337,6 @@
     <ClInclude Include="..\..\Include\NTSCify\Internal\Decoder\CompositeToSVideo.h" />
     <ClInclude Include="..\..\Include\NTSCify\Internal\Decoder\FilterRGB.h" />
     <ClInclude Include="..\..\Include\NTSCify\Internal\Decoder\SVideoToRGB.h" />
-    <ClInclude Include="..\..\Include\NTSCify\Internal\Generator\ApplyArtifacts.h" />
-    <ClInclude Include="..\..\Include\NTSCify\Internal\Generator\RGBToSVideoOrComposite.h" />
     <ClInclude Include="..\..\Include\NTSCify\NTSCify.h" />
     <ClInclude Include="..\..\Include\NTSCify\OverscanSettings.h" />
     <ClInclude Include="..\..\Include\NTSCify\Internal\CRT\RGBToCRT.h" />
