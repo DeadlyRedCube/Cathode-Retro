@@ -334,7 +334,6 @@
     <ClInclude Include="..\..\Include\NTSCify\GraphicsDevice.h" />
     <ClInclude Include="..\..\Include\NTSCify\ArtifactSettings.h" />
     <ClInclude Include="..\..\Include\NTSCify\Internal\Constants.h" />
-    <ClInclude Include="..\..\Include\NTSCify\Internal\Decoder\FilterRGB.h" />
     <ClInclude Include="..\..\Include\NTSCify\NTSCify.h" />
     <ClInclude Include="..\..\Include\NTSCify\OverscanSettings.h" />
     <ClInclude Include="..\..\Include\NTSCify\Internal\CRT\RGBToCRT.h" />
