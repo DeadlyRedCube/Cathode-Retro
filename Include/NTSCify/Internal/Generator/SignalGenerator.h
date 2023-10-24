@@ -3,6 +3,7 @@
 #include "NTSCify/Internal/Constants.h"
 #include "NTSCify/Internal/SignalLevels.h"
 #include "NTSCify/Internal/SignalProperties.h"
+#include "NTSCify/ArtifactSettings.h"
 #include "NTSCify/SourceSettings.h"
 
 namespace NTSCify::Internal::Generator
@@ -89,7 +90,6 @@ namespace NTSCify::Internal::Generator
       {
         // Apply artifacts to the signal, then swap signal and scratch to get the artifact output
         ApplyArtifacts();
-        std::swap(signalTexture, scratchSignalTexture);
       }
 
       isEvenFrame = !isEvenFrame;
@@ -220,6 +220,9 @@ namespace NTSCify::Internal::Generator
         scratchSignalTexture.get(),
         {{signalTexture.get(), SamplerType::LinearClamp}},
         applyArtifactsConstantBuffer.get());
+
+      // Our output is the new signal texture so swap scratch into place.
+      std::swap(signalTexture, scratchSignalTexture);
     }
 
 

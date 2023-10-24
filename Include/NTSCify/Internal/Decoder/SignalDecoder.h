@@ -1,9 +1,9 @@
 #pragma once
 
+#include "NTSCify/Internal/Constants.h"
+#include "NTSCify/Internal/SignalLevels.h"
 #include "NTSCify/Internal/SignalProperties.h"
-#include "NTSCify/Internal/Decoder/CompositeToSVideo.h"
-#include "NTSCify/Internal/Decoder/FilterRGB.h"
-#include "NTSCify/Internal/Decoder/SVideoToRGB.h"
+#include "NTSCify/TVKnobSettings.h"
 
 
 namespace NTSCify::Internal::Decoder
@@ -17,7 +17,10 @@ namespace NTSCify::Internal::Decoder
     {
       if (signalProps.type == SignalType::Composite)
       {
-        compositeToSVideo = std::make_unique<CompositeToSVideo>(device, signalProps.scanlineWidth, signalProps.scanlineCount);
+        // We need a Composite -> SVideo step (luma/chroma separation), so run that
+        compositeToSVideoConstantBuffer = device->CreateConstantBuffer(sizeof(CompositeToSVideoConstantData));
+        compositeToSVideoShader = device->CreateShader(ShaderID::CompositeToSVideo);
+
         decodedSVideoTextureSingle = device->CreateRenderTarget(
           signalProps.scanlineWidth,
           signalProps.scanlineCount,
@@ -30,9 +33,9 @@ namespace NTSCify::Internal::Decoder
           TextureFormat::RGBA_Float32);
       }
 
-      sVideoToRGB = std::make_unique<SVideoToRGB>(device, signalProps.scanlineWidth, signalProps.scanlineCount);
-      filterRGB = std::make_unique<FilterRGB>(device, signalProps.colorCyclesPerInputPixel, signalProps.scanlineWidth, signalProps.scanlineCount);
-
+      // Now initialise the SVideo -> RGB elements
+      sVideoToRGBConstantBuffer = device->CreateConstantBuffer(sizeof(SVideoToRGBConstantData));
+      sVideoToRGBShader = device->CreateShader(ShaderID::SVideoToRGB);
       rgbTexture = device->CreateRenderTarget(
         signalProps.scanlineWidth,
         signalProps.scanlineCount,
@@ -48,6 +51,10 @@ namespace NTSCify::Internal::Decoder
         signalProps.scanlineCount,
         1,
         TextureFormat::RGBA_Unorm8);
+
+      // Finally, the RGB filtering portions
+      filterRGBConstantBuffer = device->CreateConstantBuffer(sizeof(FilterRGBConstantData));
+      filterRGBShader = device->CreateShader(ShaderID::FilterRGB);
     }
 
     void SetKnobSettings(const TVKnobSettings &settings)
@@ -62,6 +69,7 @@ namespace NTSCify::Internal::Decoder
     void Decode(const ITexture *inputSignal, const ITexture *inputPhases, const SignalLevels &levels)
     {
       std::swap(rgbTexture, prevFrameRGBTexture);
+
       const ITexture *sVideoTexture;
       if (signalProps.type == SignalType::Composite)
       {
@@ -69,34 +77,122 @@ namespace NTSCify::Internal::Decoder
           ? decodedSVideoTextureDouble.get()
           : decodedSVideoTextureSingle.get();
         sVideoTexture = outTex;
-        compositeToSVideo->Apply(device, inputSignal, outTex);
+        CompositeToSVideo(inputSignal, levels.temporalArtifactReduction > 0.0f);
       }
       else
       {
         sVideoTexture = inputSignal;
       }
 
-      sVideoToRGB->Apply(device, levels, sVideoTexture, inputPhases, rgbTexture.get(), knobSettings);
-      if (filterRGB->Apply(device, rgbTexture.get(), scratchRGBTexture.get(), knobSettings))
+      SVideoToRGB(sVideoTexture, inputPhases, levels);
+
+      if (knobSettings.sharpness != 0.0f)
       {
-        // We applied RGB to scratch so swap scratch in for our RGB texture it's now our output
-        std::swap(rgbTexture, scratchRGBTexture);
+        FilterRGB();
       }
     }
 
   private:
+    void CompositeToSVideo(const ITexture *inputSignal, bool isDoubled)
+    {
+      compositeToSVideoConstantBuffer->Update(CompositeToSVideoConstantData{ k_signalSamplesPerColorCycle });
+      device->RenderQuad(
+        compositeToSVideoShader.get(),
+        (isDoubled ? decodedSVideoTextureDouble : decodedSVideoTextureSingle).get(),
+        {{inputSignal, SamplerType::LinearClamp}},
+        compositeToSVideoConstantBuffer.get());
+    }
+
+
+    void SVideoToRGB(const ITexture *sVideoTexture, const ITexture *inputPhases, const SignalLevels &levels)
+    {
+      sVideoToRGBConstantBuffer->Update(
+        SVideoToRGBConstantData {
+          .samplesPerColorburstCycle = k_signalSamplesPerColorCycle,
+          .tint = knobSettings.tint,
+
+          // Saturation needs brightness scaled into it as well or else the output is weird when the brightness is set below 1.0
+          .saturation = knobSettings.saturation / levels.saturationScale * knobSettings.brightness,
+          .brightness = knobSettings.brightness,
+          .blackLevel = levels.blackLevel,
+          .whiteLevel = levels.whiteLevel,
+          .temporalArtifactReduction = levels.temporalArtifactReduction,
+        });
+
+      device->RenderQuad(
+        sVideoToRGBShader.get(),
+        rgbTexture.get(),
+        {
+          {sVideoTexture, SamplerType::LinearClamp},
+          {inputPhases, SamplerType::LinearClamp},
+        },
+        sVideoToRGBConstantBuffer.get());
+    }
+
+
+    void FilterRGB()
+    {
+      filterRGBConstantBuffer->Update(
+        FilterRGBConstantData {
+          .blurStrength = -knobSettings.sharpness,
+          .blurSampleStepSize = signalProps.colorCyclesPerInputPixel * float(k_signalSamplesPerColorCycle)
+        });
+
+      device->RenderQuad(
+        filterRGBShader.get(),
+        scratchRGBTexture.get(),
+        {{rgbTexture.get(), SamplerType::LinearClamp}},
+        filterRGBConstantBuffer.get());
+
+      // Our output is the new RGB Texture.
+      std::swap(rgbTexture, scratchRGBTexture);
+    }
+
     IGraphicsDevice *device;
-    std::unique_ptr<ITexture> decodedSVideoTextureSingle;
-    std::unique_ptr<ITexture> decodedSVideoTextureDouble;
+
     std::unique_ptr<ITexture> rgbTexture;
     std::unique_ptr<ITexture> prevFrameRGBTexture;
     std::unique_ptr<ITexture> scratchRGBTexture;
-
-    std::unique_ptr<CompositeToSVideo> compositeToSVideo;
-    std::unique_ptr<SVideoToRGB> sVideoToRGB;
-    std::unique_ptr<FilterRGB> filterRGB;
-
     SignalProperties signalProps;
     TVKnobSettings knobSettings;
+
+    // Step 1: Composite to SVideo elements
+    struct CompositeToSVideoConstantData
+    {
+      uint32_t outputTexelsPerColorburstCycle;        // This value should match k_signalSamplesPerColorCycle
+    };
+
+    std::unique_ptr<IShader> compositeToSVideoShader;
+    std::unique_ptr<IConstantBuffer> compositeToSVideoConstantBuffer;
+    std::unique_ptr<ITexture> decodedSVideoTextureSingle;
+    std::unique_ptr<ITexture> decodedSVideoTextureDouble;
+
+    // Step 2: SVideo to RGB Elements
+    struct SVideoToRGBConstantData
+    {
+      uint32_t samplesPerColorburstCycle;           // This value should match k_signalSamplesPerColorCycle
+      float tint;                                   // How much additional tint to apply to the signal (usually a user setting)
+      float saturation;                             // The saturation of the output (a user setting)
+      float brightness;                             // The brightness adjustment for the output (a user setting)
+
+      float blackLevel;                             // The black "voltage" level of the input signal (from the signal generator/reader)
+      float whiteLevel;                             // The white "voltage" level of the input signal (from the signal generator/reader)
+
+      float temporalArtifactReduction;              // If we have a doubled input (same picture, two phases) blend in the second one (1.0
+                                                    //  being a perfect 50/50 blend)
+    };
+
+    std::unique_ptr<IShader> sVideoToRGBShader;
+    std::unique_ptr<IConstantBuffer> sVideoToRGBConstantBuffer;
+
+    // Step 3: Filter RGB Elements
+    struct FilterRGBConstantData
+    {
+      float blurStrength;
+      float blurSampleStepSize;
+    };
+
+    std::unique_ptr<IShader> filterRGBShader;
+    std::unique_ptr<IConstantBuffer> filterRGBConstantBuffer;
   };
 }
