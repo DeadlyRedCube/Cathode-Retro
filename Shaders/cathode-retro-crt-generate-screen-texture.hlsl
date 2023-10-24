@@ -4,7 +4,7 @@
 //  to handle blacking out values that are outside of the visible screen.
 
 
-#include "DistortCRTCoordinates.hlsli"
+#include "cathode-retro-crt-distort-coordinates.hlsli"
 
 // The shadow mask texture for the CRT. That is, if you think of an old CRT and how you could see the
 //  R, G, and B dots, this is that texture. Needs to be set up to wrap, as well as to have mip mapping (and, ideally, anisotropic

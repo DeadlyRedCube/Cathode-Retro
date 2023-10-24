@@ -4,8 +4,8 @@
 //  for purposes of temporal aliasing reduction.
 
 
-#include "../ntsc-util-lang.hlsli"
-#include "../TrackingInstability.hlsli"
+#include "cathode-retro-util-language-helpers.hlsli"
+#include "cathode-retro-util-tracking-instability.hlsli"
 
 
 // This is the RGB input texture. It is expected to be g_inputWidth x g_scanlineCount in size.

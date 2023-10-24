@@ -18,7 +18,7 @@
 // The output of this shader is a texture that contains the decoded Y, I, and Q channels in R, G, and B  (plus 1.0 in alpha).
 
 
-#include "../ntsc-util-lang.hlsli"
+#include "cathode-retro-util-language-helpers.hlsli"
 
 
 // This is a 2- or 4-component texture that contains either a single luma, chroma sample pair or two luma, chroma pairs of S-Video-like

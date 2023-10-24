@@ -1,4 +1,4 @@
-#include "Noise.hlsli"
+#include "cathode-retro-util-noise.hlsli"
 
 // Calculate the instability noise per scanline
 float CalculateTrackingInstabilityOffset(uint scanlineIndex, uint scanlineCount, uint noiseSeed, float scale, uint signalTextureWidth)

@@ -7,8 +7,8 @@
 //  unneeded).
 
 
-#include "../ntsc-util-lang.hlsli"
-#include "DistortCRTCoordinates.hlsli"
+#include "cathode-retro-util-language-helpers.hlsli"
+#include "cathode-retro-crt-distort-coordinates.hlsli"
 
 
 // This is the RGB current frame texture - the output of the NTSC decode shaders if decoding was needed.

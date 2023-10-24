@@ -2,7 +2,7 @@
 // This shader does a horizontal three-tap blur or sharpen to each input scanline.
 
 
-#include "../ntsc-util-lang.hlsli"
+#include "cathode-retro-util-language-helpers.hlsli"
 
 
 // The input RGB texture that will be filtered. It should be set up for linear filtering and clamp addressing (no wrapping).

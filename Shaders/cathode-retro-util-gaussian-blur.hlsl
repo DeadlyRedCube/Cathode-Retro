@@ -2,7 +2,7 @@
 // This shader does a 1D gaussian blur using a 13-tap filter.
 
 
-#include "ntsc-util-lang.hlsli"
+#include "cathode-retro-util-language-helpers.hlsli"
 
 
 // 13-tap gaussian kernel coefficients for bilinear shading, optimized to only require 7 texture samples by taking advantage of linear

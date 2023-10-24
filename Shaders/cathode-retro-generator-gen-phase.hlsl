@@ -6,8 +6,8 @@
 //  do that we have a set of emulated timings for the virtual system that is generating our output.
 
 
-#include "../ntsc-util-lang.hlsli"
-#include "../TrackingInstability.hlsli"
+#include "cathode-retro-util-language-helpers.hlsli"
+#include "cathode-retro-util-tracking-instability.hlsli"
 
 
 CBUFFER consts

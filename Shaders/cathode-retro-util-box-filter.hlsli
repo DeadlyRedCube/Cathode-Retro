@@ -1,7 +1,7 @@
 // Perform a centered box filter - which means we might need to sample a half-texel off of either end of the filter, if the filter width is
 //  even (and it probably is).
 
-#include "ntsc-util-lang.hlsli"
+#include "cathode-retro-util-language-helpers.hlsli"
 
 
 float4 BoxFilter(

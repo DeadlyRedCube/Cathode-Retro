@@ -4,7 +4,7 @@
 //  that ballpark, but not exact. However, the output of this shader is going to be blurred so it doesn't actually matter in practice.
 
 
-#include "Lanczos2.hlsli"
+#include "cathode-retro-util-lanczos.hlsli"
 
 
 DECLARE_TEXTURE2D(g_sourceTexture, g_sampler);

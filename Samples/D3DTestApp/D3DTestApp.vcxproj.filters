@@ -1,43 +1,43 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <FxCompile Include="..\..\Shaders\BasicVertexShader.hlsl">
+    <FxCompile Include="..\..\Shaders\cathode-retro-util-basic-vertex-shader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="..\..\Shaders\Downsample2x.hlsl">
+    <FxCompile Include="..\..\Shaders\cathode-retro-util-downsample.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="..\..\Shaders\SignalDecode\FilterRGB.hlsl">
-      <Filter>Shaders\SignalDecode</Filter>
-    </FxCompile>
-    <FxCompile Include="..\..\Shaders\SignalGeneration\RGBToSVideoOrComposite.hlsl">
-      <Filter>Shaders\SignalGeneration</Filter>
-    </FxCompile>
-    <FxCompile Include="..\..\Shaders\SignalGeneration\ApplyArtifacts.hlsl">
-      <Filter>Shaders\SignalGeneration</Filter>
-    </FxCompile>
-    <FxCompile Include="..\..\Shaders\CRT\GenerateShadowMask.hlsl">
-      <Filter>Shaders\CRT</Filter>
-    </FxCompile>
-    <FxCompile Include="..\..\Shaders\CRT\RGBToCRT.hlsl">
-      <Filter>Shaders\CRT</Filter>
-    </FxCompile>
-    <FxCompile Include="..\..\Shaders\SignalDecode\SVideoToRGB.hlsl">
-      <Filter>Shaders\SignalDecode</Filter>
-    </FxCompile>
-    <FxCompile Include="..\..\Shaders\SignalDecode\CompositeToSVideo.hlsl">
-      <Filter>Shaders\SignalDecode</Filter>
-    </FxCompile>
-    <FxCompile Include="..\..\Shaders\SignalGeneration\GeneratePhaseTexture.hlsl">
-      <Filter>Shaders\SignalGeneration</Filter>
-    </FxCompile>
-    <FxCompile Include="..\..\Shaders\CRT\GenerateScreenTexture.hlsl">
-      <Filter>Shaders\CRT</Filter>
-    </FxCompile>
-    <FxCompile Include="..\..\Shaders\GaussianBlur13.hlsl">
+    <FxCompile Include="..\..\Shaders\cathode-retro-util-gaussian-blur.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="..\..\Shaders\TonemapAndDownsample.hlsl">
+    <FxCompile Include="..\..\Shaders\cathode-retro-util-tonemap-and-downsample.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Shaders\cathode-retro-crt-generate-screen-texture.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Shaders\cathode-retro-crt-generate-shadow-mask.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Shaders\cathode-retro-crt-rgb-to-crt.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Shaders\cathode-retro-decoder-composite-to-svideo.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Shaders\cathode-retro-decoder-filter-rgb.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Shaders\cathode-retro-decoder-svideo-to-rgb.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Shaders\cathode-retro-generator-apply-artifacts.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Shaders\cathode-retro-generator-gen-phase.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Shaders\cathode-retro-generator-rgb-to-svideo-or-composite.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>
@@ -65,15 +65,6 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{2046ac20-975b-42a8-b711-860bbd2da76c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Shaders\SignalDecode">
-      <UniqueIdentifier>{1e9a9f5e-9893-4ca4-8fcd-c751982b8d9f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Shaders\CRT">
-      <UniqueIdentifier>{8a0a8191-82aa-4837-93df-05e08312e034}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Shaders\SignalGeneration">
-      <UniqueIdentifier>{e0b73a31-31a2-4150-a4c0-0c5e239955e6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Generated">
       <UniqueIdentifier>{60a883dc-944c-4f5b-bbe0-64d5ba28d3a9}</UniqueIdentifier>
     </Filter>
@@ -85,17 +76,14 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Shaders\BoxFilter.hlsli">
+    <None Include="..\..\Shaders\cathode-retro-util-box-filter.hlsli">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="..\..\Shaders\TrackingInstability.hlsli">
+    <None Include="..\..\Shaders\cathode-retro-util-tracking-instability.hlsli">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="..\..\Shaders\Noise.hlsli">
+    <None Include="..\..\Shaders\cathode-retro-util-noise.hlsli">
       <Filter>Shaders</Filter>
-    </None>
-    <None Include="..\..\Shaders\CRT\DistortCRTCoordinates.hlsli">
-      <Filter>Shaders\CRT</Filter>
     </None>
     <None Include="Generated\ApplyArtifacts.shad">
       <Filter>Generated</Filter>
@@ -133,10 +121,13 @@
     <None Include="Generated\TonemapAndDownsample.shad">
       <Filter>Generated</Filter>
     </None>
-    <None Include="..\..\Shaders\Lanczos2.hlsli">
+    <None Include="..\..\Shaders\cathode-retro-util-lanczos.hlsli">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="..\..\Shaders\ntsc-util-lang.hlsli">
+    <None Include="..\..\Shaders\cathode-retro-util-language-helpers.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\Shaders\cathode-retro-crt-distort-coordinates.hlsli">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

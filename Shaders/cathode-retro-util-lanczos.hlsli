@@ -6,7 +6,7 @@
 //  https://drilian.com/gaussian-kernel/
 // That means it's only 4 texture samples for an 8-tap lanczos, which is, if I did my math correctly, twice as good!
 
-#include "ntsc-util-lang.hlsli"
+#include "cathode-retro-util-language-helpers.hlsli"
 
 CONST int k_sampleCount = 4;
 BEGIN_CONST_ARRAY(float, k_coeffs, 4)

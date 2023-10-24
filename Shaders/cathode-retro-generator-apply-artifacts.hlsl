@@ -8,8 +8,8 @@
 //  we'll just blend in an offset, blurred, and scaled version of the original signal.
 
 
-#include "../ntsc-util-lang.hlsli"
-#include "../Noise.hlsli"
+#include "cathode-retro-util-language-helpers.hlsli"
+#include "cathode-retro-util-noise.hlsli"
 
 
 // The texture to apply artifacts to. Should either be:

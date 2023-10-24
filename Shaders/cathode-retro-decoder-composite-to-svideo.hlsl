@@ -32,8 +32,8 @@
 //  frame by frame (the NES and SNES do this, for instance).
 
 
-#include "../ntsc-util-lang.hlsli"
-#include "../BoxFilter.hlsli"
+#include "cathode-retro-util-language-helpers.hlsli"
+#include "cathode-retro-util-box-filter.hlsli"
 
 
 // This texture is expected to represent the visible signal part of an NTSC field (a full frame for a progressive scan input, or one half

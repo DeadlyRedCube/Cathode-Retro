@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Downsample an input image by 2x along a given axis by using a lanczos filter.
 
-#include "ntsc-util-lang.hlsli"
-#include "Lanczos2.hlsli"
+#include "cathode-retro-util-language-helpers.hlsli"
+#include "cathode-retro-util-lanczos.hlsli"
 
 DECLARE_TEXTURE2D(g_sourceTexture, g_sampler);
 

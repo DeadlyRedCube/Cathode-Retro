@@ -5,7 +5,7 @@
 //  where the right-most set is offset 50% vertically (so it wraps from bottom to top).
 
 
-#include "../ntsc-util-lang.hlsli"
+#include "cathode-retro-util-language-helpers.hlsli"
 
 CBUFFER consts
 {

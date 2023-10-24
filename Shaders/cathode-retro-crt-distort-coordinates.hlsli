@@ -1,6 +1,6 @@
 // Do a barrel distortion to a given texture coordinate to emulate a curved CRT screen.
 
-#include "../ntsc-util-lang.hlsli"
+#include "cathode-retro-util-language-helpers.hlsli"
 
 float2 DistortCRTCoordinates(
   // The original texture coordinate, intended to come straight from the full-render-target quad, in [-1..1] range (not standard [0..1])
