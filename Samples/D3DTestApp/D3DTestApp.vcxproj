@@ -329,7 +329,6 @@
     <None Include="Generated\TonemapAndDownsample.shad" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Include\CathodeRetro\ArtifactSettings.h" />
     <ClInclude Include="..\..\Include\CathodeRetro\FlagEnum.h" />
     <ClInclude Include="..\..\Include\CathodeRetro\GraphicsDevice.h" />
     <ClInclude Include="..\..\Include\CathodeRetro\Internal\Constants.h" />
@@ -339,11 +338,8 @@
     <ClInclude Include="..\..\Include\CathodeRetro\Internal\SignalLevels.h" />
     <ClInclude Include="..\..\Include\CathodeRetro\Internal\SignalProperties.h" />
     <ClInclude Include="..\..\Include\CathodeRetro\CathodeRetro.h" />
-    <ClInclude Include="..\..\Include\CathodeRetro\OverscanSettings.h" />
-    <ClInclude Include="..\..\Include\CathodeRetro\ScanlineType.h" />
-    <ClInclude Include="..\..\Include\CathodeRetro\ScreenSettings.h" />
-    <ClInclude Include="..\..\Include\CathodeRetro\SourceSettings.h" />
-    <ClInclude Include="..\..\Include\CathodeRetro\TVKnobSettings.h" />
+    <ClInclude Include="..\..\Include\CathodeRetro\SettingPresets.h" />
+    <ClInclude Include="..\..\Include\CathodeRetro\Settings.h" />
     <ClInclude Include="ComPtr.h" />
     <ClInclude Include="D3D11GraphicsDevice.h" />
     <ClInclude Include="WicTexture.h" />

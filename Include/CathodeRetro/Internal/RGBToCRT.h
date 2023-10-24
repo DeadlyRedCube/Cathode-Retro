@@ -4,9 +4,7 @@
 #include <cinttypes>
 
 #include "CathodeRetro/GraphicsDevice.h"
-#include "CathodeRetro/OverscanSettings.h"
-#include "CathodeRetro/ScanlineType.h"
-#include "CathodeRetro/ScreenSettings.h"
+#include "CathodeRetro/Settings.h"
 
 
 namespace CathodeRetro::Internal::CRT

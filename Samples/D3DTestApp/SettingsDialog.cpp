@@ -3,6 +3,8 @@
 #include <cinttypes>
 #include <functional>
 
+#include "CathodeRetro/SettingPresets.h"
+
 #include "resource.h"
 #include "SettingsDialog.h"
 

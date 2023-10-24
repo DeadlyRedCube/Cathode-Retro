@@ -8,6 +8,7 @@
 #include <thread>
 
 #include "CathodeRetro/CathodeRetro.h"
+#include "CathodeRetro/SettingPresets.h"
 
 #include "D3D11GraphicsDevice.h"
 #include "WicTexture.h"

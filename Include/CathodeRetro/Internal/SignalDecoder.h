@@ -3,7 +3,7 @@
 #include "CathodeRetro/Internal/Constants.h"
 #include "CathodeRetro/Internal/SignalLevels.h"
 #include "CathodeRetro/Internal/SignalProperties.h"
-#include "CathodeRetro/TVKnobSettings.h"
+#include "CathodeRetro/Settings.h"
 
 
 namespace CathodeRetro::Internal::Decoder

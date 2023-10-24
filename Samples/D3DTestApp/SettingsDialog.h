@@ -3,11 +3,7 @@
 #include <Windows.h>
 #include <functional>
 
-#include "CathodeRetro/ArtifactSettings.h"
-#include "CathodeRetro/OverscanSettings.h"
-#include "CathodeRetro/ScreenSettings.h"
-#include "CathodeRetro/SourceSettings.h"
-#include "CathodeRetro/TVKnobSettings.h"
+#include "CathodeRetro/Settings.h"
 
 
 bool RunSettingsDialog(

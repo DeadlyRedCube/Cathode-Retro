@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CathodeRetro/SourceSettings.h"
+#include "CathodeRetro/Settings.h"
 
 
 namespace CathodeRetro::Internal

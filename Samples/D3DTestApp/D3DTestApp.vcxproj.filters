@@ -147,9 +147,6 @@
     <ClInclude Include="D3D11GraphicsDevice.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Include\CathodeRetro\TVKnobSettings.h">
-      <Filter>Headers\CathodeRetro</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Include\CathodeRetro\CathodeRetro.h">
       <Filter>Headers\CathodeRetro</Filter>
     </ClInclude>
@@ -157,21 +154,6 @@
       <Filter>Headers\CathodeRetro</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Include\CathodeRetro\GraphicsDevice.h">
-      <Filter>Headers\CathodeRetro</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Include\CathodeRetro\OverscanSettings.h">
-      <Filter>Headers\CathodeRetro</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Include\CathodeRetro\ScanlineType.h">
-      <Filter>Headers\CathodeRetro</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Include\CathodeRetro\ScreenSettings.h">
-      <Filter>Headers\CathodeRetro</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Include\CathodeRetro\SourceSettings.h">
-      <Filter>Headers\CathodeRetro</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Include\CathodeRetro\ArtifactSettings.h">
       <Filter>Headers\CathodeRetro</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Include\CathodeRetro\Internal\SignalProperties.h">
@@ -191,6 +173,12 @@
     </ClInclude>
     <ClInclude Include="..\..\Include\CathodeRetro\Internal\Constants.h">
       <Filter>Headers\CathodeRetro\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\CathodeRetro\SettingPresets.h">
+      <Filter>Headers\CathodeRetro</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\CathodeRetro\Settings.h">
+      <Filter>Headers\CathodeRetro</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

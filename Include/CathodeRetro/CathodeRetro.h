@@ -6,7 +6,7 @@
 #include "CathodeRetro/Internal/SignalDecoder.h"
 #include "CathodeRetro/Internal/SignalGenerator.h"
 #include "CathodeRetro/GraphicsDevice.h"
-#include "CathodeRetro/ScanlineType.h"
+#include "CathodeRetro/Settings.h"
 
 
 namespace CathodeRetro
