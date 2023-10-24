@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cinttypes>
+#include <string.h>
 
 namespace CathodeRetro
 {

@@ -15,7 +15,7 @@ namespace CathodeRetro
     template <typename T>
     void Update(const T &data)
     {
-      static_assert(!std::is_pointer_v<T>);
+      static_assert(!std::is_pointer<T>::value, "Cannot call Update with a pointer type.");
       Update(&data, sizeof(T));
     }
   };

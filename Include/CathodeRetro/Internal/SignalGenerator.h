@@ -40,10 +40,10 @@ namespace CathodeRetro
         SetArtifactSettings({});
       }
 
-      const SignalProperties &SignalProperties() const
+      const Internal::SignalProperties &SignalProperties() const
         { return signalProps; }
 
-      const SignalLevels &SignalLevels() const
+      const Internal::SignalLevels &SignalLevels() const
         { return levels; }
 
       const ITexture *PhasesTexture() const

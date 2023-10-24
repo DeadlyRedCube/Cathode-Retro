@@ -14,7 +14,8 @@ namespace CathodeRetro
   class CathodeRetro
   {
   public:
-    CathodeRetro(IGraphicsDevice *graphicsDevice,
+    CathodeRetro(
+      IGraphicsDevice *graphicsDevice,
       SignalType sigType,
       uint32_t inputWidth,
       uint32_t inputHeight,

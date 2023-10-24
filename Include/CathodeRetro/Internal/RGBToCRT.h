@@ -3,6 +3,7 @@
 #include <cassert>
 #include <cinttypes>
 #include <cmath>
+#include <utility>
 
 #include "CathodeRetro/GraphicsDevice.h"
 #include "CathodeRetro/Settings.h"
