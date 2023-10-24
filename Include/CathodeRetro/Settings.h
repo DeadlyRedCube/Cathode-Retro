@@ -25,7 +25,8 @@ namespace CathodeRetro
   //  Specifically, it gives scanline timings and color-cycle-to-pixel ratios and phase offsets, as well as a display pixel ratio.
   struct SourceSettings
   {
-    bool operator==(const SourceSettings &other) const = default;
+    bool operator==(const SourceSettings &other) const { return memcmp(this, &other, sizeof(*this)) == 0; }
+    bool operator!=(const SourceSettings &other) const { return memcmp(this, &other, sizeof(*this)) != 0; }
 
     // The display aspect ratio of an input pixel when displayed.
     //  Use 1/1 for square input pixels, but for the NES/SNES it's 8/7
@@ -60,7 +61,8 @@ namespace CathodeRetro
   //  source signal and the back of the TV.
   struct ArtifactSettings
   {
-    bool operator==(const ArtifactSettings &other) const = default;
+    bool operator==(const ArtifactSettings &other) const { return memcmp(this, &other, sizeof(*this)) == 0; }
+    bool operator!=(const ArtifactSettings &other) const { return memcmp(this, &other, sizeof(*this)) != 0; }
 
     float ghostVisibility = 0.0f;           // How visible is the ghost
     float ghostSpreadScale = 0.71f;         // How far does each sample of the ghost spread from the last
@@ -78,7 +80,8 @@ namespace CathodeRetro
   //  and the appearance of the shadow mask and scanlines.
   struct ScreenSettings
   {
-    bool operator==(const ScreenSettings &other) const = default;
+    bool operator==(const ScreenSettings &other) const { return memcmp(this, &other, sizeof(*this)) == 0; }
+    bool operator!=(const ScreenSettings &other) const { return memcmp(this, &other, sizeof(*this)) != 0; }
 
     // How much to barrel distort our picture horizontally and vertically to emulate a curved screen
     float horizontalDistortion = 0.0f;
@@ -109,7 +112,8 @@ namespace CathodeRetro
   // These settings mimic the knobs that would have been on the front of an old CRT.
   struct TVKnobSettings
   {
-    bool operator==(const TVKnobSettings &other) const = default;
+    bool operator==(const TVKnobSettings &other) const { return memcmp(this, &other, sizeof(*this)) == 0; }
+    bool operator!=(const TVKnobSettings &other) const { return memcmp(this, &other, sizeof(*this)) != 0; }
 
     float saturation = 1.0f;    // The saturation of the decoded signal (where 1.0 is the default)
     float brightness = 1.0f;    // The brightnesss of the decoded signal
@@ -122,7 +126,8 @@ namespace CathodeRetro
   //  "bevel" of the TV.
   struct OverscanSettings
   {
-    bool operator==(const OverscanSettings &other) const = default;
+    bool operator==(const OverscanSettings &other) const { return memcmp(this, &other, sizeof(*this)) == 0; }
+    bool operator!=(const OverscanSettings &other) const { return memcmp(this, &other, sizeof(*this)) != 0; }
 
     uint32_t overscanLeft = 0;
     uint32_t overscanRight = 0;

@@ -3,16 +3,20 @@
 #include "CathodeRetro/Settings.h"
 
 
-namespace CathodeRetro::Internal
+namespace CathodeRetro
 {
-  struct SignalProperties
+  namespace Internal
   {
-    bool operator==(const SignalProperties &) const = default;
+    struct SignalProperties
+    {
+      bool operator==(const SignalProperties &other) const { return memcmp(this, &other, sizeof(*this)) == 0; }
+      bool operator!=(const SignalProperties &other) const { return memcmp(this, &other, sizeof(*this)) != 0; }
 
-    SignalType type;
-    uint32_t scanlineWidth;
-    uint32_t scanlineCount;
-    float colorCyclesPerInputPixel;
-    float inputPixelAspectRatio; // $TODO: Does this really belong here? Need a better aspect ratio wiring but this works for now
-  };
+      SignalType type;
+      uint32_t scanlineWidth;
+      uint32_t scanlineCount;
+      float colorCyclesPerInputPixel;
+      float inputPixelAspectRatio; // $TODO: Does this really belong here? Need a better aspect ratio wiring but this works for now
+    };
+  }
 }

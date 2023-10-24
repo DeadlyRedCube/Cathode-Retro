@@ -99,7 +99,7 @@ void RebuildGeneratorsIfNecessary(Rebuild rebuild)
 void LoadTexture(const wchar_t *path, Rebuild rebuild = Rebuild::Always)
 {
   bool interlaced = (wcsstr(path, L"Interlaced") != 0 || wcsstr(path, L"interlaced") != 0);
-  std::unique_lock lock(s_renderThreadMutex);
+  std::unique_lock<std::mutex> lock(s_renderThreadMutex);
 
   if (path == nullptr || path[0] == L'\0')
   {
@@ -213,7 +213,7 @@ void ToggleFullscreen()
   }
 
   {
-    std::unique_lock lock(s_renderThreadMutex);
+    std::unique_lock<std::mutex> lock(s_renderThreadMutex);
     s_graphicsDevice->UpdateWindowSize();
   }
 
@@ -388,7 +388,7 @@ void RenderThreadProc()
   while (!s_stopRenderThread)
   {
     {
-      std::unique_lock lock(s_renderThreadMutex);
+      std::unique_lock<std::mutex> lock(s_renderThreadMutex);
 
       s_graphicsDevice->UpdateWindowSize();
       s_graphicsDevice->ClearBackbuffer();

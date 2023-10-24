@@ -17,7 +17,8 @@
 #define CHECK_HRESULT(exp, opName) \
   do \
   { \
-    if (auto res = (exp); FAILED(res)) \
+    auto res = (exp); \
+    if (FAILED(res)) \
     { \
       char exceptionStr[1024]; \
       sprintf_s(exceptionStr, "Failed to " opName ", result: %08x", uint32_t(res)); \

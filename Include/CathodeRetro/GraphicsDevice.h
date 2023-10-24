@@ -12,9 +12,10 @@ namespace CathodeRetro
     virtual void Update(const void *data, size_t dataSize) = 0;
 
     // Templated version of Update that takes a type and updates the whole type.
-    template <typename T> requires (!std::is_pointer_v<T>)
+    template <typename T>
     void Update(const T &data)
     {
+      static_assert(!std::is_pointer_v<T>);
       Update(&data, sizeof(T));
     }
   };

@@ -1,6 +1,7 @@
 #include <Windows.h>
 #include <CommCtrl.h>
 #include <cinttypes>
+#include <cmath>
 #include <functional>
 
 #include "CathodeRetro/SettingPresets.h"
@@ -140,13 +141,13 @@ private:
   {
     char buf[512];
     static_assert(std::is_same_v<float, Type> || std::is_same_v<uint32_t, Type>);
-    if constexpr (std::is_same_v<float, Type>)
+    if (std::is_same_v<float, Type>)
     {
-      sprintf_s(buf, "%.02f", GetValue());
+      sprintf_s(buf, "%.02f", double(GetValue()));
     }
-    else if constexpr (std::is_same_v<uint32_t, Type>)
+    else if (std::is_same_v<uint32_t, Type>)
     {
-      sprintf_s(buf, "%u", GetValue());
+      sprintf_s(buf, "%u", uint32_t(GetValue()));
     }
 
     SetDlgItemTextA(dialog, labelID, buf);

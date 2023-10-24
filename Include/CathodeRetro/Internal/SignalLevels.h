@@ -1,12 +1,15 @@
 #pragma once
 
-namespace CathodeRetro::Internal
+namespace CathodeRetro
 {
-  struct SignalLevels
+  namespace Internal
   {
-    float temporalArtifactReduction;
-    float whiteLevel;
-    float blackLevel;
-    float saturationScale;
-  };
+    struct SignalLevels
+    {
+      float temporalArtifactReduction;
+      float whiteLevel;
+      float blackLevel;
+      float saturationScale;
+    };
+  }
 }
