@@ -65,14 +65,14 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{2046ac20-975b-42a8-b711-860bbd2da76c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Generated">
-      <UniqueIdentifier>{60a883dc-944c-4f5b-bbe0-64d5ba28d3a9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Headers\CathodeRetro">
       <UniqueIdentifier>{26cc2ab4-693e-4798-92ad-0f6debc68961}</UniqueIdentifier>
     </Filter>
     <Filter Include="Headers\CathodeRetro\Internal">
       <UniqueIdentifier>{7644c093-98cd-409d-9598-888e7cdca61c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Generated">
+      <UniqueIdentifier>{60a883dc-944c-4f5b-bbe0-64d5ba28d3a9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -86,40 +86,40 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="Generated\ApplyArtifacts.shad">
-      <Filter>Generated</Filter>
+      <Filter>Shaders\Generated</Filter>
     </None>
     <None Include="Generated\BasicVertexShader.shad">
-      <Filter>Generated</Filter>
+      <Filter>Shaders\Generated</Filter>
     </None>
     <None Include="Generated\CompositeToSVideo.shad">
-      <Filter>Generated</Filter>
+      <Filter>Shaders\Generated</Filter>
     </None>
     <None Include="Generated\Downsample2X.shad">
-      <Filter>Generated</Filter>
+      <Filter>Shaders\Generated</Filter>
     </None>
     <None Include="Generated\FilterRGB.shad">
-      <Filter>Generated</Filter>
+      <Filter>Shaders\Generated</Filter>
     </None>
     <None Include="Generated\GaussianBlur13.shad">
-      <Filter>Generated</Filter>
+      <Filter>Shaders\Generated</Filter>
     </None>
     <None Include="Generated\GeneratePhaseTexture.shad">
-      <Filter>Generated</Filter>
+      <Filter>Shaders\Generated</Filter>
     </None>
     <None Include="Generated\GenerateScreenTexture.shad">
-      <Filter>Generated</Filter>
+      <Filter>Shaders\Generated</Filter>
     </None>
     <None Include="Generated\GenerateShadowMask.shad">
-      <Filter>Generated</Filter>
+      <Filter>Shaders\Generated</Filter>
     </None>
     <None Include="Generated\RGBToCRT.shad">
-      <Filter>Generated</Filter>
+      <Filter>Shaders\Generated</Filter>
     </None>
     <None Include="Generated\RGBToSVideoOrComposite.shad">
-      <Filter>Generated</Filter>
+      <Filter>Shaders\Generated</Filter>
     </None>
     <None Include="Generated\TonemapAndDownsample.shad">
-      <Filter>Generated</Filter>
+      <Filter>Shaders\Generated</Filter>
     </None>
     <None Include="..\..\Shaders\cathode-retro-util-lanczos.hlsli">
       <Filter>Shaders</Filter>
