@@ -188,27 +188,16 @@ xcopy ..\..\Shaders $(SolutionDir)$(Platform)\$(Configuration)\Shaders /S /E /Y<
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Include\NTSCify\ArtifactSettings.h" />
-    <ClInclude Include="..\..\Include\NTSCify\FlagEnum.h" />
-    <ClInclude Include="..\..\Include\NTSCify\GraphicsDevice.h" />
-    <ClInclude Include="..\..\Include\NTSCify\Internal\Constants.h" />
-    <ClInclude Include="..\..\Include\NTSCify\Internal\CRT\RGBToCRT.h" />
-    <ClInclude Include="..\..\Include\NTSCify\Internal\Decoder\CompositeToSVideo.h" />
-    <ClInclude Include="..\..\Include\NTSCify\Internal\Decoder\FilterRGB.h" />
-    <ClInclude Include="..\..\Include\NTSCify\Internal\Decoder\SignalDecoder.h" />
-    <ClInclude Include="..\..\Include\NTSCify\Internal\Decoder\SVideoToYIQ.h" />
-    <ClInclude Include="..\..\Include\NTSCify\Internal\Decoder\YIQToRGB.h" />
-    <ClInclude Include="..\..\Include\NTSCify\Internal\Generator\ApplyArtifacts.h" />
-    <ClInclude Include="..\..\Include\NTSCify\Internal\Generator\RGBToSVideoOrComposite.h" />
-    <ClInclude Include="..\..\Include\NTSCify\Internal\Generator\SignalGenerator.h" />
-    <ClInclude Include="..\..\Include\NTSCify\Internal\SignalLevels.h" />
-    <ClInclude Include="..\..\Include\NTSCify\Internal\SignalProperties.h" />
-    <ClInclude Include="..\..\Include\NTSCify\NTSCify.h" />
-    <ClInclude Include="..\..\Include\NTSCify\OverscanSettings.h" />
-    <ClInclude Include="..\..\Include\NTSCify\ScanlineType.h" />
-    <ClInclude Include="..\..\Include\NTSCify\ScreenSettings.h" />
-    <ClInclude Include="..\..\Include\NTSCify\SourceSettings.h" />
-    <ClInclude Include="..\..\Include\NTSCify\TVKnobSettings.h" />
+    <ClInclude Include="..\..\Include\CathodeRetro\CathodeRetro.h" />
+    <ClInclude Include="..\..\Include\CathodeRetro\GraphicsDevice.h" />
+    <ClInclude Include="..\..\Include\CathodeRetro\Internal\Constants.h" />
+    <ClInclude Include="..\..\Include\CathodeRetro\Internal\RGBToCRT.h" />
+    <ClInclude Include="..\..\Include\CathodeRetro\Internal\SignalDecoder.h" />
+    <ClInclude Include="..\..\Include\CathodeRetro\Internal\SignalGenerator.h" />
+    <ClInclude Include="..\..\Include\CathodeRetro\Internal\SignalLevels.h" />
+    <ClInclude Include="..\..\Include\CathodeRetro\Internal\SignalProperties.h" />
+    <ClInclude Include="..\..\Include\CathodeRetro\SettingPresets.h" />
+    <ClInclude Include="..\..\Include\CathodeRetro\Settings.h" />
     <ClInclude Include="GLGraphicsDevice.h" />
     <ClInclude Include="GLHelpers.h" />
   </ItemGroup>

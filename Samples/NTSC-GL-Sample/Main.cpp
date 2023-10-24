@@ -11,7 +11,8 @@
 #include "GLHelpers.h"
 #include "GLGraphicsDevice.h"
 
-#include "NTSCify/NTSCify.h"
+#include "CathodeRetro/CathodeRetro.h"
+#include "CathodeRetro/SettingPresets.h"
 
 static HWND s_hwnd;
 static HINSTANCE s_instance;
@@ -103,7 +104,7 @@ static void DoInit( HINSTANCE hInstance )
   wc.hCursor = LoadCursor( NULL, IDC_ARROW );
   wc.hbrBackground = CreateSolidBrush(0);
   wc.lpszMenuName = nullptr;
-  wc.lpszClassName = L"NTSCify OpenGL Test App";
+  wc.lpszClassName = L"Cathode Retro OpenGL Test App";
   RegisterClass( &wc );
 
   RECT screenRect;
@@ -117,8 +118,8 @@ static void DoInit( HINSTANCE hInstance )
 
   hwnd = CreateWindowEx(
     0,
-    L"NTSCify OpenGL Test App",
-    L"NTSCify OpenGL Test App",
+    L"Cathode Retro OpenGL Test App",
+    L"Cathode Retro OpenGL Test App",
     WS_OVERLAPPEDWINDOW,
     0,
     0,
@@ -181,18 +182,18 @@ int CALLBACK WinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, 
     SetGLPixelFormat(s_hwnd);
 
     GLGraphicsDevice device { s_dc };
-    auto rt = device.CreateRenderTarget(256, 240, 0, NTSCify::TextureFormat::RGBA_Unorm8);
+    auto rt = device.CreateRenderTarget(256, 240, 0, CathodeRetro::TextureFormat::RGBA_Unorm8);
 
-    NTSCify::NTSCify ntscify(
+    CathodeRetro::CathodeRetro cathodeRetro(
       &device,
-      NTSCify::SignalType::RGB,
+      CathodeRetro::SignalType::RGB,
       rt->Width(),
       rt->Height(),
-      NTSCify::k_sourcePresets[0].settings,
-      NTSCify::k_artifactPresets[0].settings,
+      CathodeRetro::k_sourcePresets[0].settings,
+      CathodeRetro::k_artifactPresets[0].settings,
       {},
       {},
-      NTSCify::k_screenPresets[3].settings);
+      CathodeRetro::k_screenPresets[3].settings);
 
     for (;;)
     {
@@ -224,8 +225,8 @@ int CALLBACK WinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, 
       GetClientRect(s_hwnd, &r);
       GLTexture backbuffer = GLTexture::FromBackbuffer(r.right, r.bottom);
 
-      ntscify.SetOutputSize(r.right, r.bottom);
-      ntscify.Render(rt.get(), rt.get(), NTSCify::ScanlineType::Progressive, &backbuffer);
+      cathodeRetro.SetOutputSize(r.right, r.bottom);
+      cathodeRetro.Render(rt.get(), rt.get(), CathodeRetro::ScanlineType::Progressive, &backbuffer);
       SwapBuffers(s_dc);
     }
   }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <assert.h>
-#include "NTSCify/GraphicsDevice.h"
+#include "CathodeRetro/GraphicsDevice.h"
 
 #include "GLHelpers.h"
 
@@ -12,8 +12,8 @@ struct Vertex
 };
 
 
-// A "Constant Buffer" class for NTSCify: wrapper around a GL uniform buffer.
-class GLConstantBuffer :public NTSCify::IConstantBuffer
+// A "Constant Buffer" class for CathodeRetro: wrapper around a GL uniform buffer.
+class GLConstantBuffer :public CathodeRetro::IConstantBuffer
 {
 public:
   GLConstantBuffer(size_t sizeIn)
@@ -57,8 +57,8 @@ private:
 };
 
 
-// This is an NTSCify "shader" which is really a wrapper around a GL shader program.
-class GLShader : public NTSCify::IShader
+// This is a Cathode Retro "shader" which is really a wrapper around a GL shader program.
+class GLShader : public CathodeRetro::IShader
 {
 public:
   // Build a GLShader given a vertex shader handle and a path to the pixel shader.
@@ -86,7 +86,7 @@ private:
 
 
 // This is a Texture wrapper, which can potentially contain a "render target" (Frame Buffer Object)
-class GLTexture : public NTSCify::ITexture
+class GLTexture : public CathodeRetro::ITexture
 {
 public:
   static GLTexture FromBackbuffer(uint32_t width, uint32_t height)
@@ -98,7 +98,7 @@ public:
     uint32_t widthIn,
     uint32_t heightIn,
     uint32_t mipCountIn, // 0 means "all mip levels"
-    NTSCify::TextureFormat formatIn,
+    CathodeRetro::TextureFormat formatIn,
     bool isRenderTarget,
     void *optionalInitialDataTexels)
     : width(widthIn)
@@ -116,22 +116,22 @@ public:
     GLenum type = 0;
     switch (format)
     {
-    case NTSCify::TextureFormat::RGBA_Unorm8:
+    case CathodeRetro::TextureFormat::RGBA_Unorm8:
       internalFormat = GL_RGBA8;
       glformat = GL_RGBA;
       type = GL_UNSIGNED_BYTE;
       break;
-    case NTSCify::TextureFormat::RGBA_Float32:
+    case CathodeRetro::TextureFormat::RGBA_Float32:
       internalFormat = GL_RGBA32F;
       glformat = GL_RGBA;
       type = GL_FLOAT;
       break;
-    case NTSCify::TextureFormat::R_Float32:
+    case CathodeRetro::TextureFormat::R_Float32:
       internalFormat = GL_R32F;
       glformat = GL_RED;
       type = GL_FLOAT;
       break;
-    case NTSCify::TextureFormat::RG_Float32:
+    case CathodeRetro::TextureFormat::RG_Float32:
       internalFormat = GL_RG32F;
       glformat = GL_RG;
       type = GL_FLOAT;
@@ -208,7 +208,7 @@ public:
   }
 
 
-  NTSCify::TextureFormat Format() const override
+  CathodeRetro::TextureFormat Format() const override
   {
     return format;
   }
@@ -229,7 +229,7 @@ private:
     , height(h)
     , mipCount(1)
     , texHandle(0)
-    , format(NTSCify::TextureFormat::RGBA_Unorm8)
+    , format(CathodeRetro::TextureFormat::RGBA_Unorm8)
     , fboHandles{{0}}
   {
   }
@@ -238,12 +238,12 @@ private:
   uint32_t height = 0;
   uint32_t mipCount = 0;
   GLuint texHandle = 0;
-  NTSCify::TextureFormat format = NTSCify::TextureFormat::RGBA_Unorm8;
+  CathodeRetro::TextureFormat format = CathodeRetro::TextureFormat::RGBA_Unorm8;
   std::vector<GLuint> fboHandles;
 };
 
 
-class GLGraphicsDevice : public NTSCify::IGraphicsDevice
+class GLGraphicsDevice : public CathodeRetro::IGraphicsDevice
 {
 public:
   GLGraphicsDevice(HDC dcIn)
@@ -307,7 +307,7 @@ public:
     CheckGLError();
 
     // Finally compile the common vertex shader that every quad render uses.
-    vertexShaderHandle = CompileShaderFromFile(GL_VERTEX_SHADER, "d:/programming/source/NTSCify/Shaders/BasicVertexShader.hlsl");
+    vertexShaderHandle = CompileShaderFromFile(GL_VERTEX_SHADER, "Shaders/cathode-retro-util-basic-vertex-shader.hlsl");
   }
 
 
@@ -320,33 +320,33 @@ public:
   }
 
 
-  std::unique_ptr<NTSCify::ITexture> CreateRenderTarget(
+  std::unique_ptr<CathodeRetro::ITexture> CreateRenderTarget(
     uint32_t width,
     uint32_t height,
     uint32_t mipCount, // 0 means "all mip levels"
-    NTSCify::TextureFormat format) override
+    CathodeRetro::TextureFormat format) override
   {
     return std::make_unique<GLTexture>(width, height, mipCount, format, true, nullptr);
   }
 
 
-  std::unique_ptr<NTSCify::ITexture> CreateTexture(
+  std::unique_ptr<CathodeRetro::ITexture> CreateTexture(
     uint32_t width,
     uint32_t height,
-    NTSCify::TextureFormat format,
+    CathodeRetro::TextureFormat format,
     void *initialDataTexels)
   {
     return std::make_unique<GLTexture>(width, height, 1, format, false, initialDataTexels);
   }
 
 
-  std::unique_ptr<NTSCify::IConstantBuffer> CreateConstantBuffer(size_t size) override
+  std::unique_ptr<CathodeRetro::IConstantBuffer> CreateConstantBuffer(size_t size) override
   {
     return std::make_unique<GLConstantBuffer>(size);
   }
 
 
-  std::unique_ptr<NTSCify::IShader> CreateShader(NTSCify::ShaderID id) override
+  std::unique_ptr<CathodeRetro::IShader> CreateShader(CathodeRetro::ShaderID id) override
   {
     struct SShaderStuff
     {
@@ -360,22 +360,22 @@ public:
       // GL (pre 4.2) needs a mapping from uniform to binding, and so here we list the expected binding orders in order. It would have
       //  been nicer to iterate through them by querying the shader (which is possible) but naturally they show up in arbitrary orders,
       //  rather than the order that they were declared in the shader.
-      { .path = "Shaders/Downsample2x.hlsl", .textureNames = { "g_sourceTexture" } },
-      { .path = "Shaders/TonemapAndDownsample.hlsl", .textureNames = { "g_sourceTexture" } },
-      { .path = "Shaders/GaussianBlur13.hlsl", .textureNames = { "g_sourceTex" } },
+      { .path = "Shaders/cathode-retro-util-downsample.hlsl", .textureNames = { "g_sourceTexture" } },
+      { .path = "Shaders/cathode-retro-util-tonemap-and-downsample.hlsl", .textureNames = { "g_sourceTexture" } },
+      { .path = "Shaders/cathode-retro-util-gaussian-blur.hlsl", .textureNames = { "g_sourceTex" } },
 
-      { .path = "Shaders/SignalGeneration/GeneratePhaseTexture.hlsl", .textureNames = {} },
-      { .path = "Shaders/SignalGeneration/RGBToSVideoOrComposite.hlsl", .textureNames = { "g_sourceTexture", "g_scanlinePhases"} },
-      { .path = "Shaders/SignalGeneration/ApplyArtifacts.hlsl", .textureNames = { "g_sourceTexture" } },
+      { .path = "Shaders/cathode-retro-generator-gen-phase.hlsl", .textureNames = {} },
+      { .path = "Shaders/cathode-retro-generator-rgb-to-svideo-or-composite.hlsl", .textureNames = { "g_sourceTexture", "g_scanlinePhases"} },
+      { .path = "Shaders/cathode-retro-generator-apply-artifacts.hlsl", .textureNames = { "g_sourceTexture" } },
 
-      { .path = "Shaders/SignalDecode/CompositeToSVideo.hlsl", .textureNames = { "g_sourceTexture" } },
-      { .path = "Shaders/SignalDecode/SVideoToRGB.hlsl", .textureNames = { "g_sourceTexture", "g_scanlinePhases"} },
-      { .path = "Shaders/SignalDecode/FilterRGB.hlsl", .textureNames = { "g_sourceTexture" } },
+      { .path = "Shaders/cathode-retro-decoder-composite-to-svideo.hlsl", .textureNames = { "g_sourceTexture" } },
+      { .path = "Shaders/cathode-retro-decoder-svideo-to-rgb.hlsl", .textureNames = { "g_sourceTexture", "g_scanlinePhases"} },
+      { .path = "Shaders/cathode-retro-decoder-filter-rgb.hlsl", .textureNames = { "g_sourceTexture" } },
 
-      { .path = "Shaders/CRT/GenerateScreenTexture.hlsl", .textureNames = { "g_shadowMaskTexture" } },
-      { .path = "Shaders/CRT/GenerateShadowMask.hlsl", .textureNames = {} },
+      { .path = "Shaders/cathode-retro-crt-generate-screen-texture.hlsl", .textureNames = { "g_shadowMaskTexture" } },
+      { .path = "Shaders/cathode-retro-crt-generate-shadow-mask.hlsl", .textureNames = {} },
       {
-        .path = "Shaders/CRT/RGBToCRT.hlsl",
+        .path = "Shaders/cathode-retro-crt-rgb-to-crt.hlsl",
         .textureNames =
         {
           "g_currentFrameTexture",
@@ -419,10 +419,10 @@ public:
 
 
   void RenderQuad(
-    NTSCify::IShader *ps,
-    NTSCify::RenderTargetView output,
-    std::initializer_list<NTSCify::ShaderResourceView> inputs,
-    NTSCify::IConstantBuffer *constantBuffer) override
+    CathodeRetro::IShader *ps,
+    CathodeRetro::RenderTargetView output,
+    std::initializer_list<CathodeRetro::ShaderResourceView> inputs,
+    CathodeRetro::IConstantBuffer *constantBuffer) override
   {
     // Start rendering to the correct mip level of the given texture and set up the viewport properly.
     glBindFramebuffer(GL_FRAMEBUFFER, static_cast<GLTexture *>(output.texture)->FBOHandle(output.mipLevel));
@@ -453,14 +453,14 @@ public:
       glBindTexture(GL_TEXTURE_2D, texHandle);
       switch (input.samplerType)
       {
-      case NTSCify::SamplerType::LinearWrap:
+      case CathodeRetro::SamplerType::LinearWrap:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (input.texture->MipCount() == 1) ? GL_LINEAR : GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         break;
 
-      case NTSCify::SamplerType::LinearClamp:
+      case CathodeRetro::SamplerType::LinearClamp:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (input.texture->MipCount() == 1) ? GL_LINEAR : GL_LINEAR_MIPMAP_LINEAR);
