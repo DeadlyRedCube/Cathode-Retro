@@ -194,7 +194,7 @@ IDR_FILTER_RGB          RT_RCDATA               "Generated\\cathode-retro-decode
 
 IDR_GENERATE_SHADOW_MASK RT_RCDATA              "Generated\\cathode-retro-crt-generate-shadow-mask.shad"
 
-IDR_DOWNSAMPLE_2X       RT_RCDATA               "Generated\\cathode-retro-util-downsample.shad"
+IDR_DOWNSAMPLE_2X       RT_RCDATA               "Generated\\cathode-retro-util-downsample-2x.shad"
 
 IDR_RGB_TO_CRT          RT_RCDATA               "Generated\\cathode-retro-crt-rgb-to-crt.shad"
 

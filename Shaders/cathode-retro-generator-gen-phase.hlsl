@@ -50,7 +50,7 @@ float4 Main(float2 texCoord)
   float2 phases = float2(g_initialFrameStartPhase, g_prevFrameStartPhase) + g_phaseIncrementPerScanline * float(scanlineIndex);
 
   // Offset by half a cycle so that it lines up with the *center* of the filter instead of the left edge of it.
-  phases += (0.5) / float(g_samplesPerColorburstCycle);
+  phases += 0.5 / float(g_samplesPerColorburstCycle);
 
   // Finally, offset by the scaled instability so that if there are color artifacts, they'll have the correct phase.
   // $TODO: This is actually slightly wrong, and I'm assuming it's due to the way the texture sampling works when generating the signal
@@ -60,7 +60,6 @@ float4 Main(float2 texCoord)
   //  actually offset *exactly* halfway at that point, and so the calculated phase on NTSC demodulation is slightly off from true.
   float instability = CalculateTrackingInstabilityOffset(
     scanlineIndex,
-    g_scanlineCount,
     g_noiseSeed,
     g_instabilityScale,
     g_signalTextureWidth);

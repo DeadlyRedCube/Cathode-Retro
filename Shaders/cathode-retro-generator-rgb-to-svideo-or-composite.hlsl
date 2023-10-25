@@ -63,7 +63,6 @@ float4 Main(float2 signalTexCoord)
   // Add in the instability to our x coordinate to wiggle our generated texture around.
   float instability = CalculateTrackingInstabilityOffset(
     signalTexelIndex.y,
-    g_scanlineCount,
     g_noiseSeed,
     g_instabilityScale,
     g_outputWidth);
@@ -79,9 +78,9 @@ float4 Main(float2 signalTexCoord)
   yiq.b = dot(rgb, float3(0.2130, -0.5251,  0.3121));
 
   // Do some gamma adjustments to counter for the gamma that will be used at decode time.
-  yiq.x = pow(saturate(yiq.x), 2.2 / 2);
+  yiq.x = pow(saturate(yiq.x), 2.2 / 2.0);
   float iqSat = saturate(length(yiq.yz));
-  yiq.yz *= pow(iqSat, 2.2 / 2) / max(0.00001, iqSat);
+  yiq.yz *= pow(iqSat, 2.2 / 2.0) / max(0.00001, iqSat);
 
   // Separate the YIQ channels out because YIQ.y ended up being confusing (is it Y? no it's I! but also it's y!)
   float Y = yiq.x;
@@ -92,7 +91,7 @@ float4 Main(float2 signalTexCoord)
   float2 scanlinePhase = SAMPLE_TEXTURE(
     g_scanlinePhases,
     g_scanlinePhasesSampler,
-    (float2(signalTexelIndex.y + 0.5, 0) / g_scanlineCount)).xy;
+    (float2(signalTexelIndex.y + 0.5, 0.0) / g_scanlineCount)).xy;
   float2 phase = scanlinePhase + signalTexelIndex.x / float(g_outputTexelsPerColorburstCycle);
 
   // Now we need to encode our IQ component in the carrier wave at the correct phase. This is QAM modulation.
@@ -101,7 +100,6 @@ float4 Main(float2 signalTexCoord)
 
   float2 luma = float2(Y, Y);
   float2 chroma = s * I - c * Q;
-
 
   if (g_compositeBlend > 0)
   {

@@ -4,7 +4,7 @@
     <FxCompile Include="..\..\Shaders\cathode-retro-util-basic-vertex-shader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="..\..\Shaders\cathode-retro-util-downsample.hlsl">
+    <FxCompile Include="..\..\Shaders\cathode-retro-util-downsample-2x.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="..\..\Shaders\cathode-retro-util-gaussian-blur.hlsl">

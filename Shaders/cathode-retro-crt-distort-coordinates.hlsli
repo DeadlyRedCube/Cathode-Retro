@@ -9,9 +9,7 @@ float2 DistortCRTCoordinates(
   // a [horizontal, vertical] distortion pair which describes the effective curvature of the virtual screen.
   float2 distortion)
 {
-  const float k_viewAspect = 16.0 / 9.0;
   const float k_piOver4 = 0.78539816339;
-  const float k_hFOV = 1.0471975512; // 60 degrees
 
   // $TODO: I would love to actually graph these coordinates and see how correct they appear - it's possible this is not quite the right
   //  type of curvature used for CRT glass but I haven't found any easy references as to how a CRT screen's curve needed to work.
@@ -23,8 +21,5 @@ float2 DistortCRTCoordinates(
 
   float maxY = 1.0 / cos(distortion.y * k_piOver4);
   float maxX = 1.0 / cos(distortion.x * k_piOver4);
-  texCoord /= float2(maxX, maxY);
-
-  texCoord /= z;
-  return texCoord;
+  return texCoord / float2(maxX, maxY) / z;
 }

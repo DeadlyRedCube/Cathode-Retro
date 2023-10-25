@@ -193,7 +193,7 @@ float4 Main(float2 inTexCoord)
     sourceColor = max(prevSourceColor * g_phosphorPersistence, sourceColor);
 
     // We want to adjust the brightness to somewhat compensate for the darkening due to scanlines
-    sourceColor *= 1.0 + scanlineStrength * 0.5;
+    sourceColor /= 1.0 - scanlineStrength * 0.5;
   }
 
   // Time to put it all together: first, by applying the screen mask (i.e. the shadow mask/aperture grill, etc)...

@@ -32,7 +32,7 @@ float4 Main(float2 inTexCoord)
   float blurSide = g_blurStrength / 3.0;
   float blurCenter = 1.0 - 2.0 * blurSide;
   float4 color = SAMPLE_TEXTURE(g_sourceTexture, g_sampler, (inTexCoord - float2(g_stepSize, 0) * inputTexelSize)) * blurSide
-               + SAMPLE_TEXTURE(g_sourceTexture, g_sampler, (inTexCoord))                                           * blurCenter
+               + SAMPLE_TEXTURE(g_sourceTexture, g_sampler, (inTexCoord))                                          * blurCenter
                + SAMPLE_TEXTURE(g_sourceTexture, g_sampler, (inTexCoord + float2(g_stepSize, 0) * inputTexelSize)) * blurSide;
 
   return color;
