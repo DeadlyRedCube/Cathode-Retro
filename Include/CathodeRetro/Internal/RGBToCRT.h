@@ -155,6 +155,9 @@ namespace CathodeRetro
 
         float shadowMaskScaleX;       // Scale of the shadow mask texture lookup
         float shadowMaskScaleY;       // Scale of the shadow mask texture lookup
+
+        float screenAspect;
+
         float roundedCornerSize;      // 0 == no corner, 1 == screen is an oval
       };
 
@@ -255,6 +258,7 @@ namespace CathodeRetro
                               / screenSettings.shadowMaskScale;
         data.shadowMaskScaleY = shadowMaskScaleNormalization / screenSettings.shadowMaskScale;
 
+        data.screenAspect = aspectData.aspect;
         device->BeginRendering();
 
         screenTextureConstantBuffer->Update(data);

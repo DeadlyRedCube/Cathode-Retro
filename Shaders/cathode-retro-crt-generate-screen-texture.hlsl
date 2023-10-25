@@ -90,10 +90,14 @@ CBUFFER consts
   // The scale of the shadow mask texture. Higher value means the coordinates are scaled more and, thus, the shadow mask is smaller.
   float2 g_shadowMaskScale;
 
+  // The dimensions of the source texture (used for aspect correction
+  float g_aspect;
+
   // How much to round the corners of the screen to emulate a TV that had rounded corners that cut off a little picture.
   //  0 indicates no rounding (squared-off corners), while a value of 1.0 means "the whole screen is an oval." Values <= 0.2 are
   //  recommended.
   float  g_roundedCornerSize;
+
 };
 
 
@@ -114,23 +118,18 @@ float4 Main(float2 inTexCoord)
   //  mask around the edges of the "screen" where we draw a dark color.
   float edgeDist;
   {
+    // Get our coordinate as just an "upper quadrant" coordinate, scaled to have the correct display aspect ratio.
+    float2 sq = float2(g_aspect, 1.0) / max(1.0, g_aspect);
     float2 upperQuadrantT = abs(maskT);
-    float innerRoundArea = 1.0 - g_roundedCornerSize;
-    if (upperQuadrantT.x < innerRoundArea || upperQuadrantT.y < innerRoundArea)
-    {
-      // We're not in the rounded corner's space, so use the longest axis' value as our edge position.
-      edgeDist = max(upperQuadrantT.x, upperQuadrantT.y) - innerRoundArea;
-    }
-    else
-    {
-      // Calculate the distance to the rounded corner.
-      edgeDist = length(saturate(upperQuadrantT - innerRoundArea));
-    }
+
+    // Get the signed distance to a rounded rectangle to get our corners.
+    float2 q = upperQuadrantT * sq - sq + g_roundedCornerSize;
+    edgeDist = min(max(q.x, q.y), 0.0) + length(max(q, 0.0)) - g_roundedCornerSize;
   }
 
   // Use our signed distacce to edge of screen along with the ddx/ddy of our mask coordinate to generate a nicely-antialiased mask where
   //  0 means "fully outside of the screen" and 1 means "fully on-screen".
-  float maskAlpha = 1.0 - smoothstep(g_roundedCornerSize - length(ddx(maskT) + ddy(maskT)), g_roundedCornerSize, edgeDist);
+  float maskAlpha = 1.0 - smoothstep(-length(ddx(maskT) + ddy(maskT)), 0.0, edgeDist);
 
   // Now supersample the shadow mask texture with a mip-map bias to make it sharper. The supersampling will help counteract the bias and
   //  give us a sharp shadow mask with minimal-to-no aliasing.
