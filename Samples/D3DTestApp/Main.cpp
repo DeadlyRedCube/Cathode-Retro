@@ -29,10 +29,6 @@ static auto s_knobSettings = CathodeRetro::TVKnobSettings();
 static auto s_overscanSettings = CathodeRetro::OverscanSettings();
 static auto s_screenSettings = CathodeRetro::k_screenPresets[2].settings;
 
-static std::thread s_renderThread;
-static std::atomic<bool> s_stopRenderThread = false;
-static std::mutex s_renderThreadMutex;
-
 struct LoadedTexture
 {
   uint32_t width = 0;
@@ -99,7 +95,6 @@ void RebuildGeneratorsIfNecessary(Rebuild rebuild)
 void LoadTexture(const wchar_t *path, Rebuild rebuild = Rebuild::Always)
 {
   bool interlaced = (wcsstr(path, L"Interlaced") != 0 || wcsstr(path, L"interlaced") != 0);
-  std::unique_lock<std::mutex> lock(s_renderThreadMutex);
 
   if (path == nullptr || path[0] == L'\0')
   {
@@ -212,12 +207,57 @@ void ToggleFullscreen()
       SWP_NOZORDER);
   }
 
+  s_graphicsDevice->UpdateWindowSize();
+}
+
+
+void RenderLoadedTexture(CathodeRetro::ITexture *output, Rebuild rebuild = Rebuild::AsNeeded)
+{
+  using namespace CathodeRetro;
+
+  if (rebuild != Rebuild::Never)
   {
-    std::unique_lock<std::mutex> lock(s_renderThreadMutex);
-    s_graphicsDevice->UpdateWindowSize();
+    RebuildGeneratorsIfNecessary(rebuild);
   }
 
+  static auto scanlineType = ScanlineType::Odd;
+
+  if (loadedTexture->evenTexture == nullptr)
+  {
+    scanlineType = ScanlineType::Progressive;
+  }
+  else if (scanlineType == ScanlineType::Odd)
+  {
+    scanlineType = ScanlineType::Even;
+  }
+  else
+  {
+    scanlineType = ScanlineType::Odd;
+  }
+
+  const ITexture *input = (scanlineType == ScanlineType::Even && loadedTexture->evenTexture != nullptr)
+    ? loadedTexture->evenTexture.get()
+    : loadedTexture->oddTexture.get();
+  const ITexture *input2 = (scanlineType == ScanlineType::Odd && loadedTexture->evenTexture != nullptr)
+    ? loadedTexture->evenTexture.get()
+    : loadedTexture->oddTexture.get();
+
+  loadedTexture->cathodeRetro->UpdateSettings(
+    s_signalType,
+    input->Width(),
+    input->Height(),
+    s_sourceSettings,
+    s_artifactSettings,
+    s_knobSettings,
+    s_overscanSettings,
+    s_screenSettings);
+
+  loadedTexture->cathodeRetro->SetOutputSize(
+    (output != nullptr) ? output->Width() : s_graphicsDevice->BackbufferWidth(),
+    (output != nullptr) ? output->Height() : s_graphicsDevice->BackbufferHeight());
+  loadedTexture->cathodeRetro->Render(input, input2, scanlineType, output);
 }
+
 
 LRESULT FAR PASCAL WindowProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
 {
@@ -275,12 +315,35 @@ LRESULT FAR PASCAL WindowProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
         &s_overscanSettings,
         &s_screenSettings);
       break;
+    }
 
-     case VK_ESCAPE:
-      ToggleFullscreen();
+    // Fallthrough to pick up Alt-Enter because some versions of windows only send WM_SYSKEYDOWN for left alt and not right alt.
+    // [[fallthrough]];
+
+  case WM_SYSKEYDOWN:
+    switch (wParam)
+    {
+    case VK_RETURN:
+      if (HIWORD(lParam) & KF_ALTDOWN)
+      {
+        ToggleFullscreen();
+      }
       break;
     }
     break;
+
+  case WM_TIMER:
+    s_graphicsDevice->UpdateWindowSize();
+    s_graphicsDevice->ClearBackbuffer();
+
+    if (loadedTexture != nullptr)
+    {
+      RenderLoadedTexture(nullptr);
+    }
+
+    s_graphicsDevice->Present();
+    break;
+
   case WM_CLOSE:
     break;
   }
@@ -335,99 +398,6 @@ static void DoInit( HINSTANCE hInstance )
 }
 
 
-void RenderLoadedTexture(CathodeRetro::ITexture *output, Rebuild rebuild = Rebuild::AsNeeded)
-{
-  using namespace CathodeRetro;
-
-  if (rebuild != Rebuild::Never)
-  {
-    RebuildGeneratorsIfNecessary(rebuild);
-  }
-
-  static auto scanlineType = ScanlineType::Odd;
-
-  if (loadedTexture->evenTexture == nullptr)
-  {
-    scanlineType = ScanlineType::Progressive;
-  }
-  else if (scanlineType == ScanlineType::Odd)
-  {
-    scanlineType = ScanlineType::Even;
-  }
-  else
-  {
-    scanlineType = ScanlineType::Odd;
-  }
-
-  const ITexture *input = (scanlineType == ScanlineType::Even && loadedTexture->evenTexture != nullptr)
-    ? loadedTexture->evenTexture.get()
-    : loadedTexture->oddTexture.get();
-  const ITexture *input2 = (scanlineType == ScanlineType::Odd && loadedTexture->evenTexture != nullptr)
-    ? loadedTexture->evenTexture.get()
-    : loadedTexture->oddTexture.get();
-
-  loadedTexture->cathodeRetro->UpdateSettings(
-    s_signalType,
-    input->Width(),
-    input->Height(),
-    s_sourceSettings,
-    s_artifactSettings,
-    s_knobSettings,
-    s_overscanSettings,
-    s_screenSettings);
-
-  loadedTexture->cathodeRetro->SetOutputSize(
-    (output != nullptr) ? output->Width() : s_graphicsDevice->BackbufferWidth(),
-    (output != nullptr) ? output->Height() : s_graphicsDevice->BackbufferHeight());
-  loadedTexture->cathodeRetro->Render(input, input2, scanlineType, output);
-}
-
-
-void RenderThreadProc()
-{
-  while (!s_stopRenderThread)
-  {
-    {
-      std::unique_lock<std::mutex> lock(s_renderThreadMutex);
-
-      s_graphicsDevice->UpdateWindowSize();
-      s_graphicsDevice->ClearBackbuffer();
-
-      if (loadedTexture != nullptr)
-      {
-        RenderLoadedTexture(nullptr);
-      }
-
-      s_graphicsDevice->Present();
-    }
-
-    Sleep(1);
-  }
-}
-
-
-// Do some absolutely not-at-all legit threading to put the drawing in the background so the settings dialog can change things on the fly.
-//  Please don't actually write multithreaded code with as few guards on data transfer as I have here.
-void StopRenderThread()
-{
-  if (s_renderThread.joinable())
-  {
-    s_stopRenderThread = true;
-    s_renderThread.join();
-  }
-
-  s_stopRenderThread = false;
-}
-
-
-void StartRenderThread()
-{
-  StopRenderThread();
-
-  s_renderThread = std::thread(RenderThreadProc);
-}
-
-
 int CALLBACK WinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int)
 {
   try
@@ -447,7 +417,9 @@ int CALLBACK WinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, 
     ShowWindow(s_hwnd, SW_NORMAL);
     SetMenu(s_hwnd, s_menu);
 
-    StartRenderThread();
+    // Set a timer for just shy of 60hz, which is a good enough approximation for a sample app.
+    SetTimer(s_hwnd, 0, 16, nullptr);
+
     for (;;)
     {
       if(!GetMessage(&msg, nullptr, 0, 0))
@@ -464,6 +436,5 @@ int CALLBACK WinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, 
     MessageBoxA(s_hwnd, ex.what(), "Error", MB_OK);
   }
 
-  StopRenderThread();
   return 0;
 }
