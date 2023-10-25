@@ -32,14 +32,12 @@ CBUFFER consts
   // How far to blur the ghost, in colorburst cycles.
   float g_ghostSpreadScale;
 
-
   // The strength of noise to add to the signal - 0.0 means no noise, 1.0 means, just, a lot of noise. So much. Probably too much.
   float g_noiseStrength;
 
   // An integer seed used to generate the per-output-texel noise. This can be a monotonically-increasing value, or random every frame,
   //  just as long as it's different every frame so that the noise changes.
   uint g_noiseSeed;
-
 
   // The width of the input signal texture
   uint g_signalTextureWidth;
@@ -66,8 +64,8 @@ float4 Main(float2 inputTexCoord)
 
     // The following is a 9-tap gaussian, written as 5 samples using bilinear interpolation to sample two taps at once:
     // 0.00761441700, 0.0360749699, 0.109586075, 0.213444546, 0.266559988, 0.213444546, 0.109586075, 0.0360749699, 0.00761441700
-    float4 ghost = float4(0, 0, 0, 0);
-    ghost += SAMPLE_TEXTURE(g_sourceTexture, g_sampler, ghostCenterCoord - ghostSampleSpread * 1.174285279339) * 0.0436893869;
+    float4 ghost;
+    ghost =  SAMPLE_TEXTURE(g_sourceTexture, g_sampler, ghostCenterCoord - ghostSampleSpread * 1.174285279339) * 0.0436893869;
     ghost += SAMPLE_TEXTURE(g_sourceTexture, g_sampler, ghostCenterCoord - ghostSampleSpread * 1.339243613069) * 0.323030611;
     ghost += SAMPLE_TEXTURE(g_sourceTexture, g_sampler, ghostCenterCoord)                                      * 0.266559988;
     ghost += SAMPLE_TEXTURE(g_sourceTexture, g_sampler, ghostCenterCoord + ghostSampleSpread * 1.339243613069) * 0.323030611;
@@ -77,15 +75,18 @@ float4 Main(float2 inputTexCoord)
   }
 
   // Also add some noise for each texel. Use the noise seed and our x/y position to c
-  uint2 pixelIndex = uint2(floor(inputTexCoord * float2(g_signalTextureWidth, g_scanlineCount)));
-  uint localNoiseSeed = (g_noiseSeed * g_scanlineCount + pixelIndex.y) * g_signalTextureWidth + pixelIndex.x / 2U;
+  float2 pixelIndex = inputTexCoord * float2(g_signalTextureWidth / (g_samplesPerColorburstCycle * 2.0 / 3.0), g_scanlineCount);
+  float xFrac = frac(pixelIndex.x);
+  pixelIndex = floor(pixelIndex);
 
-  // To make it a little more analogue-seeming, generate 3 instances of the noise to act as a 3-tap blur.
-  float noise = WangHashAndXorShift(localNoiseSeed)
-    + 0.5 * (WangHashAndXorShift(localNoiseSeed + 1U) + WangHashAndXorShift(localNoiseSeed - 1U));
+  // Do a little perlin-style interpolation to make the noise seem more analogue. This is one of those things that isn't strictly
+  //  accurate (like I would prefer all the things be), but it *looks* right to me.
+  float noiseL = Noise2D(pixelIndex, float(g_noiseSeed));
+  float noiseR = Noise2D(pixelIndex + float2(1.0, 0.0), float(g_noiseSeed));
+  float noise = lerp(noiseL, noiseR, xFrac) * 2.0 - 1.0;
 
   // Finally we'll scale and bias the noise and return it added to our signal.
-  return signal + (noise - 1) * g_noiseStrength * 0.5;
+  return signal + noise * g_noiseStrength;
 }
 
 PS_MAIN

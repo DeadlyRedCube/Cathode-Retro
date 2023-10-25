@@ -170,7 +170,7 @@ float4 Main(float2 inTexCoord)
 
   // Now supersample the shadow mask texture with a mip-map bias to make it sharper. The supersampling will help counteract the bias and
   //  give us a sharp shadow mask with minimal-to-no aliasing.
-  float angle = WangHashAndXorShift(pixelCoord8k.y * 7680 + pixelCoord8k.x);
+  float angle = Noise2D(t * 1000, 10.0) * 6.28318531;
   float2 rotX = float2(sin(angle), cos(angle)) * 1.414;
   float2 rotY = float2(-rotX.y, rotX.x);
 
