@@ -5,47 +5,82 @@
 
 
 #include "cathode-retro-crt-distort-coordinates.hlsli"
+#include "cathode-retro-util-noise.hlsli"
 
 // The shadow mask texture for the CRT. That is, if you think of an old CRT and how you could see the
 //  R, G, and B dots, this is that texture. Needs to be set up to wrap, as well as to have mip mapping (and, ideally, anisotropic
 //  filtering too, if rendering as a curved screen, to help with sharpness and aliasing).
 DECLARE_TEXTURE2D(g_shadowMaskTexture, g_sampler);
 
-// These are standard 8x and 16x sampling patterns (found in the D3D docs here:
-//  https://docs.microsoft.com/en-us/windows/win32/api/d3d11/ne-d3d11-d3d11_standard_multisample_quality_levels )
-#if 1
-  CONST int k_samplePointCount = 16;
-  BEGIN_CONST_ARRAY(float2, k_samplingPattern, k_samplePointCount)
-    float2( 1.0f / 8.0,  1.0f / 8.0),
-    float2(-1.0f / 8.0, -3.0f / 8.0),
-    float2(-3.0f / 8.0,  2.0f / 8.0),
-    float2( 4.0f / 8.0, -1.0f / 8.0),
-    float2(-5.0f / 8.0, -2.0f / 8.0),
-    float2( 2.0f / 8.0,  5.0f / 8.0),
-    float2( 5.0f / 8.0,  3.0f / 8.0),
-    float2( 3.0f / 8.0, -5.0f / 8.0),
-    float2(-2.0f / 8.0,  6.0f / 8.0),
-    float2( 0.0f / 8.0, -7.0f / 8.0),
-    float2(-4.0f / 8.0, -6.0f / 8.0),
-    float2(-6.0f / 8.0,  4.0f / 8.0),
-    float2(-8.0f / 8.0,  0.0f / 8.0),
-    float2( 7.0f / 8.0, -4.0f / 8.0),
-    float2( 6.0f / 8.0,  7.0f / 8.0),
-    float2(-7.0f / 8.0, -8.0f / 8.0)
-  END_CONST_ARRAY
-#else
-  CONST uint k_samplePointCount = 8;
-  BEGIN_CONST_ARRAY(float2, k_samplingPattern, k_samplePointCount)
-    float2( 1.0f / 8.0, -3.0f / 8.0),
-    float2(-1.0f / 8.0,  3.0f / 8.0),
-    float2( 5.0f / 8.0,  1.0f / 8.0),
-    float2(-3.0f / 8.0, -5.0f / 8.0),
-    float2(-5.0f / 8.0,  5.0f / 8.0),
-    float2(-7.0f / 8.0, -1.0f / 8.0),
-    float2( 3.0f / 8.0,  7.0f / 8.0),
-    float2( 7.0f / 8.0, -7.0f / 8.0)
-  END_CONST_ARRAY
-#endif
+// This is a 64-tap poisson disc filter, found here:
+//  https://www.geeks3d.com/20100628/3d-programming-ready-to-use-64-sample-poisson-disc/CONST int k_samplePointCount = 64;
+CONST int k_samplePointCount = 64;
+BEGIN_CONST_ARRAY(float2, k_samplingPattern, k_samplePointCount)
+  float2(-0.613392, 0.617481),
+  float2(0.170019, -0.040254),
+  float2(-0.299417, 0.791925),
+  float2(0.645680, 0.493210),
+  float2(-0.651784, 0.717887),
+  float2(0.421003, 0.027070),
+  float2(-0.817194, -0.271096),
+  float2(-0.705374, -0.668203),
+  float2(0.977050, -0.108615),
+  float2(0.063326, 0.142369),
+  float2(0.203528, 0.214331),
+  float2(-0.667531, 0.326090),
+  float2(-0.098422, -0.295755),
+  float2(-0.885922, 0.215369),
+  float2(0.566637, 0.605213),
+  float2(0.039766, -0.396100),
+  float2(0.751946, 0.453352),
+  float2(0.078707, -0.715323),
+  float2(-0.075838, -0.529344),
+  float2(0.724479, -0.580798),
+  float2(0.222999, -0.215125),
+  float2(-0.467574, -0.405438),
+  float2(-0.248268, -0.814753),
+  float2(0.354411, -0.887570),
+  float2(0.175817, 0.382366),
+  float2(0.487472, -0.063082),
+  float2(-0.084078, 0.898312),
+  float2(0.488876, -0.783441),
+  float2(0.470016, 0.217933),
+  float2(-0.696890, -0.549791),
+  float2(-0.149693, 0.605762),
+  float2(0.034211, 0.979980),
+  float2(0.503098, -0.308878),
+  float2(-0.016205, -0.872921),
+  float2(0.385784, -0.393902),
+  float2(-0.146886, -0.859249),
+  float2(0.643361, 0.164098),
+  float2(0.634388, -0.049471),
+  float2(-0.688894, 0.007843),
+  float2(0.464034, -0.188818),
+  float2(-0.440840, 0.137486),
+  float2(0.364483, 0.511704),
+  float2(0.034028, 0.325968),
+  float2(0.099094, -0.308023),
+  float2(0.693960, -0.366253),
+  float2(0.678884, -0.204688),
+  float2(0.001801, 0.780328),
+  float2(0.145177, -0.898984),
+  float2(0.062655, -0.611866),
+  float2(0.315226, -0.604297),
+  float2(-0.780145, 0.486251),
+  float2(-0.371868, 0.882138),
+  float2(0.200476, 0.494430),
+  float2(-0.494552, -0.711051),
+  float2(0.612476, 0.705252),
+  float2(-0.578845, -0.768792),
+  float2(-0.772454, -0.090976),
+  float2(0.504440, 0.372295),
+  float2(0.155736, 0.065157),
+  float2(0.391522, 0.849605),
+  float2(-0.620106, -0.328104),
+  float2(0.789239, -0.419965),
+  float2(-0.545396, 0.538133),
+  float2(-0.178564, -0.596057)
+END_CONST_ARRAY
 
 
 
@@ -104,6 +139,8 @@ CBUFFER consts
 
 float4 Main(float2 inTexCoord)
 {
+  uint2 pixelCoord8k = uint2(round(inTexCoord * float2(7680, 4320)));
+
   // First thing we want to do is scale our input texture coordinate to be in [-1..1] instead of [0..1]
   inTexCoord = inTexCoord * 2 - 1;
 
@@ -133,8 +170,12 @@ float4 Main(float2 inTexCoord)
 
   // Now supersample the shadow mask texture with a mip-map bias to make it sharper. The supersampling will help counteract the bias and
   //  give us a sharp shadow mask with minimal-to-no aliasing.
-  float2 dxT = ddx(t);
-  float2 dyT = ddy(t);
+  float angle = WangHashAndXorShift(pixelCoord8k.y * 7680 + pixelCoord8k.x);
+  float2 rotX = float2(sin(angle), cos(angle)) * 1.414;
+  float2 rotY = float2(-rotX.y, rotX.x);
+
+  float2 dxT = float2(dot(rotX, ddx(t)), dot(rotY, ddx(t)));
+  float2 dyT = float2(dot(rotX, ddy(t)), dot(rotY, ddy(t)));
   float3 color = float3(0, 0, 0);
   for (int i = 0; i < k_samplePointCount; i++)
   {
@@ -142,7 +183,7 @@ float4 Main(float2 inTexCoord)
       g_shadowMaskTexture,
       g_sampler,
       (t + k_samplingPattern[i].x * dxT + k_samplingPattern[i].y * dyT) * g_shadowMaskScale,
-      -1).rgb;
+      -2).rgb;
   }
 
   color /= float(k_samplePointCount);
