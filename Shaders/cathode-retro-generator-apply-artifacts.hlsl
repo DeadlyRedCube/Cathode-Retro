@@ -86,7 +86,7 @@ float4 Main(float2 inputTexCoord)
   float noise = lerp(noiseL, noiseR, xFrac) * 2.0 - 1.0;
 
   // Finally we'll scale and bias the noise and return it added to our signal.
-  return signal + noise * g_noiseStrength;
+  return (signal + noise * g_noiseStrength) / (1.0 + g_ghostVisibility);
 }
 
 PS_MAIN

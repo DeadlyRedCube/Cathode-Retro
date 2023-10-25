@@ -197,11 +197,6 @@ namespace CathodeRetro
 
       void ApplyArtifacts()
       {
-        // First step: Convert the luma/chroma at signalUAVTwoComponentA into a composite texture at signalUAVOneComponentA
-        // These parameters affect the ghosting.
-        levels.whiteLevel *= (1.0f + artifactSettings.ghostVisibility);
-        levels.blackLevel *= (1.0f + artifactSettings.ghostVisibility);
-
         applyArtifactsConstantBuffer->Update(
           ApplyArtifactsConstantData {
             artifactSettings.ghostVisibility,
