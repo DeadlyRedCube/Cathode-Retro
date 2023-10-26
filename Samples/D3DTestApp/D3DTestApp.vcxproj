@@ -226,7 +226,6 @@
     <ClCompile Include="..\Common\Main.cpp" />
     <ClCompile Include="..\Common\SettingsDialog.cpp" />
     <ClCompile Include="..\Common\WicTexture.cpp" />
-    <ClCompile Include="D3D11GraphicsDevice.cpp" />
     <ClCompile Include="D3DDemo.cpp" />
   </ItemGroup>
   <ItemGroup>

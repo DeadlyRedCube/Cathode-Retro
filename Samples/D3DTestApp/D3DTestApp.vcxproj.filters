@@ -42,9 +42,6 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="D3D11GraphicsDevice.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="D3DDemo.cpp">
       <Filter>Source</Filter>
     </ClCompile>

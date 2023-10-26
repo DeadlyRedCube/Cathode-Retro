@@ -14,7 +14,7 @@ public:
   D3DDemoHandler(HWND hwnd)
   {
     SetWindowTextW(hwnd, L"Cathode Retro D3D Demo");
-    graphicsDevice = ID3D11GraphicsDevice::Create(hwnd);
+    graphicsDevice = std::make_unique<D3D11GraphicsDevice>(hwnd);
   }
 
   virtual void ResizeBackbuffer(uint32_t width, uint32_t height)
@@ -77,7 +77,7 @@ public:
 
 private:
   std::unique_ptr<CathodeRetro::CathodeRetro> cathodeRetro;
-  std::unique_ptr<ID3D11GraphicsDevice> graphicsDevice;
+  std::unique_ptr<D3D11GraphicsDevice> graphicsDevice;
 };
 
 
