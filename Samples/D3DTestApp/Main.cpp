@@ -1,33 +1,19 @@
 #define NOMINMAX
-#pragma once
+
 #include <Windows.h>
 #include <CommCtrl.h>
-#include <atomic>
-#include <memory>
-#include <mutex>
-#include <thread>
 
-#include "CathodeRetro/CathodeRetro.h"
 #include "CathodeRetro/SettingPresets.h"
 
-#include "D3D11GraphicsDevice.h"
+#include "DemoHandler.h"
 #include "WicTexture.h"
 #include "resource.h"
 #include "SettingsDialog.h"
 
-static HWND s_hwnd;
-static HMENU s_menu;
-static HINSTANCE s_instance;
-static bool s_fullscreen = false;
-static RECT s_oldWindowedRect;
-static std::unique_ptr<ID3D11GraphicsDevice> s_graphicsDevice;
 
-static auto s_signalType = CathodeRetro::SignalType::Composite;
-static auto s_sourceSettings = CathodeRetro::k_sourcePresets[1].settings;
-static auto s_artifactSettings = CathodeRetro::k_artifactPresets[1].settings;
-static auto s_knobSettings = CathodeRetro::TVKnobSettings();
-static auto s_overscanSettings = CathodeRetro::OverscanSettings();
-static auto s_screenSettings = CathodeRetro::k_screenPresets[2].settings;
+// This is defined by the demo application.
+std::unique_ptr<IDemoHandler> MakeDemoHandler(HWND hwnd);
+
 
 struct LoadedTexture
 {
@@ -37,68 +23,34 @@ struct LoadedTexture
 
   std::unique_ptr<CathodeRetro::ITexture> oddTexture;
   std::unique_ptr<CathodeRetro::ITexture> evenTexture;
-
-  std::unique_ptr<CathodeRetro::CathodeRetro> cathodeRetro;
-
-  CathodeRetro::SignalType cachedSignalType {};
-  CathodeRetro::SourceSettings cachedSourceSettings {};
-};
-
-std::unique_ptr<LoadedTexture> loadedTexture;
-
-enum class Rebuild
-{
-  AsNeeded,
-  Always,
-  Never,
 };
 
 
-void RebuildGeneratorsIfNecessary(Rebuild rebuild)
-{
-  using namespace CathodeRetro::Internal;
+static HWND s_hwnd;
+static HMENU s_menu;
+static HINSTANCE s_instance;
+static bool s_fullscreen = false;
+static RECT s_oldWindowedRect;
 
-  if (loadedTexture == nullptr)
-  {
-    return;
-  }
-
-  auto sourceSettings = s_sourceSettings;
-  auto signalType = s_signalType;
-
-  if (rebuild == Rebuild::Never)
-  {
-    loadedTexture->cachedSignalType = signalType;
-    loadedTexture->cachedSourceSettings = sourceSettings;
-  }
-  else if (rebuild == Rebuild::Always
-    || signalType != loadedTexture->cachedSignalType
-    || memcmp(&sourceSettings, &loadedTexture->cachedSourceSettings, sizeof(sourceSettings)) != 0)
-  {
-    loadedTexture->cathodeRetro = std::make_unique<CathodeRetro::CathodeRetro>(
-      s_graphicsDevice.get(),
-      s_signalType,
-      loadedTexture->oddTexture->Width(),
-      loadedTexture->oddTexture->Height(),
-      s_sourceSettings,
-      s_artifactSettings,
-      s_knobSettings,
-      s_overscanSettings,
-      s_screenSettings);
-
-    loadedTexture->cachedSignalType = signalType;
-    loadedTexture->cachedSourceSettings = sourceSettings;
-  }
-}
+static auto s_signalType = CathodeRetro::SignalType::Composite;
+static auto s_sourceSettings = CathodeRetro::k_sourcePresets[1].settings;
+static auto s_artifactSettings = CathodeRetro::k_artifactPresets[1].settings;
+static auto s_knobSettings = CathodeRetro::TVKnobSettings();
+static auto s_overscanSettings = CathodeRetro::OverscanSettings();
+static auto s_screenSettings = CathodeRetro::k_screenPresets[4].settings;
+static auto s_scanlineType = CathodeRetro::ScanlineType::Odd;
 
 
-void LoadTexture(const wchar_t *path, Rebuild rebuild = Rebuild::Always)
+std::unique_ptr<LoadedTexture> s_loadedTexture;
+std::unique_ptr<IDemoHandler> s_demoHandler;
+
+void LoadTexture(const wchar_t *path)
 {
   bool interlaced = (wcsstr(path, L"Interlaced") != 0 || wcsstr(path, L"interlaced") != 0);
 
   if (path == nullptr || path[0] == L'\0')
   {
-    loadedTexture = nullptr;
+    s_loadedTexture = nullptr;
     return;
   }
 
@@ -122,37 +74,19 @@ void LoadTexture(const wchar_t *path, Rebuild rebuild = Rebuild::Always)
       memcpy(evenScanlines.data() + width * y, load->data.data() + width * (y * 2 + 1), width * sizeof(uint32_t));
     }
 
-    load->oddTexture = s_graphicsDevice->CreateTexture(
-      width,
-      height/2,
-      CathodeRetro::TextureFormat::RGBA_Unorm8,
-      oddScanlines.data());
-
-    load->evenTexture = s_graphicsDevice->CreateTexture(
-      width,
-      height/2,
-      CathodeRetro::TextureFormat::RGBA_Unorm8,
-      evenScanlines.data());
+    load->oddTexture = s_demoHandler->CreateRGBATexture(width, height/2, oddScanlines.data());
+    load->evenTexture = s_demoHandler->CreateRGBATexture(width, height/2, evenScanlines.data());
   }
   else
   {
-    load->oddTexture = s_graphicsDevice->CreateTexture(
-      width,
-      height,
-      CathodeRetro::TextureFormat::RGBA_Unorm8,
-      load->data.data());
+    load->oddTexture = s_demoHandler->CreateRGBATexture(width, height, load->data.data());
     load->evenTexture = nullptr;
   }
 
-  loadedTexture = std::move(load);
+  s_loadedTexture = std::move(load);
 
-  if (rebuild != Rebuild::Never)
-  {
-    RebuildGeneratorsIfNecessary(rebuild);
-  }
+  SendMessage(s_hwnd, WM_SETTINGS_CHANGED, 0, 0);
 }
-
-
 
 
 static void OpenFile()
@@ -207,55 +141,42 @@ void ToggleFullscreen()
       SWP_NOZORDER);
   }
 
-  s_graphicsDevice->UpdateWindowSize();
+  RECT r;
+  GetClientRect(s_hwnd, &r);
+  s_demoHandler->ResizeBackbuffer(r.right - r.left, r.bottom - r.top);
 }
 
 
-void RenderLoadedTexture(CathodeRetro::ITexture *output, Rebuild rebuild = Rebuild::AsNeeded)
+static void Render()
 {
   using namespace CathodeRetro;
 
-  if (rebuild != Rebuild::Never)
+  if (s_loadedTexture == nullptr)
   {
-    RebuildGeneratorsIfNecessary(rebuild);
+    return;
   }
 
-  static auto scanlineType = ScanlineType::Odd;
-
-  if (loadedTexture->evenTexture == nullptr)
+  if (s_loadedTexture->evenTexture == nullptr)
   {
-    scanlineType = ScanlineType::Progressive;
+    s_scanlineType = ScanlineType::Progressive;
   }
-  else if (scanlineType == ScanlineType::Odd)
+  else if (s_scanlineType == ScanlineType::Odd)
   {
-    scanlineType = ScanlineType::Even;
+    s_scanlineType = ScanlineType::Even;
   }
   else
   {
-    scanlineType = ScanlineType::Odd;
+    s_scanlineType = ScanlineType::Odd;
   }
 
-  const ITexture *input = (scanlineType == ScanlineType::Even && loadedTexture->evenTexture != nullptr)
-    ? loadedTexture->evenTexture.get()
-    : loadedTexture->oddTexture.get();
-  const ITexture *input2 = (scanlineType == ScanlineType::Odd && loadedTexture->evenTexture != nullptr)
-    ? loadedTexture->evenTexture.get()
-    : loadedTexture->oddTexture.get();
+  const ITexture *input = (s_scanlineType == ScanlineType::Even && s_loadedTexture->evenTexture != nullptr)
+    ? s_loadedTexture->evenTexture.get()
+    : s_loadedTexture->oddTexture.get();
+  const ITexture *input2 = (s_scanlineType == ScanlineType::Odd && s_loadedTexture->evenTexture != nullptr)
+    ? s_loadedTexture->evenTexture.get()
+    : s_loadedTexture->oddTexture.get();
 
-  loadedTexture->cathodeRetro->UpdateSettings(
-    s_signalType,
-    input->Width(),
-    input->Height(),
-    s_sourceSettings,
-    s_artifactSettings,
-    s_knobSettings,
-    s_overscanSettings,
-    s_screenSettings);
-
-  loadedTexture->cathodeRetro->SetOutputSize(
-    (output != nullptr) ? output->Width() : s_graphicsDevice->BackbufferWidth(),
-    (output != nullptr) ? output->Height() : s_graphicsDevice->BackbufferHeight());
-  loadedTexture->cathodeRetro->Render(input, input2, scanlineType, output);
+  s_demoHandler->Render(input, input2, s_scanlineType);
 }
 
 
@@ -268,6 +189,22 @@ LRESULT FAR PASCAL WindowProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 
   case WM_DESTROY:
     PostQuitMessage( 0 );
+    break;
+
+  case WM_SETTINGS_CHANGED:
+    if (s_loadedTexture != nullptr)
+    {
+      s_demoHandler->UpdateCathodeRetroSettings(
+        s_signalType,
+        s_loadedTexture->oddTexture->Width(),
+        s_loadedTexture->oddTexture->Height(),
+        s_sourceSettings,
+        s_artifactSettings,
+        s_knobSettings,
+        s_overscanSettings,
+        s_screenSettings);
+    }
+
     break;
 
   case WM_COMMAND:
@@ -333,19 +270,26 @@ LRESULT FAR PASCAL WindowProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
     break;
 
   case WM_TIMER:
-    s_graphicsDevice->UpdateWindowSize();
-    s_graphicsDevice->ClearBackbuffer();
+    // Stop the timer so WM_TIMER messages don't pile up while we're rolling.
+    KillTimer(hWnd, 0);
 
-    if (loadedTexture != nullptr)
-    {
-      RenderLoadedTexture(nullptr);
-    }
+    // Do the actual rendering
+    Render();
 
-    s_graphicsDevice->Present();
+    // Now start our timer again with a short delay to ensure it happens again.
+    SetTimer(s_hwnd, 0, 3, nullptr);
     break;
 
   case WM_CLOSE:
     break;
+
+  case WM_SIZE:
+    if (wParam != SIZE_MINIMIZED)
+    {
+      s_demoHandler->ResizeBackbuffer(LOWORD(lParam), HIWORD(lParam));
+    }
+    break;
+
   }
 
   return DefWindowProc(hWnd, message, wParam, lParam);
@@ -412,13 +356,28 @@ int CALLBACK WinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, 
     MSG msg;
     DoInit(hInstance);
 
-    s_graphicsDevice = ID3D11GraphicsDevice::Create(s_hwnd);
+    s_demoHandler = MakeDemoHandler(s_hwnd);
+    s_demoHandler->UpdateCathodeRetroSettings(
+      s_signalType,
+      256,
+      240,
+      s_sourceSettings,
+      s_artifactSettings,
+      s_knobSettings,
+      s_overscanSettings,
+      s_screenSettings);
+
+    {
+      RECT r;
+      GetClientRect(s_hwnd, &r);
+      s_demoHandler->ResizeBackbuffer(r.right - r.left, r.bottom - r.top);
+    }
 
     ShowWindow(s_hwnd, SW_NORMAL);
     SetMenu(s_hwnd, s_menu);
 
-    // Set a timer for just shy of 60hz, which is a good enough approximation for a sample app.
-    SetTimer(s_hwnd, 0, 16, nullptr);
+    // Set a short timer that will trigger a render
+    SetTimer(s_hwnd, 0, 3, nullptr);
 
     for (;;)
     {

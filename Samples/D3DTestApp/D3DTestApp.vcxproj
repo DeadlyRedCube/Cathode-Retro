@@ -224,6 +224,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="D3D11GraphicsDevice.cpp" />
+    <ClCompile Include="D3DDemo.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="SettingsDialog.cpp" />
     <ClCompile Include="WicTexture.cpp" />
@@ -342,6 +343,7 @@
     <ClInclude Include="..\..\Include\CathodeRetro\Settings.h" />
     <ClInclude Include="ComPtr.h" />
     <ClInclude Include="D3D11GraphicsDevice.h" />
+    <ClInclude Include="DemoHandler.h" />
     <ClInclude Include="WicTexture.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SettingsDialog.h" />

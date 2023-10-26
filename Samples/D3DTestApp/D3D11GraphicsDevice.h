@@ -21,7 +21,7 @@ public:
   virtual uint32_t BackbufferWidth() const = 0;
   virtual uint32_t BackbufferHeight() const = 0;
 
-  virtual void UpdateWindowSize() = 0;
+  virtual void UpdateWindowSize(uint32_t width, uint32_t height) = 0;
   virtual void ClearBackbuffer() = 0;
   virtual void Present() = 0;
 };

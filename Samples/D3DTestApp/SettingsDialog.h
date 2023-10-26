@@ -6,6 +6,8 @@
 #include "CathodeRetro/Settings.h"
 
 
+#define WM_SETTINGS_CHANGED (WM_APP + 1)
+
 bool RunSettingsDialog(
   HWND parentWindow,
   CathodeRetro::SignalType *signalTypeInOut,

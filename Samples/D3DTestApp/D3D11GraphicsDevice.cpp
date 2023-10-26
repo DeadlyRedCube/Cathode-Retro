@@ -56,7 +56,7 @@ public:
   D3D11GraphicsDevice(D3D11GraphicsDevice &) = delete;
   void operator=(const D3D11GraphicsDevice &) = delete;
 
-  void UpdateWindowSize() override;
+  void UpdateWindowSize(uint32_t width, uint32_t height) override;
 
   uint32_t BackbufferWidth() const override
     { return backbufferWidth; }
@@ -629,14 +629,9 @@ void D3D11GraphicsDevice::InitializeBuiltIns()
 }
 
 
-void D3D11GraphicsDevice::UpdateWindowSize()
+void D3D11GraphicsDevice::UpdateWindowSize(uint32_t width, uint32_t height)
 {
-  RECT clientRect;
-  GetClientRect(window, &clientRect);
-  uint32_t newWidth = clientRect.right - clientRect.left;
-  uint32_t newHeight = clientRect.bottom - clientRect.top;
-
-  if (newWidth == backbufferWidth && newHeight == backbufferHeight)
+  if (width == backbufferWidth && height == backbufferHeight)
   {
     return;
   }
@@ -644,8 +639,8 @@ void D3D11GraphicsDevice::UpdateWindowSize()
   backbuffer = nullptr;
   backbufferView = nullptr;
 
-  backbufferWidth = newWidth;
-  backbufferHeight = newHeight;
+  backbufferWidth = width;
+  backbufferHeight = height;
 
   swapChain->ResizeBuffers(
     2,

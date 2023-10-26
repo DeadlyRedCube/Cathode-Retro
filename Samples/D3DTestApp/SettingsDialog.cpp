@@ -332,6 +332,8 @@ private:
 
     return FALSE;
   }
+
+
   void UpdateDisplay()
   {
     SendDlgItemMessage(dialog, IDC_SIGNAL_TYPE, CB_SETCURSEL, WPARAM(EnumValue(*signalType)), 0);
@@ -388,6 +390,8 @@ private:
         SendDlgItemMessage(dialog, IDC_SCREEN_PRESET, CB_SETCURSEL, WPARAM(-1), 0);
       }
     }
+
+    SendMessage(GetParent(dialog), WM_SETTINGS_CHANGED, 0, 0);
   }
 
   void UpdateSliders()

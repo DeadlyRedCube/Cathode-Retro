@@ -54,6 +54,9 @@
     <ClCompile Include="WicTexture.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="D3DDemo.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
@@ -179,6 +182,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Include\CathodeRetro\Settings.h">
       <Filter>Headers\CathodeRetro</Filter>
+    </ClInclude>
+    <ClInclude Include="DemoHandler.h">
+      <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
