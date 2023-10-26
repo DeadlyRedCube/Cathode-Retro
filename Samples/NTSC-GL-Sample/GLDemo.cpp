@@ -63,7 +63,7 @@ public:
       0, 0,
     };
 
-    // Now create an OpenGL 3.3 context
+    // Create an OpenGL 3.3 context.
     wglContext = wglCreateContextAttribsARB(windowDC, nullptr, attribs);
     if (wglContext == nullptr)
     {
@@ -98,12 +98,16 @@ public:
 
     // Any time the backbuffer is resized we need to notify cathodeRetro.
     cathodeRetro->SetOutputSize(width, height);
+
+    // And we need a CathodeRetro::ITexture that represents the backbuffer to render to.
     backbuffer = std::make_unique<GLTexture>(GLTexture::FromBackbuffer(width, height));
   }
 
 
   std::unique_ptr<CathodeRetro::ITexture> CreateRGBATexture(uint32_t width, uint32_t height, uint32_t *rgbaData) override
   {
+    // Demo app loads in images where 0, 0 is the upper-left corner, but GL's images put 0,0 in the lower right, so we need to vertically
+    //  flip the image before creating the texture.
     std::vector<uint32_t> rgbaDataFlipped;
     rgbaDataFlipped.resize(width * height);
     for (size_t y = 0; y < height; y++)
@@ -122,7 +126,9 @@ public:
     CathodeRetro::ScanlineType scanlineType) override
   {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
     cathodeRetro->Render(currentFrame, prevFrame, scanlineType, backbuffer.get());
+
     SwapBuffers(windowDC);
   }
 
