@@ -13,6 +13,7 @@ class D3DDemoHandler : public IDemoHandler
 public:
   D3DDemoHandler(HWND hwnd)
   {
+    SetWindowTextW(hwnd, L"Cathode Retro D3D Demo");
     graphicsDevice = ID3D11GraphicsDevice::Create(hwnd);
   }
 
@@ -33,7 +34,6 @@ public:
     const CathodeRetro::ITexture *prevFrame,
     CathodeRetro::ScanlineType scanlineType) override
   {
-    graphicsDevice->ClearBackbuffer();
     cathodeRetro->Render(currentFrame, prevFrame, scanlineType, nullptr);
     graphicsDevice->Present();
   }

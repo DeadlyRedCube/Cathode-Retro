@@ -311,7 +311,7 @@ static void DoInit( HINSTANCE hInstance )
   wc.hCursor = LoadCursor( NULL, IDC_ARROW );
   wc.hbrBackground = CreateSolidBrush(0);
   wc.lpszMenuName = nullptr;
-  wc.lpszClassName = L"Cathode Retro D3D Test App";
+  wc.lpszClassName = L"Cathode Retro Test App";
   RegisterClass( &wc );
 
   RECT screenRect;
@@ -325,8 +325,8 @@ static void DoInit( HINSTANCE hInstance )
 
   hwnd = CreateWindowEx(
     0,
-    L"Cathode Retro D3D Test App",
-    L"Cathode Retro D3D Test App",
+    L"Cathode Retro Test App",
+    L"Cathode Retro Test App",
     WS_OVERLAPPEDWINDOW,
     0,
     0,

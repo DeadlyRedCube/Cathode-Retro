@@ -109,7 +109,7 @@ namespace CathodeRetro
           {
             {currentFrameRGBInput, SamplerType::LinearClamp},
             {previousFrameRGBInput, SamplerType::LinearClamp},
-            {screenTexture.get(), SamplerType::LinearClamp},
+            {screenTexture.get(), SamplerType::NearestClamp},
             {blurTexture.get(), SamplerType::LinearClamp},
           },
           rgbToScreenConstantBuffer.get());

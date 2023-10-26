@@ -177,38 +177,6 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// RT_RCDATA
-//
-
-IDR_BASIC_VERTEX_SHADER RT_RCDATA               "Generated\\cathode-retro-util-basic-vertex-shader.shad"
-
-IDR_RGB_TO_SVIDEO_OR_COMPOSITE RT_RCDATA        "Generated\\cathode-retro-generator-rgb-to-svideo-or-composite.shad"
-
-IDR_APPLY_ARTIFACTS     RT_RCDATA               "Generated\\cathode-retro-generator-apply-artifacts.shad"
-
-IDR_COMPOSITE_TO_SVIDEO RT_RCDATA               "Generated\\cathode-retro-decoder-composite-to-svideo.shad"
-
-IDR_SVIDEO_TO_RGB       RT_RCDATA               "Generated\\cathode-retro-decoder-svideo-to-rgb.shad"
-
-IDR_FILTER_RGB          RT_RCDATA               "Generated\\cathode-retro-decoder-filter-rgb.shad"
-
-IDR_GENERATE_SHADOW_MASK RT_RCDATA              "Generated\\cathode-retro-crt-generate-shadow-mask.shad"
-
-IDR_DOWNSAMPLE_2X       RT_RCDATA               "Generated\\cathode-retro-util-downsample-2x.shad"
-
-IDR_RGB_TO_CRT          RT_RCDATA               "Generated\\cathode-retro-crt-rgb-to-crt.shad"
-
-IDR_GENERATE_PHASE_TEXTURE RT_RCDATA            "Generated\\cathode-retro-generator-gen-phase.shad"
-
-IDR_GENERATE_SCREEN_TEXTURE RT_RCDATA           "Generated\\cathode-retro-crt-generate-screen-texture.shad"
-
-IDR_GAUSSIAN_BLUR_13    RT_RCDATA               "Generated\\cathode-retro-util-gaussian-blur.shad"
-
-IDR_TONEMAP_AND_DOWNSAMPLE RT_RCDATA            "Generated\\cathode-retro-util-tonemap-and-downsample.shad"
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // Menu
 //
 

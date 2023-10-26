@@ -341,15 +341,15 @@
     <ClInclude Include="..\..\Include\CathodeRetro\CathodeRetro.h" />
     <ClInclude Include="..\..\Include\CathodeRetro\SettingPresets.h" />
     <ClInclude Include="..\..\Include\CathodeRetro\Settings.h" />
+    <ClInclude Include="..\Common\ComPtr.h" />
     <ClInclude Include="..\Common\DemoHandler.h" />
-    <ClInclude Include="..\Common\resource.h" />
     <ClInclude Include="..\Common\SettingsDialog.h" />
     <ClInclude Include="..\Common\WicTexture.h" />
-    <ClInclude Include="ComPtr.h" />
     <ClInclude Include="D3D11GraphicsDevice.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\Common\Resource.rc" />
+    <ResourceCompile Include="Resource.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

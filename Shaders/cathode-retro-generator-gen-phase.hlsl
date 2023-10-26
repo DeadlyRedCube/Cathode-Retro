@@ -44,7 +44,7 @@ CBUFFER consts
 
 float4 Main(float2 texCoord)
 {
-  uint scanlineIndex = uint(round(texCoord.x * g_scanlineCount - 0.5));
+  uint scanlineIndex = uint(round(texCoord.y * g_scanlineCount - 0.5));
 
   // Calculate the phase for the start of the given scanline.
   float2 phases = float2(g_initialFrameStartPhase, g_prevFrameStartPhase) + g_phaseIncrementPerScanline * float(scanlineIndex);

@@ -210,7 +210,7 @@ private:
   ComPtr<ID3D11Buffer> vertexBuffer;
   ComPtr<ID3D11InputLayout> inputLayout;
 
-  ComPtr<ID3D11SamplerState> samplerStates[2];
+  ComPtr<ID3D11SamplerState> samplerStates[4];
   ComPtr<ID3D11RasterizerState> rasterizerState;
   ComPtr<ID3D11BlendState> blendState;
 
@@ -610,6 +610,32 @@ void D3D11GraphicsDevice::InitializeBuiltIns()
     desc.MinLOD = 0;
     desc.MaxLOD = D3D11_FLOAT32_MAX;
     CHECK_HRESULT(device->CreateSamplerState(&desc, samplerStates[EnumValue(SamplerType::LinearWrap)].AddressForReplace()), "create wrap sampler state");
+  }
+
+  {
+    D3D11_SAMPLER_DESC desc = {};
+    desc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+    desc.MaxAnisotropy = 16;
+    desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+    desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+    desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+    desc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+    desc.MinLOD = 0;
+    desc.MaxLOD = D3D11_FLOAT32_MAX;
+    CHECK_HRESULT(device->CreateSamplerState(&desc, samplerStates[EnumValue(SamplerType::NearestClamp)].AddressForReplace()), "create standard sampler state");
+  }
+
+  {
+    D3D11_SAMPLER_DESC desc = {};
+    desc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+    desc.MaxAnisotropy = 16;
+    desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+    desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+    desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+    desc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+    desc.MinLOD = 0;
+    desc.MaxLOD = D3D11_FLOAT32_MAX;
+    CHECK_HRESULT(device->CreateSamplerState(&desc, samplerStates[EnumValue(SamplerType::NearestWrap)].AddressForReplace()), "create wrap sampler state");
   }
 
   // Rasterizer/blend states!

@@ -67,7 +67,7 @@ namespace CathodeRetro
 
         if (phasesTexture == nullptr || phasesTexture->Format() != phasesFormat)
         {
-          phasesTexture = device->CreateRenderTarget(signalProps.scanlineCount, 1, 1, phasesFormat);
+          phasesTexture = device->CreateRenderTarget(1, signalProps.scanlineCount, 1, phasesFormat);
         }
 
         if (signalTexture == nullptr || signalTexture->Format() != signalFormat)
@@ -185,7 +185,7 @@ namespace CathodeRetro
         device->RenderQuad(
           rgbToSVideoShader.get(),
           signalTexture.get(),
-          {{rgbTexture, SamplerType::LinearClamp}, {phasesTexture.get(), SamplerType::LinearClamp}},
+          {{rgbTexture, SamplerType::LinearClamp}, {phasesTexture.get(), SamplerType::NearestClamp}},
           generateSignalConstantBuffer.get());
 
         levels.temporalArtifactReduction = artifactSettings.temporalArtifactReduction;

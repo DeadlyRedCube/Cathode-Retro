@@ -23,6 +23,6 @@
   void main()
   {
     gl_Position = vec4(aPos.x * 2.0 - 1.0, aPos.y * 2.0 - 1.0, 0.0, 1.0);
-    vsOutTexCoord = aPos.xy;
+    vsOutTexCoord = vec2(aPos.x, 1.0 - aPos.y);
   }
 #endif

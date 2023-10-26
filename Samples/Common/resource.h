@@ -2,21 +2,8 @@
 // Microsoft Visual C++ generated include file.
 // Used by Resource.rc
 //
-#define IDR_BASIC_VERTEX_SHADER         101
-#define IDR_RGB_TO_SVIDEO_OR_COMPOSITE  102
-#define IDR_APPLY_ARTIFACTS             103
-#define IDR_COMPOSITE_TO_SVIDEO         104
-#define IDR_SVIDEO_TO_RGB               105
-#define IDR_FILTER_RGB                  106
-#define IDR_GENERATE_SHADOW_MASK        107
-#define IDR_DOWNSAMPLE_2X               108
-#define IDR_RGB_TO_CRT                  109
-#define IDR_GENERATE_PHASE_TEXTURE      110
-#define IDR_GENERATE_SCREEN_TEXTURE     111
 #define IDD_DISPLAY_SETTINGS_DIALOG     112
 #define IDR_MAIN_MENU                   113
-#define IDR_GAUSSIAN_BLUR_13            114
-#define IDR_TONEMAP_AND_DOWNSAMPLE      115
 #define IDC_SIGNAL_TYPE                 1001
 #define IDC_SIGNAL_TIMING               1002
 #define IDC_ARTIFACT_PRESET             1003

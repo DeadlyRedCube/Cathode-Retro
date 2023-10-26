@@ -19,9 +19,27 @@
     <Filter Include="Header Files\CathodeRetro\Internal">
       <UniqueIdentifier>{ee534efa-ecd4-46eb-8a32-c16de797e3ce}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Demo Common">
+      <UniqueIdentifier>{ca4a114c-1e4d-4bf0-a3d3-bd646fb5cb55}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Demo Common">
+      <UniqueIdentifier>{20cfd82c-98a4-49c0-b00c-5a866e878d41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{c7280f34-b2f9-4fc4-b727-89b24d51beab}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp">
+    <ClCompile Include="..\Common\Main.cpp">
+      <Filter>Source Files\Demo Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\SettingsDialog.cpp">
+      <Filter>Source Files\Demo Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\WicTexture.cpp">
+      <Filter>Source Files\Demo Common</Filter>
+    </ClCompile>
+    <ClCompile Include="GLDemo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -62,5 +80,84 @@
     <ClInclude Include="..\..\Include\CathodeRetro\Internal\SignalProperties.h">
       <Filter>Header Files\CathodeRetro\Internal</Filter>
     </ClInclude>
+    <ClInclude Include="..\Common\DemoHandler.h">
+      <Filter>Header Files\Demo Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\resource.h">
+      <Filter>Header Files\Demo Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\SettingsDialog.h">
+      <Filter>Header Files\Demo Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\WicTexture.h">
+      <Filter>Header Files\Demo Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\ComPtr.h">
+      <Filter>Header Files\Demo Common</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\Common\Resource.rc">
+      <Filter>Source Files\Demo Common</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-crt-distort-coordinates.hlsli">
+      <Filter>Shaders</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-util-tracking-instability.hlsli">
+      <Filter>Shaders</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-crt-generate-screen-texture.hlsl">
+      <Filter>Shaders</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-crt-generate-shadow-mask.hlsl">
+      <Filter>Shaders</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-crt-rgb-to-crt.hlsl">
+      <Filter>Shaders</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-decoder-composite-to-svideo.hlsl">
+      <Filter>Shaders</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-decoder-filter-rgb.hlsl">
+      <Filter>Shaders</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-decoder-svideo-to-rgb.hlsl">
+      <Filter>Shaders</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-generator-apply-artifacts.hlsl">
+      <Filter>Shaders</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-generator-gen-phase.hlsl">
+      <Filter>Shaders</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-generator-rgb-to-svideo-or-composite.hlsl">
+      <Filter>Shaders</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-util-basic-vertex-shader.hlsl">
+      <Filter>Shaders</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-util-box-filter.hlsli">
+      <Filter>Shaders</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-util-downsample-2x.hlsl">
+      <Filter>Shaders</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-util-gaussian-blur.hlsl">
+      <Filter>Shaders</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-util-lanczos.hlsli">
+      <Filter>Shaders</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-util-language-helpers.hlsli">
+      <Filter>Shaders</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-util-noise.hlsli">
+      <Filter>Shaders</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-util-tonemap-and-downsample.hlsl">
+      <Filter>Shaders</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>

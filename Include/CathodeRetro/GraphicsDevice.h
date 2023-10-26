@@ -91,6 +91,8 @@ namespace CathodeRetro
   //  Mipmap sampling should always be either linear or anisotropic.
   enum class SamplerType
   {
+    NearestClamp,
+    NearestWrap,
     LinearClamp,
     LinearWrap,
   };

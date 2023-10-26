@@ -91,7 +91,7 @@ float4 Main(float2 signalTexCoord)
   float2 scanlinePhase = SAMPLE_TEXTURE(
     g_scanlinePhases,
     g_scanlinePhasesSampler,
-    (float2(signalTexelIndex.y + 0.5, 0.0) / g_scanlineCount)).xy;
+    (float2(0.0, signalTexelIndex.y + 0.5) / g_scanlineCount)).xy;
   float2 phase = scanlinePhase + signalTexelIndex.x / float(g_outputTexelsPerColorburstCycle);
 
   // Now we need to encode our IQ component in the carrier wave at the correct phase. This is QAM modulation.

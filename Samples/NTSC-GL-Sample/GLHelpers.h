@@ -336,9 +336,19 @@ std::string GetShaderText(std::filesystem::path path, std::vector<std::filesyste
 
 GLuint CompileShaderFromFile(GLenum shaderType, const char *pathStr)
 {
+  std::filesystem::path path = pathStr;
+  if (!path.is_absolute())
+  {
+    wchar_t moduleName[2048];
+    GetModuleFileName(nullptr, moduleName, 2048);
+
+    std::filesystem::path moduleFilePath = moduleName;
+    path = moduleFilePath.parent_path() / path;
+  }
+
   // Get the text of the shader (and an ordered list of all of the paths involved)
   std::vector<std::filesystem::path> knownPaths;
-  auto content = GetShaderText(std::filesystem::absolute(pathStr), knownPaths);
+  auto content = GetShaderText(path, knownPaths);
 
   // Create and compile!
   GLuint shaderHandle = glCreateShader(shaderType);

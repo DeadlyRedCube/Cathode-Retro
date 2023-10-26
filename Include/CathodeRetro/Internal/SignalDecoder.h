@@ -126,7 +126,7 @@ namespace CathodeRetro
           rgbTexture.get(),
           {
             {sVideoTexture, SamplerType::LinearClamp},
-            {inputPhases, SamplerType::LinearClamp},
+            {inputPhases, SamplerType::NearestClamp},
           },
           sVideoToRGBConstantBuffer.get());
       }

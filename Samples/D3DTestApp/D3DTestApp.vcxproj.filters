@@ -144,9 +144,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ComPtr.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
     <ClInclude Include="D3D11GraphicsDevice.h">
       <Filter>Headers</Filter>
     </ClInclude>
@@ -183,19 +180,22 @@
     <ClInclude Include="..\Common\DemoHandler.h">
       <Filter>Headers\Demo Common</Filter>
     </ClInclude>
-    <ClInclude Include="..\Common\resource.h">
-      <Filter>Headers\Demo Common</Filter>
-    </ClInclude>
     <ClInclude Include="..\Common\SettingsDialog.h">
       <Filter>Headers\Demo Common</Filter>
     </ClInclude>
     <ClInclude Include="..\Common\WicTexture.h">
       <Filter>Headers\Demo Common</Filter>
     </ClInclude>
+    <ClInclude Include="..\Common\ComPtr.h">
+      <Filter>Headers\Demo Common</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\Common\Resource.rc">
-      <Filter>Source\Demo Common</Filter>
+    <ResourceCompile Include="Resource.rc">
+      <Filter>Source</Filter>
     </ResourceCompile>
   </ItemGroup>
 </Project>

@@ -34,7 +34,7 @@ public:
 
   void Update(const void *dataIn, size_t dataSize) override
   {
-    assert(dataSize == size);
+    assert(dataSize <= size);
     // Copy the data that we wanted into our potentially-padded buffer
     memcpy(data.data(), dataIn, dataSize);
 
@@ -246,44 +246,8 @@ private:
 class GLGraphicsDevice : public CathodeRetro::IGraphicsDevice
 {
 public:
-  GLGraphicsDevice(HDC dcIn)
-    : dc(dcIn)
+  GLGraphicsDevice()
   {
-    // Start by setting up an intermediate context
-    context = wglCreateContext(dc);
-    if (context == nullptr)
-    {
-      throw std::exception("wglCreateContext failed");
-    }
-
-    if (!wglMakeCurrent(dc, context))
-    {
-      throw std::exception("wglMakeCurrent failed");
-    }
-
-    // Now that that's set, run InitializeGLHelpers which will load all of the GL 3.3 functions that we need to get this train rolling
-    InitializeGLHelpers();
-
-    // Now that that's done we can create our true context (With the correct ersion)
-    int attribs[] =
-    {
-      WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
-      WGL_CONTEXT_MINOR_VERSION_ARB, 3,
-      0, 0,
-    };
-
-    // Now create an OpenGL 3.3 context
-    context = wglCreateContextAttribsARB(dc, nullptr, attribs);
-    if (context == nullptr)
-    {
-      throw std::exception("wglCreateContext failed");
-    }
-
-    if (!wglMakeCurrent(dc, context))
-    {
-      throw std::exception("wglMakeCurrent failed");
-    }
-
     // With that done, we need to create our UV quad vertex buffer (just use two vertex triangles instead of springing for an index buffer)
     Vertex vertices[] =
     {
@@ -307,7 +271,7 @@ public:
     CheckGLError();
 
     // Finally compile the common vertex shader that every quad render uses.
-    vertexShaderHandle = CompileShaderFromFile(GL_VERTEX_SHADER, "Shaders/cathode-retro-util-basic-vertex-shader.hlsl");
+    vertexShaderHandle = CompileShaderFromFile(GL_VERTEX_SHADER, "Content/cathode-retro-util-basic-vertex-shader.hlsl");
   }
 
 
@@ -316,17 +280,6 @@ public:
     glDeleteShader(vertexShaderHandle);
     glDeleteVertexArrays(1, &vertexArrayObject);
     glDeleteBuffers(1, &vertexBufferObject);
-    wglDeleteContext(context);
-  }
-
-
-  std::unique_ptr<CathodeRetro::ITexture> CreateRenderTarget(
-    uint32_t width,
-    uint32_t height,
-    uint32_t mipCount, // 0 means "all mip levels"
-    CathodeRetro::TextureFormat format) override
-  {
-    return std::make_unique<GLTexture>(width, height, mipCount, format, true, nullptr);
   }
 
 
@@ -337,6 +290,19 @@ public:
     void *initialDataTexels)
   {
     return std::make_unique<GLTexture>(width, height, 1, format, false, initialDataTexels);
+  }
+
+
+  // CathodeRetro::IGraphicsDevice implementations //////////////////////////////////////////////////////////////////////////////////////
+
+
+  std::unique_ptr<CathodeRetro::ITexture> CreateRenderTarget(
+    uint32_t width,
+    uint32_t height,
+    uint32_t mipCount, // 0 means "all mip levels"
+    CathodeRetro::TextureFormat format) override
+  {
+    return std::make_unique<GLTexture>(width, height, mipCount, format, true, nullptr);
   }
 
 
@@ -360,22 +326,22 @@ public:
       // GL (pre 4.2) needs a mapping from uniform to binding, and so here we list the expected binding orders in order. It would have
       //  been nicer to iterate through them by querying the shader (which is possible) but naturally they show up in arbitrary orders,
       //  rather than the order that they were declared in the shader.
-      { .path = "Shaders/cathode-retro-util-downsample-2x.hlsl", .textureNames = { "g_sourceTexture" } },
-      { .path = "Shaders/cathode-retro-util-tonemap-and-downsample.hlsl", .textureNames = { "g_sourceTexture" } },
-      { .path = "Shaders/cathode-retro-util-gaussian-blur.hlsl", .textureNames = { "g_sourceTex" } },
+      { .path = "Content/cathode-retro-util-downsample-2x.hlsl", .textureNames = { "g_sourceTexture" } },
+      { .path = "Content/cathode-retro-util-tonemap-and-downsample.hlsl", .textureNames = { "g_sourceTexture" } },
+      { .path = "Content/cathode-retro-util-gaussian-blur.hlsl", .textureNames = { "g_sourceTex" } },
 
-      { .path = "Shaders/cathode-retro-generator-gen-phase.hlsl", .textureNames = {} },
-      { .path = "Shaders/cathode-retro-generator-rgb-to-svideo-or-composite.hlsl", .textureNames = { "g_sourceTexture", "g_scanlinePhases"} },
-      { .path = "Shaders/cathode-retro-generator-apply-artifacts.hlsl", .textureNames = { "g_sourceTexture" } },
+      { .path = "Content/cathode-retro-generator-gen-phase.hlsl", .textureNames = {} },
+      { .path = "Content/cathode-retro-generator-rgb-to-svideo-or-composite.hlsl", .textureNames = { "g_sourceTexture", "g_scanlinePhases"} },
+      { .path = "Content/cathode-retro-generator-apply-artifacts.hlsl", .textureNames = { "g_sourceTexture" } },
 
-      { .path = "Shaders/cathode-retro-decoder-composite-to-svideo.hlsl", .textureNames = { "g_sourceTexture" } },
-      { .path = "Shaders/cathode-retro-decoder-svideo-to-rgb.hlsl", .textureNames = { "g_sourceTexture", "g_scanlinePhases"} },
-      { .path = "Shaders/cathode-retro-decoder-filter-rgb.hlsl", .textureNames = { "g_sourceTexture" } },
+      { .path = "Content/cathode-retro-decoder-composite-to-svideo.hlsl", .textureNames = { "g_sourceTexture" } },
+      { .path = "Content/cathode-retro-decoder-svideo-to-rgb.hlsl", .textureNames = { "g_sourceTexture", "g_scanlinePhases"} },
+      { .path = "Content/cathode-retro-decoder-filter-rgb.hlsl", .textureNames = { "g_sourceTexture" } },
 
-      { .path = "Shaders/cathode-retro-crt-generate-screen-texture.hlsl", .textureNames = { "g_shadowMaskTexture" } },
-      { .path = "Shaders/cathode-retro-crt-generate-shadow-mask.hlsl", .textureNames = {} },
+      { .path = "Content/cathode-retro-crt-generate-screen-texture.hlsl", .textureNames = { "g_shadowMaskTexture" } },
+      { .path = "Content/cathode-retro-crt-generate-shadow-mask.hlsl", .textureNames = {} },
       {
-        .path = "Shaders/cathode-retro-crt-rgb-to-crt.hlsl",
+        .path = "Content/cathode-retro-crt-rgb-to-crt.hlsl",
         .textureNames =
         {
           "g_currentFrameTexture",
@@ -407,11 +373,6 @@ public:
 
   void BeginRendering() override
   {
-    if (!wglMakeCurrent(dc, context))
-    {
-      throw std::exception("wglMakeCurrent failed");
-    }
-
     // All of our quads use the same vertex array.
     glBindVertexArray(vertexArrayObject);
     CheckGLError();
@@ -466,6 +427,20 @@ public:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (input.texture->MipCount() == 1) ? GL_LINEAR : GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         break;
+
+      case CathodeRetro::SamplerType::NearestWrap:
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (input.texture->MipCount() == 1) ? GL_NEAREST: GL_NEAREST_MIPMAP_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        break;
+
+      case CathodeRetro::SamplerType::NearestClamp:
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (input.texture->MipCount() == 1) ? GL_NEAREST : GL_NEAREST_MIPMAP_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        break;
       }
 
       if (input.mipLevel >= 0)
@@ -500,9 +475,6 @@ public:
 
 
 private:
-  HDC dc;
-  HGLRC context;
-
   GLuint vertexBufferObject = 0;
   GLuint vertexArrayObject = 0;
   GLuint vertexShaderHandle = 0;

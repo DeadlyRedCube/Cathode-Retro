@@ -86,20 +86,23 @@
       <TreatWarningAsError>true</TreatWarningAsError>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
       <DisableSpecificWarnings>5105</DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>..\..\Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Include;.;..\Common</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;comctl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>windowscodecs.lib;opengl32.lib;comctl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableDpiAwareness>true</EnableDpiAwareness>
     </Manifest>
     <PreBuildEvent>
-      <Command>mkdir $(SolutionDir)$(Platform)\$(Configuration)\Shaders
-xcopy ..\..\Shaders $(SolutionDir)$(Platform)\$(Configuration)\Shaders /S /E /Y</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
+    <CopyFileToFolders>
+      <DestinationFolders>$(OutDir)Content</DestinationFolders>
+    </CopyFileToFolders>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -113,22 +116,25 @@ xcopy ..\..\Shaders $(SolutionDir)$(Platform)\$(Configuration)\Shaders /S /E /Y<
       <TreatWarningAsError>true</TreatWarningAsError>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
       <DisableSpecificWarnings>5105</DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>..\..\Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Include;.;..\Common</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;comctl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>windowscodecs.lib;opengl32.lib;comctl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableDpiAwareness>true</EnableDpiAwareness>
     </Manifest>
     <PreBuildEvent>
-      <Command>mkdir $(SolutionDir)$(Platform)\$(Configuration)\Shaders
-xcopy ..\..\Shaders $(SolutionDir)$(Platform)\$(Configuration)\Shaders /S /E /Y</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
+    <CopyFileToFolders>
+      <DestinationFolders>$(OutDir)Content</DestinationFolders>
+    </CopyFileToFolders>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -140,20 +146,23 @@ xcopy ..\..\Shaders $(SolutionDir)$(Platform)\$(Configuration)\Shaders /S /E /Y<
       <TreatWarningAsError>true</TreatWarningAsError>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
       <DisableSpecificWarnings>5105</DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>..\..\Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Include;.;..\Common</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;comctl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>windowscodecs.lib;opengl32.lib;comctl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableDpiAwareness>true</EnableDpiAwareness>
     </Manifest>
     <PreBuildEvent>
-      <Command>mkdir $(SolutionDir)$(Platform)\$(Configuration)\Shaders
-xcopy ..\..\Shaders $(SolutionDir)$(Platform)\$(Configuration)\Shaders /S /E /Y</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
+    <CopyFileToFolders>
+      <DestinationFolders>$(OutDir)Content</DestinationFolders>
+    </CopyFileToFolders>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -167,25 +176,31 @@ xcopy ..\..\Shaders $(SolutionDir)$(Platform)\$(Configuration)\Shaders /S /E /Y<
       <TreatWarningAsError>true</TreatWarningAsError>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
       <DisableSpecificWarnings>5105</DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>..\..\Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Include;.;..\Common</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;comctl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>windowscodecs.lib;opengl32.lib;comctl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableDpiAwareness>true</EnableDpiAwareness>
     </Manifest>
     <PreBuildEvent>
-      <Command>mkdir $(SolutionDir)$(Platform)\$(Configuration)\Shaders
-xcopy ..\..\Shaders $(SolutionDir)$(Platform)\$(Configuration)\Shaders /S /E /Y</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
+    <CopyFileToFolders>
+      <DestinationFolders>$(OutDir)Content</DestinationFolders>
+    </CopyFileToFolders>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="..\Common\Main.cpp" />
+    <ClCompile Include="..\Common\SettingsDialog.cpp" />
+    <ClCompile Include="..\Common\WicTexture.cpp" />
+    <ClCompile Include="GLDemo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Include\CathodeRetro\CathodeRetro.h" />
@@ -198,8 +213,96 @@ xcopy ..\..\Shaders $(SolutionDir)$(Platform)\$(Configuration)\Shaders /S /E /Y<
     <ClInclude Include="..\..\Include\CathodeRetro\Internal\SignalProperties.h" />
     <ClInclude Include="..\..\Include\CathodeRetro\SettingPresets.h" />
     <ClInclude Include="..\..\Include\CathodeRetro\Settings.h" />
+    <ClInclude Include="..\Common\ComPtr.h" />
+    <ClInclude Include="..\Common\DemoHandler.h" />
+    <ClInclude Include="..\Common\resource.h" />
+    <ClInclude Include="..\Common\SettingsDialog.h" />
+    <ClInclude Include="..\Common\WicTexture.h" />
     <ClInclude Include="GLGraphicsDevice.h" />
     <ClInclude Include="GLHelpers.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\Common\Resource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-crt-distort-coordinates.hlsli">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-util-box-filter.hlsli">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-util-lanczos.hlsli">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-util-language-helpers.hlsli">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-util-noise.hlsli">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-util-tracking-instability.hlsli">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-crt-generate-screen-texture.hlsl">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-crt-generate-shadow-mask.hlsl">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-crt-rgb-to-crt.hlsl">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-decoder-composite-to-svideo.hlsl">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-decoder-filter-rgb.hlsl">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-decoder-svideo-to-rgb.hlsl">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-generator-apply-artifacts.hlsl">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-generator-gen-phase.hlsl">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-generator-rgb-to-svideo-or-composite.hlsl">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-util-basic-vertex-shader.hlsl">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-util-downsample-2x.hlsl">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-util-gaussian-blur.hlsl">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-util-tonemap-and-downsample.hlsl">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
