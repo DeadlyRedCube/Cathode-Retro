@@ -121,6 +121,11 @@ namespace CathodeRetro
           signalGenerator->SignalProperties().inputPixelAspectRatio,
           overscanSettings,
           screenSettings);
+
+        if (outWidth != 0 && outHeight != 0)
+        {
+          rgbToCRT->SetOutputSize(outWidth, outHeight);
+        }
       }
       else
       {
@@ -131,6 +136,14 @@ namespace CathodeRetro
 
     void SetOutputSize(uint32_t outputWidth, uint32_t outputHeight)
     {
+      if (outputWidth == outWidth && outputHeight == outHeight)
+      {
+        return;
+      }
+
+      outWidth = outputWidth;
+      outHeight = outputHeight;
+
       rgbToCRT->SetOutputSize(outputWidth, outputHeight);
     }
 
@@ -168,8 +181,10 @@ namespace CathodeRetro
     IGraphicsDevice *device;
     SignalType signalType;
     SourceSettings cachedSourceSettings;
-    uint32_t inWidth;
-    uint32_t inHeight;
+    uint32_t inWidth = 0;
+    uint32_t inHeight = 0;
+    uint32_t outWidth = 0;
+    uint32_t outHeight = 0;
 
     std::unique_ptr<Internal::SignalGenerator> signalGenerator;
     std::unique_ptr<Internal::SignalDecoder> signalDecoder;
