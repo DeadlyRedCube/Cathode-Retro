@@ -45,17 +45,17 @@
     <ClCompile Include="D3D11GraphicsDevice.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Main.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="SettingsDialog.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="WicTexture.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="D3DDemo.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Main.cpp">
+      <Filter>Source\Demo Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\SettingsDialog.cpp">
+      <Filter>Source\Demo Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\WicTexture.cpp">
+      <Filter>Source\Demo Common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -76,6 +76,12 @@
     </Filter>
     <Filter Include="Shaders\Generated">
       <UniqueIdentifier>{60a883dc-944c-4f5b-bbe0-64d5ba28d3a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\Demo Common">
+      <UniqueIdentifier>{a3edf5dd-b2db-4500-bd17-977768f53624}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Demo Common">
+      <UniqueIdentifier>{538c88e8-141e-4fc8-9d32-23b1d3154360}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -141,15 +147,6 @@
     <ClInclude Include="ComPtr.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="WicTexture.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="SettingsDialog.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
     <ClInclude Include="D3D11GraphicsDevice.h">
       <Filter>Headers</Filter>
     </ClInclude>
@@ -183,13 +180,22 @@
     <ClInclude Include="..\..\Include\CathodeRetro\Settings.h">
       <Filter>Headers\CathodeRetro</Filter>
     </ClInclude>
-    <ClInclude Include="DemoHandler.h">
-      <Filter>Headers</Filter>
+    <ClInclude Include="..\Common\DemoHandler.h">
+      <Filter>Headers\Demo Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\resource.h">
+      <Filter>Headers\Demo Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\SettingsDialog.h">
+      <Filter>Headers\Demo Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\WicTexture.h">
+      <Filter>Headers\Demo Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Resource.rc">
-      <Filter>Source</Filter>
+    <ResourceCompile Include="..\Common\Resource.rc">
+      <Filter>Source\Demo Common</Filter>
     </ResourceCompile>
   </ItemGroup>
 </Project>

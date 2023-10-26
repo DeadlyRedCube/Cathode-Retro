@@ -90,7 +90,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>Default</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>..\..\Include;.</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Include;.;..\Common</AdditionalIncludeDirectories>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
       <DisableSpecificWarnings>5105</DisableSpecificWarnings>
     </ClCompile>
@@ -128,7 +128,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>Default</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>..\..\Include;.</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Include;.;..\Common</AdditionalIncludeDirectories>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
       <DisableSpecificWarnings>5105</DisableSpecificWarnings>
     </ClCompile>
@@ -160,7 +160,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>Default</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>..\..\Include;.</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Include;.;..\Common</AdditionalIncludeDirectories>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
       <DisableSpecificWarnings>5105</DisableSpecificWarnings>
     </ClCompile>
@@ -198,7 +198,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>Default</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>..\..\Include;.</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Include;.;..\Common</AdditionalIncludeDirectories>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
       <DisableSpecificWarnings>5105</DisableSpecificWarnings>
     </ClCompile>
@@ -223,11 +223,11 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\Common\Main.cpp" />
+    <ClCompile Include="..\Common\SettingsDialog.cpp" />
+    <ClCompile Include="..\Common\WicTexture.cpp" />
     <ClCompile Include="D3D11GraphicsDevice.cpp" />
     <ClCompile Include="D3DDemo.cpp" />
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="SettingsDialog.cpp" />
-    <ClCompile Include="WicTexture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\..\Shaders\cathode-retro-crt-generate-screen-texture.hlsl">
@@ -341,15 +341,15 @@
     <ClInclude Include="..\..\Include\CathodeRetro\CathodeRetro.h" />
     <ClInclude Include="..\..\Include\CathodeRetro\SettingPresets.h" />
     <ClInclude Include="..\..\Include\CathodeRetro\Settings.h" />
+    <ClInclude Include="..\Common\DemoHandler.h" />
+    <ClInclude Include="..\Common\resource.h" />
+    <ClInclude Include="..\Common\SettingsDialog.h" />
+    <ClInclude Include="..\Common\WicTexture.h" />
     <ClInclude Include="ComPtr.h" />
     <ClInclude Include="D3D11GraphicsDevice.h" />
-    <ClInclude Include="DemoHandler.h" />
-    <ClInclude Include="WicTexture.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="SettingsDialog.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Resource.rc" />
+    <ResourceCompile Include="..\Common\Resource.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
