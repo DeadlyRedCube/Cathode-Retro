@@ -164,7 +164,7 @@ float4 Main(float2 inTexCoord)
       // As pixelLengthInScanlineSpace gets larger (i.e. effective output resolution gets smaller) we want to ramp up the blurring
       //  dramatically to avoid moiré effects. There's no real mathematical basis for this algorithm, I just eyeballed a curve until I
       //  got something that looked good at 1080p and up and introduced minimal moiré (minimal meaning "it's not visible when the shadow
-      //  mask is also enabled).
+      //  mask is also enabled").
       float scale = pow(abs(pixelLengthInScanlineSpace), 2.6) * 7;
 
       float ya = scanlineSpaceY - scale;
