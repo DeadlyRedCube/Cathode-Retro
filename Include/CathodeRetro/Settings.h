@@ -22,6 +22,12 @@ namespace CathodeRetro
   };
 
 
+  enum class MaskType
+  {
+    SlotMask,
+    ApertureGrille,
+  };
+
   // This structure describes the properties of the hypothetical source "machine" that is generating the composite or S-Video signal.
   //  Specifically, it gives scanline timings and color-cycle-to-pixel ratios and phase offsets, as well as a display pixel ratio.
   struct SourceSettings
@@ -83,6 +89,8 @@ namespace CathodeRetro
   {
     bool operator==(const ScreenSettings &other) const { return memcmp(this, &other, sizeof(*this)) == 0; }
     bool operator!=(const ScreenSettings &other) const { return memcmp(this, &other, sizeof(*this)) != 0; }
+
+    MaskType maskType = MaskType::SlotMask;
 
     // How much to barrel distort our picture horizontally and vertically to emulate a curved screen
     float horizontalDistortion = 0.0f;

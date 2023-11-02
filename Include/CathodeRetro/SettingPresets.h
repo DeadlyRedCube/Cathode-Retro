@@ -176,6 +176,7 @@ namespace CathodeRetro
     {
       "Nothing At All",
       {
+        MaskType::SlotMask, // maskType
         0.0f,               // horizontalDistortion
         0.0f,               // verticalDistortion
         0.0f,               // screenEdgeRoundingX
@@ -191,6 +192,7 @@ namespace CathodeRetro
     {
       "Scanlines Only",
       {
+        MaskType::SlotMask, // maskType
         0.0f,               // horizontalDistortion
         0.0f,               // verticalDistortion
         0.0f,               // screenEdgeRoundingX
@@ -206,6 +208,7 @@ namespace CathodeRetro
     {
       "Flat CRT",
       {
+        MaskType::SlotMask, // maskType
         0.0f,               // horizontalDistortion
         0.0f,               // verticalDistortion
         0.0f,               // screenEdgeRoundingX
@@ -221,6 +224,7 @@ namespace CathodeRetro
     {
       "Flat CRT (No Scanlines)",
       {
+        MaskType::SlotMask, // maskType
         0.0f,               // horizontalDistortion
         0.0f,               // verticalDistortion
         0.0f,               // screenEdgeRoundingX
@@ -236,6 +240,7 @@ namespace CathodeRetro
     {
       "Standard CRT",
       {
+        MaskType::SlotMask, // maskType
         0.25f,              // horizontalDistortion
         0.15f,              // verticalDistortion
         0.0f,               // screenEdgeRoundingX
@@ -251,6 +256,7 @@ namespace CathodeRetro
     {
       "Standard CRT (No Scanlines)",
       {
+        MaskType::SlotMask, // maskType
         0.25f,              // horizontalDistortion
         0.15f,              // verticalDistortion
         0.0f,               // screenEdgeRoundingX
@@ -264,8 +270,41 @@ namespace CathodeRetro
       }
     },
     {
+      "Trin CRT",
+      {
+        MaskType::ApertureGrille, // maskType
+        0.15f,                    // horizontalDistortion
+        0.0f,                     // verticalDistortion
+        0.0f,                     // screenEdgeRoundingX
+        0.0f,                     // screenEdgeRoundingY
+        0.03f,                    // cornerRounding
+        1.2f,                     // shadowMaskScale
+        0.42f,                    // shadowMaskStrength
+        0.25f,                    // phosphorPersistence
+        0.4f,                     // scanlineStrength
+        0.5f,                     // diffusionStrength
+      }
+    },
+    {
+      "Trin CRT (No Scanlines)",
+      {
+        MaskType::ApertureGrille, // maskType
+        0.15f,                    // horizontalDistortion
+        0.0f,                     // verticalDistortion
+        0.0f,                     // screenEdgeRoundingX
+        0.0f,                     // screenEdgeRoundingY
+        0.03f,                    // cornerRounding
+        1.2f,                     // shadowMaskScale
+        0.85f,                    // shadowMaskStrength
+        0.25f,                    // phosphorPersistence
+        0.00f,                    // scanlineStrength
+        0.5f,                     // diffusionStrength
+      }
+    },
+    {
       "Old CRT",
       {
+        MaskType::SlotMask, // maskType
         0.35f,              // horizontalDistortion
         0.30f,              // verticalDistortion
         0.15f,              // screenEdgeRoundingX

@@ -38,6 +38,8 @@ namespace CathodeRetro
         downsample2XShader = device->CreateShader(ShaderID::Downsample2X);
         gaussianBlurShader = device->CreateShader(ShaderID::GaussianBlur13);
         toneMapShader = device->CreateShader(ShaderID::TonemapAndDownsample);
+        generateSlotMaskShader = device->CreateShader(ShaderID::GenerateSlotMask);
+        generateApertureGrilleShader = device->CreateShader(ShaderID::GenerateApertureGrille);
 
         screenTextureConstantBuffer = device->CreateConstantBuffer(sizeof(ScreenTextureConstants));
         rgbToScreenConstantBuffer = device->CreateConstantBuffer(sizeof(RGBToScreenConstants));
@@ -45,8 +47,14 @@ namespace CathodeRetro
         blurDownsampleConstantBuffer = device->CreateConstantBuffer(sizeof(Vec2));
         gaussianBlurConstantBufferH = device->CreateConstantBuffer(sizeof(GaussianBlurConstants));
         gaussianBlurConstantBufferV = device->CreateConstantBuffer(sizeof(GaussianBlurConstants));
+        generateMaskConstantBuffer = device->CreateConstantBuffer(sizeof(Vec2));
+        maskDownsampleConstantBufferH = device->CreateConstantBuffer(sizeof(Vec2));
+        maskDownsampleConstantBufferV = device->CreateConstantBuffer(sizeof(Vec2));
 
-        GenerateShadowMaskTexture();
+        maskTexture = device->CreateRenderTarget(k_maskSize, k_maskSize / 2, 0, TextureFormat::RGBA_Unorm8);
+        halfWidthMaskTexture = device->CreateRenderTarget(k_maskSize / 2, k_maskSize / 2, 0, TextureFormat::RGBA_Unorm8);
+
+        needsRenderMaskTexture = true;
         UpdateBlurTextures();
       }
 
@@ -55,14 +63,16 @@ namespace CathodeRetro
       {
         if (screen != screenSettings || overscan != overscanSettings)
         {
+          if (screen.maskType != screenSettings.maskType)
+          {
+            needsRenderMaskTexture = true;
+          }
+
           overscanSettings = overscan;
           screenSettings = screen;
 
           UpdateBlurTextures();
-          if (screenTexture != nullptr)
-          {
-            RenderScreenTexture();
-          }
+          needsRenderScreenTexture = true;
         }
       }
 
@@ -75,7 +85,7 @@ namespace CathodeRetro
         {
           // Rebuild the texture at the correct resolution
           screenTexture = device->CreateRenderTarget(outputWidth, outputHeight, 1, TextureFormat::RGBA_Unorm8);
-          RenderScreenTexture();
+          needsRenderScreenTexture = true;
         }
       }
 
@@ -83,6 +93,18 @@ namespace CathodeRetro
       void Render(const ITexture *currentFrameRGBInput, const ITexture *previousFrameRGBInput, ITexture *outputTexture, ScanlineType scanType)
       {
         assert(screenTexture != nullptr);
+
+        if (needsRenderMaskTexture)
+        {
+          RenderMaskTexture();
+          needsRenderMaskTexture = false;
+        }
+
+        if (needsRenderScreenTexture)
+        {
+          RenderScreenTexture();
+          needsRenderScreenTexture = false;
+        }
 
         rgbToScreenConstantBuffer->Update(
           RGBToScreenConstants{
@@ -118,6 +140,8 @@ namespace CathodeRetro
       }
 
     protected:
+      static constexpr uint32_t k_maskSize = 512;
+
       struct Vec2
       {
         float x;
@@ -258,18 +282,15 @@ namespace CathodeRetro
                               * 0.45f
                               / screenSettings.shadowMaskScale;
         data.shadowMaskScaleY = shadowMaskScaleNormalization / screenSettings.shadowMaskScale;
-
         data.screenAspect = aspectData.aspect;
-        device->BeginRendering();
 
         screenTextureConstantBuffer->Update(data);
 
         device->RenderQuad(
           generateScreenTextureShader.get(),
           screenTexture.get(),
-          {{shadowMaskTexture.get(), SamplerType::LinearWrap}},
+          {{maskTexture.get(), SamplerType::LinearWrap}},
           screenTextureConstantBuffer.get());
-        device->EndRendering();
       }
 
 
@@ -324,65 +345,45 @@ namespace CathodeRetro
 
 
       // Generate the shadow mask texture we use for the CRT emulation
-      void GenerateShadowMaskTexture()
+      void RenderMaskTexture()
       {
-        // $TODO this texture could be pre-made and the one being generated here is WAY overkill for how tiny it shows up on-screen, but it does look nice!
-        static constexpr uint32_t k_size = 512;
+        IShader *shader = nullptr;
+        switch (screenSettings.maskType)
+        {
+        case MaskType::ApertureGrille:
+          shader = generateApertureGrilleShader.get();
+          break;
 
-        shadowMaskTexture = device->CreateRenderTarget(k_size, k_size / 2, 0, TextureFormat::RGBA_Unorm8);
+        case MaskType::SlotMask:
+          shader = generateSlotMaskShader.get();
+          break;
+        }
 
         // First step is the generate the texture at the largest mip level
-        auto generateShadowMaskShader = device->CreateShader(ShaderID::GenerateShadowMask);
+        generateMaskConstantBuffer->Update(Vec2{ float(k_maskSize), float(k_maskSize / 2) });
+        device->RenderQuad(
+          shader,
+          maskTexture.get(),
+          {},
+          generateMaskConstantBuffer.get());
 
-        auto halfWidthTexture = device->CreateRenderTarget(k_size / 2, k_size / 2, 0, TextureFormat::RGBA_Unorm8);
-        struct GenerateShadowMaskConstants
+        // Now it's generated so we need to generate the mips by using our lanczos downsample
+        maskDownsampleConstantBufferH->Update(Vec2{ 1.0f, 0.0f });
+        maskDownsampleConstantBufferV->Update(Vec2{ 0.0f, 1.0f });
+        for (uint32_t destMip = 1; destMip < maskTexture->MipCount(); destMip++)
         {
-          float texWidth;
-          float texHeight;
-
-          float blackLevel;
-        };
-
-        auto constBuf = device->CreateConstantBuffer(sizeof(GenerateShadowMaskConstants));
-
-        auto downsampleHConstBuf = device->CreateConstantBuffer(sizeof(Vec2));
-        auto downsampleVConstBuf = device->CreateConstantBuffer(sizeof(Vec2));
-
-        device->BeginRendering();
-        {
-          constBuf->Update(
-            GenerateShadowMaskConstants {
-              float(k_size),
-              float(k_size / 2),
-              0.0,
-            });
-
-          downsampleHConstBuf->Update(Vec2{ 1.0f, 0.0f });
-          downsampleVConstBuf->Update(Vec2{ 0.0f, 1.0f });
+          device->RenderQuad(
+            downsample2XShader.get(),
+            {halfWidthMaskTexture.get(), destMip - 1},
+            {{maskTexture.get(), destMip - 1, SamplerType::LinearWrap}},
+            maskDownsampleConstantBufferH.get());
 
           device->RenderQuad(
-            generateShadowMaskShader.get(),
-            shadowMaskTexture.get(),
-            {},
-            constBuf.get());
-
-          // Now it's generated so we need to generate the mips by using our lanczos downsample
-          for (uint32_t destMip = 1; destMip < shadowMaskTexture->MipCount(); destMip++)
-          {
-            device->RenderQuad(
-              downsample2XShader.get(),
-              {halfWidthTexture.get(), destMip - 1},
-              {{shadowMaskTexture.get(), destMip - 1, SamplerType::LinearWrap}},
-              downsampleHConstBuf.get());
-
-            device->RenderQuad(
-              downsample2XShader.get(),
-              {shadowMaskTexture.get(), destMip},
-              {{halfWidthTexture.get(), destMip - 1, SamplerType::LinearWrap}},
-              downsampleVConstBuf.get());
-          }
+            downsample2XShader.get(),
+            {maskTexture.get(), destMip},
+            {{halfWidthMaskTexture.get(), destMip - 1, SamplerType::LinearWrap}},
+            maskDownsampleConstantBufferV.get());
         }
-        device->EndRendering();
       }
 
 
@@ -445,13 +446,20 @@ namespace CathodeRetro
       std::unique_ptr<IConstantBuffer> blurDownsampleConstantBuffer;
       std::unique_ptr<IConstantBuffer> gaussianBlurConstantBufferH;
       std::unique_ptr<IConstantBuffer> gaussianBlurConstantBufferV;
+      std::unique_ptr<IConstantBuffer> generateMaskConstantBuffer;
+      std::unique_ptr<IConstantBuffer> maskDownsampleConstantBufferH;
+      std::unique_ptr<IConstantBuffer> maskDownsampleConstantBufferV;
+
       std::unique_ptr<IShader> rgbToScreenShader;
       std::unique_ptr<IShader> downsample2XShader;
       std::unique_ptr<IShader> toneMapShader;
       std::unique_ptr<IShader> gaussianBlurShader;
       std::unique_ptr<IShader> generateScreenTextureShader;
+      std::unique_ptr<IShader> generateSlotMaskShader;
+      std::unique_ptr<IShader> generateApertureGrilleShader;
 
-      std::unique_ptr<ITexture> shadowMaskTexture;
+      std::unique_ptr<ITexture> maskTexture;
+      std::unique_ptr<ITexture> halfWidthMaskTexture;
       std::unique_ptr<ITexture> screenTexture;
 
       std::unique_ptr<ITexture> toneMapTexture;
@@ -460,7 +468,9 @@ namespace CathodeRetro
 
       ScreenSettings screenSettings;
       OverscanSettings overscanSettings;
-      bool screenSettingsDirty = false;
+      bool needsRenderScreenTexture = false;
+      bool needsRenderMaskTexture = false;
+
       ScanlineType prevScanlineType = ScanlineType::Progressive;
       float downsampleDirX;
       float downsampleDirY;

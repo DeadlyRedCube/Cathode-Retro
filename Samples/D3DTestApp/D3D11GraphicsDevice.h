@@ -240,7 +240,8 @@ public:
       case CathodeRetro::ShaderID::SVideoToRGB: resourceID = IDR_SVIDEO_TO_RGB; break;
       case CathodeRetro::ShaderID::FilterRGB: resourceID = IDR_FILTER_RGB; break;
       case CathodeRetro::ShaderID::GenerateScreenTexture: resourceID = IDR_GENERATE_SCREEN_TEXTURE; break;
-      case CathodeRetro::ShaderID::GenerateShadowMask: resourceID = IDR_GENERATE_SHADOW_MASK; break;
+      case CathodeRetro::ShaderID::GenerateSlotMask: resourceID = IDR_GENERATE_SLOT_MASK; break;
+      case CathodeRetro::ShaderID::GenerateApertureGrille: resourceID = IDR_GENERATE_APERTURE_GRILLE; break;
       case CathodeRetro::ShaderID::TonemapAndDownsample: resourceID = IDR_TONEMAP_AND_DOWNSAMPLE; break;
       case CathodeRetro::ShaderID::GaussianBlur13: resourceID = IDR_GAUSSIAN_BLUR_13; break;
       case CathodeRetro::ShaderID::RGBToCRT: resourceID = IDR_RGB_TO_CRT; break;

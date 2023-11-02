@@ -339,7 +339,8 @@ public:
       { .path = "Content/cathode-retro-decoder-filter-rgb.hlsl", .textureNames = { "g_sourceTexture" } },
 
       { .path = "Content/cathode-retro-crt-generate-screen-texture.hlsl", .textureNames = { "g_shadowMaskTexture" } },
-      { .path = "Content/cathode-retro-crt-generate-shadow-mask.hlsl", .textureNames = {} },
+      { .path = "Content/cathode-retro-crt-generate-slot-mask.hlsl", .textureNames = {} },
+      { .path = "Content/cathode-retro-crt-generate-aperture-grille.hlsl", .textureNames = {} },
       {
         .path = "Content/cathode-retro-crt-rgb-to-crt.hlsl",
         .textureNames =

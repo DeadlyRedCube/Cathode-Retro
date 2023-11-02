@@ -12,9 +12,6 @@ CBUFFER consts
   // The size of the render target we are rendering to.
   //  NOTE: It is expected that width == 2 * height.
   float2 g_texSize;
-
-  // The darkest output value in the shadow mask. 0 means the bits inbetween the R, G, and B values will be black.
-  float g_blackLevel;
 };
 
 
@@ -83,10 +80,6 @@ float4 Main(float2 inTexCoord)
   float mul = saturate(1.0 - smoothstep(1.0 - delta * 0.5, 1.0 + delta * 0.5, distance));
 
   color *= mul;
-
-  // Rescale the color so that instead of going from [0..1] it goes from [blackLevel..1]
-  color = color / (1.0 - g_blackLevel) + g_blackLevel;
-
   return float4(color, 1);
 }
 

@@ -16,7 +16,7 @@
     <FxCompile Include="..\..\Shaders\cathode-retro-crt-generate-screen-texture.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="..\..\Shaders\cathode-retro-crt-generate-shadow-mask.hlsl">
+    <FxCompile Include="..\..\Shaders\cathode-retro-crt-generate-slot-mask.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="..\..\Shaders\cathode-retro-crt-rgb-to-crt.hlsl">
@@ -38,6 +38,9 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="..\..\Shaders\cathode-retro-generator-rgb-to-svideo-or-composite.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Shaders\cathode-retro-crt-generate-aperture-grille.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

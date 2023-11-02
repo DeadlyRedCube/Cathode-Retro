@@ -111,9 +111,6 @@
     <CopyFileToFolders Include="..\..\Shaders\cathode-retro-crt-generate-screen-texture.hlsl">
       <Filter>Shaders</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-crt-generate-shadow-mask.hlsl">
-      <Filter>Shaders</Filter>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="..\..\Shaders\cathode-retro-crt-rgb-to-crt.hlsl">
       <Filter>Shaders</Filter>
     </CopyFileToFolders>
@@ -157,6 +154,12 @@
       <Filter>Shaders</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="..\..\Shaders\cathode-retro-util-tonemap-and-downsample.hlsl">
+      <Filter>Shaders</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-crt-generate-aperture-grille.hlsl">
+      <Filter>Shaders</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-crt-generate-slot-mask.hlsl">
       <Filter>Shaders</Filter>
     </CopyFileToFolders>
   </ItemGroup>

@@ -255,10 +255,6 @@
       <DeploymentContent>true</DeploymentContent>
       <FileType>Document</FileType>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-crt-generate-shadow-mask.hlsl">
-      <DeploymentContent>true</DeploymentContent>
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="..\..\Shaders\cathode-retro-crt-rgb-to-crt.hlsl">
       <DeploymentContent>true</DeploymentContent>
       <FileType>Document</FileType>
@@ -301,6 +297,17 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="..\..\Shaders\cathode-retro-util-tonemap-and-downsample.hlsl">
       <DeploymentContent>true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-crt-generate-aperture-grille.hlsl">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-crt-generate-slot-mask.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
   </ItemGroup>
