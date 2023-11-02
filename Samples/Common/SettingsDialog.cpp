@@ -586,20 +586,20 @@ private:
       32U,
       32,
       [this]() { UpdateDisplay(); }};
-    shadowMaskScaleSlider = {
+    maskScaleSlider = {
       dialog,
-      IDC_SHADOW_MASK_SCALE_SLIDER,
-      IDC_SHADOW_MASK_SCALE_LABEL,
-      &screenSettings->shadowMaskScale,
+      IDC_MASK_SCALE_SLIDER,
+      IDC_MASK_SCALE_LABEL,
+      &screenSettings->maskScale,
       0.8f,
       2.0f,
       45,
       [this]() { UpdateDisplay(); }};
-    shadowMaskStrengthSlider = {
+    maskStrengthSlider = {
       dialog,
-      IDC_SHADOW_MASK_STRENGTH_SLIDER,
-      IDC_SHADOW_MASK_STRENGTH_LABEL,
-      &screenSettings->shadowMaskStrength,
+      IDC_MASK_STRENGTH_SLIDER,
+      IDC_MASK_STRENGTH_LABEL,
+      &screenSettings->maskStrength,
       0.0f,
       1.0f,
       20,
@@ -670,8 +670,8 @@ private:
   Slider<uint32_t> overscanRightSlider;
   Slider<uint32_t> overscanTopSlider;
   Slider<uint32_t> overscanBottomSlider;
-  Slider<float> shadowMaskScaleSlider;
-  Slider<float> shadowMaskStrengthSlider;
+  Slider<float> maskScaleSlider;
+  Slider<float> maskStrengthSlider;
   Slider<float> scanlineStrengthSlider;
   Slider<float> phosphorPersistenceSlider;
   Slider<float> diffusionSlider;

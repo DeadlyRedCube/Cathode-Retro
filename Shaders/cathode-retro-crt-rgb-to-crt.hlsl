@@ -19,7 +19,7 @@ DECLARE_TEXTURE2D(g_currentFrameTexture, g_currentFrameSampler);
 // This sampler should be set up with linear texture sampling and should be set to clamp the textures involved (no wrapping).
 DECLARE_TEXTURE2D(g_previousFrameTexture, g_previousFrameSampler);
 
-// This texture is the output of the GenerateScreenTexture shader, containing the (scaled, tiled, and antialiased) shadow mask texture in
+// This texture is the output of the GenerateScreenTexture shader, containing the (scaled, tiled, and antialiased) mask texture in
 //  the rgb channels and the edge-of-screen mask value in the alpha channel. It is expected to have been generated at our output resolution
 //  (i.e. it's 1:1 pixels with our output render target)
 // This sampler should be set up with linear texture sampling and should be set to clamp the textures involved (no wrapping).
@@ -93,8 +93,8 @@ CBUFFER consts
   //  in the glass on the front of the CRT - 0 means "no diffusion" and 1 means "a whole lot of diffusion".
   float  g_diffusionStrength;
 
-  // How much we want to blend in the shadow mask. 0 means "shadow mask is not visible" and 1 means "shadow mask is fully visible"
-  float  g_shadowMaskStrength;
+  // How much we want to blend in the mask. 0 means "mask is not visible" and 1 means "mask is fully visible"
+  float  g_maskStrength;
 };
 
 
@@ -163,8 +163,8 @@ float4 Main(float2 inTexCoord)
 
       // As pixelLengthInScanlineSpace gets larger (i.e. effective output resolution gets smaller) we want to ramp up the blurring
       //  dramatically to avoid moiré effects. There's no real mathematical basis for this algorithm, I just eyeballed a curve until I
-      //  got something that looked good at 1080p and up and introduced minimal moiré (minimal meaning "it's not visible when the shadow
-      //  mask is also enabled").
+      //  got something that looked good at 1080p and up and introduced minimal moiré (minimal meaning "it's not visible when the mask is
+      //  also enabled").
       float scale = pow(abs(pixelLengthInScanlineSpace), 2.6) * 7;
 
       float ya = scanlineSpaceY - scale;
@@ -198,8 +198,8 @@ float4 Main(float2 inTexCoord)
 
   // Time to put it all together: first, by applying the screen mask (i.e. the shadow mask/aperture grill, etc)...
   // $TODO: Figure out why this 0.15 is here - I'm sure it's some eyeballed "this looks good" value, but it would be nice to document
-  //  why, specifically, if possible. Or maybe expose it as "Shadow map bias" or something.
-  float3 res = sourceColor * ((screenMask.rgb - 0.15) * g_shadowMaskStrength + 1.0);
+  //  why, specifically, if possible. Or maybe expose it as "mask bias" or something.
+  float3 res = sourceColor * ((screenMask.rgb - 0.15) * g_maskStrength + 1.0);
 
   // ... then bringing in some diffusion on top (This isn't physically accurate (it should really be a lerp between res and diffusionColor)
   //  but doing it this way preserves the brightness and still looks reasonable, especially when displaying bright things on a dark

@@ -118,7 +118,7 @@ namespace CathodeRetro
             (scanType != ScanlineType::Even) ? 0.5f : -0.5f,
             (prevScanlineType != ScanlineType::Even) ? 0.5f : -0.5f,
             screenSettings.diffusionStrength,
-            screenSettings.shadowMaskStrength,
+            screenSettings.maskStrength,
           });
 
         if (screenSettings.diffusionStrength > 0.0f)
@@ -178,8 +178,8 @@ namespace CathodeRetro
         float maskDistortionX;        // Where to put the mask sides
         float maskDistortionY;        // ...
 
-        float shadowMaskScaleX;       // Scale of the shadow mask texture lookup
-        float shadowMaskScaleY;       // Scale of the shadow mask texture lookup
+        float maskScaleX;             // Scale of the mask texture lookup
+        float maskScaleY;             // Scale of the mask texture lookup
 
         float screenAspect;
 
@@ -196,7 +196,7 @@ namespace CathodeRetro
         float curEvenOddTexelOffset;  // This is 0.5 if it's an odd frame (or progressive) and -0.5 if it's even.
         float prevEvenOddTexelOffset; // This is 0.5 if it's an odd frame (or progressive) and -0.5 if it's even.
         float diffusionStrength;      // The strength of the diffusion blur that is blended into the signal.
-        float shadowMaskStrength;     // How much to blend the shadow mask in. 0 means "no shadow mask" and 1 means "fully apply"
+        float maskStrength;           // How much to blend the mask in. 0 means "no mask" and 1 means "fully apply"
       };
 
 
@@ -273,21 +273,21 @@ namespace CathodeRetro
         data.maskDistortionY = screenSettings.screenEdgeRoundingY * 0.5f;
         data.roundedCornerSize = screenSettings.cornerRounding;
 
-        // The values for shadowMaskScale were initially normalized against a 240-pixel-tall screen so just pretend it's ALWAYS that height
-        //  for purposes of scaling the shadow mask.
-        static constexpr float shadowMaskScaleNormalization = 240.0f * 0.7f;
+        // The values for maskScale were initially normalized against a 240-line-tall screen so just pretend it's ALWAYS that height
+        //  for purposes of scaling the mask.
+        static constexpr float maskScaleNormalization = 240.0f * 0.7f;
 
-        data.shadowMaskScaleX = float (inputImageWidth) / float(scanlineCount)
-                              * pixelAspect
-                              * shadowMaskScaleNormalization
-                              * 0.45f
-                              / screenSettings.shadowMaskScale;
-        data.shadowMaskScaleY = shadowMaskScaleNormalization / screenSettings.shadowMaskScale;
+        data.maskScaleX = float (inputImageWidth) / float(scanlineCount)
+                          * pixelAspect
+                          * maskScaleNormalization
+                          * 0.45f
+                          / screenSettings.maskScale;
+        data.maskScaleY = maskScaleNormalization / screenSettings.maskScale;
 
         if (screenSettings.maskType == MaskType::ShadowMask)
         {
-          data.shadowMaskScaleX /= 2.0f * 5.0f / 6.0f;
-          data.shadowMaskScaleY /= 2.0f;
+          data.maskScaleX /= 2.0f * 5.0f / 6.0f;
+          data.maskScaleY /= 2.0f;
         }
 
         data.screenAspect = aspectData.aspect;
@@ -352,7 +352,7 @@ namespace CathodeRetro
       }
 
 
-      // Generate the shadow mask texture we use for the CRT emulation
+      // Generate the mask texture we use for the CRT emulation
       void RenderMaskTexture()
       {
         IShader *shader = nullptr;

@@ -7,10 +7,10 @@
 #include "cathode-retro-crt-distort-coordinates.hlsli"
 #include "cathode-retro-util-noise.hlsli"
 
-// The shadow mask texture for the CRT. That is, if you think of an old CRT and how you could see the
+// The mask texture for the CRT. That is, if you think of an old CRT and how you could see the
 //  R, G, and B dots, this is that texture. Needs to be set up to wrap, as well as to have mip mapping (and, ideally, anisotropic
 //  filtering too, if rendering as a curved screen, to help with sharpness and aliasing).
-DECLARE_TEXTURE2D(g_shadowMaskTexture, g_sampler);
+DECLARE_TEXTURE2D(g_maskTexture, g_sampler);
 
 // This is a 64-tap poisson disc filter, found here:
 //  https://www.geeks3d.com/20100628/3d-programming-ready-to-use-64-sample-poisson-disc/CONST int k_samplePointCount = 64;
@@ -122,8 +122,8 @@ CBUFFER consts
   //  picture, this can be applied by adding additional value to this.
   float2 g_maskDistortion;
 
-  // The scale of the shadow mask texture. Higher value means the coordinates are scaled more and, thus, the shadow mask is smaller.
-  float2 g_shadowMaskScale;
+  // The scale of the mask texture. Higher value means the coordinates are scaled more and, thus, the shadow mask is smaller.
+  float2 g_maskScale;
 
   // The dimensions of the source texture (used for aspect correction
   float g_aspect;
@@ -175,8 +175,8 @@ float4 Main(float2 inTexCoord)
     maskAlpha = 0.0;
   }
 
-  // Now supersample the shadow mask texture with a mip-map bias to make it sharper. The supersampling will help counteract the bias and
-  //  give us a sharp shadow mask with minimal-to-no aliasing.
+  // Now supersample the mask texture with a mip-map bias to make it sharper. The supersampling will help counteract the bias and
+  //  give us a sharp mask with minimal-to-no aliasing.
   float angle = Noise2D(t * 1000, 10.0) * 6.28318531;
   float2 rotX = float2(sin(angle), cos(angle)) * 1.414;
   float2 rotY = float2(-rotX.y, rotX.x);
@@ -187,15 +187,15 @@ float4 Main(float2 inTexCoord)
   for (int i = 0; i < k_samplePointCount; i++)
   {
     color += SAMPLE_TEXTURE_BIAS(
-      g_shadowMaskTexture,
+      g_maskTexture,
       g_sampler,
-      (t + k_samplingPattern[i].x * dxT + k_samplingPattern[i].y * dyT) * g_shadowMaskScale,
+      (t + k_samplingPattern[i].x * dxT + k_samplingPattern[i].y * dyT) * g_maskScale,
       -2).rgb;
   }
 
   color /= float(k_samplePointCount);
 
-  // Our final texture contains the rgb value from the shadow mask, as well as the mask value in the alpha channel.
+  // Our final texture contains the rgb value from the mask, as well as the mask value in the alpha channel.
   //  Note that the color channel has not been premultiplied with the mask.
   return float4(color, maskAlpha);
 }

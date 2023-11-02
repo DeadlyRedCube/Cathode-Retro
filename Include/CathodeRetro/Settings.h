@@ -85,13 +85,11 @@ namespace CathodeRetro
 
 
   // These settings describe the screen properties of the virtual CRT TV that is displaying the image: things like how curved is the screen
-  //  and the appearance of the shadow mask and scanlines.
+  //  and the appearance of the mask and scanlines.
   struct ScreenSettings
   {
     bool operator==(const ScreenSettings &other) const { return memcmp(this, &other, sizeof(*this)) == 0; }
     bool operator!=(const ScreenSettings &other) const { return memcmp(this, &other, sizeof(*this)) != 0; }
-
-    MaskType maskType = MaskType::SlotMask;
 
     // How much to barrel distort our picture horizontally and vertically to emulate a curved screen
     float horizontalDistortion = 0.0f;
@@ -104,9 +102,10 @@ namespace CathodeRetro
     // How much to round the corners (to emulate an old TV with rounded corners)
     float cornerRounding = 0.0f;
 
-    // How much the shadow mask affects the output (both its scale and its strength)
-    float shadowMaskScale = 1.0f;
-    float shadowMaskStrength = 0.0f;
+    // What type of mask, as well as how much the mask affects the output (both its scale and its strength)
+    MaskType maskType = MaskType::SlotMask;
+    float maskScale = 1.0f;
+    float maskStrength = 0.0f;
 
     // How much of the previous frame to keep around on the next frame.
     float phosphorPersistence = 0.0f;

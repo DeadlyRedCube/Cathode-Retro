@@ -176,14 +176,14 @@ namespace CathodeRetro
     {
       "Nothing At All",
       {
-        MaskType::SlotMask,       // maskType
         0.0f,                     // horizontalDistortion
         0.0f,                     // verticalDistortion
         0.0f,                     // screenEdgeRoundingX
         0.0f,                     // screenEdgeRoundingY
         0.0f,                     // cornerRounding
-        1.0f,                     // shadowMaskScale
-        0.0f,                     // shadowMaskStrength
+        MaskType::SlotMask,       // maskType
+        1.0f,                     // maskScale
+        0.0f,                     // maskStrength
         0.0f,                     // phosphorPersistence
         0.0f,                     // scanlineStrength
         0.0f,                     // diffusionStrength
@@ -192,14 +192,14 @@ namespace CathodeRetro
     {
       "Scanlines Only",
       {
-        MaskType::SlotMask,       // maskType
         0.0f,                     // horizontalDistortion
         0.0f,                     // verticalDistortion
         0.0f,                     // screenEdgeRoundingX
         0.0f,                     // screenEdgeRoundingY
         0.0f,                     // cornerRounding
-        1.0f,                     // shadowMaskScale
-        0.0f,                     // shadowMaskStrength
+        MaskType::SlotMask,       // maskType
+        1.0f,                     // maskScale
+        0.0f,                     // maskStrength
         0.25f,                    // phosphorPersistence
         0.47f,                    // scanlineStrength
         0.0f,                     // diffusionStrength
@@ -208,14 +208,14 @@ namespace CathodeRetro
     {
       "Flat CRT",
       {
-        MaskType::SlotMask,       // maskType
         0.0f,                     // horizontalDistortion
         0.0f,                     // verticalDistortion
         0.0f,                     // screenEdgeRoundingX
         0.0f,                     // screenEdgeRoundingY
         0.0f,                     // cornerRounding
-        1.2f,                     // shadowMaskScale
-        0.42f,                    // shadowMaskStrength
+        MaskType::SlotMask,       // maskType
+        1.2f,                     // maskScale
+        0.42f,                    // maskStrength
         0.25f,                    // phosphorPersistence
         0.4f,                     // scanlineStrength
         0.5f,                     // diffusionStrength
@@ -224,14 +224,14 @@ namespace CathodeRetro
     {
       "Flat CRT (No Scanlines)",
       {
-        MaskType::SlotMask,       // maskType
         0.0f,                     // horizontalDistortion
         0.0f,                     // verticalDistortion
         0.0f,                     // screenEdgeRoundingX
         0.0f,                     // screenEdgeRoundingY
         0.0f,                     // cornerRounding
-        1.2f,                     // shadowMaskScale
-        0.85f,                    // shadowMaskStrength
+        MaskType::SlotMask,       // maskType
+        1.2f,                     // maskScale
+        0.85f,                    // maskStrength
         0.25f,                    // phosphorPersistence
         0.0f,                     // scanlineStrength
         0.5f,                     // diffusionStrength
@@ -240,14 +240,14 @@ namespace CathodeRetro
     {
       "Standard CRT",
       {
-        MaskType::SlotMask,       // maskType
         0.25f,                    // horizontalDistortion
         0.15f,                    // verticalDistortion
         0.0f,                     // screenEdgeRoundingX
         0.0f,                     // screenEdgeRoundingY
         0.03f,                    // cornerRounding
-        1.2f,                     // shadowMaskScale
-        0.42f,                    // shadowMaskStrength
+        MaskType::SlotMask,       // maskType
+        1.2f,                     // maskScale
+        0.42f,                    // maskStrength
         0.25f,                    // phosphorPersistence
         0.4f,                     // scanlineStrength
         0.5f,                     // diffusionStrength
@@ -256,14 +256,14 @@ namespace CathodeRetro
     {
       "Standard CRT (No Scanlines)",
       {
-        MaskType::SlotMask,       // maskType
         0.25f,                    // horizontalDistortion
         0.15f,                    // verticalDistortion
         0.0f,                     // screenEdgeRoundingX
         0.0f,                     // screenEdgeRoundingY
         0.03f,                    // cornerRounding
-        1.2f,                     // shadowMaskScale
-        0.85f,                    // shadowMaskStrength
+        MaskType::SlotMask,       // maskType
+        1.2f,                     // maskScale
+        0.85f,                    // maskStrength
         0.25f,                    // phosphorPersistence
         0.00f,                    // scanlineStrength
         0.5f,                     // diffusionStrength
@@ -272,14 +272,14 @@ namespace CathodeRetro
     {
       "Trin CRT",
       {
-        MaskType::ApertureGrille, // maskType
         0.15f,                    // horizontalDistortion
         0.0f,                     // verticalDistortion
         0.0f,                     // screenEdgeRoundingX
         0.0f,                     // screenEdgeRoundingY
         0.03f,                    // cornerRounding
-        1.2f,                     // shadowMaskScale
-        0.42f,                    // shadowMaskStrength
+        MaskType::ApertureGrille, // maskType
+        1.2f,                     // maskScale
+        0.42f,                    // maskStrength
         0.25f,                    // phosphorPersistence
         0.4f,                     // scanlineStrength
         0.5f,                     // diffusionStrength
@@ -288,14 +288,14 @@ namespace CathodeRetro
     {
       "Trin CRT (No Scanlines)",
       {
-        MaskType::ApertureGrille, // maskType
         0.15f,                    // horizontalDistortion
         0.0f,                     // verticalDistortion
         0.0f,                     // screenEdgeRoundingX
         0.0f,                     // screenEdgeRoundingY
         0.03f,                    // cornerRounding
-        1.2f,                     // shadowMaskScale
-        0.85f,                    // shadowMaskStrength
+        MaskType::ApertureGrille, // maskType
+        1.2f,                     // maskScale
+        0.85f,                    // maskStrength
         0.25f,                    // phosphorPersistence
         0.00f,                    // scanlineStrength
         0.5f,                     // diffusionStrength
@@ -304,14 +304,14 @@ namespace CathodeRetro
     {
       "Old CRT",
       {
-        MaskType::ShadowMask,     // maskType
         0.35f,                    // horizontalDistortion
         0.30f,                    // verticalDistortion
         0.15f,                    // screenEdgeRoundingX
         0.10f,                    // screenEdgeRoundingY
         0.12f,                    // cornerRounding
-        1.15f,                    // shadowMaskScale
-        0.3f,                     // shadowMaskStrength
+        MaskType::ShadowMask,     // maskType
+        1.15f,                    // maskScale
+        0.3f,                     // maskStrength
         0.25f,                    // phosphorPersistence
         0.4f,                     // scanlineStrength
         0.7f,                     // diffusionStrength
