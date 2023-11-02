@@ -236,8 +236,8 @@ namespace CathodeRetro
     {
       "Standard CRT",
       {
-        0.35f,              // horizontalDistortion
-        0.25f,              // verticalDistortion
+        0.25f,              // horizontalDistortion
+        0.15f,              // verticalDistortion
         0.0f,               // screenEdgeRoundingX
         0.0f,               // screenEdgeRoundingY
         0.03f,              // cornerRounding
@@ -251,8 +251,8 @@ namespace CathodeRetro
     {
       "Standard CRT (No Scanlines)",
       {
-        0.35f,              // horizontalDistortion
-        0.25f,              // verticalDistortion
+        0.25f,              // horizontalDistortion
+        0.15f,              // verticalDistortion
         0.0f,               // screenEdgeRoundingX
         0.0f,               // screenEdgeRoundingY
         0.03f,              // cornerRounding
@@ -264,7 +264,7 @@ namespace CathodeRetro
       }
     },
     {
-      "Old (but somehow widescreen) CRT",
+      "Old CRT",
       {
         0.35f,              // horizontalDistortion
         0.30f,              // verticalDistortion
