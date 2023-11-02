@@ -228,8 +228,9 @@ namespace CathodeRetro
           data.viewScaleY = float(screenTexture->Height()) / desiredHeight;
         }
 
-        data.distortionX = screenSettings.horizontalDistortion;
-        data.distortionY = screenSettings.verticalDistortion;
+        // Taking the square root of the distortion gives us a little more change at smaller values.
+        data.distortionX = std::sqrt(screenSettings.horizontalDistortion);
+        data.distortionY = std::sqrt(screenSettings.verticalDistortion);
 
         return data;
       }
@@ -243,8 +244,8 @@ namespace CathodeRetro
 
         auto aspectData = CalculateAspectData();
         data.common = CalculateCommonConstants(aspectData);
-        data.maskDistortionX = screenSettings.screenEdgeRoundingX + data.common.distortionX;
-        data.maskDistortionY = screenSettings.screenEdgeRoundingY + data.common.distortionY;
+        data.maskDistortionX = screenSettings.screenEdgeRoundingX * 0.5f;
+        data.maskDistortionY = screenSettings.screenEdgeRoundingY * 0.5f;
         data.roundedCornerSize = screenSettings.cornerRounding;
 
         // The values for shadowMaskScale were initially normalized against a 240-pixel-tall screen so just pretend it's ALWAYS that height

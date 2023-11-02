@@ -141,15 +141,18 @@ float4 Main(float2 inTexCoord)
 {
   uint2 pixelCoord8k = uint2(round(inTexCoord * float2(7680, 4320)));
 
-  // First thing we want to do is scale our input texture coordinate to be in [-1..1] instead of [0..1]
-  inTexCoord = inTexCoord * 2 - 1;
+  // First thing we want to do is scale our input texture coordinate to be in [-1..1] instead of [0..1] and adjust for
+  float2 scaledTexCoord = (inTexCoord * 2 - 1) * g_viewScale;
+
+  // Distort these coordinates to get the -1..1 screen area:
+  float2 t = DistortCRTCoordinates(scaledTexCoord, g_distortion);
 
   // Calculate a separate set of distorted coordinates, this for the outer mask (which determines the masking off of extra-rounded screen
   //  edges).
-  float2 maskT = DistortCRTCoordinates(inTexCoord * g_viewScale, g_maskDistortion);
+  float2 maskT = DistortCRTCoordinates(t, g_maskDistortion.yx);
 
-  // Now distort our actual texture coordinates to get our texture into the correct space for display.
-  float2 t = DistortCRTCoordinates(inTexCoord * g_viewScale, g_distortion) * g_overscanScale + g_overscanOffset * 2.0;
+  // Adjust for overscan
+  t = t * g_overscanScale + g_overscanOffset * 2.0;
 
   // Calculate the signed distance to the edge of the "screen" taking the rounded corners into account. This will be used to generate the
   //  mask around the edges of the "screen" where we draw a dark color.
@@ -164,9 +167,13 @@ float4 Main(float2 inTexCoord)
     edgeDist = min(max(q.x, q.y), 0.0) + length(max(q, 0.0)) - g_roundedCornerSize;
   }
 
-  // Use our signed distacce to edge of screen along with the ddx/ddy of our mask coordinate to generate a nicely-antialiased mask where
+  // Use our signed distance to edge of screen along with the ddx/ddy of our mask coordinate to generate a nicely-antialiased mask where
   //  0 means "fully outside of the screen" and 1 means "fully on-screen".
   float maskAlpha = 1.0 - smoothstep(-length(ddx(maskT) + ddy(maskT)), 0.0, edgeDist);
+  if (max(abs(scaledTexCoord.x), abs(scaledTexCoord.y)) > 1.1)
+  {
+    maskAlpha = 0.0;
+  }
 
   // Now supersample the shadow mask texture with a mip-map bias to make it sharper. The supersampling will help counteract the bias and
   //  give us a sharp shadow mask with minimal-to-no aliasing.

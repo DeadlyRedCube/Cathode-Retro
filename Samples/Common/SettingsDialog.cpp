@@ -248,6 +248,7 @@ private:
         *knobSettings = initialKnobSettings;
         *overscanSettings = initialOverscanSettings;
         *screenSettings = initialScreenSettings;
+        UpdateDisplay();
         EndDialog(dialog, IDCANCEL);
         break;
 
@@ -492,8 +493,8 @@ private:
       IDC_H_DISTORTION_LABEL,
       &screenSettings->horizontalDistortion,
       0.0f,
-      0.6f,
-      13,
+      1.0f,
+      21,
       [this]() { UpdateDisplay(); }};
     vDistortionSlider = {
       dialog,
@@ -501,8 +502,8 @@ private:
       IDC_V_DISTORTION_LABEL,
       &screenSettings->verticalDistortion,
       0.0f,
-      0.6f,
-      13,
+      1.0f,
+      21,
       [this]() { UpdateDisplay(); }};
     cornerRoundnessSlider = {
       dialog,
@@ -519,8 +520,8 @@ private:
       IDC_LR_EDGE_ROUNDING_LABEL,
       &screenSettings->screenEdgeRoundingX,
       0.0f,
-      0.45f,
-      10,
+      1.0f,
+      21,
       [this]() { UpdateDisplay(); }};
     tbEdgeRoundingSlider = {
       dialog,
@@ -528,8 +529,8 @@ private:
       IDC_TB_EDGE_ROUNDING_LABEL,
       &screenSettings->screenEdgeRoundingY,
       0.0f,
-      0.45f,
-      10,
+      1.0f,
+      21,
       [this]() { UpdateDisplay(); }};
     overscanLeftSlider = {
       dialog,
