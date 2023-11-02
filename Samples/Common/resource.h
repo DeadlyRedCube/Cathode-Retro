@@ -58,6 +58,7 @@
 #define IDC_SCANLINE_STRENGTH_LABEL     1051
 #define IDC_PHOSPHOR_PERSISTENCE_LABEL  1052
 #define IDC_DIFFUSION_LABEL             1053
+#define IDC_MASK_TYPE                   1054
 #define ID_OPTIONS_SETTINGS             40001
 #define ID_OPTIONS_FULLSCREEN           40002
 #define ID_FILE_OPEN                    40003

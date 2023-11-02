@@ -39,6 +39,7 @@ namespace CathodeRetro
         gaussianBlurShader = device->CreateShader(ShaderID::GaussianBlur13);
         toneMapShader = device->CreateShader(ShaderID::TonemapAndDownsample);
         generateSlotMaskShader = device->CreateShader(ShaderID::GenerateSlotMask);
+        generateShadowMaskShader = device->CreateShader(ShaderID::GenerateShadowMask);
         generateApertureGrilleShader = device->CreateShader(ShaderID::GenerateApertureGrille);
 
         screenTextureConstantBuffer = device->CreateConstantBuffer(sizeof(ScreenTextureConstants));
@@ -282,6 +283,13 @@ namespace CathodeRetro
                               * 0.45f
                               / screenSettings.shadowMaskScale;
         data.shadowMaskScaleY = shadowMaskScaleNormalization / screenSettings.shadowMaskScale;
+
+        if (screenSettings.maskType == MaskType::ShadowMask)
+        {
+          data.shadowMaskScaleX /= 2.0f * 5.0f / 6.0f;
+          data.shadowMaskScaleY /= 2.0f;
+        }
+
         data.screenAspect = aspectData.aspect;
 
         screenTextureConstantBuffer->Update(data);
@@ -350,12 +358,16 @@ namespace CathodeRetro
         IShader *shader = nullptr;
         switch (screenSettings.maskType)
         {
-        case MaskType::ApertureGrille:
-          shader = generateApertureGrilleShader.get();
-          break;
-
         case MaskType::SlotMask:
           shader = generateSlotMaskShader.get();
+          break;
+
+        case MaskType::ShadowMask:
+          shader = generateShadowMaskShader.get();
+          break;
+
+        case MaskType::ApertureGrille:
+          shader = generateApertureGrilleShader.get();
           break;
         }
 
@@ -456,6 +468,7 @@ namespace CathodeRetro
       std::unique_ptr<IShader> gaussianBlurShader;
       std::unique_ptr<IShader> generateScreenTextureShader;
       std::unique_ptr<IShader> generateSlotMaskShader;
+      std::unique_ptr<IShader> generateShadowMaskShader;
       std::unique_ptr<IShader> generateApertureGrilleShader;
 
       std::unique_ptr<ITexture> maskTexture;

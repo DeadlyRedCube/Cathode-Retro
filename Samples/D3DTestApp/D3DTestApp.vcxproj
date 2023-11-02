@@ -235,6 +235,12 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
+    <FxCompile Include="..\..\Shaders\cathode-retro-crt-generate-shadow-mask.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
     <FxCompile Include="..\..\Shaders\cathode-retro-crt-generate-slot-mask.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
@@ -321,8 +327,10 @@
     <None Include="..\..\Shaders\cathode-retro-util-box-filter.hlsli" />
     <None Include="..\..\Shaders\cathode-retro-util-language-helpers.hlsli" />
     <None Include="..\..\Shaders\cathode-retro-util-tracking-instability.hlsli" />
+    <None Include="Generated\cathode-retro-crt-generate-aperture-grille.shad" />
     <None Include="Generated\cathode-retro-crt-generate-screen-texture.shad" />
     <None Include="Generated\cathode-retro-crt-generate-shadow-mask.shad" />
+    <None Include="Generated\cathode-retro-crt-generate-slot-mask.shad" />
     <None Include="Generated\cathode-retro-crt-rgb-to-crt.shad" />
     <None Include="Generated\cathode-retro-decoder-composite-to-svideo.shad" />
     <None Include="Generated\cathode-retro-decoder-filter-rgb.shad" />

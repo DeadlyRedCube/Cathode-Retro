@@ -55,6 +55,7 @@ namespace CathodeRetro
 
     GenerateScreenTexture,
     GenerateSlotMask,
+    GenerateShadowMask,
     GenerateApertureGrille,
     RGBToCRT,
   };

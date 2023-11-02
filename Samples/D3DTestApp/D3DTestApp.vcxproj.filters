@@ -43,6 +43,9 @@
     <FxCompile Include="..\..\Shaders\cathode-retro-crt-generate-aperture-grille.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="..\..\Shaders\cathode-retro-crt-generate-shadow-mask.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="D3DDemo.cpp">
@@ -140,6 +143,12 @@
       <Filter>Shaders\Generated</Filter>
     </None>
     <None Include="Generated\cathode-retro-util-tonemap-and-downsample.shad">
+      <Filter>Shaders\Generated</Filter>
+    </None>
+    <None Include="Generated\cathode-retro-crt-generate-aperture-grille.shad">
+      <Filter>Shaders\Generated</Filter>
+    </None>
+    <None Include="Generated\cathode-retro-crt-generate-slot-mask.shad">
       <Filter>Shaders\Generated</Filter>
     </None>
   </ItemGroup>

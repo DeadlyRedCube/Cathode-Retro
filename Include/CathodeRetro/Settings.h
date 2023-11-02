@@ -25,6 +25,7 @@ namespace CathodeRetro
   enum class MaskType
   {
     SlotMask,
+    ShadowMask,
     ApertureGrille,
   };
 

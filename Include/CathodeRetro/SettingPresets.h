@@ -176,97 +176,97 @@ namespace CathodeRetro
     {
       "Nothing At All",
       {
-        MaskType::SlotMask, // maskType
-        0.0f,               // horizontalDistortion
-        0.0f,               // verticalDistortion
-        0.0f,               // screenEdgeRoundingX
-        0.0f,               // screenEdgeRoundingY
-        0.0f,               // cornerRounding
-        1.0f,               // shadowMaskScale
-        0.0f,               // shadowMaskStrength
-        0.0f,               // phosphorPersistence
-        0.0f,               // scanlineStrength
-        0.0f,               // diffusionStrength
+        MaskType::SlotMask,       // maskType
+        0.0f,                     // horizontalDistortion
+        0.0f,                     // verticalDistortion
+        0.0f,                     // screenEdgeRoundingX
+        0.0f,                     // screenEdgeRoundingY
+        0.0f,                     // cornerRounding
+        1.0f,                     // shadowMaskScale
+        0.0f,                     // shadowMaskStrength
+        0.0f,                     // phosphorPersistence
+        0.0f,                     // scanlineStrength
+        0.0f,                     // diffusionStrength
       }
     },
     {
       "Scanlines Only",
       {
-        MaskType::SlotMask, // maskType
-        0.0f,               // horizontalDistortion
-        0.0f,               // verticalDistortion
-        0.0f,               // screenEdgeRoundingX
-        0.0f,               // screenEdgeRoundingY
-        0.0f,               // cornerRounding
-        1.0f,               // shadowMaskScale
-        0.0f,               // shadowMaskStrength
-        0.25f,              // phosphorPersistence
-        0.47f,              // scanlineStrength
-        0.0f,               // diffusionStrength
+        MaskType::SlotMask,       // maskType
+        0.0f,                     // horizontalDistortion
+        0.0f,                     // verticalDistortion
+        0.0f,                     // screenEdgeRoundingX
+        0.0f,                     // screenEdgeRoundingY
+        0.0f,                     // cornerRounding
+        1.0f,                     // shadowMaskScale
+        0.0f,                     // shadowMaskStrength
+        0.25f,                    // phosphorPersistence
+        0.47f,                    // scanlineStrength
+        0.0f,                     // diffusionStrength
       }
     },
     {
       "Flat CRT",
       {
-        MaskType::SlotMask, // maskType
-        0.0f,               // horizontalDistortion
-        0.0f,               // verticalDistortion
-        0.0f,               // screenEdgeRoundingX
-        0.0f,               // screenEdgeRoundingY
-        0.0f,               // cornerRounding
-        1.2f,               // shadowMaskScale
-        0.42f,              // shadowMaskStrength
-        0.25f,              // phosphorPersistence
-        0.4f,               // scanlineStrength
-        0.5f,               // diffusionStrength
+        MaskType::SlotMask,       // maskType
+        0.0f,                     // horizontalDistortion
+        0.0f,                     // verticalDistortion
+        0.0f,                     // screenEdgeRoundingX
+        0.0f,                     // screenEdgeRoundingY
+        0.0f,                     // cornerRounding
+        1.2f,                     // shadowMaskScale
+        0.42f,                    // shadowMaskStrength
+        0.25f,                    // phosphorPersistence
+        0.4f,                     // scanlineStrength
+        0.5f,                     // diffusionStrength
       }
     },
     {
       "Flat CRT (No Scanlines)",
       {
-        MaskType::SlotMask, // maskType
-        0.0f,               // horizontalDistortion
-        0.0f,               // verticalDistortion
-        0.0f,               // screenEdgeRoundingX
-        0.0f,               // screenEdgeRoundingY
-        0.0f,               // cornerRounding
-        1.2f,               // shadowMaskScale
-        0.85f,              // shadowMaskStrength
-        0.25f,              // phosphorPersistence
-        0.0f,               // scanlineStrength
-        0.5f,               // diffusionStrength
+        MaskType::SlotMask,       // maskType
+        0.0f,                     // horizontalDistortion
+        0.0f,                     // verticalDistortion
+        0.0f,                     // screenEdgeRoundingX
+        0.0f,                     // screenEdgeRoundingY
+        0.0f,                     // cornerRounding
+        1.2f,                     // shadowMaskScale
+        0.85f,                    // shadowMaskStrength
+        0.25f,                    // phosphorPersistence
+        0.0f,                     // scanlineStrength
+        0.5f,                     // diffusionStrength
       }
     },
     {
       "Standard CRT",
       {
-        MaskType::SlotMask, // maskType
-        0.25f,              // horizontalDistortion
-        0.15f,              // verticalDistortion
-        0.0f,               // screenEdgeRoundingX
-        0.0f,               // screenEdgeRoundingY
-        0.03f,              // cornerRounding
-        1.2f,               // shadowMaskScale
-        0.42f,              // shadowMaskStrength
-        0.25f,              // phosphorPersistence
-        0.4f,               // scanlineStrength
-        0.5f,               // diffusionStrength
+        MaskType::SlotMask,       // maskType
+        0.25f,                    // horizontalDistortion
+        0.15f,                    // verticalDistortion
+        0.0f,                     // screenEdgeRoundingX
+        0.0f,                     // screenEdgeRoundingY
+        0.03f,                    // cornerRounding
+        1.2f,                     // shadowMaskScale
+        0.42f,                    // shadowMaskStrength
+        0.25f,                    // phosphorPersistence
+        0.4f,                     // scanlineStrength
+        0.5f,                     // diffusionStrength
       }
     },
     {
       "Standard CRT (No Scanlines)",
       {
-        MaskType::SlotMask, // maskType
-        0.25f,              // horizontalDistortion
-        0.15f,              // verticalDistortion
-        0.0f,               // screenEdgeRoundingX
-        0.0f,               // screenEdgeRoundingY
-        0.03f,              // cornerRounding
-        1.2f,               // shadowMaskScale
-        0.85f,              // shadowMaskStrength
-        0.25f,              // phosphorPersistence
-        0.00f,              // scanlineStrength
-        0.5f,               // diffusionStrength
+        MaskType::SlotMask,       // maskType
+        0.25f,                    // horizontalDistortion
+        0.15f,                    // verticalDistortion
+        0.0f,                     // screenEdgeRoundingX
+        0.0f,                     // screenEdgeRoundingY
+        0.03f,                    // cornerRounding
+        1.2f,                     // shadowMaskScale
+        0.85f,                    // shadowMaskStrength
+        0.25f,                    // phosphorPersistence
+        0.00f,                    // scanlineStrength
+        0.5f,                     // diffusionStrength
       }
     },
     {
@@ -304,17 +304,17 @@ namespace CathodeRetro
     {
       "Old CRT",
       {
-        MaskType::SlotMask, // maskType
-        0.35f,              // horizontalDistortion
-        0.30f,              // verticalDistortion
-        0.15f,              // screenEdgeRoundingX
-        0.10f,              // screenEdgeRoundingY
-        0.12f,              // cornerRounding
-        1.4f,               // shadowMaskScale
-        0.3f,               // shadowMaskStrength
-        0.25f,              // phosphorPersistence
-        0.4f,               // scanlineStrength
-        0.7f,               // diffusionStrength
+        MaskType::ShadowMask,     // maskType
+        0.35f,                    // horizontalDistortion
+        0.30f,                    // verticalDistortion
+        0.15f,                    // screenEdgeRoundingX
+        0.10f,                    // screenEdgeRoundingY
+        0.12f,                    // cornerRounding
+        1.15f,                    // shadowMaskScale
+        0.3f,                     // shadowMaskStrength
+        0.25f,                    // phosphorPersistence
+        0.4f,                     // scanlineStrength
+        0.7f,                     // diffusionStrength
       }
     },
   };

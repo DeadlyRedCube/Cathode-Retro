@@ -231,6 +231,10 @@ private:
       SendDlgItemMessageA(dialog, IDC_SIGNAL_TYPE, CB_ADDSTRING, 0, LPARAM("SVideo"));
       SendDlgItemMessageA(dialog, IDC_SIGNAL_TYPE, CB_ADDSTRING, 0, LPARAM("Composite"));
 
+      SendDlgItemMessageA(dialog, IDC_MASK_TYPE, CB_ADDSTRING, 0, LPARAM("Slot Mask"));
+      SendDlgItemMessageA(dialog, IDC_MASK_TYPE, CB_ADDSTRING, 0, LPARAM("Shadow Mask"));
+      SendDlgItemMessageA(dialog, IDC_MASK_TYPE, CB_ADDSTRING, 0, LPARAM("Aperture Grille"));
+
       UpdateSliders();
       break;
 
@@ -259,6 +263,19 @@ private:
           if (sel >= 0)
           {
             *signalType = CathodeRetro::SignalType(sel);
+          }
+          UpdateSliders();
+        }
+
+        break;
+
+      case IDC_MASK_TYPE:
+        if (HIWORD(wparam) == CBN_SELCHANGE)
+        {
+          int32_t sel = uint32_t(SendDlgItemMessage(dialog, IDC_MASK_TYPE, CB_GETCURSEL, 0, 0));
+          if (sel >= 0)
+          {
+            screenSettings->maskType = CathodeRetro::MaskType(sel);
           }
           UpdateSliders();
         }
@@ -337,6 +354,7 @@ private:
 
   void UpdateDisplay()
   {
+    SendDlgItemMessage(dialog, IDC_MASK_TYPE, CB_SETCURSEL, WPARAM(EnumValue(screenSettings->maskType)), 0);
     SendDlgItemMessage(dialog, IDC_SIGNAL_TYPE, CB_SETCURSEL, WPARAM(EnumValue(*signalType)), 0);
     {
       bool found = false;
@@ -575,7 +593,7 @@ private:
       &screenSettings->shadowMaskScale,
       0.8f,
       2.0f,
-      44,
+      45,
       [this]() { UpdateDisplay(); }};
     shadowMaskStrengthSlider = {
       dialog,

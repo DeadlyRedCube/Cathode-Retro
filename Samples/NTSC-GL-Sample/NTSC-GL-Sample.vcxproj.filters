@@ -162,5 +162,8 @@
     <CopyFileToFolders Include="..\..\Shaders\cathode-retro-crt-generate-slot-mask.hlsl">
       <Filter>Shaders</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-crt-generate-shadow-mask.hlsl">
+      <Filter>Shaders</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>
