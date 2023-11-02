@@ -29,6 +29,14 @@ namespace CathodeRetro
     ApertureGrille,
   };
 
+
+  struct Vec2
+  {
+    float x;
+    float y;
+  };
+
+
   // This structure describes the properties of the hypothetical source "machine" that is generating the composite or S-Video signal.
   //  Specifically, it gives scanline timings and color-cycle-to-pixel ratios and phase offsets, as well as a display pixel ratio.
   struct SourceSettings
@@ -92,12 +100,10 @@ namespace CathodeRetro
     bool operator!=(const ScreenSettings &other) const { return memcmp(this, &other, sizeof(*this)) != 0; }
 
     // How much to barrel distort our picture horizontally and vertically to emulate a curved screen
-    float horizontalDistortion = 0.0f;
-    float verticalDistortion = 0.0f;
+    Vec2 distortion = { 0.0f, 0.0f };
 
     // How much additional rounding of the edges we want to emulate a screen that didn't have a rectangular bezel shape
-    float screenEdgeRoundingX = 0.0f;
-    float screenEdgeRoundingY = 0.0f;
+    Vec2 screenEdgeRounding = { 0.0f, 0.0f };
 
     // How much to round the corners (to emulate an old TV with rounded corners)
     float cornerRounding = 0.0f;

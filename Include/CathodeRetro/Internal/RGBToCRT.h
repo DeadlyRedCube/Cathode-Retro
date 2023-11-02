@@ -143,31 +143,19 @@ namespace CathodeRetro
     protected:
       static constexpr uint32_t k_maskSize = 512;
 
-      struct Vec2
-      {
-        float x;
-        float y;
-      };
-
-
       struct AspectData
       {
-        float overscanSizeX;
-        float overscanSizeY;
+        Vec2 overscanSize;
         float aspect;
       };
 
 
       struct CommonConstants
       {
-        float viewScaleX;             // Scale to get the correct aspect ratio of the image
-        float viewScaleY;             // ...
-        float overscanScaleX;         // overscanSize / standardSize;
-        float overscanScaleY;         // ...
-        float overscanOffsetX;        // How much texture space to offset the center of our coordinate system due to overscan
-        float overscanOffsetY;        // ...
-        float distortionX;            // How much to distort (from 0 .. 1)
-        float distortionY;            // ...
+        Vec2 viewScale;               // Scale to get the correct aspect ratio of the image
+        Vec2 overscanScale;           // overscanSize / standardSize;
+        Vec2 overscanOffset;          // How much texture space to offset the center of our coordinate system due to overscan
+        Vec2 distortion;              // How much to distort (from 0 .. 1)
       };
 
 
@@ -175,14 +163,9 @@ namespace CathodeRetro
       {
         CommonConstants common;
 
-        float maskDistortionX;        // Where to put the mask sides
-        float maskDistortionY;        // ...
-
-        float maskScaleX;             // Scale of the mask texture lookup
-        float maskScaleY;             // Scale of the mask texture lookup
-
+        Vec2 maskDistortion;          // Where to put the mask sides
+        Vec2 maskScale;               // Scale of the mask texture lookup
         float screenAspect;
-
         float roundedCornerSize;      // 0 == no corner, 1 == screen is an oval
       };
 
@@ -202,15 +185,13 @@ namespace CathodeRetro
 
       struct GaussianBlurConstants
       {
-        float blurDirX;
-        float blurDirY;
+        Vec2 blurDir;
       };
 
 
       struct ToneMapConstants
       {
-        float downsampleDirX;
-        float downsampleDirY;
+        Vec2 downsampleDir;
         float minLuminosity;
         float colorPower;
       };
@@ -233,29 +214,29 @@ namespace CathodeRetro
       {
         CommonConstants data;
 
-        data.overscanScaleX = aspectData.overscanSizeX / inputImageWidth;
-        data.overscanScaleY = aspectData.overscanSizeY / scanlineCount;
+        data.overscanScale.x = aspectData.overscanSize.x / inputImageWidth;
+        data.overscanScale.y = aspectData.overscanSize.y / scanlineCount;
 
-        data.overscanOffsetX = float(int32_t(overscanSettings.overscanLeft - overscanSettings.overscanRight)) / inputImageWidth * 0.5f;
-        data.overscanOffsetY = float(int32_t(overscanSettings.overscanTop - overscanSettings.overscanBottom)) / scanlineCount * 0.5f;
+        data.overscanOffset.x = float(int32_t(overscanSettings.overscanLeft - overscanSettings.overscanRight)) / inputImageWidth * 0.5f;
+        data.overscanOffset.y = float(int32_t(overscanSettings.overscanTop - overscanSettings.overscanBottom)) / scanlineCount * 0.5f;
 
         // Figure out the aspect ratio of the output, given both our dimensions as well as the pixel aspect ratio in the screen settings.
         if (float(screenTexture->Width()) > aspectData.aspect * float(screenTexture->Height()))
         {
           float desiredWidth = aspectData.aspect * float(screenTexture->Height());
-          data.viewScaleX = float(screenTexture->Width()) / desiredWidth;
-          data.viewScaleY = 1.0f;
+          data.viewScale.x = float(screenTexture->Width()) / desiredWidth;
+          data.viewScale.y = 1.0f;
         }
         else
         {
           float desiredHeight = float(screenTexture->Width()) / aspectData.aspect;
-          data.viewScaleX = 1.0f;
-          data.viewScaleY = float(screenTexture->Height()) / desiredHeight;
+          data.viewScale.x = 1.0f;
+          data.viewScale.y = float(screenTexture->Height()) / desiredHeight;
         }
 
         // Taking the square root of the distortion gives us a little more change at smaller values.
-        data.distortionX = std::sqrt(screenSettings.horizontalDistortion);
-        data.distortionY = std::sqrt(screenSettings.verticalDistortion);
+        data.distortion.x = std::sqrt(screenSettings.distortion.x);
+        data.distortion.y = std::sqrt(screenSettings.distortion.y);
 
         return data;
       }
@@ -269,25 +250,25 @@ namespace CathodeRetro
 
         auto aspectData = CalculateAspectData();
         data.common = CalculateCommonConstants(aspectData);
-        data.maskDistortionX = screenSettings.screenEdgeRoundingX * 0.5f;
-        data.maskDistortionY = screenSettings.screenEdgeRoundingY * 0.5f;
+        data.maskDistortion.x = screenSettings.screenEdgeRounding.x * 0.5f;
+        data.maskDistortion.y = screenSettings.screenEdgeRounding.y * 0.5f;
         data.roundedCornerSize = screenSettings.cornerRounding;
 
         // The values for maskScale were initially normalized against a 240-line-tall screen so just pretend it's ALWAYS that height
         //  for purposes of scaling the mask.
         static constexpr float maskScaleNormalization = 240.0f * 0.7f;
 
-        data.maskScaleX = float (inputImageWidth) / float(scanlineCount)
+        data.maskScale.x = float (inputImageWidth) / float(scanlineCount)
                           * pixelAspect
                           * maskScaleNormalization
                           * 0.45f
                           / screenSettings.maskScale;
-        data.maskScaleY = maskScaleNormalization / screenSettings.maskScale;
+        data.maskScale.y = maskScaleNormalization / screenSettings.maskScale;
 
         if (screenSettings.maskType == MaskType::ShadowMask)
         {
-          data.maskScaleX /= 2.0f * 5.0f / 6.0f;
-          data.maskScaleY /= 2.0f;
+          data.maskScale.x /= 2.0f * 5.0f / 6.0f;
+          data.maskScale.y /= 2.0f;
         }
 
         data.screenAspect = aspectData.aspect;
