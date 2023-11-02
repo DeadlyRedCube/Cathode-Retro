@@ -19,6 +19,11 @@ float2 DistortCRTCoordinates(
   // a [horizontal, vertical] distortion pair which describes the effective curvature of the virtual screen.
   float2 distortion)
 {
+  if (distortion.x == 0 && distortion.y == 0)
+  {
+    return texCoord;
+  }
+
   const float k_distance = 2.0;
   const float k_minDistortion = 0.0001;
 
