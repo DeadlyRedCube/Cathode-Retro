@@ -46,6 +46,9 @@
     <FxCompile Include="..\..\Shaders\cathode-retro-crt-generate-shadow-mask.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="..\..\Shaders\cathode-retro-decoder-svideo-to-modulated-chroma.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="D3DDemo.cpp">
@@ -136,9 +139,6 @@
     <None Include="Generated\cathode-retro-util-basic-vertex-shader.shad">
       <Filter>Shaders\Generated</Filter>
     </None>
-    <None Include="Generated\cathode-retro-util-downsample.shad">
-      <Filter>Shaders\Generated</Filter>
-    </None>
     <None Include="Generated\cathode-retro-util-gaussian-blur.shad">
       <Filter>Shaders\Generated</Filter>
     </None>
@@ -149,6 +149,12 @@
       <Filter>Shaders\Generated</Filter>
     </None>
     <None Include="Generated\cathode-retro-crt-generate-slot-mask.shad">
+      <Filter>Shaders\Generated</Filter>
+    </None>
+    <None Include="Generated\cathode-retro-decoder-svideo-to-modulated-chroma.shad">
+      <Filter>Shaders\Generated</Filter>
+    </None>
+    <None Include="Generated\cathode-retro-util-downsample-2x.shad">
       <Filter>Shaders\Generated</Filter>
     </None>
   </ItemGroup>

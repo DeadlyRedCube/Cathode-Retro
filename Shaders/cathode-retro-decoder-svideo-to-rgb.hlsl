@@ -19,6 +19,7 @@
 
 
 #include "cathode-retro-util-language-helpers.hlsli"
+#include "cathode-retro-util-box-filter.hlsli"
 
 
 // This is a 2- or 4-component texture that contains either a single luma, chroma sample pair or two luma, chroma pairs of S-Video-like
@@ -26,21 +27,16 @@
 // This sampler should be set up for linear filtering and clamped addressing (no wrapping).
 DECLARE_TEXTURE2D(g_sourceTexture, g_sourceSampler);
 
-// This is a 1- or 2-component texture that contains the colorburst phase offsets for each scanline. It's 1 component if we have no
-//  temporal artifact reduction, and 2 if we do.
-// Each phase value in this texture is the phase in (fractional) multiples of the colorburst wavelength.
-// This sampler should be set up for linear filtering and clamped addressing (no wrapping).
-DECLARE_TEXTURE2D(g_scanlinePhases, g_scanlinePhasesSampler);
+// This is a 2- or 4-component texture that contains the chroma portions of the signal modulated with the carrier quadrature (basically,
+//  it's float4(chromaA * sin, chromaA * cos, chromaB * sin, chromaB * cos).
+// This has been modulated in a separate pass for efficiency - otherwise we'd need to do 16 sines and cosines per pixel here.
+DECLARE_TEXTURE2D(g_modulatedChromaTexture, g_modulatedChromaSampler);
 
 
 CBUFFER consts
 {
   // How many samples (horizontal texels) there are per each color wave cycle.
   uint g_samplesPerColorburstCycle;
-
-  // A value representing the tint offset (in colorburst wavelengths) from baseline that we want to use. Mostly used for fun to emulate the
-  //  tint dial of a CRT TV.
-  float g_tint;
 
   // This is a value representing how saturated we want the output to be. 0 basically means we'll decode as a grayscale image, 1 means
   //  fully saturated color (i.e. the intended input saturation), and you could even set values greater than 1 to oversaturate.
@@ -87,7 +83,14 @@ float4 Main(float2 inTexCoord)
   float2 inputTexelSize = float2(ddx(inTexCoord).x, ddy(inTexCoord).y);
 
   // Get the index of our x sample.
-  uint sampleXIndex = uint(round(inTexCoord.x / inputTexelSize.x - 0.5));
+  uint sampleXIndex = uint(floor(inTexCoord.x / inputTexelSize.x));
+
+  // This is the chroma decode process, it's a QAM demodulation.
+  //  You multiply the chroma signal by a reference waveform and its quadrature (Basically, sin and cos at a given time) and then filter
+  //  out the chroma frequency (here done by a box filter (an average)). What you're left with are the approximate I and Q color space
+  //  values for this part of the image.
+  float2 Y = SAMPLE_TEXTURE(g_sourceTexture, g_sourceSampler, inTexCoord).xz;
+
 
   // We're going to sample chroma at double our actual colorburst cycle to eliminate some deeply rough artifacting on the edges.
   //  In this case we're going to average by DOUBLE the color burst cycle - doing just a single cycle ends up with a LOT of edge
@@ -97,68 +100,13 @@ float4 Main(float2 inTexCoord)
   //  no areas where luma changes will have crept into the color channel, which is typically the artifacting we see.
   uint filterWidth = g_samplesPerColorburstCycle * 2U;
 
-  float2 relativePhase = SAMPLE_TEXTURE(g_scanlinePhases, g_scanlinePhasesSampler, inTexCoord.yy).xy + g_tint;
-
-  // This is the chroma decode process, it's a QAM demodulation.
-  //  You multiply the chroma signal by a reference waveform and its quadrature (Basically, sin and cos at a given time) and then filter
-  //  out the chroma frequency (here done by a box filter (an average)). What you're left with are the approximate I and Q color space
-  //  values for this part of the image.
-  float4 centerSample = SAMPLE_TEXTURE(g_sourceTexture, g_sourceSampler, inTexCoord);
-  float2 Y = centerSample.xz;
-
-  // $TODO: This could be made likely more efficient by basically doing two passes: one to generate a four-component texture with both sets
-  //  of sin and cos-multiplied chroma values, and then THIS shader to average them, which would allow doing half the samples in this pass
-  //  as we could take advantage of bilinear filtering.
-  float4 IQ;
-  {
-    float2 s, c;
-    sincos(2.0 * k_pi * (float(sampleXIndex) / g_samplesPerColorburstCycle + relativePhase), s, c);
-    IQ = centerSample.yyww  * float4(s, -c).xzyw;
-  }
-
-  {
-    uint iterEnd = (filterWidth - 1U) / 2U;
-    for (uint i = 1U; i <= iterEnd; i++)
-    {
-      {
-        float2 coord = inTexCoord + float2(i, 0) * inputTexelSize;
-        float2 chroma = SAMPLE_TEXTURE(g_sourceTexture, g_sourceSampler, coord).yw;
-        float2 s, c;
-        sincos(2.0 * k_pi * (float(sampleXIndex + i) / g_samplesPerColorburstCycle + relativePhase), s, c);
-        IQ += chroma.xxyy  * float4(s, -c).xzyw;
-      }
-
-      {
-        float2 coord = inTexCoord - float2(i, 0) * inputTexelSize;
-        float2 chroma = SAMPLE_TEXTURE(g_sourceTexture, g_sourceSampler, coord).yw;
-        float2 s, c;
-        sincos(2.0 * k_pi * (float(sampleXIndex - i) / g_samplesPerColorburstCycle + relativePhase), s, c);
-        IQ += chroma.xxyy  * float4(s, -c).xzyw;
-      }
-    }
-
-    if ((filterWidth & 1U) == 0U)
-    {
-      // We have an odd remainder (because we have an even filter width), so sample 0.5x each endpoint
-      {
-        float2 coord = inTexCoord + float2(iterEnd + 1U, 0) * inputTexelSize;
-        float2 chroma = SAMPLE_TEXTURE(g_sourceTexture, g_sourceSampler, coord).yw;
-        float2 s, c;
-        sincos(2.0 * k_pi * (float(sampleXIndex + iterEnd + 1U) / g_samplesPerColorburstCycle + relativePhase), s, c);
-        IQ += 0.5 * chroma.xxyy  * float4(s, -c).xzyw;
-      }
-
-      {
-        float2 coord = inTexCoord - float2(iterEnd + 1U, 0) * inputTexelSize;
-        float2 chroma = SAMPLE_TEXTURE(g_sourceTexture, g_sourceSampler, coord).yw;
-        float2 s, c;
-        sincos(2.0 * k_pi * (float(sampleXIndex - iterEnd - 1U) / g_samplesPerColorburstCycle + relativePhase), s, c);
-        IQ += 0.5 * chroma.xxyy  * float4(s, -c).xzyw;
-      }
-    }
-
-    IQ /= filterWidth;
-  }
+  float4 unused; // BoxFilter outputs a center sample, but we don't care about that.
+  float4 IQ = BoxFilter(
+    PASS_TEXTURE2D_AND_SAMPLER_PARAM(g_modulatedChromaTexture, g_modulatedChromaSampler),
+    float2(1.0 / float(g_inputWidth), 0.0),
+    2U * g_samplesPerColorburstCycle,
+    inTexCoord,
+    unused);
 
   // Adjust our components, first Y to account for the signal's black/white level (and user-chosen brightness), then IQ for saturation
   //  (Which should also include the signal's brightness scale)

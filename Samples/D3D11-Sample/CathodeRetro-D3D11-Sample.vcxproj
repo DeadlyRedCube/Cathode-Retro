@@ -271,6 +271,12 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
+    <FxCompile Include="..\..\Shaders\cathode-retro-decoder-svideo-to-modulated-chroma.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
     <FxCompile Include="..\..\Shaders\cathode-retro-decoder-svideo-to-rgb.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
@@ -334,12 +340,13 @@
     <None Include="Generated\cathode-retro-crt-rgb-to-crt.shad" />
     <None Include="Generated\cathode-retro-decoder-composite-to-svideo.shad" />
     <None Include="Generated\cathode-retro-decoder-filter-rgb.shad" />
+    <None Include="Generated\cathode-retro-decoder-svideo-to-modulated-chroma.shad" />
     <None Include="Generated\cathode-retro-decoder-svideo-to-rgb.shad" />
     <None Include="Generated\cathode-retro-generator-apply-artifacts.shad" />
     <None Include="Generated\cathode-retro-generator-gen-phase.shad" />
     <None Include="Generated\cathode-retro-generator-rgb-to-svideo-or-composite.shad" />
     <None Include="Generated\cathode-retro-util-basic-vertex-shader.shad" />
-    <None Include="Generated\cathode-retro-util-downsample.shad" />
+    <None Include="Generated\cathode-retro-util-downsample-2x.shad" />
     <None Include="Generated\cathode-retro-util-gaussian-blur.shad" />
     <None Include="Generated\cathode-retro-util-tonemap-and-downsample.shad" />
   </ItemGroup>

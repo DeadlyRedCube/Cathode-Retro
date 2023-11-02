@@ -50,6 +50,7 @@ namespace CathodeRetro
     ApplyArtifacts,
 
     CompositeToSVideo,
+    SVideoToModulatedChroma,
     SVideoToRGB,
     FilterRGB,
 

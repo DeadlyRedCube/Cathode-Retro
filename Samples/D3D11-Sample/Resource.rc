@@ -81,6 +81,8 @@ IDR_GAUSSIAN_BLUR_13    RT_RCDATA               "Generated\\cathode-retro-util-g
 
 IDR_TONEMAP_AND_DOWNSAMPLE RT_RCDATA            "Generated\\cathode-retro-util-tonemap-and-downsample.shad"
 
+IDR_SVIDEO_TO_MODULATED_CHROMA RT_RCDATA        "Generated\\cathode-retro-decoder-svideo-to-modulated-chroma.shad"
+
 
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////

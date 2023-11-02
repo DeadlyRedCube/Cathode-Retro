@@ -19,12 +19,13 @@
 #define IDR_GENERATE_SCREEN_TEXTURE     113
 #define IDR_GAUSSIAN_BLUR_13            114
 #define IDR_TONEMAP_AND_DOWNSAMPLE      115
+#define IDR_SVIDEO_TO_MODULATED_CHROMA  116
 
 // Next default values for new objects
 //
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        116
+#define _APS_NEXT_RESOURCE_VALUE        117
 #define _APS_NEXT_COMMAND_VALUE         40005
 #define _APS_NEXT_CONTROL_VALUE         1054
 #define _APS_NEXT_SYMED_VALUE           101

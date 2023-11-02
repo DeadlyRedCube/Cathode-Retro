@@ -335,7 +335,8 @@ public:
       { .path = "Content/cathode-retro-generator-apply-artifacts.hlsl", .textureNames = { "g_sourceTexture" } },
 
       { .path = "Content/cathode-retro-decoder-composite-to-svideo.hlsl", .textureNames = { "g_sourceTexture" } },
-      { .path = "Content/cathode-retro-decoder-svideo-to-rgb.hlsl", .textureNames = { "g_sourceTexture", "g_scanlinePhases"} },
+      { .path = "Content/cathode-retro-decoder-svideo-to-modulated-chroma.hlsl", .textureNames = { "g_sourceTexture", "g_scanlinePhases"} },
+      { .path = "Content/cathode-retro-decoder-svideo-to-rgb.hlsl", .textureNames = { "g_sourceTexture", "g_modulatedChromaTexture"} },
       { .path = "Content/cathode-retro-decoder-filter-rgb.hlsl", .textureNames = { "g_sourceTexture" } },
 
       { .path = "Content/cathode-retro-crt-generate-screen-texture.hlsl", .textureNames = { "g_maskTexture" } },

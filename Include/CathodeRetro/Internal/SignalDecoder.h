@@ -35,11 +35,24 @@ namespace CathodeRetro
             TextureFormat::RGBA_Float32);
         }
 
+        modulatedChromaTextureSingle = device->CreateRenderTarget(
+          signalProps.scanlineWidth,
+          signalProps.scanlineCount,
+          1,
+          TextureFormat::RG_Float32);
+        modulatedChromaTextureDouble = device->CreateRenderTarget(
+          signalProps.scanlineWidth,
+          signalProps.scanlineCount,
+          1,
+          TextureFormat::RGBA_Float32);
+
         // the output RGB image is narrower by totalSidePaddingTexelCount, since we're removing the padding as part of the decode process.
         uint32_t rgbWidth = signalProps.scanlineWidth - signalProps.totalSidePaddingTexelCount;
 
         // Now initialise the SVideo -> RGB elements
         sVideoToRGBConstantBuffer = device->CreateConstantBuffer(sizeof(SVideoToRGBConstantData));
+        sVideoToModulatedChromaConstantBuffer = device->CreateConstantBuffer(sizeof(SVideoToModulatedChromaConstantData));
+        sVideoToModulatedChromaShader = device->CreateShader(ShaderID::SVideoToModulatedChroma);
         sVideoToRGBShader = device->CreateShader(ShaderID::SVideoToRGB);
         rgbTexture = device->CreateRenderTarget(
           rgbWidth,
@@ -111,10 +124,29 @@ namespace CathodeRetro
 
       void SVideoToRGB(const ITexture *sVideoTexture, const ITexture *inputPhases, const SignalLevels &levels)
       {
+        sVideoToModulatedChromaConstantBuffer->Update(
+          SVideoToModulatedChromaConstantData {
+            k_signalSamplesPerColorCycle,
+            knobSettings.tint,
+            sVideoTexture->Width(),
+          });
+
+        ITexture *modulatedChromaTex = (levels.temporalArtifactReduction > 0.0f)
+          ? modulatedChromaTextureDouble.get()
+          : modulatedChromaTextureSingle.get();
+
+        device->RenderQuad(
+          sVideoToModulatedChromaShader.get(),
+          modulatedChromaTex,
+          {
+            {sVideoTexture, SamplerType::LinearClamp},
+            {inputPhases, SamplerType::NearestClamp},
+          },
+          sVideoToModulatedChromaConstantBuffer.get());
+
         sVideoToRGBConstantBuffer->Update(
           SVideoToRGBConstantData {
             k_signalSamplesPerColorCycle,
-            knobSettings.tint,
 
             // Saturation needs brightness scaled into it as well or else the output is weird when the brightness is set below 1.0
             knobSettings.saturation / levels.saturationScale * knobSettings.brightness,
@@ -131,7 +163,7 @@ namespace CathodeRetro
           rgbTexture.get(),
           {
             {sVideoTexture, SamplerType::LinearClamp},
-            {inputPhases, SamplerType::NearestClamp},
+            {modulatedChromaTex, SamplerType::LinearClamp},
           },
           sVideoToRGBConstantBuffer.get());
       }
@@ -175,10 +207,16 @@ namespace CathodeRetro
       std::unique_ptr<ITexture> decodedSVideoTextureDouble;
 
       // Step 2: SVideo to RGB Elements
+      struct SVideoToModulatedChromaConstantData
+      {
+        uint32_t samplesPerColorburstCycle;
+        float tint;
+        uint32_t inputWidth;
+      };
+
       struct SVideoToRGBConstantData
       {
         uint32_t samplesPerColorburstCycle;           // This value should match k_signalSamplesPerColorCycle
-        float tint;                                   // How much additional tint to apply to the signal (usually a user setting)
         float saturation;                             // The saturation of the output (a user setting)
         float brightness;                             // The brightness adjustment for the output (a user setting)
 
@@ -191,7 +229,11 @@ namespace CathodeRetro
         uint32_t inputWidth;
       };
 
+      std::unique_ptr<IShader> sVideoToModulatedChromaShader;
+      std::unique_ptr<ITexture> modulatedChromaTextureSingle;
+      std::unique_ptr<ITexture> modulatedChromaTextureDouble;
       std::unique_ptr<IShader> sVideoToRGBShader;
+      std::unique_ptr<IConstantBuffer> sVideoToModulatedChromaConstantBuffer;
       std::unique_ptr<IConstantBuffer> sVideoToRGBConstantBuffer;
 
       // Step 3: Filter RGB Elements

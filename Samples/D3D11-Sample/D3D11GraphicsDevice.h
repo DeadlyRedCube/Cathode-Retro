@@ -237,6 +237,7 @@ public:
       case CathodeRetro::ShaderID::RGBToSVideoOrComposite: resourceID = IDR_RGB_TO_SVIDEO_OR_COMPOSITE; break;
       case CathodeRetro::ShaderID::ApplyArtifacts: resourceID = IDR_APPLY_ARTIFACTS; break;
       case CathodeRetro::ShaderID::CompositeToSVideo: resourceID = IDR_COMPOSITE_TO_SVIDEO; break;
+      case CathodeRetro::ShaderID::SVideoToModulatedChroma: resourceID = IDR_SVIDEO_TO_MODULATED_CHROMA; break;
       case CathodeRetro::ShaderID::SVideoToRGB: resourceID = IDR_SVIDEO_TO_RGB; break;
       case CathodeRetro::ShaderID::FilterRGB: resourceID = IDR_FILTER_RGB; break;
       case CathodeRetro::ShaderID::GenerateScreenTexture: resourceID = IDR_GENERATE_SCREEN_TEXTURE; break;
