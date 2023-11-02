@@ -64,6 +64,9 @@ CBUFFER consts
   //  (a flat screen) and "1" indicates "quite curved"
   float2 g_distortion;
 
+  // The RGBA color of the area around the screen.
+  float4 g_backgroundColor;
+
   // How much of the previous frame's brightness to keep. 0 means "we don't use the previous frame at all" and 1 means "the previous
   //  frame is at full brightness". In many CRTs, the phosphor persistence is short enough that it would be effectively 0 at 50-60fps
   //  (As a CRT's phospors could potentially be completely faded out by then). However, for some cases (for instance, interlaced video
@@ -199,16 +202,15 @@ float4 Main(float2 inTexCoord)
   // Time to put it all together: first, by applying the screen mask (i.e. the shadow mask/aperture grill, etc)...
   // $TODO: Figure out why this 0.15 is here - I'm sure it's some eyeballed "this looks good" value, but it would be nice to document
   //  why, specifically, if possible. Or maybe expose it as "mask bias" or something.
-  float3 res = sourceColor * ((screenMask.rgb - 0.15) * g_maskStrength + 1.0);
+  float3 result = sourceColor * ((screenMask.rgb - 0.15) * g_maskStrength + 1.0);
 
   // ... then bringing in some diffusion on top (This isn't physically accurate (it should really be a lerp between res and diffusionColor)
   //  but doing it this way preserves the brightness and still looks reasonable, especially when displaying bright things on a dark
   //  background)
-  res = max(diffusionColor * g_diffusionStrength, res);
+  result = max(diffusionColor * g_diffusionStrength, result);
 
   // Finally, mask out everything outside of the edges to get our final output value.
-  float3 gray = float3(0.05, 0.05, 0.05);
-  return float4(lerp(gray, res, screenMask.a), 1);
+  return lerp(g_backgroundColor, float4(result, 1), screenMask.a);
 }
 
 

@@ -110,6 +110,7 @@ namespace CathodeRetro
         rgbToScreenConstantBuffer->Update(
           RGBToScreenConstants{
             CalculateCommonConstants(CalculateAspectData()),
+            screenSettings.borderColor,
 
             // $TODO: may want to artificially increase phosphorPersistence if we're interlaced
             screenSettings.phosphorPersistence,
@@ -173,6 +174,8 @@ namespace CathodeRetro
       struct RGBToScreenConstants
       {
         CommonConstants common;
+
+        Color backgroundColor;
         float phosphorPersistence;
         float scanlineCount;          // How many scanlines there are
         float scanlineStrength;       // How strong the scanlines are (0 == none, 1 == whoa)

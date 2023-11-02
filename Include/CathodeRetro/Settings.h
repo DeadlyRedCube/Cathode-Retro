@@ -37,6 +37,15 @@ namespace CathodeRetro
   };
 
 
+  struct Color
+  {
+    float r;
+    float g;
+    float b;
+    float a;
+  };
+
+
   // This structure describes the properties of the hypothetical source "machine" that is generating the composite or S-Video signal.
   //  Specifically, it gives scanline timings and color-cycle-to-pixel ratios and phase offsets, as well as a display pixel ratio.
   struct SourceSettings
@@ -126,6 +135,9 @@ namespace CathodeRetro
 
     // How much the "glass" in front of the "phosphors" diffuses the light passing through it.
     float diffusionStrength = 0.0f;
+
+    // The color around the edges of the screen
+    Color borderColor = { 0.05f, 0.05f, 0.05f, 1.0f };
   };
 
 
