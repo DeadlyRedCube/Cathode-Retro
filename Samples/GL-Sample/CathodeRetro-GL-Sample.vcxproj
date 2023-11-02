@@ -22,7 +22,7 @@
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{8ad9540e-5c42-490d-b1cf-a03e81109b3f}</ProjectGuid>
-    <RootNamespace>NTSCGLSample</RootNamespace>
+    <RootNamespace>CathodeRetroGLSample</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
