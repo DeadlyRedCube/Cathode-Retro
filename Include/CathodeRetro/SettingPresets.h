@@ -20,6 +20,7 @@ namespace CathodeRetro
       "NES/SNES",
       {
         8.0f/7.0f,  // NES pixels were 8:7
+        2,          // Standard side padding
         3,          // NES timings are all in multiples of 1/3rd
         2,          // NES has 2/3rds of a color phase for every pixel
                     //  (i.e. it has a 33% greater horizontal resolution than the color signal can represent)
@@ -34,6 +35,7 @@ namespace CathodeRetro
       "NES/SNES (Square Pixels)",
       {
         1.0f,       // Square pixels
+        2,          // Standard side padding
 
         // The rest are the same as the NES/SNES preset.
         3,
@@ -49,6 +51,7 @@ namespace CathodeRetro
       "SNES 512 mode",
       {
         4.0f/7.0f,  // SNES 512 mode pixels were 4:7 per field (half-width relative to its standard 256 mode)
+        2,          // Standard side padding
         3,          // SNES timings are all in multiples of 1/3rd
         1,          // SNES 512 has 1/3rds of a color phase for every pixel
 
@@ -64,6 +67,7 @@ namespace CathodeRetro
       "PC Composite 320x240",
       {
         1.0f,       // Square pixels
+        2,          // Standard side padding
         2,          // CGA deals in multiples of 1/2
         1,          // Every pixel is half of a color subcarrier wave
 
@@ -79,6 +83,7 @@ namespace CathodeRetro
       "PC Composite 320x200",
       {
         5.0f/6.0f,  // mode 13 and similar had slightly tall pixels
+        2,          // Standard side padding
 
         // Otherwise identical to "PC Composite 320x240"
         2,
@@ -94,6 +99,7 @@ namespace CathodeRetro
       "PC Composite 640x480",
       {
         1.0f,       // Square pixels
+        2,          // Standard side padding
         4,          // CGA at 640 pixels wide deals in multiples of 1/4
         1,          // Every pixel is a quarter a color subcarrier wave (half of the 320 span since we have twice the number of pixels)
 
@@ -109,6 +115,7 @@ namespace CathodeRetro
       "PC Composite 640x400",
       {
         5.0f/6.0f,  // 640x400 had slightly tall pixels, same as 320x200
+        2,          // Standard side padding
 
         // Otherwise identical to "PC Composite 640x480"
         4,

@@ -68,6 +68,12 @@ CBUFFER consts
   //  between successive frames. 0 means we only have (or want to use) a single input luma/chroma pair. A value > 0 means we are going to
   //  blend the results of two parallel-computed versions of our YIQ values, with a value of 1.0 being a pure average of the two.
   float g_temporalArtifactReduction;
+
+  // The width of the input signal (including any side padding)
+  uint g_inputWidth;
+
+  // The width of the output RGB image (should be the width of the input signal minus the side padding)
+  uint g_outputWidth;
 };
 
 
@@ -76,6 +82,8 @@ CONST float k_pi = 3.141592653;
 
 float4 Main(float2 inTexCoord)
 {
+  inTexCoord.x = (inTexCoord.x - 0.5) * float(g_outputWidth) / float(g_inputWidth) + 0.5;
+
   float2 inputTexelSize = float2(ddx(inTexCoord).x, ddy(inTexCoord).y);
 
   // Get the index of our x sample.

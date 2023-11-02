@@ -35,21 +35,24 @@ namespace CathodeRetro
             TextureFormat::RGBA_Float32);
         }
 
+        // the output RGB image is narrower by totalSidePaddingTexelCount, since we're removing the padding as part of the decode process.
+        uint32_t rgbWidth = signalProps.scanlineWidth - signalProps.totalSidePaddingTexelCount;
+
         // Now initialise the SVideo -> RGB elements
         sVideoToRGBConstantBuffer = device->CreateConstantBuffer(sizeof(SVideoToRGBConstantData));
         sVideoToRGBShader = device->CreateShader(ShaderID::SVideoToRGB);
         rgbTexture = device->CreateRenderTarget(
-          signalProps.scanlineWidth,
+          rgbWidth,
           signalProps.scanlineCount,
           1,
           TextureFormat::RGBA_Unorm8);
         prevFrameRGBTexture = device->CreateRenderTarget(
-          signalProps.scanlineWidth,
+          rgbWidth,
           signalProps.scanlineCount,
           1,
           TextureFormat::RGBA_Unorm8);
         scratchRGBTexture = device->CreateRenderTarget(
-          signalProps.scanlineWidth,
+          rgbWidth,
           signalProps.scanlineCount,
           1,
           TextureFormat::RGBA_Unorm8);
@@ -119,6 +122,8 @@ namespace CathodeRetro
             levels.blackLevel,
             levels.whiteLevel,
             levels.temporalArtifactReduction,
+            sVideoTexture->Width(),
+            rgbTexture->Width(),
           });
 
         device->RenderQuad(
@@ -182,6 +187,8 @@ namespace CathodeRetro
 
         float temporalArtifactReduction;              // If we have a doubled input (same picture, two phases) blend in the second one (1.0
                                                       //  being a perfect 50/50 blend)
+        uint32_t totalSidePaddingTexelCount;
+        uint32_t inputWidth;
       };
 
       std::unique_ptr<IShader> sVideoToRGBShader;

@@ -17,6 +17,7 @@ namespace CathodeRetro
       uint32_t scanlineCount;
       float colorCyclesPerInputPixel;
       float inputPixelAspectRatio; // $TODO: Does this really belong here? Need a better aspect ratio wiring but this works for now
+      uint32_t totalSidePaddingTexelCount = 0;
     };
   }
 }

@@ -45,6 +45,10 @@ CBUFFER consts
   // A seed for the noise used to generate the scanline-by-scanline picture instability. Must match the simiarly-named value in
   //  GeneratePhaseTexture.
   uint g_noiseSeed;
+
+    // the number of output texels to pad on either side of the signal texture (so that filtering won't have visible artifacts on the left
+    //  and right sides).
+  uint g_sidePaddingTexelCount;
 };
 
 
@@ -53,12 +57,16 @@ CONST float pi = 3.141592653;
 
 float4 Main(float2 signalTexCoord)
 {
-  uint2 signalTexelIndex = uint2(round(signalTexCoord * float2(g_outputWidth, g_scanlineCount) - 0.5));
+  uint2 signalTexelIndex = uint2(floor(signalTexCoord * float2(g_outputWidth, g_scanlineCount)));
 
   // The texcoord we're using to sample the input texture neesd to be adjusted slightly. The 0.25 offset ensures that our generated texture
   //  is centered on the RGB texture.
   float2 texCoord = (float2(signalTexelIndex) * float2(float(g_inputWidth) / float(g_outputWidth), 1) + float2(0.25, 0.5))
     / float2(g_inputWidth, g_scanlineCount);
+
+  // Expand our sampling a little bit to adjust for the padding we want on the sides.
+  uint effectiveOutputWidth = g_outputWidth - g_sidePaddingTexelCount;
+  texCoord.x = (texCoord.x - 0.5) * float(g_outputWidth) / float(effectiveOutputWidth) + 0.5;
 
   // Add in the instability to our x coordinate to wiggle our generated texture around.
   float instability = CalculateTrackingInstabilityOffset(

@@ -25,6 +25,13 @@ namespace CathodeRetro
         signalProps.type = type;
         signalProps.scanlineWidth = int32_t(std::ceil(
           float(inputWidth * inputSettings.colorCyclesPerInputPixel * k_signalSamplesPerColorCycle) / float(inputSettings.denominator)));
+
+        // There's sidePaddingColorCycleCount per side, so 2x that.
+        signalProps.totalSidePaddingTexelCount = 2 * inputSettings.sidePaddingColorCycleCount * k_signalSamplesPerColorCycle;
+
+        // Add the side padding.
+        signalProps.scanlineWidth += signalProps.totalSidePaddingTexelCount;
+
         signalProps.scanlineCount = inputHeight;
         signalProps.colorCyclesPerInputPixel = float(inputSettings.colorCyclesPerInputPixel) / float(inputSettings.denominator);
         signalProps.inputPixelAspectRatio = inputSettings.inputPixelAspectRatio;
@@ -111,6 +118,7 @@ namespace CathodeRetro
         float compositeBlend;                           // 0 if we're outputting to SVideo, 1 if it's composite
         float instabilityScale;
         uint32_t noiseSeed;
+        uint32_t sidePaddingTexelCount;
       };
 
       struct GeneratePhaseTextureConstantData
@@ -180,6 +188,7 @@ namespace CathodeRetro
             (signalProps.type == SignalType::Composite) ? 1.0f : 0.0f,
             artifactSettings.instabilityScale,
             noiseSeed,
+            signalProps.totalSidePaddingTexelCount,
           });
 
         device->RenderQuad(
