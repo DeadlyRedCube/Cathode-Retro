@@ -530,7 +530,7 @@ private:
       &screenSettings->cornerRounding,
       0.0f,
       0.2f,
-      9,
+      11,
       [this]() { UpdateDisplay(); }};
     lrEdgeRoundingSlider = {
       dialog,
@@ -593,7 +593,7 @@ private:
       &screenSettings->maskScale,
       0.8f,
       2.0f,
-      45,
+      25,
       [this]() { UpdateDisplay(); }};
     maskStrengthSlider = {
       dialog,
@@ -602,7 +602,7 @@ private:
       &screenSettings->maskStrength,
       0.0f,
       1.0f,
-      20,
+      21,
       [this]() { UpdateDisplay(); }};
     maskDepthSlider = {
       dialog,
@@ -611,7 +611,7 @@ private:
       &screenSettings->maskDepth,
       0.0f,
       1.0f,
-      20,
+      21,
       [this]() { UpdateDisplay(); }};
     scanlineStrengthSlider = {
       dialog,
@@ -620,7 +620,7 @@ private:
       &screenSettings->scanlineStrength,
       0.0f,
       1.0f,
-      20,
+      21,
       [this]() { UpdateDisplay(); }};
     phosphorPersistenceSlider = {
       dialog,
