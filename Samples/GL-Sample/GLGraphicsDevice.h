@@ -248,7 +248,8 @@ class GLGraphicsDevice : public CathodeRetro::IGraphicsDevice
 public:
   GLGraphicsDevice()
   {
-    // With that done, we need to create our UV quad vertex buffer (just use two vertex triangles instead of springing for an index buffer)
+    // With that done, we need to create our UV quad vertex buffer (just use two vertex triangles instead of springing
+    //  for an index buffer)
     Vertex vertices[] =
     {
       {0.0f, 0.0f},
@@ -271,7 +272,9 @@ public:
     CheckGLError();
 
     // Finally compile the common vertex shader that every quad render uses.
-    vertexShaderHandle = CompileShaderFromFile(GL_VERTEX_SHADER, "Content/cathode-retro-util-basic-vertex-shader.hlsl");
+    vertexShaderHandle = CompileShaderFromFile(
+      GL_VERTEX_SHADER,
+      "Content/cathode-retro-util-basic-vertex-shader.hlsl");
   }
 
 
@@ -293,7 +296,7 @@ public:
   }
 
 
-  // CathodeRetro::IGraphicsDevice implementations //////////////////////////////////////////////////////////////////////////////////////
+  // CathodeRetro::IGraphicsDevice implementations ////////////////////////////////////////////////////////////////////
 
 
   std::unique_ptr<CathodeRetro::ITexture> CreateRenderTarget(
@@ -323,20 +326,29 @@ public:
 
     constexpr SShaderStuff k_shaderInfo[]
     {
-      // GL (pre 4.2) needs a mapping from uniform to binding, and so here we list the expected binding orders in order. It would have
-      //  been nicer to iterate through them by querying the shader (which is possible) but naturally they show up in arbitrary orders,
-      //  rather than the order that they were declared in the shader.
+      // GL (pre 4.2) needs a mapping from uniform to binding, and so here we list the expected binding orders in
+      //  order. It would have been nicer to iterate through them by querying the shader (which is possible) but
+      //  naturally they show up in arbitrary orders, rather than the order that they were declared in the shader.
       { .path = "Content/cathode-retro-util-downsample-2x.hlsl", .textureNames = { "g_sourceTexture" } },
       { .path = "Content/cathode-retro-util-tonemap-and-downsample.hlsl", .textureNames = { "g_sourceTexture" } },
       { .path = "Content/cathode-retro-util-gaussian-blur.hlsl", .textureNames = { "g_sourceTex" } },
 
       { .path = "Content/cathode-retro-generator-gen-phase.hlsl", .textureNames = {} },
-      { .path = "Content/cathode-retro-generator-rgb-to-svideo-or-composite.hlsl", .textureNames = { "g_sourceTexture", "g_scanlinePhases"} },
+      {
+        .path = "Content/cathode-retro-generator-rgb-to-svideo-or-composite.hlsl",
+        .textureNames = { "g_sourceTexture", "g_scanlinePhases"}
+      },
       { .path = "Content/cathode-retro-generator-apply-artifacts.hlsl", .textureNames = { "g_sourceTexture" } },
 
       { .path = "Content/cathode-retro-decoder-composite-to-svideo.hlsl", .textureNames = { "g_sourceTexture" } },
-      { .path = "Content/cathode-retro-decoder-svideo-to-modulated-chroma.hlsl", .textureNames = { "g_sourceTexture", "g_scanlinePhases"} },
-      { .path = "Content/cathode-retro-decoder-svideo-to-rgb.hlsl", .textureNames = { "g_sourceTexture", "g_modulatedChromaTexture"} },
+      {
+        .path = "Content/cathode-retro-decoder-svideo-to-modulated-chroma.hlsl",
+        .textureNames = { "g_sourceTexture", "g_scanlinePhases"}
+      },
+      {
+        .path = "Content/cathode-retro-decoder-svideo-to-rgb.hlsl",
+        .textureNames = { "g_sourceTexture", "g_modulatedChromaTexture"}
+      },
       { .path = "Content/cathode-retro-decoder-filter-rgb.hlsl", .textureNames = { "g_sourceTexture" } },
 
       { .path = "Content/cathode-retro-crt-generate-screen-texture.hlsl", .textureNames = { "g_maskTexture" } },
@@ -420,28 +432,40 @@ public:
       case CathodeRetro::SamplerType::LinearWrap:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (input.texture->MipCount() == 1) ? GL_LINEAR : GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(
+          GL_TEXTURE_2D,
+          GL_TEXTURE_MIN_FILTER,
+          (input.texture->MipCount() == 1) ? GL_LINEAR : GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         break;
 
       case CathodeRetro::SamplerType::LinearClamp:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (input.texture->MipCount() == 1) ? GL_LINEAR : GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(
+          GL_TEXTURE_2D,
+          GL_TEXTURE_MIN_FILTER,
+          (input.texture->MipCount() == 1) ? GL_LINEAR : GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         break;
 
       case CathodeRetro::SamplerType::NearestWrap:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (input.texture->MipCount() == 1) ? GL_NEAREST: GL_NEAREST_MIPMAP_NEAREST);
+        glTexParameteri(
+          GL_TEXTURE_2D,
+          GL_TEXTURE_MIN_FILTER,
+          (input.texture->MipCount() == 1) ? GL_NEAREST: GL_NEAREST_MIPMAP_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         break;
 
       case CathodeRetro::SamplerType::NearestClamp:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (input.texture->MipCount() == 1) ? GL_NEAREST : GL_NEAREST_MIPMAP_NEAREST);
+        glTexParameteri(
+          GL_TEXTURE_2D,
+          GL_TEXTURE_MIN_FILTER,
+          (input.texture->MipCount() == 1) ? GL_NEAREST : GL_NEAREST_MIPMAP_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         break;
       }

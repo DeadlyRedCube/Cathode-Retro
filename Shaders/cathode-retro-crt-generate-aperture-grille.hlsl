@@ -1,8 +1,8 @@
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// This shader generates an approximation of a CRT slot mask (the little R, G, and B dots that you can see on some CRTs when you are close
-//  to them.
-// It is intended to be rendered to a texture that has a 2:1 width:height ratio, and we are generating two sets of RGB rounded rectangles,
-//  where the right-most set is offset 50% vertically (so it wraps from bottom to top).
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// This shader generates an approximation of a CRT slot mask (the little R, G, and B dots that you can see on some CRTs
+//  when you are close to them.
+// It is intended to be rendered to a texture that has a 2:1 width:height ratio, and we are generating two sets of RGB
+//  rounded rectangles, where the right-most set is offset 50% vertically (so it wraps from bottom to top).
 
 
 #include "cathode-retro-util-language-helpers.hlsli"
@@ -35,20 +35,20 @@ float4 Main(float2 inTexCoord)
     color = float3(0,1,0);
   }
 
-  // Convert our coordinate to be in [0..1/3rd]. Note that it was already multiplied by 3 above so this "frac" call gets us into the
-  //  [0..1] value for this third.
+  // Convert our coordinate to be in [0..1/3rd]. Note that it was already multiplied by 3 above so this "frac" call
+  //  gets us into the [0..1] value for this third.
   x = frac(x);
   x /= 3;
 
-  // These are the positions of where the border of the colored rectangles will go in our third, as well as how round the edges will be.
-  //  $NOTE: These are technically constants (and should compile down to such), but border isn't written as such because
+  // These are the positions of where the border of the colored rectangles will go in our third, as well as how round
+  //  the edges will be.
   float border = 1.0 / 12.0;
   float smoothing = border / 3.0;
   border -= smoothing;
 
-  // Do similar calculations to the slot mask texture generation, except without any y component since there are no breaks along the
-  //  vertical axis in an aperture grille. This could likely be simplified, but I already had that logic and this is fine for something
-  //  that is intended to run once ever (at startup).
+  // Do similar calculations to the slot mask texture generation, except without any y component since there are no
+  //  breaks along the vertical axis in an aperture grille. This could likely be simplified, but I already had that
+  //  logic and this is fine for something that is intended to run once ever (at startup).
   x = abs(x - 1.0 / 6.0);
   x -= 1.0 / 6.0 - (smoothing + border);
   x /= smoothing;

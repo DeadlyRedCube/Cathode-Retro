@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // This file contains all the stuff used to make these shaders compile both as GLSL and HLSL.
 //
 // Note that one of GLSL or HLSL must be defined.
@@ -84,7 +84,8 @@
     #define DECLARE_TEXTURE2D_AND_SAMPLER_PARAM(texName, samplerName) sampler2D texName
     #define PASS_TEXTURE2D_AND_SAMPLER_PARAM(texName, samplerName) texName
     #define SAMPLE_TEXTURE(texName, samplerName, coord) texture2D(texName, vec2((coord).x, 1.0 - (coord).y))
-    #define SAMPLE_TEXTURE_BIAS(texName, samplerName, coord, bias) texture2D(texName, vec2((coord).x, 1.0 - (coord).y), bias)
+    #define SAMPLE_TEXTURE_BIAS(texName, samplerName, coord, bias) \
+      texture2D(texName, vec2((coord).x, 1.0 - (coord).y), bias)
     #define GET_TEXTURE_SIZE(tex, outVar) outVar = textureSize(tex, 0)
 
     #define PS_MAIN in float2 vsOutTexCoord; out float4 psOutPos; void main() { psOutPos = Main(vsOutTexCoord); }

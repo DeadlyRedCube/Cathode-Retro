@@ -13,7 +13,8 @@ namespace CathodeRetro
 {
   namespace Internal
   {
-    // This class takes RGB data (either the input or SVideo/composite filtering final output) and draws it as if it were on a CRT screen
+    // This class takes RGB data (either the input or SVideo/composite filtering final output) and draws it as if it
+    //  were on a CRT screen
     class RGBToCRT
     {
     public:
@@ -49,7 +50,11 @@ namespace CathodeRetro
         maskDownsampleConstantBufferV = device->CreateConstantBuffer(sizeof(Vec2));
 
         maskTexture = device->CreateRenderTarget(k_maskSize, k_maskSize / 2, 0, TextureFormat::RGBA_Unorm8);
-        halfWidthMaskTexture = device->CreateRenderTarget(k_maskSize / 2, k_maskSize / 2, 0, TextureFormat::RGBA_Unorm8);
+        halfWidthMaskTexture = device->CreateRenderTarget(
+          k_maskSize / 2,
+          k_maskSize / 2,
+          0,
+          TextureFormat::RGBA_Unorm8);
 
         needsRenderMaskTexture = true;
         UpdateBlurTextures();
@@ -87,7 +92,11 @@ namespace CathodeRetro
       }
 
 
-      void Render(const ITexture *currentFrameRGBInput, const ITexture *previousFrameRGBInput, ITexture *outputTexture, ScanlineType scanType)
+      void Render(
+        const ITexture *currentFrameRGBInput,
+        const ITexture *previousFrameRGBInput,
+        ITexture *outputTexture,
+        ScanlineType scanType)
       {
         assert(screenTexture != nullptr);
 
@@ -160,8 +169,8 @@ namespace CathodeRetro
       {
         Vec2 viewScale;               // Scale to get the correct aspect ratio of the image
         Vec2 overscanScale;           // overscanSize / standardSize;
-        Vec2 overscanOffset;          // How much texture space to offset the center of our coordinate system due to overscan
-        Vec2 distortion;              // How much to distort (from 0 .. 1)
+        Vec2 overscanOffset;          // How much texture space to offset the center of our coordinate for overscan
+        Vec2 distortion;              // How much to distort the coordinate system for screen curvature (from 0 .. 1)
       };
 
 
@@ -209,7 +218,8 @@ namespace CathodeRetro
       AspectData CalculateAspectData()
       {
         // Figure out how to adjust our viewed texture area for overscan
-        float overscanSizeX = float(inputImageWidth - (overscanSettings.overscanLeft + overscanSettings.overscanRight));
+        float overscanSizeX =
+          float(inputImageWidth - (overscanSettings.overscanLeft + overscanSettings.overscanRight));
         float overscanSizeY = float(scanlineCount - (overscanSettings.overscanTop + overscanSettings.overscanBottom));
         return {
           overscanSizeX,
@@ -226,8 +236,10 @@ namespace CathodeRetro
         data.overscanScale.x = aspectData.overscanSize.x / inputImageWidth;
         data.overscanScale.y = aspectData.overscanSize.y / scanlineCount;
 
-        data.overscanOffset.x = float(int32_t(overscanSettings.overscanLeft - overscanSettings.overscanRight)) / inputImageWidth * 0.5f;
-        data.overscanOffset.y = float(int32_t(overscanSettings.overscanTop - overscanSettings.overscanBottom)) / scanlineCount * 0.5f;
+        data.overscanOffset.x =
+          float(int32_t(overscanSettings.overscanLeft - overscanSettings.overscanRight)) / inputImageWidth * 0.5f;
+        data.overscanOffset.y =
+          float(int32_t(overscanSettings.overscanTop - overscanSettings.overscanBottom)) / scanlineCount * 0.5f;
 
         // Figure out the aspect ratio of the output, given both our dimensions as well as the pixel aspect ratio in the screen settings.
         if (float(screenTexture->Width()) > aspectData.aspect * float(screenTexture->Height()))
@@ -312,7 +324,8 @@ namespace CathodeRetro
         uint32_t blurTextureWidth;
         if (float(signalTextureWidth) > aspectData.aspect * float(scanlineCount))
         {
-          // the tonemap texture is going to scale down to 2x the actual aspect we want (we'll downsample farther from there)
+          // the tonemap texture is going to scale down to 2x the actual aspect we want (we'll downsample farther from
+          //  there)
           tonemapTexHeight = scanlineCount;
           tonemapTexWidth = uint32_t(std::round(aspectData.aspect * float(scanlineCount))) * 2;
           blurTextureWidth = tonemapTexWidth / 2;
@@ -321,8 +334,8 @@ namespace CathodeRetro
         }
         else
         {
-          // This is an unlikely case (the signal already has a massive stretch), in this case we'll keep things the same and the
-          //  blur texture will be scaled up slightly.
+          // This is an unlikely case (the signal already has a massive stretch), in this case we'll keep things the
+          //  same and the blur texture will be scaled up slightly.
           tonemapTexWidth = inputImageWidth;
           tonemapTexHeight = scanlineCount;
           blurTextureWidth = uint32_t(std::round(aspectData.aspect * float(scanlineCount)));
@@ -330,7 +343,9 @@ namespace CathodeRetro
           downsampleDirY = 1.0f;
         }
 
-        if (toneMapTexture == nullptr || toneMapTexture->Width() != tonemapTexWidth || toneMapTexture->Height() != tonemapTexHeight)
+        if (toneMapTexture == nullptr
+          || toneMapTexture->Width() != tonemapTexWidth
+          || toneMapTexture->Height() != tonemapTexHeight)
         {
           // Rebuild our blur textures.
           toneMapTexture = device->CreateRenderTarget(
@@ -403,8 +418,8 @@ namespace CathodeRetro
 
       void RenderBlur(const ITexture *inputTexture)
       {
-        // $TODO: This is slightly inaccurate, we should really be using the max of inputTexture and prevFrameTexture * phosphorPersistence
-        //  but for now, this is fine.
+        // $TODO: This is slightly inaccurate, we should really be using the max of inputTexture and
+        //  prevFrameTexture * phosphorPersistence, but for now, this is fine.
         toneMapConstantBuffer->Update(
           ToneMapConstants {
             downsampleDirX,
@@ -415,8 +430,8 @@ namespace CathodeRetro
             1.3f,
           });
 
-        // We're downsampling "2x" horizontally (scare quotes because it isn't always exactly 2x but it's close enough that we can just
-        //  abuse this shader as if it were)
+        // We're downsampling "2x" horizontally (scare quotes because it isn't always exactly 2x but it's close enough
+        //  that we can just abuse this shader as if it were)
         blurDownsampleConstantBuffer->Update(Vec2{ 1.0f, 0.0f });
 
         device->RenderQuad(

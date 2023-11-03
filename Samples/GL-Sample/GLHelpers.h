@@ -1,8 +1,9 @@
 #pragma once
 
 // Header to include all of the GL extension stuff.
-// Yeah I know, this is all a nightmare, but Windows is stuck in GL 1.1 land, that's what I'm building on, and I didn't want to pull in
-//  any non-WinSDK external dependencies. If you have a real GL header you can safely ignore all of this.
+// Yeah I know, this is all a nightmare, but Windows is stuck in GL 1.1 land, that's what I'm building on, and I didn't
+//  want to pull in any non-WinSDK external dependencies. If you have a real GL header you can safely ignore all of
+//  this.
 
 #ifndef NOMINMAX
   #define NOMINMAX
@@ -104,7 +105,13 @@ void (*glLinkProgram)(GLuint program) = nullptr;
 void (*glGetProgramiv)(GLuint program, GLenum pname, GLint *params) = nullptr;
 void (*glGetProgramInfoLog)(GLuint program, GLsizei maxLength, GLsizei *length,  	GLchar *infoLog) = nullptr;
 void (*glDeleteShader)(GLuint shader) = nullptr;
-void (*glVertexAttribPointer) (GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer) = nullptr;
+void (*glVertexAttribPointer) (
+  GLuint index,
+  GLint size,
+  GLenum type,
+  GLboolean normalized,
+  GLsizei stride,
+  const void *pointer) = nullptr;
 void (*glVertexAttribIPointer) (GLuint index, GLint size, GLenum type, GLsizei stride, const void * pointer) = nullptr;
 void (*glVertexAttribLPointer) (GLuint index, GLint size, GLenum type, GLsizei stride, const void * pointer) = nullptr;
 void (*glEnableVertexAttribArray) (GLuint index) = nullptr;
@@ -127,8 +134,22 @@ void (*glFramebufferTexture2D) (GLenum target, GLenum attachment, GLenum textarg
 void (*glActiveTexture) (GLenum texture);
 void (*glUniform1i) (GLint location, GLint v0);
 GLint (*glGetUniformLocation) (GLuint program, const GLchar *name);
-void (*glGetActiveAttrib) (GLuint program, GLuint index, GLsizei bufSize, GLsizei *length, GLint *size, GLenum *type, GLchar *name);
-void (*glGetActiveUniform) (GLuint program, GLuint index, GLsizei bufSize, GLsizei *length, GLint *size, GLenum *type, GLchar *name);
+void (*glGetActiveAttrib) (
+  GLuint program,
+  GLuint index,
+  GLsizei bufSize,
+  GLsizei *length,
+  GLint *size,
+  GLenum *type,
+  GLchar *name);
+void (*glGetActiveUniform) (
+  GLuint program,
+  GLuint index,
+  GLsizei bufSize,
+  GLsizei *length,
+  GLint *size,
+  GLenum *type,
+  GLchar *name);
 void (*glClampColor) (GLenum target, GLenum clamp);
 void (*glDeleteProgram) (GLuint program);
 
@@ -224,7 +245,8 @@ inline void CheckGLError()
 }
 
 
-// A sadly-necessary-because-I-couldn't-find-a-better-way helper to convert a path (which might be a wide string) to a std::string.
+// A sadly-necessary-because-I-couldn't-find-a-better-way helper to convert a path (which might be a wide string) to a
+//  std::string.
 template <typename PathValueType>
 std::string PathCharsToStdString(const PathValueType *pathName)
 {
@@ -241,7 +263,8 @@ std::string PathCharsToStdString(const PathValueType *pathName)
 };
 
 
-// Load the text from a shader file, appending a #version header (and the #define GLSL it needs) and handling any #includes that we find.
+// Load the text from a shader file, appending a #version header (and the #define GLSL it needs) and handling any
+//  #includes that we find.
 std::string GetShaderText(std::filesystem::path path, std::vector<std::filesystem::path> &knownPaths)
 {
   size_t fileID;
@@ -256,7 +279,8 @@ std::string GetShaderText(std::filesystem::path path, std::vector<std::filesyste
     fileID = knownPaths.size() - 1;
   }
 
-  // If you hate the iostream things, me too, but this code was built quick with all the standard-compliant stuff I could use, so, sorry.
+  // If you hate the iostream things, me too, but this code was built quick with all the standard-compliant stuff I
+  //  could use, so, sorry.
   std::ifstream stream { path };
   if (!stream)
   {
@@ -265,7 +289,11 @@ std::string GetShaderText(std::filesystem::path path, std::vector<std::filesyste
       #pragma warning (disable: 4996) // 'strerror': This function or variable may be unsafe.
     #endif
     char buffer[2048];
-    sprintf_s(buffer, "Failed to open file '%s\n', error: %s", PathCharsToStdString(path.c_str()).c_str(), std::strerror(errno));
+    sprintf_s(
+      buffer,
+      "Failed to open file '%s\n', error: %s",
+      PathCharsToStdString(path.c_str()).c_str(),
+      std::strerror(errno));
     throw std::exception(buffer);
     #ifdef _MSC_VER
       #pragma warning (pop)
@@ -283,7 +311,12 @@ std::string GetShaderText(std::filesystem::path path, std::vector<std::filesyste
   auto BuildLineDirective = [](size_t line, size_t fileIndex, std::filesystem::path pathName)
   {
     char buffer[2048];
-    sprintf_s(buffer, "// File: \"%s\"\n#line %zu %zu\n", PathCharsToStdString(pathName.c_str()).c_str(), line, fileIndex);
+    sprintf_s(
+      buffer,
+      "// File: \"%s\"\n#line %zu %zu\n",
+      PathCharsToStdString(pathName.c_str()).c_str(),
+      line,
+      fileIndex);
     return std::string {buffer};
   };
 
@@ -298,23 +331,27 @@ std::string GetShaderText(std::filesystem::path path, std::vector<std::filesyste
 
     // Do a super hacky job of handling #includes
     std::string trimmed = line;
-    trimmed.erase(trimmed.begin(), std::find_if(trimmed.begin(), trimmed.end(), [](auto ch) { return !std::isspace(ch); }));
+    trimmed.erase(
+      trimmed.begin(),
+      std::find_if(trimmed.begin(), trimmed.end(), [](auto ch) { return !std::isspace(ch); }));
 
     if (!trimmed.empty() && trimmed.starts_with("#include"))
     {
-      // We found an #include, remove everything before the first quote, then everything after the last quote. I'm sure there's a more
-      //  clever way to do this but again, written fast.
+      // We found an #include, remove everything before the first quote, then everything after the last quote. I'm sure
+      //  there's a more clever way to do this but again, written fast.
       trimmed.erase(trimmed.begin(), std::find_if(trimmed.begin(), trimmed.end(), [](auto ch) { return ch == '\"'; }));
       trimmed.erase(0, 1);
-      trimmed.erase(std::find_if(trimmed.rbegin(), trimmed.rend(), [](auto ch) { return ch == '\"'; }).base(), trimmed.end());
+      trimmed.erase(
+        std::find_if(trimmed.rbegin(), trimmed.rend(), [](auto ch) { return ch == '\"'; }).base(),
+        trimmed.end());
       trimmed.erase(trimmed.size() - 1, 1);
 
       // Assemble our new path and get its contents.
       auto includePath = std::filesystem::absolute(path.parent_path() / trimmed);
       auto includeContents = GetShaderText(includePath, knownPaths);
 
-      // Append the content of that file into our own, then send us back to the correct line of this file (The line index *after* the
-      //  line we are currently handling)
+      // Append the content of that file into our own, then send us back to the correct line of this file (The line
+      //  index *after* the line we are currently handling)
       contents += includeContents;
       contents += "\n\n";
       contents += BuildLineDirective(lineIndex + 1, fileID, path);
@@ -360,8 +397,8 @@ GLuint CompileShaderFromFile(GLenum shaderType, const char *pathStr)
   glGetShaderiv(shaderHandle, GL_COMPILE_STATUS, &success);
   if (!success)
   {
-    // We failed so we want to display the errors. In order to do this we want to replace the file indices with actual filename
-    //  information.
+    // We failed so we want to display the errors. In order to do this we want to replace the file indices with actual
+    //  filename information.
 
     int logLength;
     glGetShaderiv(shaderHandle, GL_INFO_LOG_LENGTH, &logLength);
@@ -369,8 +406,8 @@ GLuint CompileShaderFromFile(GLenum shaderType, const char *pathStr)
     log.resize(logLength);
     glGetShaderInfoLog(shaderHandle, GLsizei(log.size()), nullptr, &log[0]);
 
-    // Now we get to iterate through the log and manually swap in the filenames in place of the numbers (because god forbid the GLSL
-    //  #line directive have taken a string for the file ID instead of a number)
+    // Now we get to iterate through the log and manually swap in the filenames in place of the numbers (because god
+    //  forbid the GLSL #line directive have taken a string for the file ID instead of a number)
     std::stringstream logFullUnparsedStream {&log[0]};
     std::string parsed;
     while (!logFullUnparsedStream.eof())

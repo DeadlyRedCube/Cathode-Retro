@@ -1,12 +1,12 @@
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // This shader does a 1D gaussian blur using a 13-tap filter.
 
 
 #include "cathode-retro-util-language-helpers.hlsli"
 
 
-// 13-tap gaussian kernel coefficients for bilinear shading, optimized to only require 7 texture samples by taking advantage of linear
-//  texture filtering. These coefficients were generated using https://drilian.com/gaussian-kernel/
+// 13-tap gaussian kernel coefficients for bilinear shading, optimized to only require 7 texture samples by taking
+//  advantage of linear texture filtering. These coefficients were generated using https://drilian.com/gaussian-kernel/
 
 /*
   The actual coefficients for this blur are:
@@ -50,8 +50,8 @@ BEGIN_CONST_ARRAY(float, k_offsets, k_sampleCount)
   5.308886854
 END_CONST_ARRAY
 
-// Blur a texture along the blur direction (for a horizontal blur, use (1, 0) and for vertical use (0, 1)), centered at "centerTexCoord"
-//  (which is in standard [0..1] texture space).
+// Blur a texture along the blur direction (for a horizontal blur, use (1, 0) and for vertical use (0, 1)), centered at
+//  "centerTexCoord" (which is in standard [0..1] texture space).
 float4 Blur(float2 centerTexCoord, float2 blurDirection)
 {
   int2 dim;

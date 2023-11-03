@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Downsample an input image by 2x along a given axis by using a lanczos filter.
 
 #include "cathode-retro-util-language-helpers.hlsli"
@@ -8,8 +8,8 @@ DECLARE_TEXTURE2D(g_sourceTexture, g_sampler);
 
 CBUFFER consts
 {
-  // The direction that we're downsampling along. Should either be (1, 0) to downsample to a half-width texture or (0, 1) to downsample
-  //  to a half-height texture.
+  // The direction that we're downsampling along. Should either be (1, 0) to downsample to a half-width texture or
+  //  (0, 1) to downsample to a half-height texture.
   float2 g_filterDir;
 };
 

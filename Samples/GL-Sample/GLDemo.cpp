@@ -52,7 +52,8 @@ public:
       throw std::exception("wglMakeCurrent failed");
     }
 
-    // Now that that's set, run InitializeGLHelpers which will load all of the GL 3.3 functions that we need to get this train rolling
+    // Now that that's set, run InitializeGLHelpers which will load all of the GL 3.3 functions that we need to get
+    //  this train rolling
     InitializeGLHelpers();
 
     // Now that that's done we can create our true context (With the correct ersion)
@@ -86,10 +87,13 @@ public:
   }
 
 
-  std::unique_ptr<CathodeRetro::ITexture> CreateRGBATexture(uint32_t width, uint32_t height, uint32_t *rgbaData) override
+  std::unique_ptr<CathodeRetro::ITexture> CreateRGBATexture(
+    uint32_t width,
+    uint32_t height,
+    uint32_t *rgbaData) override
   {
-    // Demo app loads in images where 0, 0 is the upper-left corner, but GL's images put 0,0 in the lower right, so we need to vertically
-    //  flip the image before creating the texture.
+    // Demo app loads in images where 0, 0 is the upper-left corner, but GL's images put 0,0 in the lower right, so we
+    //  need to vertically flip the image before creating the texture.
     std::vector<uint32_t> rgbaDataFlipped;
     rgbaDataFlipped.resize(width * height);
     for (size_t y = 0; y < height; y++)
@@ -98,7 +102,10 @@ public:
       memcpy(&rgbaDataFlipped[y * width], &rgbaData[srcY * width], width * sizeof(uint32_t));
     }
 
-    return graphicsDevice->CreateTexture(width, height, CathodeRetro::TextureFormat::RGBA_Unorm8, rgbaDataFlipped.data());
+    return graphicsDevice->CreateTexture(
+      width,
+      height,
+      CathodeRetro::TextureFormat::RGBA_Unorm8, rgbaDataFlipped.data());
   }
 
 

@@ -91,46 +91,74 @@ public:
 
   // Make sure we can compare correctly between SPs
   inline bool operator == (const ComPtr<T> &rhs) const
-    { return (m_pointer == rhs.m_pointer); }
+  {
+    return (m_pointer == rhs.m_pointer);
+  }
 
   inline bool operator == (ComPtr<T> &rhs) const
-    { return (m_pointer == rhs.m_pointer); }
+  {
+    return (m_pointer == rhs.m_pointer);
+  }
 
   inline bool operator == (ComPtr<T> &rhs)
-    { return (m_pointer == rhs.m_pointer); }
+  {
+    return (m_pointer == rhs.m_pointer);
+  }
 
   inline bool operator == (const ComPtr<T> &rhs)
-    { return (m_pointer == rhs.m_pointer); }
+  {
+    return (m_pointer == rhs.m_pointer);
+  }
 
   inline bool operator == (const T *rhs) const
-    { return (m_pointer == rhs); }
+  {
+    return (m_pointer == rhs);
+  }
 
   inline bool operator == (T *rhs)
-    { return (m_pointer == rhs); }
+  {
+    return (m_pointer == rhs);
+  }
 
   inline bool operator != (const ComPtr<T> &rhs) const
-    { return (m_pointer != rhs.m_pointer); }
+  {
+    return (m_pointer != rhs.m_pointer);
+  }
 
   inline bool operator != (ComPtr<T> &rhs) const
-    { return (m_pointer != rhs.m_pointer); }
+  {
+    return (m_pointer != rhs.m_pointer);
+  }
 
   inline bool operator != (const ComPtr<T> &rhs)
-    { return (m_pointer != rhs.m_pointer); }
+  {
+    return (m_pointer != rhs.m_pointer);
+  }
 
   inline bool operator != (ComPtr<T> &rhs)
-    { return (m_pointer != rhs.m_pointer); }
+  {
+    return (m_pointer != rhs.m_pointer);
+  }
 
   inline bool operator != (const T *rhs) const
-    { return (m_pointer != rhs); }
+  {
+    return (m_pointer != rhs);
+  }
 
   inline bool operator != (T *rhs)
-    { return (m_pointer != rhs); }
+  {
+    return (m_pointer != rhs);
+  }
 
   inline bool operator ! () const
-    { return (!m_pointer); }
+  {
+    return (!m_pointer);
+  }
 
   inline T *Ptr() const
-    { return m_pointer; }
+  {
+    return m_pointer;
+  }
 
   // This is for when you need to pass it into a T** parameter to a function.
   // For instance:

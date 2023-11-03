@@ -124,13 +124,13 @@ namespace CathodeRetro
       struct GeneratePhaseTextureConstantData
       {
         float initialFrameStartPhase;                   // The phase at the start of the first scanline of this frame
-        float prevFrameStartPhase;                      // The phase at the start of the previous scanline of this frame (if relevant)
+        float prevFrameStartPhase;                      // Phase at the start of the first scanline of the prev. frame
         float phaseIncrementPerScanline;                // The amount to increment the phase each scanline
         uint32_t samplesPerColorburstCycle;             // Should match k_signalSamplesPerColorCycle
         float instabilityScale;
         uint32_t noiseSeed;
         uint32_t signalTextureWidth;
-        uint32_t scanlineCount;                         // How many scanlines
+        uint32_t scanlineCount;
       };
 
       struct ApplyArtifactsConstantData

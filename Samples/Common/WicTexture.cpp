@@ -146,7 +146,9 @@ std::vector<uint32_t> ReadWicTexture(const wchar_t *inputPath, uint32_t *width, 
 
   frameDecode->GetSize(width, height);
 
-  CHECK_HRESULT(imagingFactory->CreateFormatConverter(convertedFrame.AddressForReplace()), "creating format converter");
+  CHECK_HRESULT(
+    imagingFactory->CreateFormatConverter(convertedFrame.AddressForReplace()),
+    "creating format converter");
   CHECK_HRESULT(
     convertedFrame->Initialize(
       frameDecode,
@@ -161,7 +163,11 @@ std::vector<uint32_t> ReadWicTexture(const wchar_t *inputPath, uint32_t *width, 
   std::vector<uint32_t> colorData;
   colorData.resize(size);
   CHECK_HRESULT(
-    convertedFrame->CopyPixels(nullptr, *width * sizeof(uint32_t), size * sizeof(uint32_t), reinterpret_cast<uint8_t*>(colorData.data())),
+    convertedFrame->CopyPixels(
+      nullptr,
+      *width * sizeof(uint32_t),
+      size * sizeof(uint32_t),
+      reinterpret_cast<uint8_t*>(colorData.data())),
     "copying pixels");
 
   return colorData;

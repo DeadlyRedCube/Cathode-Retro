@@ -46,12 +46,14 @@ namespace CathodeRetro
           1,
           TextureFormat::RGBA_Float32);
 
-        // the output RGB image is narrower by totalSidePaddingTexelCount, since we're removing the padding as part of the decode process.
+        // the output RGB image is narrower by totalSidePaddingTexelCount, since we're removing the padding as part of
+        //  the decode process.
         uint32_t rgbWidth = signalProps.scanlineWidth - signalProps.totalSidePaddingTexelCount;
 
         // Now initialise the SVideo -> RGB elements
         sVideoToRGBConstantBuffer = device->CreateConstantBuffer(sizeof(SVideoToRGBConstantData));
-        sVideoToModulatedChromaConstantBuffer = device->CreateConstantBuffer(sizeof(SVideoToModulatedChromaConstantData));
+        sVideoToModulatedChromaConstantBuffer =
+          device->CreateConstantBuffer(sizeof(SVideoToModulatedChromaConstantData));
         sVideoToModulatedChromaShader = device->CreateShader(ShaderID::SVideoToModulatedChroma);
         sVideoToRGBShader = device->CreateShader(ShaderID::SVideoToRGB);
         rgbTexture = device->CreateRenderTarget(
@@ -148,7 +150,8 @@ namespace CathodeRetro
           SVideoToRGBConstantData {
             k_signalSamplesPerColorCycle,
 
-            // Saturation needs brightness scaled into it as well or else the output is weird when the brightness is set below 1.0
+            // Saturation needs brightness scaled into it as well or else the output is weird when the brightness is
+            //  set below 1.0
             knobSettings.saturation / levels.saturationScale * knobSettings.brightness,
             knobSettings.brightness,
             levels.blackLevel,
@@ -220,11 +223,11 @@ namespace CathodeRetro
         float saturation;                             // The saturation of the output (a user setting)
         float brightness;                             // The brightness adjustment for the output (a user setting)
 
-        float blackLevel;                             // The black "voltage" level of the input signal (from the signal generator/reader)
-        float whiteLevel;                             // The white "voltage" level of the input signal (from the signal generator/reader)
+        float blackLevel;                             // The black "voltage" level of the input signal
+        float whiteLevel;                             // The white "voltage" level of the input signal
 
-        float temporalArtifactReduction;              // If we have a doubled input (same picture, two phases) blend in the second one (1.0
-                                                      //  being a perfect 50/50 blend)
+        float temporalArtifactReduction;              // If we have a doubled input (same picture, two phases) blend in
+                                                      //  the second one (1.0 being a perfect 50/50 blend)
         uint32_t totalSidePaddingTexelCount;
         uint32_t inputWidth;
       };

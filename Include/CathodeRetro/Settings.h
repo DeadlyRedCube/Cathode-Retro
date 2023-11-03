@@ -8,8 +8,9 @@ namespace CathodeRetro
   enum class SignalType
   {
     RGB,          // Perfect RGB end to end.
-    SVideo,       // Keep luma and chroma separate - meaning you get chroma modulation artifacting but not channel mixing artifacts.
-    Composite,    // Blend luma and chroma, necessitating a separation pass which will introduce channel mixing artifacts.
+    SVideo,       // Keep luma and chroma separate - chroma modulation artifacting but not channel mixing artifacts.
+    Composite,    // Combine luma and chroma, necessitating a separation pass which will introduce channel mixing
+                  //  artifacts.
   };
 
 
@@ -18,7 +19,7 @@ namespace CathodeRetro
     Odd,                // This is an "odd" interlaced frame, the (1-based) odd scanlines will be full brightness.
     Even,               // This is an "even" interlaced frame
 
-    Progressive = Odd,  // If doing Progressive scan, you'll want to set scanlineStrength to 0, and always use Odd frames.
+    Progressive = Odd,  // If doing Progressive scan, you'll want to set scanlineStrength to 0 & always use Odd frames.
   };
 
 
@@ -46,8 +47,9 @@ namespace CathodeRetro
   };
 
 
-  // This structure describes the properties of the hypothetical source "machine" that is generating the composite or S-Video signal.
-  //  Specifically, it gives scanline timings and color-cycle-to-pixel ratios and phase offsets, as well as a display pixel ratio.
+  // This structure describes the properties of the hypothetical source "machine" that is generating the composite or
+  //  S-Video signal. Specifically, it gives scanline timings and color-cycle-to-pixel ratios and phase offsets, as
+  //  well as a display pixel ratio.
   struct SourceSettings
   {
     bool operator==(const SourceSettings &other) const { return memcmp(this, &other, sizeof(*this)) == 0; }
@@ -57,19 +59,20 @@ namespace CathodeRetro
     //  Use 1/1 for square input pixels, but for the NES/SNES it's 8/7
     float inputPixelAspectRatio = 1.0f;
 
-    // the number of color cycles to pad on either side of the signal texture (so that filtering won't have visible artifacts on the left
-    //  and right sides). Defaults to 2, but can be set to 0 if you don't need padding (like for a real signal, or a generated signal that
-    //  already has expected overscan on the sides).
+    // the number of color cycles to pad on either side of the signal texture (so that filtering won't have visible
+    //  rtifacts on the left and right sides). Defaults to 2, but can be set to 0 if you don't need padding (like for a
+    //  real signal, or a generated signal that already has expected overscan on the sides).
     uint32_t sidePaddingColorCycleCount = 2;
 
-    // This is the common denominator of all phase generation values (kept as a fraction to maintain numerical precision, because in
-    //  practice they're all rational values). So if the denominator is 3, a value of 1 would be 1/3rd of a color cycle, 2 would be
-    //  2/3rds, etc.
+    // This is the common denominator of all phase generation values (kept as a fraction to maintain numerical
+    //  precision, because in practice they're all rational values). So if the denominator is 3, a value of 1 would be
+    //  1/3rd of a color cycle, 2 would be  2/3rds, etc.
     //
     // Basically, all subsequent values are fractions with this as the denominator.
     uint32_t denominator = 1;
 
-    // This is a measure of how many cycles of the color carrier wave there are per pixel, and the answer is usually <= 1.
+    // This is a measure of how many cycles of the color carrier wave there are per pixel, and the answer is
+    //  usually <= 1.
     uint32_t colorCyclesPerInputPixel = 1;
 
     // Phase is measured in multiples of the color cycle.
@@ -80,15 +83,15 @@ namespace CathodeRetro
     // This is what fraction of the color cycle the phase increments every scanline
     uint32_t phaseIncrementPerLine = 0;
 
-    // Some systems had different phase changes per frame, and so this breaks down "how different is the starting phase of a frame
-    //  from one frame to the next" into even and odd frame deltas.
+    // Some systems had different phase changes per frame, and so this breaks down "how different is the starting phase
+    //  of a frame from one frame to the next" into even and odd frame deltas.
     uint32_t phaseIncrementPerEvenFrame = 0;
     uint32_t phaseIncrementPerOddFrame = 0;
   };
 
 
-  // This describes how noisy the generated signal is. Think of this as a bad cable or RF transmission between the nice, cleanly-generated
-  //  source signal and the back of the TV.
+  // This describes how noisy the generated signal is. Think of this as a bad cable or RF transmission between the
+  //  nice, cleanly-generated source signal and the back of the TV.
   struct ArtifactSettings
   {
     bool operator==(const ArtifactSettings &other) const { return memcmp(this, &other, sizeof(*this)) == 0; }
@@ -106,8 +109,8 @@ namespace CathodeRetro
   };
 
 
-  // These settings describe the screen properties of the virtual CRT TV that is displaying the image: things like how curved is the screen
-  //  and the appearance of the mask and scanlines.
+  // These settings describe the screen properties of the virtual CRT TV that is displaying the image: things like how
+  //  curved is the screen and the appearance of the mask and scanlines.
   struct ScreenSettings
   {
     bool operator==(const ScreenSettings &other) const { return memcmp(this, &other, sizeof(*this)) == 0; }
@@ -156,8 +159,8 @@ namespace CathodeRetro
   };
 
 
-  // These settings describe how much overscan we want to have: that is, how many input pixels of the source image get cut off by the
-  //  "bevel" of the TV.
+  // These settings describe how much overscan we want to have: that is, how many input pixels of the source image get
+  //  cut off by the "bevel" of the TV.
   struct OverscanSettings
   {
     bool operator==(const OverscanSettings &other) const { return memcmp(this, &other, sizeof(*this)) == 0; }

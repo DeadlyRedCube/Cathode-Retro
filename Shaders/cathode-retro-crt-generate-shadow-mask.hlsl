@@ -1,8 +1,8 @@
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// This shader generates an approximation of a CRT slot mask (the little R, G, and B dots that you can see on some CRTs when you are close
-//  to them.
-// It is intended to be rendered to a texture that has a 2:1 width:height ratio, and we are generating two sets of RGB rounded rectangles,
-//  where the right-most set is offset 50% vertically (so it wraps from bottom to top).
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// This shader generates an approximation of a CRT slot mask (the little R, G, and B dots that you can see on some CRTs
+//  when you are close to them.
+// It is intended to be rendered to a texture that has a 2:1 width:height ratio, and we are generating two sets of RGB
+//  rounded rectangles, where the right-most set is offset 50% vertically (so it wraps from bottom to top).
 
 
 #include "cathode-retro-util-language-helpers.hlsli"

@@ -1,19 +1,19 @@
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// This shader generates the Screen Texture, which is effectively overlayed on top of the actual screen image in the RGBToCRT shader.
-//  This includes the emulation of the shadow mask (or slot mask, aperture grill) of a CRT screen, as well as masking around the edges
-//  to handle blacking out values that are outside of the visible screen.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// This shader generates the Screen Texture, which is effectively overlayed on top of the actual screen image in the
+//  RGBToCRT shader. This includes the emulation of the shadow mask (or slot mask, aperture grill) of a CRT screen, as
+//  well as masking around the edges to handle blacking out values that are outside of the visible screen.
 
 
 #include "cathode-retro-crt-distort-coordinates.hlsli"
 #include "cathode-retro-util-noise.hlsli"
 
 // The mask texture for the CRT. That is, if you think of an old CRT and how you could see the
-//  R, G, and B dots, this is that texture. Needs to be set up to wrap, as well as to have mip mapping (and, ideally, anisotropic
-//  filtering too, if rendering as a curved screen, to help with sharpness and aliasing).
+//  R, G, and B dots, this is that texture. Needs to be set up to wrap, as well as to have mip mapping (and, ideally,
+//  anisotropic filtering too, if rendering as a curved screen, to help with sharpness and aliasing).
 DECLARE_TEXTURE2D(g_maskTexture, g_sampler);
 
 // This is a 64-tap poisson disc filter, found here:
-//  https://www.geeks3d.com/20100628/3d-programming-ready-to-use-64-sample-poisson-disc/CONST int k_samplePointCount = 64;
+//  https://www.geeks3d.com/20100628/3d-programming-ready-to-use-64-sample-poisson-disc/
 CONST int k_samplePointCount = 64;
 BEGIN_CONST_ARRAY(float2, k_samplingPattern, k_samplePointCount)
   float2(-0.613392, 0.617481),
@@ -88,49 +88,51 @@ CBUFFER consts
 {
   // $NOTE: The first four values here are the same as the first four in RGBToCRT.hlsl, and are expected to match.
 
-  // This shader is intended to render a screen of the correct shape regardless of the output render target shape, effectively letterboxing
-  //  or pillarboxing as needed(i.e. rendering a 4:3 screen to a 16:9 render target). g_viewScale is the scale value necessary to get the
-  //  resulting screen scale correct. In the event the output render target is wider than the intended screen, the screen needs to be
-  //  scaled down horizontally to pillarbox, usually like (where screenAspectRatio is crtScreenWidth / crtScreenHeight):
+  // This shader is intended to render a screen of the correct shape regardless of the output render target shape,
+  //  effectively letterboxing or pillarboxing as needed(i.e. rendering a 4:3 screen to a 16:9 render target).
+  //  g_viewScale is the scale value necessary to get the resulting screen scale correct. In the event the output
+  //  render target is wider than the intended screen, the screen needs to be scaled down horizontally to pillarbox,
+  //  usually like (where screenAspectRatio is crtScreenWidth / crtScreenHeight):
   //    (x: (renderTargetWidth / renderTargetHeight) * (1.0 / screenAspectRatio), y: 1.0)
-  //  and if the output render target is taller than the intended screen, it will end up letterboxed using something like:
+  //  if the output render target is taller than the intended screen, it will end up letterboxed using something like:
   //    (x: 1.0, y: (renderTargetHeight / renderTargetWidth) * screenAspectRatio)
-  // Note that if overscan (where the edges of the screen cover up some of the picture) is being emulated, it potentially needs to be
-  //  taken into account in this value too. See RGBToCRT.h for details if that's the case.
+  // Note that if overscan (where the edges of the screen cover up some of the picture) is being emulated, it
+  //  potentially needs to be taken into account in this value too. See RGBToCRT.h for details if that's the case.
   float2 g_viewScale;
 
-  // If overscan emulation is intended (where the edges of the screen cover up some of the picture), then this is the amount of signal
-  //  texture scaling needed to account for that. Given an overscan value "overscanAmount" that's
+  // If overscan emulation is intended (where the edges of the screen cover up some of the picture), then this is the
+  //  amount of signal texture scaling needed to account for that. Given an overscan value "overscanAmount" that's
   //    (overscanLeft + overscanRight, overscanTop + overscanBottom)
   //  this value should end up being:
   //    (inputImageSize.xy - overscanAmount.xy) / inputImageSize.xy
   float2 g_overscanScale;
 
-  // This is the texture coordinate offset to adjust for overscan. Because the input coordinates are [-1..1] instead of [0..1], this is
-  //  the offset needed to recenter the value. Given an "overscanDifference" value:
+  // This is the texture coordinate offset to adjust for overscan. Because the input coordinates are [-1..1] instead
+  //  of [0..1], this is the offset needed to recenter the value. Given an "overscanDifference" value:
   //    (overscanLeft - overscanRight, overscanTop - overscanBottom)
   //  this value should be:
   //    overscanDifference.xy/ inputImageSize.xy * 0.5
   float2 g_overscanOffset;
 
-  // The amount along each axis to apply the virtual-curved screen distortion. Usually a value in [0..1]. "0" indicates no curvature
-  //  (a flat screen) and "1" indicates "quite curved"
+  // The amount along each axis to apply the virtual-curved screen distortion. Usually a value in [0..1]. "0" indicates
+  //  no curvature (a flat screen) and "1" indicates "quite curved"
   float2 g_distortion;
 
-  // The distortion amount used for where the edges of the screen mask should be (outside of which is just a solid dark color).
-  //  Should be at least g_distortion, but if emulating an older TV which had some additional bevel curvature that cut off part of the
-  //  picture, this can be applied by adding additional value to this.
+  // The distortion amount used for where the edges of the screen mask should be. Should be at least g_distortion, but
+  //  if emulating an older TV which had some additional bevel curvature that cut off part of the picture, this can be
+  //  applied by adding additional value to this.
   float2 g_maskDistortion;
 
-  // The scale of the mask texture. Higher value means the coordinates are scaled more and, thus, the shadow mask is smaller.
+  // The scale of the mask texture. Higher value means the coordinates are scaled more and, thus, the shadow mask is
+  //  smaller.
   float2 g_maskScale;
 
   // The dimensions of the source texture (used for aspect correction
   float g_aspect;
 
-  // How much to round the corners of the screen to emulate a TV that had rounded corners that cut off a little picture.
-  //  0 indicates no rounding (squared-off corners), while a value of 1.0 means "the whole screen is an oval." Values <= 0.2 are
-  //  recommended.
+  // How much to round the corners of the screen to emulate a TV with rounded corners that cut off a little picture.
+  //  0 indicates no rounding (squared-off corners), while a value of 1.0 means "the whole screen is an oval."
+  //  Values <= 0.2 are recommended.
   float  g_roundedCornerSize;
 
 };

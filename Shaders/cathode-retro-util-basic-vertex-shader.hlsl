@@ -1,6 +1,7 @@
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// This is, as the name might have given you, a very basic vertex shader. It takes an input position in [0..1] and outputs that as the
-//  texture coordinate, and scales/biases it to [-1..1] for the position. This is intended for rendering a full-render-texture quad.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// This is, as the name might have given you, a very basic vertex shader. It takes an input position in [0..1] and
+//  outputs that as the texture coordinate, and scales/biases it to [-1..1] for the position. This is intended for
+//  rendering a full-render-texture quad.
 
 #ifdef HLSL
   struct VSOutput

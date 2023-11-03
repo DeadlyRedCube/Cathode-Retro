@@ -116,7 +116,7 @@ CONST float pi = 3.141592653;
 
 float4 Main(float2 inTexCoord)
 {
-  // The screen texture is 1:1 with the output render target so sample it directly off of the input texture coordinates.
+  // The screen texture is 1:1 with the output render target so sample it directly off of the input texture coordinates
   float4 screenMask = SAMPLE_TEXTURE(g_screenMaskTexture, g_screenMaskSampler, inTexCoord);
 
   // Now distort the texture coordinates to get our texture into the correct space for display.

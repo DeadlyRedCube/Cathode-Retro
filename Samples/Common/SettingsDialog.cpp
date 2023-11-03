@@ -25,7 +25,8 @@ template <typename T> size_t k_arrayLength<T &> = k_arrayLength<T>;
 template <typename T, size_t N> size_t k_arrayLength<T[N]> = N;
 
 
-// This file is a whole bunch of garbage code to run the dialog. I'm not proud of it, but it took like 3 hours to make and it works enough.
+// This file is a whole bunch of garbage code to run the dialog. I'm not proud of it, but it took like 3 hours to make
+//  and it works enough.
 
 template <typename Type>
 class Slider

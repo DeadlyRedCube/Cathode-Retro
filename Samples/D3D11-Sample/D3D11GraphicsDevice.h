@@ -153,7 +153,9 @@ public:
     dxgiSwapChain2->SetMaximumFrameLatency(1);
 
     swapChain->GetBuffer(0, UUID_AND_ADDRESS(backbuffer));
-    CHECK_HRESULT(device->CreateRenderTargetView(backbuffer, nullptr, backbufferView.AddressForReplace()), "create render target view");
+    CHECK_HRESULT(
+      device->CreateRenderTargetView(backbuffer, nullptr, backbufferView.AddressForReplace()),
+      "create render target view");
 
     {
       D3D11_TEXTURE2D_DESC bbDesc;
@@ -191,7 +193,9 @@ public:
       DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT);
 
     swapChain->GetBuffer(0, UUID_AND_ADDRESS(backbuffer));
-    CHECK_HRESULT(device->CreateRenderTargetView(backbuffer, nullptr, backbufferView.AddressForReplace()), "create render target view");
+    CHECK_HRESULT(
+      device->CreateRenderTargetView(backbuffer, nullptr, backbufferView.AddressForReplace()),
+      "create render target view");
   }
 
   uint32_t BackbufferWidth() const
@@ -223,7 +227,7 @@ public:
   }
 
 
-  // CathodeRetro::IGraphicsDevice Implementations /////////////////////////////////////////////////////////////////////////////////////
+  // CathodeRetro::IGraphicsDevice Implementations ////////////////////////////////////////////////////////////////////
 
 
   std::unique_ptr<CathodeRetro::IShader> CreateShader(CathodeRetro::ShaderID id) override
@@ -296,8 +300,8 @@ public:
 
   void BeginRendering() override
   {
-    // Any additional state to get the render state from whatever the calling app's setup is to be compatible with Cathode Retro needs to
-    //  be done here.
+    // Any additional state to get the render state from whatever the calling app's setup is to be compatible with
+    //  Cathode Retro needs to be done here.
 
     assert(!isRendering);
     float color[] = {0.0f, 0.0f, 0.0f, 0.0f};
@@ -328,7 +332,7 @@ public:
     }
     else
     {
-      // Calculate the relevant mip level dimension for the target level (and also its corresponding render target view).
+      // Calculate the relevant mip level dimension for the target level (and generate its render target view).
       viewportWidth = std::max(1U, output.texture->Width() >> output.mipLevel);
       viewportHeight = std::max(1U, output.texture->Height() >> output.mipLevel);
       rtv = static_cast<D3DTexture *>(output.texture)->mipRTVs[output.mipLevel];
@@ -487,8 +491,12 @@ private:
       tex->height = height;
       tex->format = format;
 
-      CHECK_HRESULT(device->CreateTexture2D(&desc, initialData, tex->texture.AddressForReplace()), "create texture 2D");
-      CHECK_HRESULT(device->CreateShaderResourceView(tex->texture, nullptr, tex->fullSRV.AddressForReplace()), "create SRV");
+      CHECK_HRESULT(
+        device->CreateTexture2D(&desc, initialData, tex->texture.AddressForReplace()),
+        "create texture 2D");
+      CHECK_HRESULT(
+        device->CreateShaderResourceView(tex->texture, nullptr, tex->fullSRV.AddressForReplace()),
+        "create SRV");
 
       tex->texture->GetDesc(&desc);
       tex->mipCount = desc.MipLevels;
@@ -552,7 +560,8 @@ private:
 
   void InitializeBuiltIns()
   {
-    // Create the basic vertex buffer (just a square made of 6 vertices, it wasn't even worth dealing with an index buffer for a single quad)
+    // Create the basic vertex buffer (just a square made of 6 vertices, it wasn't even worth dealing with an index
+    //  buffer for a single quad)
     {
       Vertex data[]
       {
@@ -615,7 +624,9 @@ private:
       desc.MinLOD = 0;
       desc.MaxLOD = D3D11_FLOAT32_MAX;
       CHECK_HRESULT(
-        device->CreateSamplerState(&desc, samplerStates[uint32_t(CathodeRetro::SamplerType::LinearClamp)].AddressForReplace()),
+        device->CreateSamplerState(
+          &desc,
+          samplerStates[uint32_t(CathodeRetro::SamplerType::LinearClamp)].AddressForReplace()),
         "create standard sampler state");
     }
 
@@ -630,7 +641,9 @@ private:
       desc.MinLOD = 0;
       desc.MaxLOD = D3D11_FLOAT32_MAX;
       CHECK_HRESULT(
-        device->CreateSamplerState(&desc, samplerStates[uint32_t(CathodeRetro::SamplerType::LinearWrap)].AddressForReplace()),
+        device->CreateSamplerState(
+          &desc,
+          samplerStates[uint32_t(CathodeRetro::SamplerType::LinearWrap)].AddressForReplace()),
         "create wrap sampler state");
     }
 
@@ -645,7 +658,9 @@ private:
       desc.MinLOD = 0;
       desc.MaxLOD = D3D11_FLOAT32_MAX;
       CHECK_HRESULT(
-        device->CreateSamplerState(&desc, samplerStates[uint32_t(CathodeRetro::SamplerType::NearestClamp)].AddressForReplace()),
+        device->CreateSamplerState(
+          &desc,
+          samplerStates[uint32_t(CathodeRetro::SamplerType::NearestClamp)].AddressForReplace()),
         "create standard sampler state");
     }
 
@@ -660,7 +675,9 @@ private:
       desc.MinLOD = 0;
       desc.MaxLOD = D3D11_FLOAT32_MAX;
       CHECK_HRESULT(
-        device->CreateSamplerState(&desc, samplerStates[uint32_t(CathodeRetro::SamplerType::NearestWrap)].AddressForReplace()),
+        device->CreateSamplerState(
+          &desc,
+          samplerStates[uint32_t(CathodeRetro::SamplerType::NearestWrap)].AddressForReplace()),
         "create wrap sampler state");
     }
 
@@ -669,7 +686,9 @@ private:
       D3D11_RASTERIZER_DESC desc = {};
       desc.FillMode = D3D11_FILL_SOLID;
       desc.CullMode = D3D11_CULL_NONE;
-      CHECK_HRESULT(device->CreateRasterizerState(&desc, rasterizerState.AddressForReplace()), "create rasterizer state");
+      CHECK_HRESULT(
+        device->CreateRasterizerState(&desc, rasterizerState.AddressForReplace()),
+        "create rasterizer state");
     }
 
     {

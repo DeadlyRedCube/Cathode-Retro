@@ -217,7 +217,11 @@ LRESULT FAR PASCAL WindowProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
         s_loadedTexture->oddTexture->Height(),
         s_sourceSettings);
 
-      s_demoHandler->UpdateCathodeRetroSettings(s_artifactSettings, s_knobSettings, s_overscanSettings, s_screenSettings);
+      s_demoHandler->UpdateCathodeRetroSettings(
+        s_artifactSettings,
+        s_knobSettings,
+        s_overscanSettings,
+        s_screenSettings);
     }
 
     break;
@@ -269,9 +273,10 @@ LRESULT FAR PASCAL WindowProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
       break;
     }
 
-    // Fallthrough to pick up Alt-Enter because some versions of windows only send WM_SYSKEYDOWN for left alt and not right alt.
-    // [[fallthrough]];
+    // Fallthrough to pick up Alt-Enter because some versions of windows only send WM_SYSKEYDOWN for left alt and not
+    //  right alt.
 
+    // [[fallthrough]];
   case WM_SYSKEYDOWN:
     switch (wParam)
     {

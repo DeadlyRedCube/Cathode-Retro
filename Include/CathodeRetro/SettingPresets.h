@@ -101,7 +101,8 @@ namespace CathodeRetro
         1.0f,       // Square pixels
         2,          // Standard side padding
         4,          // CGA at 640 pixels wide deals in multiples of 1/4
-        1,          // Every pixel is a quarter a color subcarrier wave (half of the 320 span since we have twice the number of pixels)
+        1,          // Every pixel is a quarter a color subcarrier wave (half of the 320 span since we have twice the
+                    //  number of pixels)
 
         // CGA has no phase changes at all per line or frame
         0,

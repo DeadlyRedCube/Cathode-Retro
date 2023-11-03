@@ -17,7 +17,10 @@ public:
     graphicsDevice = std::make_unique<D3D11GraphicsDevice>(hwnd);
   }
 
-  std::unique_ptr<CathodeRetro::ITexture> CreateRGBATexture(uint32_t width, uint32_t height, uint32_t *rgbaData) override
+  std::unique_ptr<CathodeRetro::ITexture> CreateRGBATexture(
+    uint32_t width,
+    uint32_t height,
+    uint32_t *rgbaData) override
   {
     return graphicsDevice->CreateTexture(width, height, CathodeRetro::TextureFormat::RGBA_Unorm8, rgbaData);
   }

@@ -11,10 +11,7 @@
 
 namespace CathodeRetro
 {
-  // This class handles the whole CathodeRetro pipeline. Besides the constructor, it has three functions:
-  //  - UpdateSettings, which should be called whenever any of the overall settings for the rendering are changed
-  //  - SetOutputSize, which should be called when the output render target size changes (i.e. the output window resizes)
-  //  - Render, which use the supplied IGraphicsDevice to do the magic.
+  // This class handles the whole CathodeRetro pipeline.
   class CathodeRetro
   {
   public:
@@ -29,7 +26,8 @@ namespace CathodeRetro
       UpdateSourceSettings(sigType, inputWidth, inputHeight, sourceSettings);
     }
 
-
+    // Call this whenever the input signal type changes (signal type, timings, or input dimensions). These changes
+    //  requires internal textures and other objects to be potentially reallocated.
     void UpdateSourceSettings(
       SignalType sigType,
       uint32_t inputWidth,
@@ -93,6 +91,7 @@ namespace CathodeRetro
     }
 
 
+    // Call this to change any other settings. No reallocations or texture re-creations are necessary here.
     void UpdateSettings(
       const ArtifactSettings &artifactSettings,
       const TVKnobSettings &knobSettings,
@@ -123,6 +122,8 @@ namespace CathodeRetro
     }
 
 
+    // Call this to change the output size (i.e. the size of the texture we'll be rendering to). This will reallocate
+    //  any screen-sized textures that might exist.
     void SetOutputSize(uint32_t outputWidth, uint32_t outputHeight)
     {
       assert(outputWidth > 0 && outputHeight > 0);
@@ -142,6 +143,8 @@ namespace CathodeRetro
     }
 
 
+    // Call this to actually render 
+    // $TODO: Really shouldn't need previousFrameInputRGB here, if RGBToCRT handled
     void Render(
       const ITexture *currentFrameInputRGB,
       const ITexture *previousFrameInputRGB,
