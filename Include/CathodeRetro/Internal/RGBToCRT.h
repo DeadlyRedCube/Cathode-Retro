@@ -103,6 +103,14 @@ namespace CathodeRetro
           needsRenderScreenTexture = false;
         }
 
+        // Between 4k and 2k (2160p and 1080p vertical resolution) we want to scale up the effect of the scanlines
+        //  and mask (up to a maximum of 1.0, which means that some higher values don't have any effect at 1080p). The
+        //  resulting scale values here were eyeballed to make the 2k version look reasonably consistent with the 4k
+        //  one.
+        float resolutionEffectScale = std::max(
+          0.0f,
+          std::min(1.0f, 1.0f - (float(screenTexture->Height()) - 1080.0f) / 1080.0f));
+
         rgbToScreenConstantBuffer->Update(
           RGBToScreenConstants{
             CalculateCommonConstants(CalculateAspectData()),
@@ -111,11 +119,11 @@ namespace CathodeRetro
             // $TODO: may want to artificially increase phosphorPersistence if we're interlaced
             screenSettings.phosphorPersistence,
             float(scanlineCount),
-            screenSettings.scanlineStrength,
+            std::min(1.0f, screenSettings.scanlineStrength * (resolutionEffectScale + 1.0f)),
             (scanType != ScanlineType::Even) ? 0.5f : -0.5f,
             (prevScanlineType != ScanlineType::Even) ? 0.5f : -0.5f,
             screenSettings.diffusionStrength,
-            screenSettings.maskStrength,
+            std::min(1.0f, screenSettings.maskStrength * (1.0f + resolutionEffectScale * 0.5f)),
             screenSettings.maskDepth,
           });
 
@@ -274,6 +282,15 @@ namespace CathodeRetro
           data.maskScale.x *= 1.4f;
           break;
         }
+
+        // Between 4k and 2k (2160p and 1080p vertical resolution) we want to scale the mask a little larger to help it
+        //  read better at lower-than-4k resolutions. The resulting scale values here were eyeballed to make the 2k
+        //  version look reasonably consistent with the 4k one.
+        float resolutionEffectScale = std::max(
+          0.0f,
+          std::min(1.0f, 1.0f - (float(screenTexture->Height()) - 1080.0f) / 1080.0f));
+        data.maskScale.x *= (1.0f - 0.1f * resolutionEffectScale);
+        data.maskScale.y *= (1.0f - 0.1f * resolutionEffectScale);
 
         data.screenAspect = aspectData.aspect;
 
