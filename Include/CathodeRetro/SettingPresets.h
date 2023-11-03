@@ -148,8 +148,8 @@ namespace CathodeRetro
         0.0f,
         0.0f,
         0.0f,
-        0.025f,
-        0.375f,
+        0.03f,
+        0.38f,
         1.0f,
       },
     },
@@ -159,8 +159,8 @@ namespace CathodeRetro
         0.0f,
         0.0f,
         0.0f,
-        0.025f,
-        0.375f,
+        0.03f,
+        0.38f,
         0.0f,
       },
     },
@@ -206,7 +206,7 @@ namespace CathodeRetro
         0.0f,                     // maskStrength
         0.0f,                     // maskDepth
         0.25f,                    // phosphorPersistence
-        0.47f,                    // scanlineStrength
+        0.45f,                    // scanlineStrength
         0.0f,                     // diffusionStrength
       }
     },
@@ -217,8 +217,8 @@ namespace CathodeRetro
         { 0.0f, 0.0f },           // screenEdgeRounding
         0.0f,                     // cornerRounding
         MaskType::SlotMask,       // maskType
-        1.07f,                    // maskScale
-        0.42f,                    // maskStrength
+        1.00f,                    // maskScale
+        0.40f,                    // maskStrength
         0.3f,                     // maskDepth
         0.25f,                    // phosphorPersistence
         0.4f,                     // scanlineStrength
@@ -232,9 +232,9 @@ namespace CathodeRetro
         { 0.0f, 0.0f },           // screenEdgeRounding
         0.0f,                     // cornerRounding
         MaskType::SlotMask,       // maskType
-        1.07f,                    // maskScale
-        0.47f,                    // maskStrength
-        0.42f,                    // maskDepth
+        1.00f,                    // maskScale
+        0.45f,                    // maskStrength
+        0.40f,                    // maskDepth
         0.25f,                    // phosphorPersistence
         0.0f,                     // scanlineStrength
         0.5f,                     // diffusionStrength
@@ -247,8 +247,8 @@ namespace CathodeRetro
         { 0.0f, 0.0f },           // screenEdgeRounding
         0.03f,                    // cornerRounding
         MaskType::SlotMask,       // maskType
-        1.07f,                    // maskScale
-        0.42f,                    // maskStrength
+        1.00f,                    // maskScale
+        0.40f,                    // maskStrength
         0.3f,                     // maskDepth
         0.25f,                    // phosphorPersistence
         0.4f,                     // scanlineStrength
@@ -262,9 +262,9 @@ namespace CathodeRetro
         { 0.0f, 0.0f },           // screenEdgeRounding
         0.03f,                    // cornerRounding
         MaskType::SlotMask,       // maskType
-        1.07f,                    // maskScale
-        0.47f,                    // maskStrength
-        0.42f,                    // maskDepth
+        1.00f,                    // maskScale
+        0.45f,                    // maskStrength
+        0.40f,                    // maskDepth
         0.25f,                    // phosphorPersistence
         0.00f,                    // scanlineStrength
         0.5f,                     // diffusionStrength
@@ -277,8 +277,8 @@ namespace CathodeRetro
         { 0.0f, 0.0f },           // screenEdgeRounding
         0.03f,                    // cornerRounding
         MaskType::ApertureGrille, // maskType
-        0.94f,                    // maskScale
-        0.42f,                    // maskStrength
+        1.00f,                    // maskScale
+        0.40f,                    // maskStrength
         0.3f,                     // maskDepth
         0.25f,                    // phosphorPersistence
         0.4f,                     // scanlineStrength
@@ -292,9 +292,9 @@ namespace CathodeRetro
         { 0.0f, 0.0f },           // screenEdgeRounding
         0.03f,                    // cornerRounding
         MaskType::ApertureGrille, // maskType
-        0.94f,                    // maskScale
-        0.47f,                    // maskStrength
-        0.42f,                    // maskDepth
+        1.00f,                    // maskScale
+        0.45f,                    // maskStrength
+        0.40f,                    // maskDepth
         0.25f,                    // phosphorPersistence
         0.00f,                    // scanlineStrength
         0.5f,                     // diffusionStrength
@@ -307,7 +307,7 @@ namespace CathodeRetro
         { 0.15f, 0.10f },         // screenEdgeRounding
         0.12f,                    // cornerRounding
         MaskType::ShadowMask,     // maskType
-        1.05f,                    // maskScale
+        1.00f,                    // maskScale
         0.3f,                     // maskStrength
         0.3f,                     // maskDepth
         0.25f,                    // phosphorPersistence

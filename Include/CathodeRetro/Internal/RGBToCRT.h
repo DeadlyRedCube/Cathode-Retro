@@ -255,21 +255,24 @@ namespace CathodeRetro
         data.maskDistortion.y = screenSettings.screenEdgeRounding.y * 0.5f;
         data.roundedCornerSize = screenSettings.cornerRounding;
 
-        // The values for maskScale were initially normalized against a 240-line-tall screen so just pretend it's ALWAYS that height
-        //  for purposes of scaling the mask.
-        static constexpr float maskScaleNormalization = 240.0f * 0.7f;
+        data.maskScale.y = float(scanlineCount) * data.common.overscanScale.y * 0.5f / screenSettings.maskScale;
+        data.maskScale.x = float(inputImageWidth) * pixelAspect * data.common.overscanScale.x * 0.25f / screenSettings.maskScale;
 
-        data.maskScale.x = float (inputImageWidth) / float(scanlineCount)
-                          * pixelAspect
-                          * maskScaleNormalization
-                          * 0.45f
-                          / screenSettings.maskScale;
-        data.maskScale.y = maskScaleNormalization / screenSettings.maskScale;
-
-        if (screenSettings.maskType == MaskType::ShadowMask)
+        switch (screenSettings.maskType)
         {
-          data.maskScale.x /= 2.0f * 5.0f / 6.0f;
-          data.maskScale.y /= 2.0f;
+        case MaskType::SlotMask:
+          data.maskScale.x *= 1.3f;
+          data.maskScale.y *= 1.3f;
+          break;
+
+        case MaskType::ShadowMask:
+          data.maskScale.x *= 0.6f;
+          data.maskScale.y *= 0.6f;
+          break;
+
+        case MaskType::ApertureGrille:
+          data.maskScale.x *= 1.4f;
+          break;
         }
 
         data.screenAspect = aspectData.aspect;
