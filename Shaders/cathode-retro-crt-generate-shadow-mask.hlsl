@@ -71,7 +71,7 @@ float4 Main(float2 inTexCoord)
   cellCoord = cellCoord * 2 - 1;
 
   float dist = length(cellCoord);
-  dist = 1.0 - smoothstep(0.85, 0.9, dist);
+  dist = 1.0 - smoothstep(0.75, 0.8, dist);
 
   // color *= lerp(0.1, 1.0, float(hexID.y % 2));
   return float4(color * dist, 1);
