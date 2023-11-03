@@ -63,6 +63,13 @@ void LoadTexture(const wchar_t *path)
   load->height = height;
   load->data = std::move(loaded);
 
+  bool resizeBackbuffer = false;
+  if (s_demoHandler == nullptr)
+  {
+    s_demoHandler = MakeDemoHandler(s_hwnd);
+    resizeBackbuffer = true;
+  }
+
   if (interlaced)
   {
     // Grab the odd
@@ -86,6 +93,13 @@ void LoadTexture(const wchar_t *path)
   s_loadedTexture = std::move(load);
 
   SendMessage(s_hwnd, WM_SETTINGS_CHANGED, 0, 0);
+
+  if (resizeBackbuffer)
+  {
+    RECT r;
+    GetClientRect(s_hwnd, &r);
+    s_demoHandler->ResizeBackbuffer(r.right - r.left, r.bottom - r.top);
+  }
 }
 
 
@@ -141,9 +155,12 @@ void ToggleFullscreen()
       SWP_NOZORDER);
   }
 
-  RECT r;
-  GetClientRect(s_hwnd, &r);
-  s_demoHandler->ResizeBackbuffer(r.right - r.left, r.bottom - r.top);
+  if (s_demoHandler != nullptr)
+  {
+    RECT r;
+    GetClientRect(s_hwnd, &r);
+    s_demoHandler->ResizeBackbuffer(r.right - r.left, r.bottom - r.top);
+  }
 }
 
 
@@ -194,15 +211,13 @@ LRESULT FAR PASCAL WindowProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
   case WM_SETTINGS_CHANGED:
     if (s_loadedTexture != nullptr)
     {
-      s_demoHandler->UpdateCathodeRetroSettings(
+      s_demoHandler->SetCathodeRetroSourceSettings(
         s_signalType,
         s_loadedTexture->oddTexture->Width(),
         s_loadedTexture->oddTexture->Height(),
-        s_sourceSettings,
-        s_artifactSettings,
-        s_knobSettings,
-        s_overscanSettings,
-        s_screenSettings);
+        s_sourceSettings);
+
+      s_demoHandler->UpdateCathodeRetroSettings(s_artifactSettings, s_knobSettings, s_overscanSettings, s_screenSettings);
     }
 
     break;
@@ -284,7 +299,7 @@ LRESULT FAR PASCAL WindowProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
     break;
 
   case WM_SIZE:
-    if (wParam != SIZE_MINIMIZED)
+    if (wParam != SIZE_MINIMIZED && s_demoHandler != nullptr)
     {
       s_demoHandler->ResizeBackbuffer(LOWORD(lParam), HIWORD(lParam));
     }
@@ -355,23 +370,6 @@ int CALLBACK WinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, 
 
     MSG msg;
     DoInit(hInstance);
-
-    s_demoHandler = MakeDemoHandler(s_hwnd);
-    s_demoHandler->UpdateCathodeRetroSettings(
-      s_signalType,
-      256,
-      240,
-      s_sourceSettings,
-      s_artifactSettings,
-      s_knobSettings,
-      s_overscanSettings,
-      s_screenSettings);
-
-    {
-      RECT r;
-      GetClientRect(s_hwnd, &r);
-      s_demoHandler->ResizeBackbuffer(r.right - r.left, r.bottom - r.top);
-    }
 
     ShowWindow(s_hwnd, SW_NORMAL);
     SetMenu(s_hwnd, s_menu);

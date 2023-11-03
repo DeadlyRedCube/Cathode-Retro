@@ -22,16 +22,12 @@ namespace CathodeRetro
         uint32_t inputImageWidthIn,
         uint32_t signalTextureWidthIn,
         uint32_t scanlineCountIn,
-        float pixelAspectIn,
-        const OverscanSettings &overscan,
-        const ScreenSettings &screen)
+        float pixelAspectIn)
       : device(deviceIn)
       , inputImageWidth(inputImageWidthIn)
       , signalTextureWidth(signalTextureWidthIn)
       , scanlineCount(scanlineCountIn)
       , pixelAspect(pixelAspectIn)
-      , screenSettings(screen)
-      , overscanSettings(overscan)
       {
         rgbToScreenShader = device->CreateShader(ShaderID::RGBToCRT);
         generateScreenTextureShader = device->CreateShader(ShaderID::GenerateScreenTexture);

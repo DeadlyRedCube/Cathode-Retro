@@ -86,6 +86,54 @@ public:
   }
 
 
+  std::unique_ptr<CathodeRetro::ITexture> CreateRGBATexture(uint32_t width, uint32_t height, uint32_t *rgbaData) override
+  {
+    // Demo app loads in images where 0, 0 is the upper-left corner, but GL's images put 0,0 in the lower right, so we need to vertically
+    //  flip the image before creating the texture.
+    std::vector<uint32_t> rgbaDataFlipped;
+    rgbaDataFlipped.resize(width * height);
+    for (size_t y = 0; y < height; y++)
+    {
+      size_t srcY = (height - 1 - y);
+      memcpy(&rgbaDataFlipped[y * width], &rgbaData[srcY * width], width * sizeof(uint32_t));
+    }
+
+    return graphicsDevice->CreateTexture(width, height, CathodeRetro::TextureFormat::RGBA_Unorm8, rgbaDataFlipped.data());
+  }
+
+
+  void SetCathodeRetroSourceSettings(
+    CathodeRetro::SignalType sigType,
+    uint32_t inputWidth,
+    uint32_t inputHeight,
+    const CathodeRetro::SourceSettings &sourceSettings) override
+  {
+    if (cathodeRetro == nullptr)
+    {
+      cathodeRetro = std::make_unique<CathodeRetro::CathodeRetro>(
+        graphicsDevice.get(),
+        sigType,
+        inputWidth,
+        inputHeight,
+        sourceSettings);
+    }
+    else
+    {
+      cathodeRetro->UpdateSourceSettings(sigType, inputWidth, inputHeight, sourceSettings);
+    }
+  }
+
+
+  void UpdateCathodeRetroSettings(
+    const CathodeRetro::ArtifactSettings &artifactSettings,
+    const CathodeRetro::TVKnobSettings &knobSettings,
+    const CathodeRetro::OverscanSettings &overscanSettings,
+    const CathodeRetro::ScreenSettings &screenSettings) override
+  {
+    assert (cathodeRetro != nullptr);
+    cathodeRetro->UpdateSettings(artifactSettings, knobSettings, overscanSettings, screenSettings);
+  }
+
   virtual void ResizeBackbuffer(uint32_t width, uint32_t height)
   {
     if (width == outWidth && height == outHeight)
@@ -104,22 +152,6 @@ public:
   }
 
 
-  std::unique_ptr<CathodeRetro::ITexture> CreateRGBATexture(uint32_t width, uint32_t height, uint32_t *rgbaData) override
-  {
-    // Demo app loads in images where 0, 0 is the upper-left corner, but GL's images put 0,0 in the lower right, so we need to vertically
-    //  flip the image before creating the texture.
-    std::vector<uint32_t> rgbaDataFlipped;
-    rgbaDataFlipped.resize(width * height);
-    for (size_t y = 0; y < height; y++)
-    {
-      size_t srcY = (height - 1 - y);
-      memcpy(&rgbaDataFlipped[y * width], &rgbaData[srcY * width], width * sizeof(uint32_t));
-    }
-
-    return graphicsDevice->CreateTexture(width, height, CathodeRetro::TextureFormat::RGBA_Unorm8, rgbaDataFlipped.data());
-  }
-
-
   void Render(
     const CathodeRetro::ITexture *currentFrame,
     const CathodeRetro::ITexture *prevFrame,
@@ -130,44 +162,6 @@ public:
     cathodeRetro->Render(currentFrame, prevFrame, scanlineType, backbuffer.get());
 
     SwapBuffers(windowDC);
-  }
-
-
-  void UpdateCathodeRetroSettings(
-    CathodeRetro::SignalType sigType,
-    uint32_t inputWidth,
-    uint32_t inputHeight,
-    const CathodeRetro::SourceSettings &sourceSettings,
-    const CathodeRetro::ArtifactSettings &artifactSettings,
-    const CathodeRetro::TVKnobSettings &knobSettings,
-    const CathodeRetro::OverscanSettings &overscanSettings,
-    const CathodeRetro::ScreenSettings &screenSettings) override
-  {
-    if (cathodeRetro == nullptr)
-    {
-      cathodeRetro = std::make_unique<CathodeRetro::CathodeRetro>(
-        graphicsDevice.get(),
-        sigType,
-        inputWidth,
-        inputHeight,
-        sourceSettings,
-        artifactSettings,
-        knobSettings,
-        overscanSettings,
-        screenSettings);
-    }
-    else
-    {
-      cathodeRetro->UpdateSettings(
-        sigType,
-        inputWidth,
-        inputHeight,
-        sourceSettings,
-        artifactSettings,
-        knobSettings,
-        overscanSettings,
-        screenSettings);
-    }
   }
 
 private:

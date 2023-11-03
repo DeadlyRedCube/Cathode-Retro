@@ -17,36 +17,16 @@ public:
     graphicsDevice = std::make_unique<D3D11GraphicsDevice>(hwnd);
   }
 
-  virtual void ResizeBackbuffer(uint32_t width, uint32_t height)
-  {
-    graphicsDevice->UpdateWindowSize(width, height);
-    cathodeRetro->SetOutputSize(width, height);
-  }
-
-
   std::unique_ptr<CathodeRetro::ITexture> CreateRGBATexture(uint32_t width, uint32_t height, uint32_t *rgbaData) override
   {
     return graphicsDevice->CreateTexture(width, height, CathodeRetro::TextureFormat::RGBA_Unorm8, rgbaData);
   }
 
-  void Render(
-    const CathodeRetro::ITexture *currentFrame,
-    const CathodeRetro::ITexture *prevFrame,
-    CathodeRetro::ScanlineType scanlineType) override
-  {
-    cathodeRetro->Render(currentFrame, prevFrame, scanlineType, nullptr);
-    graphicsDevice->Present();
-  }
-
-  void UpdateCathodeRetroSettings(
+  void SetCathodeRetroSourceSettings(
     CathodeRetro::SignalType sigType,
     uint32_t inputWidth,
     uint32_t inputHeight,
-    const CathodeRetro::SourceSettings &sourceSettings,
-    const CathodeRetro::ArtifactSettings &artifactSettings,
-    const CathodeRetro::TVKnobSettings &knobSettings,
-    const CathodeRetro::OverscanSettings &overscanSettings,
-    const CathodeRetro::ScreenSettings &screenSettings) override
+    const CathodeRetro::SourceSettings &sourceSettings) override
   {
     if (cathodeRetro == nullptr)
     {
@@ -55,24 +35,39 @@ public:
         sigType,
         inputWidth,
         inputHeight,
-        sourceSettings,
-        artifactSettings,
-        knobSettings,
-        overscanSettings,
-        screenSettings);
+        sourceSettings);
     }
     else
     {
-      cathodeRetro->UpdateSettings(
-        sigType,
-        inputWidth,
-        inputHeight,
-        sourceSettings,
-        artifactSettings,
-        knobSettings,
-        overscanSettings,
-        screenSettings);
+      cathodeRetro->UpdateSourceSettings(sigType, inputWidth, inputHeight, sourceSettings);
     }
+  }
+
+  void UpdateCathodeRetroSettings(
+    const CathodeRetro::ArtifactSettings &artifactSettings,
+    const CathodeRetro::TVKnobSettings &knobSettings,
+    const CathodeRetro::OverscanSettings &overscanSettings,
+    const CathodeRetro::ScreenSettings &screenSettings) override
+  {
+    assert (cathodeRetro != nullptr);
+    cathodeRetro->UpdateSettings(artifactSettings, knobSettings, overscanSettings, screenSettings);
+  }
+
+  void ResizeBackbuffer(uint32_t width, uint32_t height) override
+  {
+    graphicsDevice->UpdateWindowSize(width, height);
+    cathodeRetro->SetOutputSize(width, height);
+  }
+
+
+
+  void Render(
+    const CathodeRetro::ITexture *currentFrame,
+    const CathodeRetro::ITexture *prevFrame,
+    CathodeRetro::ScanlineType scanlineType) override
+  {
+    cathodeRetro->Render(currentFrame, prevFrame, scanlineType, nullptr);
+    graphicsDevice->Present();
   }
 
 private:

@@ -23,111 +23,100 @@ namespace CathodeRetro
       SignalType sigType,
       uint32_t inputWidth,
       uint32_t inputHeight,
-      const SourceSettings &sourceSettings,
-      const ArtifactSettings &artifactSettings,
-      const TVKnobSettings &knobSettings,
-      const OverscanSettings &overscanSettings,
-      const ScreenSettings &screenSettings)
+      const SourceSettings &sourceSettings)
       : device(graphicsDevice)
-      , signalType(sigType)
-      , cachedSourceSettings(sourceSettings)
-      , inWidth(inputWidth)
-      , inHeight(inputHeight)
     {
-      using namespace Internal;
-
-      signalGenerator = std::make_unique<SignalGenerator>(
-        device,
-        signalType,
-        inputWidth,
-        inputHeight,
-        sourceSettings);
-
-      signalGenerator->SetArtifactSettings(artifactSettings);
-
-      signalDecoder = std::make_unique<SignalDecoder>(
-        device,
-        signalGenerator->SignalProperties());
-
-      signalDecoder->SetKnobSettings(knobSettings);
-
-      rgbToCRT = std::make_unique<RGBToCRT>(
-        device,
-        inputWidth,
-        signalGenerator->SignalProperties().scanlineWidth,
-        inputHeight,
-        signalGenerator->SignalProperties().inputPixelAspectRatio,
-        overscanSettings,
-        screenSettings);
+      UpdateSourceSettings(sigType, inputWidth, inputHeight, sourceSettings);
     }
 
 
-    void UpdateSettings(
+    void UpdateSourceSettings(
       SignalType sigType,
       uint32_t inputWidth,
       uint32_t inputHeight,
-      const SourceSettings &sourceSettings,
-      const ArtifactSettings &artifactSettings,
-      const TVKnobSettings &knobSettings,
-      const OverscanSettings &overscanSettings,
-      const ScreenSettings &screenSettings)
+      const SourceSettings &sourceSettings)
     {
-      using namespace Internal;
-
-      auto oldSignalProps = signalGenerator->SignalProperties();
-      bool rebuildGen = false;
-      bool rebuildCRT = false;
-      if (inputWidth != inWidth || inputHeight != inHeight)
+      if (rgbToCRT != nullptr
+        && inputWidth == inWidth
+        && inputHeight == inHeight
+        && sigType == signalType
+        && sourceSettings == cachedSourceSettings)
       {
-        rebuildGen = true;
-        rebuildCRT = true;
+        return;
       }
 
-      if (rebuildGen || signalType != sigType || sourceSettings != cachedSourceSettings)
-      {
-        signalType = sigType;
-        cachedSourceSettings = sourceSettings;
-        inWidth = inputWidth;
-        inHeight = inputHeight;
+      using namespace Internal;
 
+      signalType = sigType;
+      cachedSourceSettings = sourceSettings;
+      inWidth = inputWidth;
+      inHeight = inputHeight;
+
+      if (sigType == SignalType::RGB)
+      {
+        signalGenerator = nullptr;
+        signalDecoder = nullptr;
+        rgbToCRT = std::make_unique<RGBToCRT>(
+          device,
+          inputWidth,
+          inputWidth,
+          inputHeight,
+          sourceSettings.inputPixelAspectRatio);
+      }
+      else
+      {
         signalGenerator = std::make_unique<SignalGenerator>(
           device,
           signalType,
           inputWidth,
           inputHeight,
           sourceSettings);
-      }
+        signalGenerator->SetArtifactSettings(cachedArtifactSettings);
 
-      signalGenerator->SetArtifactSettings(artifactSettings);
+        signalDecoder = std::make_unique<SignalDecoder>(device, signalGenerator->SignalProperties());
+        signalDecoder->SetKnobSettings(cachedKnobSettings);
 
-      if (signalGenerator->SignalProperties() != oldSignalProps)
-      {
-        signalDecoder = std::make_unique<SignalDecoder>(
-          device,
-          signalGenerator->SignalProperties());
-      }
-
-      signalDecoder->SetKnobSettings(knobSettings);
-
-      if (rebuildCRT
-        || signalGenerator->SignalProperties().scanlineWidth != oldSignalProps.scanlineWidth
-        || signalGenerator->SignalProperties().inputPixelAspectRatio != oldSignalProps.inputPixelAspectRatio)
-      {
         rgbToCRT = std::make_unique<RGBToCRT>(
           device,
           inputWidth,
           signalGenerator->SignalProperties().scanlineWidth,
           inputHeight,
-          signalGenerator->SignalProperties().inputPixelAspectRatio,
-          overscanSettings,
-          screenSettings);
-
-        if (outWidth != 0 && outHeight != 0)
-        {
-          rgbToCRT->SetOutputSize(outWidth, outHeight);
-        }
+          signalGenerator->SignalProperties().inputPixelAspectRatio);
       }
-      else
+
+      if (outWidth != 0 && outHeight != 0)
+      {
+        rgbToCRT->SetOutputSize(outWidth, outHeight);
+      }
+
+      rgbToCRT->SetSettings(cachedOverscanSettings, cachedScreenSettings);
+    }
+
+
+    void UpdateSettings(
+      const ArtifactSettings &artifactSettings,
+      const TVKnobSettings &knobSettings,
+      const OverscanSettings &overscanSettings,
+      const ScreenSettings &screenSettings)
+    {
+      using namespace Internal;
+
+      cachedArtifactSettings = artifactSettings;
+      cachedKnobSettings = knobSettings;
+      cachedOverscanSettings = overscanSettings;
+      cachedScreenSettings = screenSettings;
+
+      if (signalGenerator != nullptr)
+      {
+        signalGenerator->SetArtifactSettings(artifactSettings);
+      }
+
+      if (signalDecoder != nullptr)
+      {
+        signalDecoder->SetKnobSettings(knobSettings);
+      }
+
+      if (rgbToCRT != nullptr)
       {
         rgbToCRT->SetSettings(overscanSettings, screenSettings);
       }
@@ -136,6 +125,8 @@ namespace CathodeRetro
 
     void SetOutputSize(uint32_t outputWidth, uint32_t outputHeight)
     {
+      assert(outputWidth > 0 && outputHeight > 0);
+
       if (outputWidth == outWidth && outputHeight == outHeight)
       {
         return;
@@ -144,7 +135,10 @@ namespace CathodeRetro
       outWidth = outputWidth;
       outHeight = outputHeight;
 
-      rgbToCRT->SetOutputSize(outputWidth, outputHeight);
+      if (rgbToCRT != nullptr)
+      {
+        rgbToCRT->SetOutputSize(outputWidth, outputHeight);
+      }
     }
 
 
@@ -181,6 +175,11 @@ namespace CathodeRetro
     IGraphicsDevice *device;
     SignalType signalType;
     SourceSettings cachedSourceSettings;
+    ArtifactSettings cachedArtifactSettings;
+    TVKnobSettings cachedKnobSettings;
+    OverscanSettings cachedOverscanSettings;
+    ScreenSettings cachedScreenSettings;
+
     uint32_t inWidth = 0;
     uint32_t inHeight = 0;
     uint32_t outWidth = 0;
