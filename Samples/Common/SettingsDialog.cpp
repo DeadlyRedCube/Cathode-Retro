@@ -604,6 +604,15 @@ private:
       1.0f,
       20,
       [this]() { UpdateDisplay(); }};
+    maskDepthSlider = {
+      dialog,
+      IDC_MASK_DEPTH_SLIDER,
+      IDC_MASK_DEPTH_LABEL,
+      &screenSettings->maskDepth,
+      0.0f,
+      1.0f,
+      20,
+      [this]() { UpdateDisplay(); }};
     scanlineStrengthSlider = {
       dialog,
       IDC_SCANLINE_STRENGTH_SLIDER,
@@ -672,6 +681,7 @@ private:
   Slider<uint32_t> overscanBottomSlider;
   Slider<float> maskScaleSlider;
   Slider<float> maskStrengthSlider;
+  Slider<float> maskDepthSlider;
   Slider<float> scanlineStrengthSlider;
   Slider<float> phosphorPersistenceSlider;
   Slider<float> diffusionSlider;

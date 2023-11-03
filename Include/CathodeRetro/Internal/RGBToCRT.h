@@ -116,6 +116,7 @@ namespace CathodeRetro
             (prevScanlineType != ScanlineType::Even) ? 0.5f : -0.5f,
             screenSettings.diffusionStrength,
             screenSettings.maskStrength,
+            screenSettings.maskDepth,
           });
 
         if (screenSettings.diffusionStrength > 0.0f)
@@ -179,6 +180,7 @@ namespace CathodeRetro
         float prevEvenOddTexelOffset; // This is 0.5 if it's an odd frame (or progressive) and -0.5 if it's even.
         float diffusionStrength;      // The strength of the diffusion blur that is blended into the signal.
         float maskStrength;           // How much to blend the mask in. 0 means "no mask" and 1 means "fully apply"
+        float maskDepth;
       };
 
 

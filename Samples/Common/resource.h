@@ -59,6 +59,8 @@
 #define IDC_PHOSPHOR_PERSISTENCE_LABEL  1052
 #define IDC_DIFFUSION_LABEL             1053
 #define IDC_MASK_TYPE                   1054
+#define IDC_MASK_DEPTH_SLIDER           1055
+#define IDC_MASK_DEPTH_LABEL            1056
 #define ID_OPTIONS_SETTINGS             40001
 #define ID_OPTIONS_FULLSCREEN           40002
 #define ID_FILE_OPEN                    40003
@@ -70,7 +72,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        116
 #define _APS_NEXT_COMMAND_VALUE         40005
-#define _APS_NEXT_CONTROL_VALUE         1054
+#define _APS_NEXT_CONTROL_VALUE         1057
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

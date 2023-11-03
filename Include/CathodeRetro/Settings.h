@@ -122,10 +122,12 @@ namespace CathodeRetro
     // How much to round the corners (to emulate an old TV with rounded corners)
     float cornerRounding = 0.0f;
 
-    // What type of mask, as well as how much the mask affects the output (both its scale and its strength)
+    // What type of mask, as well as how much the mask affects the output (both its scale and its strength, and "depth"
+    //  which is the level of the darkest part of the mask)
     MaskType maskType = MaskType::SlotMask;
     float maskScale = 1.0f;
     float maskStrength = 0.0f;
+    float maskDepth = 0.5f;
 
     // How much of the previous frame to keep around on the next frame.
     float phosphorPersistence = 0.0f;
