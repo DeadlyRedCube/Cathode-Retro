@@ -236,22 +236,22 @@ public:
     int resourceID = 0;
     switch (id)
     {
-      case CathodeRetro::ShaderID::Copy: resourceID = IDR_COPY; break;
-      case CathodeRetro::ShaderID::Downsample2X: resourceID = IDR_DOWNSAMPLE_2X; break;
-      case CathodeRetro::ShaderID::GeneratePhaseTexture: resourceID = IDR_GENERATE_PHASE_TEXTURE; break;
-      case CathodeRetro::ShaderID::RGBToSVideoOrComposite: resourceID = IDR_RGB_TO_SVIDEO_OR_COMPOSITE; break;
-      case CathodeRetro::ShaderID::ApplyArtifacts: resourceID = IDR_APPLY_ARTIFACTS; break;
-      case CathodeRetro::ShaderID::CompositeToSVideo: resourceID = IDR_COMPOSITE_TO_SVIDEO; break;
-      case CathodeRetro::ShaderID::SVideoToModulatedChroma: resourceID = IDR_SVIDEO_TO_MODULATED_CHROMA; break;
-      case CathodeRetro::ShaderID::SVideoToRGB: resourceID = IDR_SVIDEO_TO_RGB; break;
-      case CathodeRetro::ShaderID::FilterRGB: resourceID = IDR_FILTER_RGB; break;
-      case CathodeRetro::ShaderID::GenerateScreenTexture: resourceID = IDR_GENERATE_SCREEN_TEXTURE; break;
-      case CathodeRetro::ShaderID::GenerateSlotMask: resourceID = IDR_GENERATE_SLOT_MASK; break;
-      case CathodeRetro::ShaderID::GenerateShadowMask: resourceID = IDR_GENERATE_SHADOW_MASK; break;
-      case CathodeRetro::ShaderID::GenerateApertureGrille: resourceID = IDR_GENERATE_APERTURE_GRILLE; break;
-      case CathodeRetro::ShaderID::TonemapAndDownsample: resourceID = IDR_TONEMAP_AND_DOWNSAMPLE; break;
-      case CathodeRetro::ShaderID::GaussianBlur13: resourceID = IDR_GAUSSIAN_BLUR_13; break;
-      case CathodeRetro::ShaderID::RGBToCRT: resourceID = IDR_RGB_TO_CRT; break;
+      case CathodeRetro::ShaderID::Util_Copy: resourceID = IDR_COPY; break;
+      case CathodeRetro::ShaderID::Util_Downsample2X: resourceID = IDR_DOWNSAMPLE_2X; break;
+      case CathodeRetro::ShaderID::Util_TonemapAndDownsample: resourceID = IDR_TONEMAP_AND_DOWNSAMPLE; break;
+      case CathodeRetro::ShaderID::Util_GaussianBlur13: resourceID = IDR_GAUSSIAN_BLUR_13; break;
+      case CathodeRetro::ShaderID::Generator_GeneratePhaseTexture: resourceID = IDR_GENERATE_PHASE_TEXTURE; break;
+      case CathodeRetro::ShaderID::Generator_RGBToSVideoOrComposite: resourceID = IDR_RGB_TO_SVIDEO_OR_COMPOSITE; break;
+      case CathodeRetro::ShaderID::Generator_ApplyArtifacts: resourceID = IDR_APPLY_ARTIFACTS; break;
+      case CathodeRetro::ShaderID::Decoder_CompositeToSVideo: resourceID = IDR_COMPOSITE_TO_SVIDEO; break;
+      case CathodeRetro::ShaderID::Decoder_SVideoToModulatedChroma: resourceID = IDR_SVIDEO_TO_MODULATED_CHROMA; break;
+      case CathodeRetro::ShaderID::Decoder_SVideoToRGB: resourceID = IDR_SVIDEO_TO_RGB; break;
+      case CathodeRetro::ShaderID::Decoder_FilterRGB: resourceID = IDR_FILTER_RGB; break;
+      case CathodeRetro::ShaderID::CRT_GenerateScreenTexture: resourceID = IDR_GENERATE_SCREEN_TEXTURE; break;
+      case CathodeRetro::ShaderID::CRT_GenerateSlotMask: resourceID = IDR_GENERATE_SLOT_MASK; break;
+      case CathodeRetro::ShaderID::CRT_GenerateShadowMask: resourceID = IDR_GENERATE_SHADOW_MASK; break;
+      case CathodeRetro::ShaderID::CRT_GenerateApertureGrille: resourceID = IDR_GENERATE_APERTURE_GRILLE; break;
+      case CathodeRetro::ShaderID::CRT_RGBToCRT: resourceID = IDR_RGB_TO_CRT; break;
     }
 
     auto data = LoadResourceBytes(resourceID);

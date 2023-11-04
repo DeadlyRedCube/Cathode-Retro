@@ -30,15 +30,15 @@ namespace CathodeRetro
       , scanlineCount(scanlineCountIn)
       , pixelAspect(pixelAspectIn)
       {
-        rgbToScreenShader = device->CreateShader(ShaderID::RGBToCRT);
-        generateScreenTextureShader = device->CreateShader(ShaderID::GenerateScreenTexture);
-        copyShader = device->CreateShader(ShaderID::Copy);
-        downsample2XShader = device->CreateShader(ShaderID::Downsample2X);
-        gaussianBlurShader = device->CreateShader(ShaderID::GaussianBlur13);
-        toneMapShader = device->CreateShader(ShaderID::TonemapAndDownsample);
-        generateSlotMaskShader = device->CreateShader(ShaderID::GenerateSlotMask);
-        generateShadowMaskShader = device->CreateShader(ShaderID::GenerateShadowMask);
-        generateApertureGrilleShader = device->CreateShader(ShaderID::GenerateApertureGrille);
+        rgbToScreenShader = device->CreateShader(ShaderID::CRT_RGBToCRT);
+        generateScreenTextureShader = device->CreateShader(ShaderID::CRT_GenerateScreenTexture);
+        copyShader = device->CreateShader(ShaderID::Util_Copy);
+        downsample2XShader = device->CreateShader(ShaderID::Util_Downsample2X);
+        gaussianBlurShader = device->CreateShader(ShaderID::Util_GaussianBlur13);
+        toneMapShader = device->CreateShader(ShaderID::Util_TonemapAndDownsample);
+        generateSlotMaskShader = device->CreateShader(ShaderID::CRT_GenerateSlotMask);
+        generateShadowMaskShader = device->CreateShader(ShaderID::CRT_GenerateShadowMask);
+        generateApertureGrilleShader = device->CreateShader(ShaderID::CRT_GenerateApertureGrille);
 
         screenTextureConstantBuffer = device->CreateConstantBuffer(sizeof(ScreenTextureConstants));
         rgbToScreenConstantBuffer = device->CreateConstantBuffer(sizeof(RGBToScreenConstants));

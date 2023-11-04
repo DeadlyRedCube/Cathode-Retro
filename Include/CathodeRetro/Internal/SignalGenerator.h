@@ -38,11 +38,11 @@ namespace CathodeRetro
 
         generateSignalConstantBuffer = device->CreateConstantBuffer(
           std::max(sizeof(RGBToSVideoConstantData), sizeof(GeneratePhaseTextureConstantData)));
-        rgbToSVideoShader = device->CreateShader(ShaderID::RGBToSVideoOrComposite);
-        generatePhaseTextureShader = device->CreateShader(ShaderID::GeneratePhaseTexture);
+        rgbToSVideoShader = device->CreateShader(ShaderID::Generator_RGBToSVideoOrComposite);
+        generatePhaseTextureShader = device->CreateShader(ShaderID::Generator_GeneratePhaseTexture);
 
         applyArtifactsConstantBuffer = device->CreateConstantBuffer(sizeof(ApplyArtifactsConstantData));
-        applyArtifactsShader = device->CreateShader(ShaderID::ApplyArtifacts);
+        applyArtifactsShader = device->CreateShader(ShaderID::Generator_ApplyArtifacts);
 
         SetArtifactSettings({});
       }

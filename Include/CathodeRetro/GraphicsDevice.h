@@ -42,25 +42,25 @@ namespace CathodeRetro
   //  graphics device to define how these IDs get translated into the actual loaded shader.
   enum class ShaderID
   {
-    Copy,
-    Downsample2X,
-    TonemapAndDownsample,
-    GaussianBlur13,
+    Util_Copy,                                      // cathode-retro-util-copy.hlsl
+    Util_Downsample2X,                              // cathode-retro-util-downsample-2x.hlsl
+    Util_TonemapAndDownsample,                      // cathode-retro-util-tonemap-and-downsample.hlsl
+    Util_GaussianBlur13,                            // cathode-retro-util-gaussian-blur.hlsl
 
-    GeneratePhaseTexture,
-    RGBToSVideoOrComposite,
-    ApplyArtifacts,
+    Generator_GeneratePhaseTexture,                 // cathode-retro-generator-gen-phase.hlsl
+    Generator_RGBToSVideoOrComposite,               // cathode-retro-generator-rgb-to-svideo-or-compsite.hlsl
+    Generator_ApplyArtifacts,                       // cathode-retro-generator-apply-artifacts.hlsl
 
-    CompositeToSVideo,
-    SVideoToModulatedChroma,
-    SVideoToRGB,
-    FilterRGB,
+    Decoder_CompositeToSVideo,                      // cathode-retro-decoder-composite-to-svideo.hlsl
+    Decoder_SVideoToModulatedChroma,                // cathode-retro-decoder-svideo-to-modulated-chroma.hlsl
+    Decoder_SVideoToRGB,                            // cathode-retro-decoder-svideo-to-rgb.hlsl
+    Decoder_FilterRGB,                              // cathode-retro-decoder-filter-rgb.hlsl
 
-    GenerateScreenTexture,
-    GenerateSlotMask,
-    GenerateShadowMask,
-    GenerateApertureGrille,
-    RGBToCRT,
+    CRT_GenerateScreenTexture,                      // cathode-retro-crt-generate-screen-texture.hlsl
+    CRT_GenerateSlotMask,                           // cathode-retro-crt-generate-slot-mask.hlsl
+    CRT_GenerateShadowMask,                         // cathode-retro-crt-generate-shadow-mask.hlsl
+    CRT_GenerateApertureGrille,                     // cathode-retro-crt-generate-aperture-grille.hlsl
+    CRT_RGBToCRT,                                   // cathode-retro-crt-rgb-to-crt.hlsl
   };
 
 

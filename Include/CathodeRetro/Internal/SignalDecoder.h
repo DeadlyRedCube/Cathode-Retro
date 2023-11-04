@@ -21,7 +21,7 @@ namespace CathodeRetro
         {
           // We need a Composite -> SVideo step (luma/chroma separation), so run that
           compositeToSVideoConstantBuffer = device->CreateConstantBuffer(sizeof(CompositeToSVideoConstantData));
-          compositeToSVideoShader = device->CreateShader(ShaderID::CompositeToSVideo);
+          compositeToSVideoShader = device->CreateShader(ShaderID::Decoder_CompositeToSVideo);
 
           decodedSVideoTextureSingle = device->CreateRenderTarget(
             signalProps.scanlineWidth,
@@ -54,8 +54,8 @@ namespace CathodeRetro
         sVideoToRGBConstantBuffer = device->CreateConstantBuffer(sizeof(SVideoToRGBConstantData));
         sVideoToModulatedChromaConstantBuffer =
           device->CreateConstantBuffer(sizeof(SVideoToModulatedChromaConstantData));
-        sVideoToModulatedChromaShader = device->CreateShader(ShaderID::SVideoToModulatedChroma);
-        sVideoToRGBShader = device->CreateShader(ShaderID::SVideoToRGB);
+        sVideoToModulatedChromaShader = device->CreateShader(ShaderID::Decoder_SVideoToModulatedChroma);
+        sVideoToRGBShader = device->CreateShader(ShaderID::Decoder_SVideoToRGB);
         rgbTexture = device->CreateRenderTarget(
           rgbWidth,
           signalProps.scanlineCount,
@@ -69,7 +69,7 @@ namespace CathodeRetro
 
         // Finally, the RGB filtering portions
         filterRGBConstantBuffer = device->CreateConstantBuffer(sizeof(FilterRGBConstantData));
-        filterRGBShader = device->CreateShader(ShaderID::FilterRGB);
+        filterRGBShader = device->CreateShader(ShaderID::Decoder_FilterRGB);
       }
 
       void SetKnobSettings(const TVKnobSettings &settings)
