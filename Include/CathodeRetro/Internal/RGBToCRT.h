@@ -241,8 +241,7 @@ namespace CathodeRetro
           float(originalInputImageWidth - (overscanSettings.overscanLeft + overscanSettings.overscanRight));
         float overscanSizeY = float(scanlineCount - (overscanSettings.overscanTop + overscanSettings.overscanBottom));
         return {
-          overscanSizeX,
-          overscanSizeY,
+          { overscanSizeX, overscanSizeY },
           pixelAspect * overscanSizeX / overscanSizeY,
         };
       }
@@ -441,8 +440,7 @@ namespace CathodeRetro
         //  prevFrameTexture * phosphorPersistence, but for now, this is fine.
         toneMapConstantBuffer->Update(
           ToneMapConstants {
-            downsampleDirX,
-            downsampleDirY,
+            { downsampleDirX, downsampleDirY },
 
             // $TODO: Probably want to expose these values too, since everything else is an option
             0.0f,
