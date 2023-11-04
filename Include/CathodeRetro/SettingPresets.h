@@ -244,7 +244,7 @@ namespace CathodeRetro
     {
       "Standard CRT",
       {
-        { 0.25f, 0.15f },         // distortion
+        { 0.20f, 0.10f },         // distortion
         { 0.0f, 0.0f },           // screenEdgeRounding
         0.03f,                    // cornerRounding
         MaskType::SlotMask,       // maskType
@@ -259,7 +259,7 @@ namespace CathodeRetro
     {
       "Standard CRT (No Scanlines)",
       {
-        { 0.25f, 0.15f },         // distortion
+        { 0.20f, 0.10f },         // distortion
         { 0.0f, 0.0f },           // screenEdgeRounding
         0.03f,                    // cornerRounding
         MaskType::SlotMask,       // maskType
