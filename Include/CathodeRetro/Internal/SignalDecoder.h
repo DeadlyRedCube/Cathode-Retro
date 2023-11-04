@@ -133,7 +133,7 @@ namespace CathodeRetro
             sVideoTexture->Width(),
           });
 
-        ITexture *modulatedChromaTex = (levels.temporalArtifactReduction > 0.0f)
+        IRenderTarget *modulatedChromaTex = (levels.temporalArtifactReduction > 0.0f)
           ? modulatedChromaTextureDouble.get()
           : modulatedChromaTextureSingle.get();
 
@@ -192,9 +192,9 @@ namespace CathodeRetro
 
       IGraphicsDevice *device;
 
-      std::unique_ptr<ITexture> rgbTexture;
-      std::unique_ptr<ITexture> prevFrameRGBTexture;
-      std::unique_ptr<ITexture> scratchRGBTexture;
+      std::unique_ptr<IRenderTarget> rgbTexture;
+      std::unique_ptr<IRenderTarget> prevFrameRGBTexture;
+      std::unique_ptr<IRenderTarget> scratchRGBTexture;
       SignalProperties signalProps;
       TVKnobSettings knobSettings;
 
@@ -206,8 +206,8 @@ namespace CathodeRetro
 
       std::unique_ptr<IShader> compositeToSVideoShader;
       std::unique_ptr<IConstantBuffer> compositeToSVideoConstantBuffer;
-      std::unique_ptr<ITexture> decodedSVideoTextureSingle;
-      std::unique_ptr<ITexture> decodedSVideoTextureDouble;
+      std::unique_ptr<IRenderTarget> decodedSVideoTextureSingle;
+      std::unique_ptr<IRenderTarget> decodedSVideoTextureDouble;
 
       // Step 2: SVideo to RGB Elements
       struct SVideoToModulatedChromaConstantData
@@ -233,8 +233,8 @@ namespace CathodeRetro
       };
 
       std::unique_ptr<IShader> sVideoToModulatedChromaShader;
-      std::unique_ptr<ITexture> modulatedChromaTextureSingle;
-      std::unique_ptr<ITexture> modulatedChromaTextureDouble;
+      std::unique_ptr<IRenderTarget> modulatedChromaTextureSingle;
+      std::unique_ptr<IRenderTarget> modulatedChromaTextureDouble;
       std::unique_ptr<IShader> sVideoToRGBShader;
       std::unique_ptr<IConstantBuffer> sVideoToModulatedChromaConstantBuffer;
       std::unique_ptr<IConstantBuffer> sVideoToRGBConstantBuffer;

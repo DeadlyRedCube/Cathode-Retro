@@ -86,7 +86,7 @@ private:
 
 
 // This is a Texture wrapper, which can potentially contain a "render target" (Frame Buffer Object)
-class GLTexture : public CathodeRetro::ITexture
+class GLTexture : public CathodeRetro::IRenderTarget
 {
 public:
   static GLTexture FromBackbuffer(uint32_t width, uint32_t height)
@@ -299,7 +299,7 @@ public:
   // CathodeRetro::IGraphicsDevice implementations ////////////////////////////////////////////////////////////////////
 
 
-  std::unique_ptr<CathodeRetro::ITexture> CreateRenderTarget(
+  std::unique_ptr<CathodeRetro::IRenderTarget> CreateRenderTarget(
     uint32_t width,
     uint32_t height,
     uint32_t mipCount, // 0 means "all mip levels"

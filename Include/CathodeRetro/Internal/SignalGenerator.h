@@ -241,10 +241,10 @@ namespace CathodeRetro
       std::unique_ptr<IConstantBuffer> generateSignalConstantBuffer;
       std::unique_ptr<IConstantBuffer> applyArtifactsConstantBuffer;
 
-      std::unique_ptr<ITexture> phasesTexture;
+      std::unique_ptr<IRenderTarget> phasesTexture;
 
-      std::unique_ptr<ITexture> signalTexture;
-      std::unique_ptr<ITexture> scratchSignalTexture;
+      std::unique_ptr<IRenderTarget> signalTexture;
+      std::unique_ptr<IRenderTarget> scratchSignalTexture;
 
       SourceSettings sourceSettings;
       Internal::SignalProperties signalProps;

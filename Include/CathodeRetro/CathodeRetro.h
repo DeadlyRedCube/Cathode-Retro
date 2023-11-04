@@ -143,13 +143,13 @@ namespace CathodeRetro
     }
 
 
-    // Call this to actually render 
+    // Call this to actually render
     // $TODO: Really shouldn't need previousFrameInputRGB here, if RGBToCRT handled
     void Render(
       const ITexture *currentFrameInputRGB,
       const ITexture *previousFrameInputRGB,
       ScanlineType scanlineType,
-      ITexture *output)
+      IRenderTarget *output)
     {
       device->BeginRendering();
 

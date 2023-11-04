@@ -30,7 +30,7 @@
   while (false)
 
 
-class D3DTexture : public CathodeRetro::ITexture
+class D3DTexture : public CathodeRetro::IRenderTarget
 {
 public:
   uint32_t Width() const override
@@ -288,13 +288,22 @@ public:
   }
 
 
-  std::unique_ptr<CathodeRetro::ITexture> CreateRenderTarget(
+  std::unique_ptr<CathodeRetro::IRenderTarget> CreateRenderTarget(
     uint32_t width,
     uint32_t height,
     uint32_t mipCount, // 0 means "all mip levels"
     CathodeRetro::TextureFormat format) override
   {
-    return CreateTexture(width, height, mipCount, format, true, nullptr);
+    return std::unique_ptr<CathodeRetro::IRenderTarget>
+      {
+        static_cast<CathodeRetro::IRenderTarget*>(CreateTexture(
+          width,
+          height,
+          mipCount,
+          format,
+          true,
+          nullptr).release())
+      };
   }
 
 

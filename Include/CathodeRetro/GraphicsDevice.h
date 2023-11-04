@@ -76,9 +76,7 @@ namespace CathodeRetro
 
 
   // This interface represents a wrapper around a texture, as you might have guessed. It exposes a few metrics for
-  //  Cathode Retro to query. Cathode Retro only creates render targets, so this may be a render target. It's necessary
-  //  to create a render target view (or frame buffer object, etc) per mip level so that they can be independently
-  //  rendered to.
+  //  Cathode Retro to query.
   class ITexture
   {
   public:
@@ -90,6 +88,14 @@ namespace CathodeRetro
 
   protected:
     ITexture() = default;
+  };
+
+
+  // This interface represents a wrapper around a render target, and is derived from ITexture.
+  class IRenderTarget : public ITexture
+  {
+  protected:
+    IRenderTarget() = default;
   };
 
 
@@ -130,12 +136,12 @@ namespace CathodeRetro
   //  level is specified, it will render to the largest mip level.
   struct RenderTargetView
   {
-    RenderTargetView(ITexture *tex, uint32_t mip = 0)
+    RenderTargetView(IRenderTarget *tex, uint32_t mip = 0)
       : texture(tex)
       , mipLevel(int32_t(mip))
       { }
 
-    ITexture *texture;
+    IRenderTarget *texture;
     uint32_t mipLevel = 0;
   };
 
@@ -148,7 +154,7 @@ namespace CathodeRetro
     virtual ~IGraphicsDevice() = default;
 
     // This should create a render target with the given dimensions, mip count, and format.
-    virtual std::unique_ptr<ITexture> CreateRenderTarget(
+    virtual std::unique_ptr<IRenderTarget> CreateRenderTarget(
       uint32_t width,
       uint32_t height,
       uint32_t mipCount, // 0 means "all mip levels"

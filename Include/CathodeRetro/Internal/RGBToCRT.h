@@ -95,7 +95,7 @@ namespace CathodeRetro
       void Render(
         const ITexture *currentFrameRGBInput,
         const ITexture *previousFrameRGBInput,
-        ITexture *outputTexture,
+        IRenderTarget *outputTexture,
         ScanlineType scanType)
       {
         assert(screenTexture != nullptr);
@@ -488,13 +488,13 @@ namespace CathodeRetro
       std::unique_ptr<IShader> generateShadowMaskShader;
       std::unique_ptr<IShader> generateApertureGrilleShader;
 
-      std::unique_ptr<ITexture> maskTexture;
-      std::unique_ptr<ITexture> halfWidthMaskTexture;
-      std::unique_ptr<ITexture> screenTexture;
+      std::unique_ptr<IRenderTarget> maskTexture;
+      std::unique_ptr<IRenderTarget> halfWidthMaskTexture;
+      std::unique_ptr<IRenderTarget> screenTexture;
 
-      std::unique_ptr<ITexture> toneMapTexture;
-      std::unique_ptr<ITexture> blurScratchTexture;
-      std::unique_ptr<ITexture> blurTexture;
+      std::unique_ptr<IRenderTarget> toneMapTexture;
+      std::unique_ptr<IRenderTarget> blurScratchTexture;
+      std::unique_ptr<IRenderTarget> blurTexture;
 
       ScreenSettings screenSettings;
       OverscanSettings overscanSettings;
