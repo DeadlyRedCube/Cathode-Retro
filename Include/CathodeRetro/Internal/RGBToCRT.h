@@ -20,18 +20,19 @@ namespace CathodeRetro
     public:
       RGBToCRT(
         IGraphicsDevice *deviceIn,
-        uint32_t inputImageWidthIn,
-        uint32_t signalTextureWidthIn,
+        uint32_t originalInputImageWidthIn,
+        uint32_t processedRGBTextureWidthIn,
         uint32_t scanlineCountIn,
         float pixelAspectIn)
       : device(deviceIn)
-      , inputImageWidth(inputImageWidthIn)
-      , signalTextureWidth(signalTextureWidthIn)
+      , originalInputImageWidth(originalInputImageWidthIn)
+      , processedRGBTextureWidth(processedRGBTextureWidthIn)
       , scanlineCount(scanlineCountIn)
       , pixelAspect(pixelAspectIn)
       {
         rgbToScreenShader = device->CreateShader(ShaderID::RGBToCRT);
         generateScreenTextureShader = device->CreateShader(ShaderID::GenerateScreenTexture);
+        copyShader = device->CreateShader(ShaderID::Copy);
         downsample2XShader = device->CreateShader(ShaderID::Downsample2X);
         gaussianBlurShader = device->CreateShader(ShaderID::GaussianBlur13);
         toneMapShader = device->CreateShader(ShaderID::TonemapAndDownsample);
@@ -49,6 +50,11 @@ namespace CathodeRetro
         maskDownsampleConstantBufferH = device->CreateConstantBuffer(sizeof(Vec2));
         maskDownsampleConstantBufferV = device->CreateConstantBuffer(sizeof(Vec2));
 
+        prevRGBInput = device->CreateRenderTarget(
+          processedRGBTextureWidth,
+          scanlineCount,
+          1,
+          TextureFormat::RGBA_Unorm8);
         maskTexture = device->CreateRenderTarget(k_maskSize, k_maskSize / 2, 0, TextureFormat::RGBA_Unorm8);
         halfWidthMaskTexture = device->CreateRenderTarget(
           k_maskSize / 2,
@@ -94,7 +100,6 @@ namespace CathodeRetro
 
       void Render(
         const ITexture *currentFrameRGBInput,
-        const ITexture *previousFrameRGBInput,
         IRenderTarget *outputTexture,
         ScanlineType scanType)
       {
@@ -110,6 +115,15 @@ namespace CathodeRetro
         {
           RenderScreenTexture();
           needsRenderScreenTexture = false;
+        }
+
+        if (isFirstFrame)
+        {
+          isFirstFrame = false;
+          device->RenderQuad(
+            copyShader.get(),
+            prevRGBInput.get(),
+            { { currentFrameRGBInput, SamplerType::LinearClamp } });
         }
 
         // Between 4k and 2k (2160p and 1080p vertical resolution) we want to scale up the effect of the scanlines
@@ -146,11 +160,16 @@ namespace CathodeRetro
           outputTexture,
           {
             {currentFrameRGBInput, SamplerType::LinearClamp},
-            {previousFrameRGBInput, SamplerType::LinearClamp},
+            {prevRGBInput.get(), SamplerType::LinearClamp},
             {screenTexture.get(), SamplerType::NearestClamp},
             {blurTexture.get(), SamplerType::LinearClamp},
           },
           rgbToScreenConstantBuffer.get());
+
+        device->RenderQuad(
+          copyShader.get(),
+          prevRGBInput.get(),
+          { { currentFrameRGBInput, SamplerType::LinearClamp } });
 
         prevScanlineType = scanType;
       }
@@ -219,7 +238,7 @@ namespace CathodeRetro
       {
         // Figure out how to adjust our viewed texture area for overscan
         float overscanSizeX =
-          float(inputImageWidth - (overscanSettings.overscanLeft + overscanSettings.overscanRight));
+          float(originalInputImageWidth - (overscanSettings.overscanLeft + overscanSettings.overscanRight));
         float overscanSizeY = float(scanlineCount - (overscanSettings.overscanTop + overscanSettings.overscanBottom));
         return {
           overscanSizeX,
@@ -233,11 +252,11 @@ namespace CathodeRetro
       {
         CommonConstants data;
 
-        data.overscanScale.x = aspectData.overscanSize.x / inputImageWidth;
+        data.overscanScale.x = aspectData.overscanSize.x / originalInputImageWidth;
         data.overscanScale.y = aspectData.overscanSize.y / scanlineCount;
 
         data.overscanOffset.x =
-          float(int32_t(overscanSettings.overscanLeft - overscanSettings.overscanRight)) / inputImageWidth * 0.5f;
+          float(int32_t(overscanSettings.overscanLeft - overscanSettings.overscanRight)) / originalInputImageWidth * 0.5f;
         data.overscanOffset.y =
           float(int32_t(overscanSettings.overscanTop - overscanSettings.overscanBottom)) / scanlineCount * 0.5f;
 
@@ -276,7 +295,7 @@ namespace CathodeRetro
         data.roundedCornerSize = screenSettings.cornerRounding;
 
         data.maskScale.y = float(scanlineCount) * data.common.overscanScale.y * 0.5f / screenSettings.maskScale;
-        data.maskScale.x = float(inputImageWidth) * pixelAspect * data.common.overscanScale.x * 0.25f / screenSettings.maskScale;
+        data.maskScale.x = float(originalInputImageWidth) * pixelAspect * data.common.overscanScale.x * 0.25f / screenSettings.maskScale;
 
         switch (screenSettings.maskType)
         {
@@ -322,7 +341,7 @@ namespace CathodeRetro
         uint32_t tonemapTexWidth;
         uint32_t tonemapTexHeight;
         uint32_t blurTextureWidth;
-        if (float(signalTextureWidth) > aspectData.aspect * float(scanlineCount))
+        if (float(processedRGBTextureWidth) > aspectData.aspect * float(scanlineCount))
         {
           // the tonemap texture is going to scale down to 2x the actual aspect we want (we'll downsample farther from
           //  there)
@@ -336,7 +355,7 @@ namespace CathodeRetro
         {
           // This is an unlikely case (the signal already has a massive stretch), in this case we'll keep things the
           //  same and the blur texture will be scaled up slightly.
-          tonemapTexWidth = inputImageWidth;
+          tonemapTexWidth = originalInputImageWidth;
           tonemapTexHeight = scanlineCount;
           blurTextureWidth = uint32_t(std::round(aspectData.aspect * float(scanlineCount)));
           downsampleDirX = 0.0f;
@@ -464,10 +483,11 @@ namespace CathodeRetro
 
       IGraphicsDevice *device;
 
-      uint32_t inputImageWidth;
-      uint32_t signalTextureWidth;
+      uint32_t originalInputImageWidth;
+      uint32_t processedRGBTextureWidth;
       uint32_t scanlineCount;
       float pixelAspect;
+      bool isFirstFrame = true;
 
       std::unique_ptr<IConstantBuffer> screenTextureConstantBuffer;
       std::unique_ptr<IConstantBuffer> rgbToScreenConstantBuffer;
@@ -480,6 +500,7 @@ namespace CathodeRetro
       std::unique_ptr<IConstantBuffer> maskDownsampleConstantBufferV;
 
       std::unique_ptr<IShader> rgbToScreenShader;
+      std::unique_ptr<IShader> copyShader;
       std::unique_ptr<IShader> downsample2XShader;
       std::unique_ptr<IShader> toneMapShader;
       std::unique_ptr<IShader> gaussianBlurShader;
@@ -487,6 +508,8 @@ namespace CathodeRetro
       std::unique_ptr<IShader> generateSlotMaskShader;
       std::unique_ptr<IShader> generateShadowMaskShader;
       std::unique_ptr<IShader> generateApertureGrilleShader;
+
+      std::unique_ptr<IRenderTarget> prevRGBInput;
 
       std::unique_ptr<IRenderTarget> maskTexture;
       std::unique_ptr<IRenderTarget> halfWidthMaskTexture;

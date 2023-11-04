@@ -159,14 +159,11 @@ public:
   }
 
 
-  void Render(
-    const CathodeRetro::ITexture *currentFrame,
-    const CathodeRetro::ITexture *prevFrame,
-    CathodeRetro::ScanlineType scanlineType) override
+  void Render(const CathodeRetro::ITexture *currentFrame, CathodeRetro::ScanlineType scanlineType) override
   {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    cathodeRetro->Render(currentFrame, prevFrame, scanlineType, backbuffer.get());
+    cathodeRetro->Render(currentFrame, scanlineType, backbuffer.get());
 
     SwapBuffers(windowDC);
   }

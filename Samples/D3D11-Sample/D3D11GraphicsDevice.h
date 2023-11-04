@@ -236,6 +236,7 @@ public:
     int resourceID = 0;
     switch (id)
     {
+      case CathodeRetro::ShaderID::Copy: resourceID = IDR_COPY; break;
       case CathodeRetro::ShaderID::Downsample2X: resourceID = IDR_DOWNSAMPLE_2X; break;
       case CathodeRetro::ShaderID::GeneratePhaseTexture: resourceID = IDR_GENERATE_PHASE_TEXTURE; break;
       case CathodeRetro::ShaderID::RGBToSVideoOrComposite: resourceID = IDR_RGB_TO_SVIDEO_OR_COMPOSITE; break;

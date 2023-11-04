@@ -69,6 +69,8 @@ IDR_GENERATE_SHADOW_MASK RT_RCDATA              "Generated\\cathode-retro-crt-ge
 
 IDR_GENERATE_APERTURE_GRILLE RT_RCDATA          "Generated\\cathode-retro-crt-generate-aperture-grille.shad"
 
+IDR_COPY                RT_RCDATA               "Generated\\cathode-retro-util-copy.shad"
+
 IDR_DOWNSAMPLE_2X       RT_RCDATA               "Generated\\cathode-retro-util-downsample-2x.shad"
 
 IDR_RGB_TO_CRT          RT_RCDATA               "Generated\\cathode-retro-crt-rgb-to-crt.shad"

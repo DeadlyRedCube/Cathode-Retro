@@ -61,11 +61,6 @@ namespace CathodeRetro
           signalProps.scanlineCount,
           1,
           TextureFormat::RGBA_Unorm8);
-        prevFrameRGBTexture = device->CreateRenderTarget(
-          rgbWidth,
-          signalProps.scanlineCount,
-          1,
-          TextureFormat::RGBA_Unorm8);
         scratchRGBTexture = device->CreateRenderTarget(
           rgbWidth,
           signalProps.scanlineCount,
@@ -83,13 +78,8 @@ namespace CathodeRetro
       const ITexture *CurrentFrameRGBOutput() const
         { return rgbTexture.get(); }
 
-      const ITexture *PreviousFrameRGBOutput() const
-        { return prevFrameRGBTexture.get(); }
-
       void Decode(const ITexture *inputSignal, const ITexture *inputPhases, const SignalLevels &levels)
       {
-        std::swap(rgbTexture, prevFrameRGBTexture);
-
         const ITexture *sVideoTexture;
         if (signalProps.type == SignalType::Composite)
         {
@@ -110,6 +100,11 @@ namespace CathodeRetro
         {
           FilterRGB();
         }
+      }
+
+      uint32_t OutputTextureWidth() const
+      {
+        return rgbTexture->Width();
       }
 
     private:
@@ -193,7 +188,6 @@ namespace CathodeRetro
       IGraphicsDevice *device;
 
       std::unique_ptr<IRenderTarget> rgbTexture;
-      std::unique_ptr<IRenderTarget> prevFrameRGBTexture;
       std::unique_ptr<IRenderTarget> scratchRGBTexture;
       SignalProperties signalProps;
       TVKnobSettings knobSettings;

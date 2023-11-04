@@ -42,6 +42,7 @@ namespace CathodeRetro
   //  graphics device to define how these IDs get translated into the actual loaded shader.
   enum class ShaderID
   {
+    Copy,
     Downsample2X,
     TonemapAndDownsample,
     GaussianBlur13,

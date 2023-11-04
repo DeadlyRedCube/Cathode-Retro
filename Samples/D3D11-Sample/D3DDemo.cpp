@@ -64,12 +64,9 @@ public:
 
 
 
-  void Render(
-    const CathodeRetro::ITexture *currentFrame,
-    const CathodeRetro::ITexture *prevFrame,
-    CathodeRetro::ScanlineType scanlineType) override
+  void Render(const CathodeRetro::ITexture *currentFrame, CathodeRetro::ScanlineType scanlineType) override
   {
-    cathodeRetro->Render(currentFrame, prevFrame, scanlineType, nullptr);
+    cathodeRetro->Render(currentFrame, scanlineType, nullptr);
     graphicsDevice->Present();
   }
 

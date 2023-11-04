@@ -189,11 +189,8 @@ static void Render()
   const ITexture *input = (s_scanlineType == ScanlineType::Even && s_loadedTexture->evenTexture != nullptr)
     ? s_loadedTexture->evenTexture.get()
     : s_loadedTexture->oddTexture.get();
-  const ITexture *input2 = (s_scanlineType == ScanlineType::Odd && s_loadedTexture->evenTexture != nullptr)
-    ? s_loadedTexture->evenTexture.get()
-    : s_loadedTexture->oddTexture.get();
 
-  s_demoHandler->Render(input, input2, s_scanlineType);
+  s_demoHandler->Render(input, s_scanlineType);
 }
 
 

@@ -329,6 +329,7 @@ public:
       // GL (pre 4.2) needs a mapping from uniform to binding, and so here we list the expected binding orders in
       //  order. It would have been nicer to iterate through them by querying the shader (which is possible) but
       //  naturally they show up in arbitrary orders, rather than the order that they were declared in the shader.
+      { .path = "Content/cathode-retro-util-copy.hlsl", .textureNames = { "g_sourceTexture" } },
       { .path = "Content/cathode-retro-util-downsample-2x.hlsl", .textureNames = { "g_sourceTexture" } },
       { .path = "Content/cathode-retro-util-tonemap-and-downsample.hlsl", .textureNames = { "g_sourceTexture" } },
       { .path = "Content/cathode-retro-util-gaussian-blur.hlsl", .textureNames = { "g_sourceTex" } },

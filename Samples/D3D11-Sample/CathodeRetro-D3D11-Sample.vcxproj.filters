@@ -49,6 +49,9 @@
     <FxCompile Include="..\..\Shaders\cathode-retro-decoder-svideo-to-modulated-chroma.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="..\..\Shaders\cathode-retro-util-copy.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="D3DDemo.cpp">

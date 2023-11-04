@@ -77,7 +77,7 @@ namespace CathodeRetro
         rgbToCRT = std::make_unique<RGBToCRT>(
           device,
           inputWidth,
-          signalGenerator->SignalProperties().scanlineWidth,
+          signalDecoder->OutputTextureWidth(),
           inputHeight,
           signalGenerator->SignalProperties().inputPixelAspectRatio);
       }
@@ -144,10 +144,8 @@ namespace CathodeRetro
 
 
     // Call this to actually render
-    // $TODO: Really shouldn't need previousFrameInputRGB here, if RGBToCRT handled
     void Render(
       const ITexture *currentFrameInputRGB,
-      const ITexture *previousFrameInputRGB,
       ScanlineType scanlineType,
       IRenderTarget *output)
     {
@@ -162,12 +160,10 @@ namespace CathodeRetro
           signalGenerator->SignalLevels());
 
         currentFrameInputRGB = signalDecoder->CurrentFrameRGBOutput();
-        previousFrameInputRGB = signalDecoder->PreviousFrameRGBOutput();
       }
 
       rgbToCRT->Render(
         currentFrameInputRGB,
-        previousFrameInputRGB,
         output,
         scanlineType);
 

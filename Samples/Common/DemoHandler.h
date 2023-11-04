@@ -27,10 +27,7 @@ public:
 
   virtual void ResizeBackbuffer(uint32_t width, uint32_t height) = 0;
 
-  virtual void Render(
-    const CathodeRetro::ITexture *currentFrame,
-    const CathodeRetro::ITexture *prevFrame,
-    CathodeRetro::ScanlineType scanlineType) = 0;
+  virtual void Render(const CathodeRetro::ITexture *currentFrame, CathodeRetro::ScanlineType scanlineType) = 0;
 };
 
 

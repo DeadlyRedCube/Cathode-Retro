@@ -168,5 +168,8 @@
     <CopyFileToFolders Include="..\..\Shaders\cathode-retro-decoder-svideo-to-modulated-chroma.hlsl">
       <Filter>Shaders</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\Shaders\cathode-retro-util-copy.hlsl">
+      <Filter>Shaders</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>
