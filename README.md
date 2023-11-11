@@ -7,7 +7,7 @@
 * [Using the C++ Code](#using-the-c-code)
 	* [Implementing the Required Interfaces](#implementing-the-required-interfaces)
 	* [Using the Main CathodeRetro class](#using-the-main-cathoderetro-class) 
-* [Licence](#license)
+* [License](#license)
 
 ## Introduction
 
