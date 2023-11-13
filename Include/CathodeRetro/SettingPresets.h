@@ -127,6 +127,20 @@ namespace CathodeRetro
         0,
       }
     },
+    {
+      // Timings for CGA (And likely other PC board)-like video generation, 640px horizontal resolution
+      "Apple II Monochrome 560 x 192",
+      {
+        1.0f/2.0f,  // Wasn't quite sure what the correct aspect here was, but this seems correct
+        2,          // Standard side padding
+        4,          // Like CGA, it deals in multiples of 1/4
+        1,          // Every monochrome pixel is 1/4 of a color carrier
+        1,          // The phase for each pixel is 1/4 color carrier off from reference
+        0,
+        0,
+        0,
+      }
+    },
   };
 
 

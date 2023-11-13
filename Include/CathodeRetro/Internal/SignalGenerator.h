@@ -90,6 +90,10 @@ namespace CathodeRetro
         {
           frameStartPhaseNumerator = uint32_t(frameStartPhaseNumeratorIn);
         }
+        else
+        {
+          frameStartPhaseNumerator = sourceSettings.initialFramePhase;
+        }
 
         GeneratePhasesTexture();
         GenerateCleanSignal(inputRGBTexture);
