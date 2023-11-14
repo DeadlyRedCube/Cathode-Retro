@@ -70,14 +70,14 @@
 ## Contents and Usage
 
 This repository contains:
-* **Shaders**: All of the shader source files
+* [**Shaders**](https://github.com/DeadlyRedCube/Cathode-Retro/tree/main/Shaders): All of the shader source files
 	* While the shader files' extension is `hlsl`, these shaders will compile as either HLSL or GLSL, due to some macros in `cathode-retro-util-language-helpers.hlsli`
 		* Compiling the shaders as HLSL requires an `HLSL` preprocessor definition be added (either by the compiler via the command line or manually at the top of `cathode-retro-util-language-helpers.hlsli`
 		* Compiling for GLSL requires a loader that handles `#include` directives, as well as requires a `#version` directive (at least `#version 330 core`). See `GLHelpers.h` in `Samples/GL-Sample` for an example of this if needed
-* **Include/CathodeRetro**: Header-only C++ code to support a `CathodeRetro::CathodeRetro` class that handles running all of the shader stages for the full effect.
+* [**Include/CathodeRetro**](https://github.com/DeadlyRedCube/Cathode-Retro/tree/main/Include/CathodeRetro): Header-only C++ code to support a `CathodeRetro::CathodeRetro` class that handles running all of the shader stages for the full effect.
 	* Code requires at least C++14, and has been tested in Visual Studio 2022, and with Clang 9, Clang 17, GCC 8.1, and GCC 13.2
 	* More instructions on how to use the C++ code in the [next section](#using-the-c-code)
-* **Samples**: Some C++ samples for how to use `Cathode Retro`
+* [**Samples**](https://github.com/DeadlyRedCube/Cathode-Retro/tree/main/Samples): Some C++ samples for how to use `Cathode Retro`
 	* **D3D11-Sample**: A sample Visual Studio 2022 project that runs `Cathode Retro` in Direct3D 11, as HLSL shaders
 	* **GL-Sample**: A sample Visual Studio 2022 project that runs `Cathode Retro` in OpenGL 3.3 core
 		* Sorry, Linux/Mac users: the demo code is rather Windows-specific at the moment, but hopefully it still gives you the gist of how to hook everything up
