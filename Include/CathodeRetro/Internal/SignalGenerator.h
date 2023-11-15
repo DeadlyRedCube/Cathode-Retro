@@ -44,6 +44,8 @@ namespace CathodeRetro
         applyArtifactsConstantBuffer = device->CreateConstantBuffer(sizeof(ApplyArtifactsConstantData));
         applyArtifactsShader = device->CreateShader(ShaderID::Generator_ApplyArtifacts);
 
+        frameStartPhaseNumerator = sourceSettings.initialFramePhase;
+
         SetArtifactSettings({});
       }
 
@@ -89,10 +91,6 @@ namespace CathodeRetro
         if (frameStartPhaseNumeratorIn >= 0)
         {
           frameStartPhaseNumerator = uint32_t(frameStartPhaseNumeratorIn);
-        }
-        else
-        {
-          frameStartPhaseNumerator = sourceSettings.initialFramePhase;
         }
 
         GeneratePhasesTexture();
