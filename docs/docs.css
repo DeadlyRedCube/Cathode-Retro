@@ -1,0 +1,469 @@
+:root 
+{
+  --header-height: 60px;
+  --max-content-width: 900px;
+  --sidebar-width: 340px;
+
+  --main-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+  --title-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+
+  /* --sol- colors from  Solarized by Ethan Schoonover: https://ethanschoonover.com/solarized/ */
+  --sol-base-color-03:    #002b36;
+  --sol-base-color-02:    #073642;
+  --sol-base-color-01:    #586e75;
+  --sol-base-color-00:    #657b83;
+  --sol-base-color-0:     #839496;
+  --sol-base-color-1:     #93a1a1;
+  --sol-base-color-2:     #eee8d5;
+  --sol-base-color-3:     #fdf6e3;
+  
+  --sol-accent-yellow:    #b58900;
+  --sol-accent-orange:    #cb4b16;
+  --sol-accent-red:       #dc322f;
+  --sol-accent-magenta:   #d33682;
+  --sol-accent-violet:    #6c71c4;
+  --sol-accent-blue:      #268bd2;
+  --sol-accent-cyan:      #2aa198;
+  --sol-accent-green:     #859900;
+
+  --sol-background-color-deep: var(--sol-base-color-03);
+  --sol-background-color: var(--sol-base-color-02);
+  --sol-neutral-dim: var(--sol-base-color-01);
+  --sol-neutral: var(--sol-base-color-0);
+  --sol-neutral-emphasis: var(--sol-base-color-1);
+
+  --accent-main:              #6495ed;
+  --accent-bright:            #8eb7ff;
+
+  --background-far:           #080d0e;
+  --background-main:          #131616;
+  --background-menu:          #171c21;
+  --background-emphasis:      #252d35;
+
+  --foreground-main:          #cbd1d6;
+  --foreground-emphasis:      #e6edf3;
+
+  --link-main:                var(--accent-main);
+  --link-hover:               var(--accent-bright);
+  --link-press:               var(--foreground-emphasis);
+
+  --sidebar-text-main:        var(--foreground-main);
+  --header-button:            var(--foreground-main);
+  --header-button-hover:      var(--accent-bright);
+  --header-button-press:      var(--foreground-emphasis);
+  --sidebar-shadow-color:     rgba(0, 0, 0, 0.8);
+}
+
+
+@media (prefers-color-scheme: light)
+{
+  :root
+  {
+    --sol-background-color-deep: var(--sol-base-color-3);
+    --sol-background-color: var(--sol-base-color-2);
+    --sol-neutral-dim: var(--sol-base-color-1);
+    --sol-neutral: var(--sol-base-color-00);
+    --sol-neutral-emphasis: var(--sol-base-color-01);
+
+    --foreground-main:      #404040;
+    --foreground-emphasis:  #202020;
+
+    --background-emphasis:  #8eb7ff;
+    --background-main:      #fcfcfc;
+    --background-far:       #e6e6e6;
+    --background-menu:      #e0e0e0;
+
+    --accent-main:          #5076ba;
+    --accent-bright:        #6495ed;
+
+    --header-button:        var(--background-main);
+    --header-button-hover:  var(--link-hover);
+    --header-button-press:  var(--link-main);
+    --sidebar-shadow-color: rgba(0, 0, 0, 0.4);
+  }
+}
+
+
+body
+{
+  font-family: var(--main-font);
+  margin: 0px;
+  padding: 0px;
+  color: var(--foreground-main);
+  background-color: var(--background-main);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5
+{
+  font-family: var(--title-font);
+  font-weight: 600;
+  color: var(--foreground-emphasis);
+}
+
+h1
+{
+  font-size: 3em;
+}
+
+h2
+{
+  font-size: 2.5em;
+}
+
+h3
+{
+  font-size: 2em;
+}
+
+.sidebar-container
+{
+  position: fixed;
+  touch-action: none;
+  background-color: var(--background-menu);
+  height: calc(100vh - var(--header-height));
+  left: 0px;
+  top: var(--header-height);
+  width: var(--sidebar-width);
+  margin: 0px;
+}
+
+.sidebar-frame
+{
+  width: 100%;
+  height: 100%;
+  margin: 0px;
+  border: none;
+}
+
+.content-outer
+{
+  margin: 0px;
+  margin-left: var(--sidebar-width);
+  margin-top: var(--header-height);
+  width: calc(100vw - var(--sidebar-width));
+  max-width: var(--max-content-width);
+  padding: 30px;
+  box-sizing: border-box;
+}
+
+.content-outer::after
+{
+  content: "";
+  background-color: var(--background-far);
+  position: fixed;
+  right: 0;
+  top: 0;
+  height: 100vh;
+  width: calc(100vw - (var(--sidebar-width) + var(--max-content-width)));
+}
+
+.content
+{
+  margin: 0px;
+}
+
+a,
+a:visited,
+a:hover,
+a:active,
+a:focus
+{
+  text-decoration: none;
+  color: var(--link-main);
+}
+
+@media(hover: hover)
+{
+  a:hover
+  {
+    text-decoration: underline;
+    color: var(--link-main);
+  }
+}
+
+a:active
+{
+  text-decoration: underline;
+  color: var(--link-press);
+}
+
+
+/* Header Stuff */
+
+
+.header
+{
+  z-index: 10;
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  margin: 0px;
+  width: 100vw;
+  height: var(--header-height);
+
+  background-color: var(--background-emphasis);
+
+  background-image: url("cr-logo-small.png");
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+
+
+#sidebar-button
+{
+  position: relative;
+  height: 46px;
+  width: 46px;
+  margin-top: 7px;
+  margin-left: 7px;
+
+  background-color: transparent;
+  border: none;
+  visibility: hidden;
+}
+
+#sidebar-button::before
+{
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 9.5px;
+  width: 30px;
+  height: 5px;
+  background: var(--header-button);
+  box-shadow: 
+    0 9px 0 0 var(--header-button),
+    0 18px 0 0 var(--header-button);
+}
+
+@media(hover: hover)
+{
+  #sidebar-button:hover::before
+  {
+    background: var(--header-button-hover);
+    box-shadow: 
+      0 9px 0 0 var(--header-button-hover),
+      0 18px 0 0 var(--header-button-hover);
+  }
+}
+
+#sidebar-button:active::before
+{
+  background: var(--header-button-press);
+  box-shadow: 
+    0 9px 0 0 var(--header-button-press),
+    0 18px 0 0 var(--header-button-press);
+}
+
+/* Sidebar stuff */
+
+
+.sidebar
+{
+  overscroll-behavior: contain;
+  box-sizing: border-box;
+  background-color: var(--background-menu);
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  color: var(--sidebar-text-main);
+
+  --sidebar-padding-x: 25px;
+  --sidebar-padding-y: 6px;
+  --sidebar-sub-menu-indent: 15px;
+
+  /* This margin is here because Safari won't let me scroll to the bottom if there isn't just a ton of padding */
+  margin-bottom: 120px;
+}
+
+
+.sidebar a:active
+{
+  background-color: var(--link-main);
+}
+
+.sidebar .top-level > p,
+.sidebar .top-level > a
+{
+  color: var(--accent-main);
+  text-transform: uppercase;
+  font-weight: 600;
+  padding-left: var(--sidebar-padding-x);
+  padding-right: var(--sidebar-padding-x);
+  padding-bottom: var(--sidebar-padding-y);
+  padding-top: var(--sidebar-padding-y);
+  margin: 0;
+}
+
+.sidebar p,
+.sidebar a
+{
+  display: block;
+  color: var(--foreground-main);
+  margin: 0;
+  padding-left: var(--sidebar-padding-x);
+  padding-right: var(--sidebar-padding-x);
+  padding-top: var(--sidebar-padding-y);
+  padding-bottom: var(--sidebar-padding-y);
+  text-decoration: none;
+}
+
+.sidebar ul
+{
+  display: block;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  overflow-y: hidden;
+}
+
+.sidebar .current-page
+{
+  background-color: var(--background-emphasis);
+}
+
+.sidebar ul li
+{
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
+.sidebar ul li li p,
+.sidebar ul li li a
+{
+  padding-left: calc(var(--sidebar-sub-menu-indent) + var(--sidebar-padding-x));
+}
+
+.sidebar ul li li li p,
+.sidebar ul li li li a
+{
+  padding-left: calc(2*var(--sidebar-sub-menu-indent) + var(--sidebar-padding-x));
+}
+
+.sidebar ul li li li li p,
+.sidebar ul li li li li a
+{
+  padding-left: calc(3*var(--sidebar-sub-menu-indent) + var(--sidebar-padding-x));
+}
+
+.sidebar ul li li li li li p,
+.sidebar ul li li li li li a
+{
+  padding-left: calc(4*var(--sidebar-sub-menu-indent) + var(--sidebar-padding-x));
+}
+
+.sidebar .top-level
+{
+  margin-bottom: var(--sidebar-padding-y);
+}
+
+.sidebar .top-level:first-child
+{
+  margin-top: var(--sidebar-padding-x);
+}
+
+@media(hover: hover)
+{
+  .sidebar ul li p:hover,
+  .sidebar ul li a:hover
+  {
+    background-color: var(--link-main);
+    color: var(--foreground-emphasis);
+  }
+}
+
+.sidebar ul li p:active,
+.sidebar ul li a:active
+{
+  background-color: var(--link-press);
+  color: var(--link-main);
+}
+
+.sidebar > ul > li
+{
+  margin: 0px;
+  padding: 0px;
+}
+
+.sidebar li.collapsed ul
+{
+  display: none;
+}
+
+/* Media queries */
+
+
+@media screen and (max-width: 1100px)
+{
+  .sidebar-container
+  {
+    left: calc(-12px - var(--sidebar-width));
+    transition: left 100ms;
+    box-shadow: 6px 0px 6px var(--sidebar-shadow-color);
+  }
+
+  .content-outer
+  {
+    margin: 0px;
+    margin-top: var(--header-height);
+    padding: 30px;
+    width: 100%;
+    max-width: var(--max-content-width);
+    margin-left: auto;
+    margin-right: auto;
+    min-height: calc(100vh - var(--header-height));
+    box-sizing: border-box;
+
+    transition: margin 100ms;
+  }  
+
+  .content-outer::before
+  {
+    content: "";
+    background-color: var(--background-far);
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: calc((100vw - var(--max-content-width)) / 2);
+  }
+
+  .content-outer::after
+  {
+    width: calc((100vw - var(--max-content-width)) / 2);
+  }
+
+
+  #sidebar-button
+  {
+    visibility: visible;
+  }
+
+  .sidebar-container.opened
+  {
+    left: 0px;
+    transition: left 100ms;
+  }
+}
+
+@media screen and (resolution >= 1.5dppx)
+{
+  .header
+  {
+    background-image: url("cr-logo-large.png");
+    background-size: auto 50px;
+  }
+}
+
+@media screen and (max-width: 600px)
+{
+  .header
+  {
+    background-image: url("cr-logo-tiny.png");
+    background-size: auto auto;
+  }
+}
