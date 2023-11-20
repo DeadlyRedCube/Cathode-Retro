@@ -104,6 +104,12 @@ h5
   color: var(--foreground-emphasis);
 }
 
+code
+{
+  font-family: Consolas, Courier, monospace;
+  font-weight: 600;
+}
+
 h1
 {
   font-size: 3em;
@@ -197,7 +203,7 @@ a:active
 
 .header
 {
-  z-index: 10;
+  z-index: 20;
   position: fixed;
   top: 0px;
   left: 0px;
@@ -289,7 +295,9 @@ a:active
   background-color: var(--background-menu);
   margin: 0;
   padding: 0;
+  max-height: 100vh;
   overflow-x: hidden;
+  overflow-y: auto;
   color: var(--sidebar-text-main);
 
   --sidebar-padding-x: 25px;
@@ -297,9 +305,13 @@ a:active
   --sidebar-sub-menu-indent: 15px;
 
   /* This margin is here because Safari won't let me scroll to the bottom if there isn't just a ton of padding */
-  margin-bottom: 120px;
+  padding-bottom: 120px;
 }
 
+.sidebar > ul
+{
+  overflow-y: scroll;
+}
 
 .sidebar a:active
 {
@@ -421,6 +433,7 @@ a:active
 {
   .sidebar-container
   {
+    z-index: 10;
     left: calc(-12px - var(--sidebar-width));
     transition: left 100ms;
     box-shadow: 6px 0px 6px var(--sidebar-shadow-color);
@@ -428,7 +441,7 @@ a:active
 
   .content-outer
   {
-    margin: 0px;
+    margin: 0;
     margin-top: var(--header-height);
     padding: 30px;
     width: 100%;
@@ -468,6 +481,25 @@ a:active
     left: 0px;
     transition: left 100ms;
   }
+
+  body.sidebar-opened
+  {
+    overflow: hidden;
+  }
+
+  .sidebar-container.opened::before
+  {
+    content: "";
+    position: fixed;
+    background-color: var(--sidebar-shadow-color);
+    overflow: hidden;
+    left: -10px;
+    top: -10px;
+    width: 200vw;
+    height: 200vh;
+    touch-action: none;
+    z-index: -1;
+  }
 }
 
 @media screen and (resolution >= 1.5dppx)
@@ -486,4 +518,35 @@ a:active
     background-image: url("cr-logo-tiny.png");
     background-size: auto auto;
   }
+
+  .lr-table
+  {
+    display: block;
+  }
+
+  .lr-table > div,
+  .lr-table > div:nth-child(2)
+  {
+    padding: 5px 5px;
+    border-bottom: none;
+    border-top: none;
+  }
+
+  .lr-table > div:first-child
+  {
+    border-top: 1px solid var(--background-emphasis);
+    border-bottom: none;
+  }
+
+  .lr-table > div:nth-child(2n)
+  {
+    border-bottom: 1px solid var(--background-emphasis);
+    padding-bottom: 25px;
+  }
+
+  .lr-table > div:nth-child(2n + 1)
+  {
+    padding-top: 25px;
+  }
+
 }

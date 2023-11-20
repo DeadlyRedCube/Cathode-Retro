@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html style="overflow: hidden;">
   <head>
     <link href="docs.css" rel="stylesheet">
     <base target="_parent">
@@ -24,7 +24,12 @@
           }
         }
 
-        element.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'center' });
+        let bounds = element.getBoundingClientRect();
+        let middle = (bounds.top + bounds.bottom) / 2;
+
+        let bodyBounds = document.body.getBoundingClientRect();
+        let height = bodyBounds.height;
+        document.body.scrollTop = middle - height / 2;
       }
     </script>
   </head>
