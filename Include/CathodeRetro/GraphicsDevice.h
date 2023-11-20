@@ -100,8 +100,7 @@ namespace CathodeRetro
   };
 
 
-  // Cathode Retro always uses linear texture sampling, but can either clamp (on both axes) or wrap (on both axes) the
-  //  texture coordinates. Mipmap sampling should always be either linear or anisotropic.
+  // The type of texture sampling and addressing to use for a given sampler.
   enum class SamplerType
   {
     NearestClamp,

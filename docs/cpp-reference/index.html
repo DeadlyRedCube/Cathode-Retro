@@ -12,9 +12,122 @@
     <div id="content-outer" class="content-outer">
       <div class="content">
         <h1>C++ Reference</h1>
-        (Content coming soon)
+        <p>Part of Cathode Retro is a collection of C++ headers to aid in using the shaders.</p>
+        <p>This section contains reference information about all of the various types and functions in this C++ Code.</p>
+        <p>For information on how to use these types, see the section <a href="../start-cpp/index.html">Getting Started: C++ Helpers</a></p>
+        <p class="note">All types below are in the <code>CathodeRetro</code> namespace.</p>
+        <hgroup>
+          <h2>Classes</h2>
+          <div class="lr-table">
+            <div><a href="classes/cathoderetro.html"><code>CathodeRetro</code></a></div>
+            <div>The main class that handles the whole Cathode Retro pipeline.</div>
+
+            <div><a href="classes/rgbtocrt.html"><code>Internal::RGBToCRT</code></a></div>
+            <div>Internal class that handles the CRT emulation step.</div>
+
+            <div><a href="classes/signaldecoder.html"><code>Internal::SignalDecoder</code></a></div>
+            <div>Internal class that handles the decoding of composite or S-Video scanlines.</div>
+
+            <div><a href="classes/signalgenerator.html"><code>Internal::SignalGenerator</code></a></div>
+            <div>Internal class that handles converting an input image into a set of composite or S-Video scanlines.</div>
+          </div>
+        </hgroup>
+        <hgroup>
+          <h2>Constants</h2>
+          <div class="lr-table">
+            <div><code>Internal::<wbr>k_signalSamplesPerColorCycle = 4</code></div>
+            <div>
+              This constant represents how many samples of signal there are per color cycle - effectively 
+              determining what the sample rate of the virtual signal is relative to the <a href="../how/ntsc-basics.html#color">NTSC color carrier frequency</a>.</div>
+          </div>
+        </hgroup>
+        <hgroup>
+          <h2>Enumerations</h2>
+          <div class="lr-table">
+            <div><a href="enums/masktype.html"><code>MaskType</code></a></div>
+            <div>The type of CRT mask to use for the screen emulation.</div>
+            
+            <div><a href="enums/samplertype.html"><code>SamplerType</code></a></div>
+            <div>The type of texture sampling and addressing to use for a given sampler.</div>
+            
+            <div><a href="enums/scanlinetype.html"><code>ScanlineType</code></a></div>
+            <div>The scanline type (even or odd) for the current frame.</div>
+            
+            <div><a href="enums/shaderid.html"><code>ShaderID</code></a></div>
+            <div>
+              The ID of a shader that the <code>CathodeRetro</code> class is requesting from the <code>IGraphicsDevice</code>.
+            </div>
+
+            <div><a href="enums/signaltype.html"><code>SignalType</code></a></div>
+            <div>The type of input signal that the Cathode Retro system is emulating.</div>
+
+            <div><a href="enums/textureformat.html"><code>TextureFormat</code></a></div>
+            <div>The format of a texture for use as an input or as a render target.</div>
+          </div>
+        </hgroup>
+        <hgroup>
+          <h2>Interfaces</h2>
+          <div class="lr-table">
+            <div><a href="interfaces/iconstantbuffer.html"><code>IConstantBuffer</code></a></div>
+            <div>The representation of a constant buffer/uniform buffer - basically, a data buffer to be handed to a shader.</div>
+
+            <div><a href="interfaces/igraphicsdevice.html"><code>IGraphicsDevice</code></a></div>
+            <div>The main interface that Cathode Retro uses to interact with the graphics device.</div>
+
+            <div><a href="interfaces/irendertarget.html"><code>IRenderTarget</code></a></div>
+            <div>The representation of a render target/frame buffer object, used as the output for a render pass.</div>
+
+            <div><a href="interfaces/ishader.html"><code>IShader</code></a></div>
+            <div>A handle for a graphics shader.</div>
+
+            <div><a href="interfaces/itexture.html"><code>ITexture</code></a></div>
+            <div>The representation of a texture created by the graphics device.</div>
+          </div>
+        </hgroup>
+        <hgroup>
+          <h2>Structures</h2>
+          <div class="lr-table">
+            <div><a href="structs/artifactsettings.html"><code>ArtifactSettings</code></a></div>
+            <div>A description of how noisy/distorted the generated signal is, as if a bad cable or RF transmission were in use.</div>
+
+            <div><a href="structs/color.html"><code>Color</code></a></div>
+            <div>A simple four-float-component RGBA color.</div>
+
+            <div><a href="structs/signallevels.html"><code>Internal::<wbr>SignalLevels</code></a></div>
+            <div>An internal description the various level values of a generated or analyzed composite/S-Video signal.</div>
+
+            <div><a href="structs/signalproperties.html"><code>Internal::<wbr>SignalProperties</code></a></div>
+            <div>An internal description of the properties of a generated composite/S-Video signal.</div>
+
+            <div><a href="structs/overscansettings.html"><code>OverscanSettings</code></a></div>
+            <div>A description of how much overscan the screen has (that is, how much of the sides of the input image to cut off).</div>
+
+            <div><a href="structs/preset.html"><code>Preset&lt;T&gt;</code></a></div>
+            <div>A helper structure that pairs a given settings type with an associated display name.</div>
+
+            <div><a href="structs/rendertargetview.html"><code>RenderTargetView</code></a></div>
+            <div>A graphics helper that associates an <code>IRenderTarget</code> and an optional <a href="https://en.wikipedia.org/wiki/Mipmap">mipmap</a> level index.</div>
+
+            <div><a href="structs/screensettings.html"><code>ScreenSettings</code></a></div>
+            <div>A description of the properties of the virtual CRT TV that is displaying the image.</div>
+
+            <div><a href="structs/shaderresourceview.html"><code>ShaderResourceView</code></a></div>
+            <div>A graphics helper that associates an <code>ITexture</code> with a <code>SamplerType</code> and optional mipmap level index.</div>
+
+            <div><a href="structs/sourcesettings.html"><code>SourceSettings</code></a></div>
+            <div>
+              A description of the properties of the hypothetical source "machine" that is generating
+              the simulated composite or S-Video signal.
+            </div>
+
+            <div><a href="structs/tvknobsettings.html"><code>TVKnobSettings</code></a></div>
+            <div>Settings that mimic the knobs that would have been on a CRT TV.</div>
+
+            <div><a href="structs/vec2.html"><code>Vec2</code></a></div>
+            <div>A simple two-float-component 2D vector.</div>
+          </div>
+        </hgroup>
       </div>
     </div>
-    <div class="right-pane"></div>
   </body>
 </html>

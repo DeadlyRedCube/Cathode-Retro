@@ -111,7 +111,7 @@ h1
 
 h2
 {
-  font-size: 2.5em;
+  font-size: 2.3em;
 }
 
 h3
@@ -258,6 +258,26 @@ a:active
     0 9px 0 0 var(--header-button-press),
     0 18px 0 0 var(--header-button-press);
 }
+
+
+.lr-table
+{
+  display: grid;
+  grid-template-columns: auto auto;
+}
+
+.lr-table > div
+{
+  padding: 25px 5px;
+  border-bottom: 1px solid var(--background-emphasis);
+}
+
+.lr-table > div:first-child,
+.lr-table > div:nth-child(2)
+{
+  border-top: 1px solid var(--background-emphasis);
+}
+
 
 /* Sidebar stuff */
 
