@@ -5,12 +5,18 @@
 //  want to pull in any non-WinSDK external dependencies. If you have a real GL header you can safely ignore all of
 //  this.
 
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
 #ifndef NOMINMAX
   #define NOMINMAX
 #endif
-
 #include <Windows.h>
+#endif
+
+#ifdef __APPLE__
+#include <OpenGL/OpenGL.h>
+#else
 #include <GL/gl.h>
+#endif
 
 #include <assert.h>
 #include <exception>
@@ -162,8 +168,8 @@ void LoadGLFunction(const char *name, FuncType *funcOut)
   if (*funcOut == nullptr)
   {
     char buffer[2048];
-    sprintf_s(buffer, "Failed to get address of proc '%s'", name);
-    throw std::exception(buffer);
+    std::snprintf(buffer, sizeof(buffer), "Failed to get address of proc '%s'", name);
+    throw std::runtime_error(buffer);
   }
 }
 
@@ -230,17 +236,17 @@ inline void CheckGLError()
   switch (err)
   {
   case GL_NO_ERROR: return;
-  case GL_INVALID_ENUM: assert(false); throw std::exception("Invalid enum");
-  case GL_INVALID_VALUE: assert(false); throw std::exception("Invalid value");
-  case GL_INVALID_OPERATION: assert(false); throw std::exception("Invalid operation");
-  case GL_INVALID_FRAMEBUFFER_OPERATION: assert(false); throw std::exception("Invalid framebuffer operation");
-  case GL_OUT_OF_MEMORY: assert(false); throw std::exception("Out of memory");
-  case GL_STACK_UNDERFLOW: assert(false); throw std::exception("Stack underflow");
-  case GL_STACK_OVERFLOW: assert(false); throw std::exception("Stack overflow");
+  case GL_INVALID_ENUM: assert(false); throw std::runtime_error("Invalid enum");
+  case GL_INVALID_VALUE: assert(false); throw std::runtime_error("Invalid value");
+  case GL_INVALID_OPERATION: assert(false); throw std::runtime_error("Invalid operation");
+  case GL_INVALID_FRAMEBUFFER_OPERATION: assert(false); throw std::runtime_error("Invalid framebuffer operation");
+  case GL_OUT_OF_MEMORY: assert(false); throw std::runtime_error("Out of memory");
+  case GL_STACK_UNDERFLOW: assert(false); throw std::runtime_error("Stack underflow");
+  case GL_STACK_OVERFLOW: assert(false); throw std::runtime_error("Stack overflow");
   default:
     char buf[1024];
-    sprintf_s(buf, "Unknown error %d", err);
-    throw std::exception(buf);
+    std::snprintf(buf, sizeof(buf), "Unknown error %d", err);
+    throw std::runtime_error(buf);
   }
 }
 
@@ -253,7 +259,7 @@ std::string PathCharsToStdString(const PathValueType *pathName)
   if constexpr (std::is_same_v<PathValueType, wchar_t>)
   {
     char buffer[2048];
-    sprintf_s(buffer, "%S", pathName);
+    std::snprintf(buffer, sizeof(buffer), "%S", pathName);
     return std::string {buffer};
   }
   else
@@ -289,12 +295,13 @@ std::string GetShaderText(std::filesystem::path path, std::vector<std::filesyste
       #pragma warning (disable: 4996) // 'strerror': This function or variable may be unsafe.
     #endif
     char buffer[2048];
-    sprintf_s(
+    std::snprintf(
       buffer,
+      sizeof(buffer),
       "Failed to open file '%s\n', error: %s",
       PathCharsToStdString(path.c_str()).c_str(),
       std::strerror(errno));
-    throw std::exception(buffer);
+    throw std::runtime_error(buffer);
     #ifdef _MSC_VER
       #pragma warning (pop)
     #endif
@@ -311,8 +318,9 @@ std::string GetShaderText(std::filesystem::path path, std::vector<std::filesyste
   auto BuildLineDirective = [](size_t line, size_t fileIndex, std::filesystem::path pathName)
   {
     char buffer[2048];
-    sprintf_s(
+    std::snprintf(
       buffer,
+      sizeof(buffer),
       "// File: \"%s\"\n#line %zu %zu\n",
       PathCharsToStdString(pathName.c_str()).c_str(),
       line,
@@ -441,7 +449,7 @@ GLuint CompileShaderFromFile(GLenum shaderType, const char *pathStr)
       OutputDebugStringA("\n");
     #endif
 
-    throw std::exception(("Shader compilation failed:\n\n"s + parsed).c_str());
+    throw std::runtime_error(("Shader compilation failed:\n\n"s + parsed).c_str());
   }
 
   CheckGLError();
@@ -467,12 +475,13 @@ inline GLuint LinkShaderProgram(GLuint vertexShader, GLuint fragmentShader, cons
     glGetProgramInfoLog(shaderProgram, sizeof(log), nullptr, log);
 
     char buffer[1536];
-    sprintf_s(
+    std::snprintf(
       buffer,
+      sizeof(buffer),
       "Failed to link shader program '%s'. Log:\n\n%s",
       optionalName != nullptr ? optionalName : "<unnamed>",
       log);
-    throw std::exception(buffer);
+    throw std::runtime_error(buffer);
   }
 
   CheckGLError();

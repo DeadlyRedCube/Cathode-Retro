@@ -32,24 +32,24 @@ public:
     GLint pixelFormat = ChoosePixelFormat(windowDC, &pfd);
     if (pixelFormat == 0)
     {
-      throw std::exception("ChoosePixelFormat failed");
+      throw std::runtime_error("ChoosePixelFormat failed");
     }
 
     if (!SetPixelFormat(windowDC, pixelFormat, &pfd))
     {
-      throw std::exception("SetPixelFormat failed");
+      throw std::runtime_error("SetPixelFormat failed");
     }
 
     // Start by setting up an intermediate context
     wglContext = wglCreateContext(windowDC);
     if (wglContext == nullptr)
     {
-      throw std::exception("wglCreateContext failed");
+      throw std::runtime_error("wglCreateContext failed");
     }
 
     if (!wglMakeCurrent(windowDC, wglContext))
     {
-      throw std::exception("wglMakeCurrent failed");
+      throw std::runtime_error("wglMakeCurrent failed");
     }
 
     // Now that that's set, run InitializeGLHelpers which will load all of the GL 3.3 functions that we need to get
@@ -68,12 +68,12 @@ public:
     wglContext = wglCreateContextAttribsARB(windowDC, nullptr, attribs);
     if (wglContext == nullptr)
     {
-      throw std::exception("wglCreateContext failed");
+      throw std::runtime_error("wglCreateContext failed");
     }
 
     if (!wglMakeCurrent(windowDC, wglContext))
     {
-      throw std::exception("wglMakeCurrent failed");
+      throw std::runtime_error("wglMakeCurrent failed");
     }
 
     // Now that we have a WGL context all set up we can actually set up the GL device.

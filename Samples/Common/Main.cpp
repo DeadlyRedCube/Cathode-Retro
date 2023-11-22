@@ -365,7 +365,7 @@ int CALLBACK WinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, 
   {
     if (CoInitialize(nullptr) != S_OK)
     {
-      throw std::exception("Failed Initializing COM");
+      throw std::runtime_error("Failed Initializing COM");
     }
 
     InitCommonControls();
