@@ -10,6 +10,8 @@
 #include <wincodecsdk.h>
 #pragma warning (pop)
 
+#include <stdexcept>
+
 #include "ComPtr.h"
 
 #include "WicTexture.h"
@@ -21,8 +23,8 @@
     if (FAILED(res)) \
     { \
       char exceptionStr[1024]; \
-      sprintf_s(exceptionStr, "Failed to " opName ", result: %08x", uint32_t(res)); \
-      throw std::exception(exceptionStr); \
+      std::snprintf(exceptionStr, sizeof(exceptionStr), "Failed to " opName ", result: %08x", uint32_t(res)); \
+      throw std::runtime_error(exceptionStr); \
     } \
   } \
   while (false)
@@ -87,8 +89,8 @@ void SaveWicTexture(const wchar_t *inputPath, uint32_t width, uint32_t height, c
   if (guid != GUID_WICPixelFormat32bppBGRA)
   {
     char exceptionStr[1024];
-    sprintf_s(exceptionStr, "Failed to set expected pixel format");
-    throw std::exception(exceptionStr);
+    std::snprintf(exceptionStr, sizeof(exceptionStr), "Failed to set expected pixel format");
+    throw std::runtime_error(exceptionStr);
   }
 
   CHECK_HRESULT(

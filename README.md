@@ -90,6 +90,8 @@ A small overview of using the C++ code can be found [here](/docs/Using-the-C-Cod
 
 Some things that are on the list to do at some point:
 * Add more preset NTSC timing data (for instance, get the timings for Sega Genesis games, so that emulators will get that classic rainbow-like waterfall effect in Sonic)
+* Add explicit support for PAL/SECAM signal emulation as well
+ 	- Not entirely sure how complex this is, I haven't really looked deeply into the differences in signal, decoding, and artifacts yet.
 * Add additional input types (not just RGB)
 	- The NES outputs in effectively 9-bit color (6 bits of color palette space plus 3 bits for "color emphasis"), and the signal can be generated direct from that
 	- CGA cards had two different modes of generating a composite signal, and to truly get accurate colors for composite artifact color tricks that old PC games like Maniac Mansion used, the signal would have to be generated in the same way

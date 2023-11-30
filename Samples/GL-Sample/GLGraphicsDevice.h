@@ -167,7 +167,7 @@ public:
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texHandle, i);
         if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         {
-          throw std::exception("Failed to complete framebuffer");
+          throw std::runtime_error("Failed to complete framebuffer");
         }
       }
 
