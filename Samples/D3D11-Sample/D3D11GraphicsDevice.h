@@ -23,8 +23,8 @@
     if (FAILED(res)) \
     { \
       char exceptionStr[1024]; \
-      sprintf_s(exceptionStr, "Failed to " opName ", result: %08x", uint32_t(res)); \
-      throw std::exception(exceptionStr); \
+      std::snprintf(exceptionStr, sizeof(exceptionStr), "Failed to " opName ", result: %08x", uint32_t(res)); \
+      throw std::runtime_error(exceptionStr); \
     } \
   } \
   while (false)
@@ -549,13 +549,13 @@ private:
     HRSRC resource = FindResourceW(GetModuleHandle(nullptr), MAKEINTRESOURCE(resourceId), L"RT_RCDATA");
     if (resource == nullptr)
     {
-      throw std::exception("Failed to find resource");
+      throw std::runtime_error("Failed to find resource");
     }
 
     HGLOBAL loaded = LoadResource(nullptr, resource);
     if (loaded == nullptr)
     {
-      throw std::exception("Failed to load resource");
+      throw std::runtime_error("Failed to load resource");
     }
 
     void *resData = LockResource(loaded);

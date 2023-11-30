@@ -144,11 +144,11 @@ private:
     static_assert(std::is_same_v<float, Type> || std::is_same_v<uint32_t, Type>);
     if (std::is_same_v<float, Type>)
     {
-      sprintf_s(buf, "%.02f", double(GetValue()));
+      std::snprintf(buf, sizeof(buf), "%.02f", double(GetValue()));
     }
     else if (std::is_same_v<uint32_t, Type>)
     {
-      sprintf_s(buf, "%u", uint32_t(GetValue()));
+      std::snprintf(buf, sizeof(buf), "%u", uint32_t(GetValue()));
     }
 
     SetDlgItemTextA(dialog, labelID, buf);
