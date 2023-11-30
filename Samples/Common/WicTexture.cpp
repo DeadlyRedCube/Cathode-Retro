@@ -10,6 +10,8 @@
 #include <wincodecsdk.h>
 #pragma warning (pop)
 
+#include <stdexcept>
+
 #include "ComPtr.h"
 
 #include "WicTexture.h"

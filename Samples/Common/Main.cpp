@@ -2,6 +2,7 @@
 
 #include <Windows.h>
 #include <CommCtrl.h>
+#include <stdexcept>
 
 #include "CathodeRetro/SettingPresets.h"
 

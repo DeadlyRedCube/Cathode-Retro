@@ -6,16 +6,22 @@
 //  this.
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
-#ifndef NOMINMAX
-  #define NOMINMAX
+  #define TARGET_WINDOWS 1
+#else
+  #define TARGET_WINDOWS 0
 #endif
-#include <Windows.h>
+
+#if TARGET_WINDOWS
+  #ifndef NOMINMAX
+    #define NOMINMAX
+  #endif
+  #include <Windows.h>
 #endif
 
 #ifdef __APPLE__
-#include <OpenGL/OpenGL.h>
+  #include <OpenGL/OpenGL.h>
 #else
-#include <GL/gl.h>
+  #include <GL/gl.h>
 #endif
 
 #include <assert.h>
@@ -27,11 +33,13 @@
 #include <type_traits>
 #include <vector>
 
-#define WGL_CONTEXT_MAJOR_VERSION_ARB     0x2091
-#define WGL_CONTEXT_MINOR_VERSION_ARB     0x2092
-#define WGL_CONTEXT_LAYER_PLANE_ARB       0x2093
-#define WGL_CONTEXT_FLAGS_ARB             0x2094
-#define WGL_CONTEXT_PROFILE_MASK_ARB      0x9126
+#if TARGET_WINDOWS
+  #define WGL_CONTEXT_MAJOR_VERSION_ARB     0x2091
+  #define WGL_CONTEXT_MINOR_VERSION_ARB     0x2092
+  #define WGL_CONTEXT_LAYER_PLANE_ARB       0x2093
+  #define WGL_CONTEXT_FLAGS_ARB             0x2094
+  #define WGL_CONTEXT_PROFILE_MASK_ARB      0x9126
+#endif
 
 
 #define GL_INVALID_FRAMEBUFFER_OPERATION  0x0506
@@ -94,13 +102,15 @@
 using GLsizeiptr = std::make_signed_t<size_t>;
 using GLchar = char;
 
+#if TARGET_WINDOWS
+  HGLRC (WINAPI *wglCreateContextAttribsARB) (HDC hDC, HGLRC hShareContext, const int *attribList) = nullptr;
+#endif
 
 void (*glGenBuffers) (GLsizei n, GLuint *arraysOut) = nullptr;
 void (*glBindBuffer) (GLenum target, GLuint buffer) = nullptr;
 void (*glBufferData) (GLenum target, GLsizeiptr size, const void *data, GLenum usage) = nullptr;
 void (*glDeleteBuffers) (GLsizei n, const GLuint * buffers);
 GLuint (*glCreateShader) (GLenum shaderType) = nullptr;
-HGLRC (WINAPI *wglCreateContextAttribsARB) (HDC hDC, HGLRC hShareContext, const int *attribList) = nullptr;
 void (*glShaderSource) (GLuint shader, GLsizei count, const GLchar **string, const GLint *length) = nullptr;
 void (*glCompileShader) (GLuint shader) = nullptr;
 void (*glGetShaderiv) (GLuint shader, GLenum pname, GLint *params) = nullptr;
@@ -444,7 +454,7 @@ GLuint CompileShaderFromFile(GLenum shaderType, const char *pathStr)
 
     using namespace std;
 
-    #ifdef _WIN32
+    #if TARGET_WINDOWS
       OutputDebugStringA(parsed.c_str());
       OutputDebugStringA("\n");
     #endif
