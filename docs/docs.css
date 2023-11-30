@@ -170,6 +170,7 @@ h3
 .content
 {
   margin: 0px;
+  overflow-wrap: break-word;
 }
 
 a,
