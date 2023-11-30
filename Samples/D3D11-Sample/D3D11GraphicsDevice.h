@@ -242,7 +242,9 @@ public:
       case CathodeRetro::ShaderID::Util_TonemapAndDownsample: resourceID = IDR_TONEMAP_AND_DOWNSAMPLE; break;
       case CathodeRetro::ShaderID::Util_GaussianBlur13: resourceID = IDR_GAUSSIAN_BLUR_13; break;
       case CathodeRetro::ShaderID::Generator_GeneratePhaseTexture: resourceID = IDR_GENERATE_PHASE_TEXTURE; break;
-      case CathodeRetro::ShaderID::Generator_RGBToSVideoOrComposite: resourceID = IDR_RGB_TO_SVIDEO_OR_COMPOSITE; break;
+      case CathodeRetro::ShaderID::Generator_RGBToSVideoOrComposite:
+        resourceID = IDR_RGB_TO_SVIDEO_OR_COMPOSITE;
+        break;
       case CathodeRetro::ShaderID::Generator_ApplyArtifacts: resourceID = IDR_APPLY_ARTIFACTS; break;
       case CathodeRetro::ShaderID::Decoder_CompositeToSVideo: resourceID = IDR_COMPOSITE_TO_SVIDEO; break;
       case CathodeRetro::ShaderID::Decoder_SVideoToModulatedChroma: resourceID = IDR_SVIDEO_TO_MODULATED_CHROMA; break;

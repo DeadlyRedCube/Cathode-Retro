@@ -255,12 +255,13 @@ namespace CathodeRetro
         data.overscanScale.x = aspectData.overscanSize.x / originalInputImageWidth;
         data.overscanScale.y = aspectData.overscanSize.y / scanlineCount;
 
-        data.overscanOffset.x =
-          float(int32_t(overscanSettings.overscanLeft - overscanSettings.overscanRight)) / originalInputImageWidth * 0.5f;
-        data.overscanOffset.y =
-          float(int32_t(overscanSettings.overscanTop - overscanSettings.overscanBottom)) / scanlineCount * 0.5f;
+        data.overscanOffset.x = 0.5f * float(int32_t(overscanSettings.overscanLeft - overscanSettings.overscanRight))
+          / originalInputImageWidth;
+        data.overscanOffset.y = 0.5f * float(int32_t(overscanSettings.overscanTop - overscanSettings.overscanBottom))
+          / scanlineCount;
 
-        // Figure out the aspect ratio of the output, given both our dimensions as well as the pixel aspect ratio in the screen settings.
+        // Figure out the aspect ratio of the output, given both our dimensions as well as the pixel aspect ratio in
+        //  the screen settings.
         if (float(screenTexture->Width()) > aspectData.aspect * float(screenTexture->Height()))
         {
           float desiredWidth = aspectData.aspect * float(screenTexture->Height());
@@ -295,7 +296,8 @@ namespace CathodeRetro
         data.roundedCornerSize = screenSettings.cornerRounding;
 
         data.maskScale.y = float(scanlineCount) * data.common.overscanScale.y * 0.5f / screenSettings.maskScale;
-        data.maskScale.x = float(originalInputImageWidth) * pixelAspect * data.common.overscanScale.x * 0.25f / screenSettings.maskScale;
+        data.maskScale.x = float(originalInputImageWidth) * pixelAspect * data.common.overscanScale.x * 0.25f
+          / screenSettings.maskScale;
 
         switch (screenSettings.maskType)
         {

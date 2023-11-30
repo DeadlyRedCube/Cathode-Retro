@@ -149,15 +149,15 @@ float4 Main(float2 inTexCoord)
   // Distort these coordinates to get the -1..1 screen area:
   float2 t = DistortCRTCoordinates(scaledTexCoord, g_distortion);
 
-  // Calculate a separate set of distorted coordinates, this for the outer mask (which determines the masking off of extra-rounded screen
-  //  edges).
+  // Calculate a separate set of distorted coordinates, this for the outer mask (which determines the masking off of
+  //  extra-rounded screen edges).
   float2 maskT = DistortCRTCoordinates(t, g_maskDistortion.yx);
 
   // Adjust for overscan
   t = t * g_overscanScale + g_overscanOffset * 2.0;
 
-  // Calculate the signed distance to the edge of the "screen" taking the rounded corners into account. This will be used to generate the
-  //  mask around the edges of the "screen" where we draw a dark color.
+  // Calculate the signed distance to the edge of the "screen" taking the rounded corners into account. This will be
+  //  used to generate the mask around the edges of the "screen" where we draw a dark color.
   float edgeDist;
   {
     // Get our coordinate as just an "upper quadrant" coordinate, scaled to have the correct display aspect ratio.
@@ -169,16 +169,16 @@ float4 Main(float2 inTexCoord)
     edgeDist = min(max(q.x, q.y), 0.0) + length(max(q, 0.0)) - g_roundedCornerSize;
   }
 
-  // Use our signed distance to edge of screen along with the ddx/ddy of our mask coordinate to generate a nicely-antialiased mask where
-  //  0 means "fully outside of the screen" and 1 means "fully on-screen".
+  // Use our signed distance to edge of screen along with the ddx/ddy of our mask coordinate to generate a nicely-
+  //  antialiased mask where 0 means "fully outside of the screen" and 1 means "fully on-screen".
   float maskAlpha = 1.0 - smoothstep(-length(ddx(maskT) + ddy(maskT)), 0.0, edgeDist);
   if (max(abs(scaledTexCoord.x), abs(scaledTexCoord.y)) > 1.1)
   {
     maskAlpha = 0.0;
   }
 
-  // Now supersample the mask texture with a mip-map bias to make it sharper. The supersampling will help counteract the bias and
-  //  give us a sharp mask with minimal-to-no aliasing.
+  // Now supersample the mask texture with a mip-map bias to make it sharper. The supersampling will help counteract
+  //  the bias and give us a sharp mask with minimal-to-no aliasing.
   float angle = Noise2D(t * 1000, 10.0) * 6.28318531;
   float2 rotX = float2(sin(angle), cos(angle)) * 1.414;
   float2 rotY = float2(-rotX.y, rotX.x);

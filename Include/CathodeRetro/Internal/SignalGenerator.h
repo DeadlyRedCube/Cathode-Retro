@@ -24,16 +24,19 @@ namespace CathodeRetro
 
         signalProps.type = type;
         signalProps.scanlineWidth = int32_t(std::ceil(
-          float(inputWidth * inputSettings.colorCyclesPerInputPixel * k_signalSamplesPerColorCycle) / float(inputSettings.denominator)));
+          float(inputWidth * inputSettings.colorCyclesPerInputPixel * k_signalSamplesPerColorCycle)
+            / float(inputSettings.denominator)));
 
         // There's sidePaddingColorCycleCount per side, so 2x that.
-        signalProps.totalSidePaddingTexelCount = 2 * inputSettings.sidePaddingColorCycleCount * k_signalSamplesPerColorCycle;
+        signalProps.totalSidePaddingTexelCount = 2 * inputSettings.sidePaddingColorCycleCount
+          * k_signalSamplesPerColorCycle;
 
         // Add the side padding.
         signalProps.scanlineWidth += signalProps.totalSidePaddingTexelCount;
 
         signalProps.scanlineCount = inputHeight;
-        signalProps.colorCyclesPerInputPixel = float(inputSettings.colorCyclesPerInputPixel) / float(inputSettings.denominator);
+        signalProps.colorCyclesPerInputPixel = float(inputSettings.colorCyclesPerInputPixel)
+          / float(inputSettings.denominator);
         signalProps.inputPixelAspectRatio = inputSettings.inputPixelAspectRatio;
 
         generateSignalConstantBuffer = device->CreateConstantBuffer(
@@ -65,8 +68,8 @@ namespace CathodeRetro
       {
         artifactSettings = settings;
 
-        // If we have any temporal artifact reduction we are going to double up our generated signal textures so that two phases of the same
-        //  frame can be blended together by the decoder.
+        // If we have any temporal artifact reduction we are going to double up our generated signal textures so that
+        //  two phases of the same frame can be blended together by the decoder.
         bool wantsDouble = (artifactSettings.temporalArtifactReduction > 0.0f);
 
         TextureFormat phasesFormat = wantsDouble ? TextureFormat::RG_Float32 : TextureFormat::R_Float32;
@@ -81,8 +84,16 @@ namespace CathodeRetro
 
         if (signalTexture == nullptr || signalTexture->Format() != signalFormat)
         {
-          signalTexture = device->CreateRenderTarget(signalProps.scanlineWidth, signalProps.scanlineCount, 1, signalFormat);
-          scratchSignalTexture = device->CreateRenderTarget(signalProps.scanlineWidth, signalProps.scanlineCount, 1, signalFormat);
+          signalTexture = device->CreateRenderTarget(
+            signalProps.scanlineWidth,
+            signalProps.scanlineCount,
+            1,
+            signalFormat);
+          scratchSignalTexture = device->CreateRenderTarget(
+            signalProps.scanlineWidth,
+            signalProps.scanlineCount,
+            1,
+            signalFormat);
         }
       }
 
