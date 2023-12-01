@@ -10,10 +10,115 @@
     <header class="header"><button id="sidebar-button"></button></header>
     <div id="sidebar-container" class="sidebar-container"><iframe class="sidebar-frame" src="../../sidebar.html?page=cpp-reference-interfaces-itexture"></iframe></div>
     <div id="content-outer" class="content-outer">
-      <div class="content">
+      <main>
         <h1>CathodeRetro::<wbr>ITexture</h1>
-        (Content coming soon)
-      </div>
+        <div>
+          <p>
+            This is one of the interfaces that the user code needs to implement in order to use the 
+            <code><a href="../classes/cathoderetro.html">CathodeRetro</a></code> class. 
+            See <a href="../../start-cpp/interfaces.html">Implementing the Required Interfaces</a> for details.
+          </p>
+          <p>
+            This interface represents a texture that can be used as an input to 
+            <code><a href="igraphicsdevice.html#RenderQuad">IGraphicsDevice::<wbr>RenderQuad</a></code>.
+          </p>
+        </div>
+        <h2>Index</h2>
+        <div class="index">
+          <h3>Interface Methods</h3>
+          <nav>
+            <menu>
+              <li><a href="#Width">Width</a></li>
+              <li><a href="#Height">Height</a></li>
+              <li><a href="#MipCount">MipCount</a></li>
+              <li><a href="#Format">Format</a></li>
+            </menu>
+          </nav>
+        </div>
+        <h2>Interface Methods</h2>
+        <dl class="member-list">
+          <dt id="Width">Width</dt>
+          <dd>
+            <div class="code-definition">
+              <pre>
+                virtual uint32_t Width() const
+              </pre>
+            </div>
+            <h4>Description</h4>
+            <section>
+              Return the width of the texture.
+            </section>
+            <h4>Return Value</h4>
+            <section>
+              <p>Type: <code>uint32_t</code></p>
+              <p>
+                The width of the texture.
+              </p>
+            </section>
+          </dd>      
+
+          <dt id="Height">Height</dt>
+          <dd>
+            <div class="code-definition">
+              <pre>
+                virtual uint32_t Height() const
+              </pre>
+            </div>
+            <h4>Description</h4>
+            <section>
+              Return the height of the texture.
+            </section>
+            <h4>Return Value</h4>
+            <section>
+              <p>Type: <code>uint32_t</code></p>
+              <p>
+                The height of the texture.
+              </p>
+            </section>
+          </dd>      
+
+          <dt id="MipCount">MipCount</dt>
+          <dd>
+            <div class="code-definition">
+              <pre>
+                virtual uint32_t MipCount() const
+              </pre>
+            </div>
+            <h4>Description</h4>
+            <section>
+              Return the number of <a href="https://en.wikipedia.org/wiki/Mipmap" target="_blank">mipmap</a>
+              levels that the texture contains.
+            </section>
+            <h4>Return Value</h4>
+            <section>
+              <p>Type: <code>uint32_t</code></p>
+              <p>
+                The number of mipmap levels that the texture contains.
+              </p>
+            </section>
+          </dd>      
+
+          <dt id="Format">Format</dt>
+          <dd>
+            <div class="code-definition">
+              <pre>
+                virtual TextureFormat Format() const
+              </pre>
+            </div>
+            <h4>Description</h4>
+            <section>
+              Return the format of the texture.
+            </section>
+            <h4>Return Value</h4>
+            <section>
+              <p>Type: <code><a href="../enums/textureformat.html">TextureFormat</a></code></p>
+              <p>
+                The format of the texture.
+              </p>
+            </section>
+          </dd>      
+        </div>
+      </main>
     </div>
   </body>
 </html>
