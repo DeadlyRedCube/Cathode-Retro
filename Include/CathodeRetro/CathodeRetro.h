@@ -27,7 +27,7 @@ namespace CathodeRetro
     }
 
     // Call this whenever the input signal type changes (signal type, timings, or input dimensions). These changes
-    //  requires internal textures and other objects to be potentially reallocated.
+    //  require internal textures and other objects to be potentially reallocated.
     void UpdateSourceSettings(
       SignalType sigType,
       uint32_t inputWidth,

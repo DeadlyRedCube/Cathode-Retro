@@ -3,9 +3,13 @@
   --header-height: 60px;
   --max-content-width: 900px;
   --sidebar-width: 340px;
+  --sidebar-text-size: 100%;
 
   --main-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
   --title-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+  --code-font: Consolas, Courier, monospace;
+  --code-font-weight: 600;
+  --code-font-size: 1em;
 
   /* --sol- colors from  Solarized by Ethan Schoonover: https://ethanschoonover.com/solarized/ */
   --sol-base-color-03:    #002b36;
@@ -52,6 +56,16 @@
   --header-button-hover:      var(--accent-bright);
   --header-button-press:      var(--foreground-emphasis);
   --sidebar-shadow-color:     rgba(0, 0, 0, 0.8);
+}
+
+
+@media(hover: hover)
+{
+  :root
+  {
+    --sidebar-width: 309px;
+    --sidebar-text-size: 90%;
+  }
 }
 
 
@@ -104,10 +118,35 @@ h5
   color: var(--foreground-emphasis);
 }
 
-code
+code,
+.index
 {
-  font-family: Consolas, Courier, monospace;
-  font-weight: 600;
+  font-family: var(--code-font);
+  font-weight: var(--code-font-weight);
+  font-size: var(--code-font-size);
+}
+
+.index
+{
+  border: 1px solid var(--background-emphasis);
+  padding: 10px;
+  margin-bottom: 80px;
+}
+
+.index > h3:first-of-type
+{
+  padding-top: 0;
+  margin-top: 0;
+}
+
+.index li
+{
+  list-style-type: none;
+}
+
+.index li:not(:last-of-type)
+{
+  padding-bottom: 5px;
 }
 
 h1
@@ -122,7 +161,14 @@ h2
 
 h3
 {
-  font-size: 2em;
+  font-size: 1.8em;
+}
+
+a[name],
+[id]
+{
+  /* When navigating to anchors, they should scroll below the header. */
+  scroll-margin-top: calc(var(--header-height) + 10px);
 }
 
 .sidebar-container
@@ -167,6 +213,7 @@ h3
   width: calc(100vw - (var(--sidebar-width) + var(--max-content-width)));
 }
 
+main,
 .content
 {
   margin: 0px;
@@ -286,6 +333,82 @@ a:active
 }
 
 
+.member-list
+{
+  border-color: var(--background-emphasis);
+  margin-bottom: 100px;
+}
+
+.member-list dt
+{
+  color: var(--foreground-emphasis);
+}
+
+
+.member-list > dt
+{
+  background-color: var(--background-menu);
+  font-family: var(--code-font);
+  font-weight: var(--code-font-weight);
+  font-size: var(--code-font-size);
+  border: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  flex-direction: column;
+  min-height: 44px;
+  padding-left: 8px;
+  padding-right: 8px;
+  border-top: 1px solid;
+  border-left: 1px solid;
+  border-right: 1px solid;
+  color: var(--foreground-emphasis);
+  border-color: var(--background-emphasis);
+}
+
+.member-list > dd
+{
+  margin: 0;
+  padding: 20px;
+  border-left: 1px solid;
+  border-right: 1px solid;
+  border-bottom: 1px solid var(--background-emphasis);
+  border-color: var(--background-emphasis);
+}
+
+.member-list > dd:not(:last-of-type)
+{
+  margin-bottom: 80px;
+}
+
+.member-list .code-definition
+{
+  border: 1px solid var(--background-emphasis);
+  padding: 20px;
+  overflow-x: auto;
+}
+
+.member-list .code-definition pre,
+.member-list .code-definition code
+{
+  padding: 0;
+  margin: 0;
+  font-family: var(--code-font);
+  font-weight: var(--code-font-weight);
+  font-size: 0.9em;
+}
+
+.member-list > dd:last-of-type
+{
+  border-bottom: 1px solid var(--background-emphasis);
+}
+
+.member-list > dd > section
+{
+  padding-left: 20px;
+}
+
 /* Sidebar stuff */
 
 
@@ -300,6 +423,7 @@ a:active
   overflow-x: hidden;
   overflow-y: auto;
   color: var(--sidebar-text-main);
+  font-size: var(--sidebar-text-size);
 
   --sidebar-padding-x: 25px;
   --sidebar-padding-y: 6px;
@@ -426,6 +550,7 @@ a:active
 {
   display: none;
 }
+
 
 /* Media queries */
 

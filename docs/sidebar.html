@@ -34,152 +34,154 @@
     </script>
   </head>
   <body onload="OnSidebarLoad()" class="sidebar">
-    <ul>
-      <li class="top-level submenu">
-        <a href="index.html">Introduction</a>
-        <ul>
-          <li><a id="introduction" href="index.html">Introduction</a></li>
-        </ul>
-      </li>
-      <li class="top-level submenu">
-        <a id="how" href="how/index.html">How It Works</a>
-        <ul>
-          <li><a id="how-basics" href="how/ntsc-basics.html">NTSC Signal Basics</a></li>
-          <li><a id="how-generating" href="how/generating-scanline.html">Generating a Fake NTSC Scanline</a></li>
-          <li><a id="how-decoding" href="how/decoding-scanline.html">Decoding a Fake NTSC Scanline</a></li>
-          <li><a id="how-crt" href="how/faking-crt.html">Faking a CRT Display</a></li>
-        </ul>
-      </li>
-      <li class="top-level submenu">
-        <a id="start-cpp" href="start-cpp/index.html">Getting Started: C++ Helpers</a>
-        <ul>
-          <li><a id="start-cpp-interfaces" href="start-cpp/interfaces.html">Implementing the Required Interfaces</a></li>
-          <li><a id="start-cpp-using-class" href="start-cpp/using-class.html">Using the Main CathodeRetro Class</a></li>
-        </ul>
-      </li>
-      <li class="top-level submenu">
-        <a id="start-shaders" href="start-shaders/index.html">Getting Started: The Shaders</a>
-        <ul>
-          <li><a id="start-shaders-graph" href="start-shaders/shader-graph.html">Shader Graph</a></li>
-          <li><a id="start-shaders-generator" href="start-shaders/generator.html">Generator</a></li>
-          <li><a id="start-shaders-decoder" href="start-shaders/decoder.html">Decoder</a></li>
-          <li><a id="start-shaders-crt" href="start-shaders/crt-emulation.html">CRT Emulation</a></li>
-        </ul>
-      </li>
-      <li class="top-level submenu">
-        <a id="cpp-reference" href="cpp-reference/index.html">C++ Reference</a>
-        <ul>
-          <li class="submenu">
-            <a id="cpp-reference-classes" href="cpp-reference/classes/index.html">Classes</a>
-            <ul>
-              <li><a id="cpp-reference-classes-cathoderetro" href="cpp-reference/classes/cathoderetro.html">CathodeRetro</a></li>
-              <li><a id="cpp-reference-classes-internal-rgbtocrt" href="cpp-reference/classes/rgbtocrt.html">Internal::RGBToCRT</a></li>
-              <li><a id="cpp-reference-classes-internal-signaldecoder" href="cpp-reference/classes/signaldecoder.html">Internal::SignalDecoder</a></li>
-              <li><a id="cpp-reference-classes-internal-signalgenerator" href="cpp-reference/classes/signalgenerator.html">Internal::SignalGenerator</a></li>
-            </ul>
-          </li>
-          <li>
-            <a id="cpp-reference-constants" href="cpp-reference/constants.html">Constants</a>
-          </li>
-          <li class="submenu">
-            <a id="cpp-reference-enums" href="cpp-reference/enums/index.html">Enumerations</a>
-            <ul>
-              <li><a id="cpp-reference-enums-masktype" href="cpp-reference/enums/masktype.html">MaskType</a></li>
-              <li><a id="cpp-reference-enums-samplertype" href="cpp-reference/enums/samplertype.html">SamplerType</a></li>
-              <li><a id="cpp-reference-enums-scanlinetype" href="cpp-reference/enums/scanlinetype.html">ScanlineType</a></li>
-              <li><a id="cpp-reference-enums-shaderid" href="cpp-reference/enums/shaderid.html">ShaderID</a></li>
-              <li><a id="cpp-reference-enums-signaltype" href="cpp-reference/enums/signaltype.html">SignalType</a></li>
-              <li><a id="cpp-reference-enums-textureformat" href="cpp-reference/enums/textureformat.html">TextureFormat</a></li>
-            </ul>
-          </li>
-          <li class="submenu">
-            <a id="cpp-reference-interfaces" href="cpp-reference/interfaces/index.html">Interfaces</a>
-            <ul>
-              <li><a id="cpp-reference-interfaces-iconstantbuffer" href="cpp-reference/interfaces/iconstantbuffer.html">IConstantBuffer</a></li>
-              <li><a id="cpp-reference-interfaces-igraphicsdevice" href="cpp-reference/interfaces/igraphicsdevice.html">IGraphicsDevice</a></li>
-              <li><a id="cpp-reference-interfaces-irendertarget" href="cpp-reference/interfaces/irendertarget.html">IRenderTarget</a></li>
-              <li><a id="cpp-reference-interfaces-ishader" href="cpp-reference/interfaces/ishader.html">IShader</a></li>
-              <li><a id="cpp-reference-interfaces-itexture" href="cpp-reference/interfaces/itexture.html">ITexture</a></li>
-            </ul>
-          </li>
-          <li class="submenu">
-            <a id="cpp-reference-structs" href="cpp-reference/structs/index.html">Structures</a>
-            <ul>
-              <li><a id="cpp-reference-structs-artifactsettings" href="cpp-reference/structs/artifactsettings.html">ArtifactSettings</a></li>
-              <li><a id="cpp-reference-structs-color" href="cpp-reference/structs/color.html">Color</a></li>
-              <li><a id="cpp-reference-structs-signallevels" href="cpp-reference/structs/signallevels.html">Internal::SignalLevels</a></li>
-              <li><a id="cpp-reference-structs-signalproperties" href="cpp-reference/structs/signalproperties.html">Internal::SignalProperties</a></li>
-              <li><a id="cpp-reference-structs-overscansettings" href="cpp-reference/structs/overscansettings.html">OverscanSettings</a></li>
-              <li><a id="cpp-reference-structs-preset" href="cpp-reference/structs/preset.html">Preset&lt;T&gt;</a></li>
-              <li><a id="cpp-reference-structs-rendertargetview" href="cpp-reference/structs/rendertargetview.html">RenderTargetView</a></li>
-              <li><a id="cpp-reference-structs-screensettings" href="cpp-reference/structs/screensettings.html">ScreenSettings</a></li>
-              <li><a id="cpp-reference-structs-shaderresourceview" href="cpp-reference/structs/shaderresourceview.html">ShaderResourceView</a></li>
-              <li><a id="cpp-reference-structs-sourcesettings" href="cpp-reference/structs/sourcesettings.html">SourceSettings</a></li>
-              <li><a id="cpp-reference-structs-tvknobsettings" href="cpp-reference/structs/tvknobsettings.html">TVKnobSettings</a></li>
-              <li><a id="cpp-reference-structs-vec2" href="cpp-reference/structs/vec2.html">Vec2</a></li>
-              </li>
-            </ul>
-          </li>
-        </ul>
-      </li>
-      <li class="top-level submenu">
-        <a id="shader-reference" href="shader-reference/index.html">Shader Reference</a>
-        <ul>
-          <li class="submenu">
-            <a id="shader-reference-util-headers" href="shader-reference/util-headers/index.html">Utility Shader Headers</a>
-            <ul>
-              <li><a id="shader-reference-util-headers-box-filter" href="shader-reference/util-headers/box-filter.html">box-filter</a></li>
-              <li><a id="shader-reference-util-headers-lanczos" href="shader-reference/util-headers/lanczos.html">lanczos</a></li>
-              <li><a id="shader-reference-util-headers-language-helpers" href="shader-reference/util-headers/language-helpers.html">language-helpers</a></li>
-              <li><a id="shader-reference-util-headers-noise" href="shader-reference/util-headers/noise.html">noise</a></li>
-              <li><a id="shader-reference-util-headers-tracking-instability" href="shader-reference/util-headers/tracking-instability.html">tracking-instability</a></li>
-            </ul>
-          </li>
-          <li class="submenu">
-            <a id="shader-reference-util" href="shader-reference/util-shaders/index.html">Utility Shaders</a>
-            <ul>
-              <li><a id="shader-reference-util-basic-vertex-shader" href="shader-reference/util-shaders/basic-vertex-shader.html">basic-vertex-shader</a></li>
-              <li><a id="shader-reference-util-copy" href="shader-reference/util-shaders/copy.html">copy</a></li>
-              <li><a id="shader-reference-util-downsample-2x" href="shader-reference/util-shaders/downsample-2x.html">downsample-2x</a></li>
-              <li><a id="shader-reference-util-gaussian-blur" href="shader-reference/util-shaders/gaussian-blur.html">gaussian-blur</a></li>
-              <li><a id="shader-reference-util-tonemap-and-downsample" href="shader-reference/util-shaders/tonemap-and-downsample.html">tonemap-and-downsample</a></li>
-            </ul>
-          </li>
-          <li class="submenu">
-            <a id="shader-reference-generator" href="shader-reference/generator-shaders/index.html">Generator Shaders</a>
-            <ul>
-              <li><a id="shader-reference-generator-apply-artifacts" href="shader-reference/generator-shaders/apply-artifacts.html">apply-artifacts</a></li>
-              <li><a id="shader-reference-generator-gen-phase" href="shader-reference/generator-shaders/gen-phase.html">gen-phase</a></li>
-              <li><a id="shader-reference-generator-rgb-to-svideo-or-composite" href="shader-reference/generator-shaders/rgb-to-svideo-or-composite.html">rgb-to-svideo-or-composite</a></li>
-            </ul>
-          </li>
-          <li class="submenu">
-            <a id="shader-reference-decoder" href="shader-reference/decoder-shaders/index.html">Decoder Shaders</a>
-            <ul>
-              <li><a id="shader-reference-decoder-composite-to-svideo" href="shader-reference/decoder-shaders/composite-to-svideo.html">composite-to-svideo</a></li>
-              <li><a id="shader-reference-decoder-filter-rgb" href="shader-reference/decoder-shaders/filter-rgb.html">filter-rgb</a></li>
-              <li><a id="shader-reference-decoder-svideo-to-modulated-chroma" href="shader-reference/decoder-shaders/svideo-to-modulated-chroma.html">svideo-to-modulated-chroma</a></li>
-              <li><a id="shader-reference-decoder-svideo-to-rgb" href="shader-reference/decoder-shaders/svideo-to-rgb.html">svideo-to-rgb</a></li>
-            </ul>
-          </li>
-          <li class="submenu">
-            <a id="shader-reference-crt-headers" href="shader-reference/crt-headers/index.html">CRT Shader Headers</a>
-            <ul>
-              <li><a id="shader-reference-crt-distort-coordinates" href="shader-reference/crt-headers/distort-coordinates.html">distort-coordinates</a></li>
-            </ul>
-          </li>
-          <li class="submenu">
-            <a id="shader-reference-crt" href="shader-reference/crt-shaders/index.html">CRT Shaders</a>
-            <ul>
-              <li><a id="shader-reference-crt-generate-aperture-grille" href="shader-reference/crt-shaders/generate-aperture-grille.html">generate-aperture-grille</a></li>
-              <li><a id="shader-reference-crt-generate-screen-texture" href="shader-reference/crt-shaders/generate-screen-texture.html">generate-screen-texture</a></li>
-              <li><a id="shader-reference-crt-generate-shadow-mask" href="shader-reference/crt-shaders/generate-shadow-mask.html">generate-shadow-mask</a></li>
-              <li><a id="shader-reference-crt-generate-slot-mask" href="shader-reference/crt-shaders/generate-slot-mask.html">generate-slot-mask</a></li>
-              <li><a id="shader-reference-crt-rgb-to-crt" href="shader-reference/crt-shaders/rgb-to-crt.html">rgb-to-crt</a></li>
-            </ul>
-          </li>
-        </ul>
-      </li>
-    </ul>
+    <nav>
+      <ul>
+        <li class="top-level submenu">
+          <a href="index.html">Introduction</a>
+          <ul>
+            <li><a id="introduction" href="index.html">Introduction</a></li>
+          </ul>
+        </li>
+        <li class="top-level submenu">
+          <a id="how" href="how/index.html">How It Works</a>
+          <ul>
+            <li><a id="how-basics" href="how/ntsc-basics.html">NTSC Signal Basics</a></li>
+            <li><a id="how-generating" href="how/generating-scanline.html">Generating a Fake NTSC Scanline</a></li>
+            <li><a id="how-decoding" href="how/decoding-scanline.html">Decoding a Fake NTSC Scanline</a></li>
+            <li><a id="how-crt" href="how/faking-crt.html">Faking a CRT Display</a></li>
+          </ul>
+        </li>
+        <li class="top-level submenu">
+          <a id="start-cpp" href="start-cpp/index.html">Getting Started: C++ Helpers</a>
+          <ul>
+            <li><a id="start-cpp-interfaces" href="start-cpp/interfaces.html">Implementing the Required Interfaces</a></li>
+            <li><a id="start-cpp-using-class" href="start-cpp/using-class.html">Using the Main CathodeRetro Class</a></li>
+          </ul>
+        </li>
+        <li class="top-level submenu">
+          <a id="start-shaders" href="start-shaders/index.html">Getting Started: The Shaders</a>
+          <ul>
+            <li><a id="start-shaders-graph" href="start-shaders/shader-graph.html">Shader Graph</a></li>
+            <li><a id="start-shaders-generator" href="start-shaders/generator.html">Generator</a></li>
+            <li><a id="start-shaders-decoder" href="start-shaders/decoder.html">Decoder</a></li>
+            <li><a id="start-shaders-crt" href="start-shaders/crt-emulation.html">CRT Emulation</a></li>
+          </ul>
+        </li>
+        <li class="top-level submenu">
+          <a id="cpp-reference" href="cpp-reference/index.html">C++ Reference</a>
+          <ul>
+            <li class="submenu">
+              <a id="cpp-reference-classes" href="cpp-reference/classes/index.html">Classes</a>
+              <ul>
+                <li><a id="cpp-reference-classes-cathoderetro" href="cpp-reference/classes/cathoderetro.html">CathodeRetro</a></li>
+                <li><a id="cpp-reference-classes-internal-rgbtocrt" href="cpp-reference/classes/rgbtocrt.html">Internal::RGBToCRT</a></li>
+                <li><a id="cpp-reference-classes-internal-signaldecoder" href="cpp-reference/classes/signaldecoder.html">Internal::SignalDecoder</a></li>
+                <li><a id="cpp-reference-classes-internal-signalgenerator" href="cpp-reference/classes/signalgenerator.html">Internal::SignalGenerator</a></li>
+              </ul>
+            </li>
+            <li>
+              <a id="cpp-reference-constants" href="cpp-reference/constants.html">Constants</a>
+            </li>
+            <li class="submenu">
+              <a id="cpp-reference-enums" href="cpp-reference/enums/index.html">Enumerations</a>
+              <ul>
+                <li><a id="cpp-reference-enums-masktype" href="cpp-reference/enums/masktype.html">MaskType</a></li>
+                <li><a id="cpp-reference-enums-samplertype" href="cpp-reference/enums/samplertype.html">SamplerType</a></li>
+                <li><a id="cpp-reference-enums-scanlinetype" href="cpp-reference/enums/scanlinetype.html">ScanlineType</a></li>
+                <li><a id="cpp-reference-enums-shaderid" href="cpp-reference/enums/shaderid.html">ShaderID</a></li>
+                <li><a id="cpp-reference-enums-signaltype" href="cpp-reference/enums/signaltype.html">SignalType</a></li>
+                <li><a id="cpp-reference-enums-textureformat" href="cpp-reference/enums/textureformat.html">TextureFormat</a></li>
+              </ul>
+            </li>
+            <li class="submenu">
+              <a id="cpp-reference-interfaces" href="cpp-reference/interfaces/index.html">Interfaces</a>
+              <ul>
+                <li><a id="cpp-reference-interfaces-iconstantbuffer" href="cpp-reference/interfaces/iconstantbuffer.html">IConstantBuffer</a></li>
+                <li><a id="cpp-reference-interfaces-igraphicsdevice" href="cpp-reference/interfaces/igraphicsdevice.html">IGraphicsDevice</a></li>
+                <li><a id="cpp-reference-interfaces-irendertarget" href="cpp-reference/interfaces/irendertarget.html">IRenderTarget</a></li>
+                <li><a id="cpp-reference-interfaces-ishader" href="cpp-reference/interfaces/ishader.html">IShader</a></li>
+                <li><a id="cpp-reference-interfaces-itexture" href="cpp-reference/interfaces/itexture.html">ITexture</a></li>
+              </ul>
+            </li>
+            <li class="submenu">
+              <a id="cpp-reference-structs" href="cpp-reference/structs/index.html">Structures</a>
+              <ul>
+                <li><a id="cpp-reference-structs-artifactsettings" href="cpp-reference/structs/artifactsettings.html">ArtifactSettings</a></li>
+                <li><a id="cpp-reference-structs-color" href="cpp-reference/structs/color.html">Color</a></li>
+                <li><a id="cpp-reference-structs-signallevels" href="cpp-reference/structs/signallevels.html">Internal::SignalLevels</a></li>
+                <li><a id="cpp-reference-structs-signalproperties" href="cpp-reference/structs/signalproperties.html">Internal::SignalProperties</a></li>
+                <li><a id="cpp-reference-structs-overscansettings" href="cpp-reference/structs/overscansettings.html">OverscanSettings</a></li>
+                <li><a id="cpp-reference-structs-preset" href="cpp-reference/structs/preset.html">Preset&lt;T&gt;</a></li>
+                <li><a id="cpp-reference-structs-rendertargetview" href="cpp-reference/structs/rendertargetview.html">RenderTargetView</a></li>
+                <li><a id="cpp-reference-structs-screensettings" href="cpp-reference/structs/screensettings.html">ScreenSettings</a></li>
+                <li><a id="cpp-reference-structs-shaderresourceview" href="cpp-reference/structs/shaderresourceview.html">ShaderResourceView</a></li>
+                <li><a id="cpp-reference-structs-sourcesettings" href="cpp-reference/structs/sourcesettings.html">SourceSettings</a></li>
+                <li><a id="cpp-reference-structs-tvknobsettings" href="cpp-reference/structs/tvknobsettings.html">TVKnobSettings</a></li>
+                <li><a id="cpp-reference-structs-vec2" href="cpp-reference/structs/vec2.html">Vec2</a></li>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li class="top-level submenu">
+          <a id="shader-reference" href="shader-reference/index.html">Shader Reference</a>
+          <ul>
+            <li class="submenu">
+              <a id="shader-reference-util-headers" href="shader-reference/util-headers/index.html">Utility Shader Headers</a>
+              <ul>
+                <li><a id="shader-reference-util-headers-box-filter" href="shader-reference/util-headers/box-filter.html">box-filter</a></li>
+                <li><a id="shader-reference-util-headers-lanczos" href="shader-reference/util-headers/lanczos.html">lanczos</a></li>
+                <li><a id="shader-reference-util-headers-language-helpers" href="shader-reference/util-headers/language-helpers.html">language-helpers</a></li>
+                <li><a id="shader-reference-util-headers-noise" href="shader-reference/util-headers/noise.html">noise</a></li>
+                <li><a id="shader-reference-util-headers-tracking-instability" href="shader-reference/util-headers/tracking-instability.html">tracking-instability</a></li>
+              </ul>
+            </li>
+            <li class="submenu">
+              <a id="shader-reference-util" href="shader-reference/util-shaders/index.html">Utility Shaders</a>
+              <ul>
+                <li><a id="shader-reference-util-basic-vertex-shader" href="shader-reference/util-shaders/basic-vertex-shader.html">basic-vertex-shader</a></li>
+                <li><a id="shader-reference-util-copy" href="shader-reference/util-shaders/copy.html">copy</a></li>
+                <li><a id="shader-reference-util-downsample-2x" href="shader-reference/util-shaders/downsample-2x.html">downsample-2x</a></li>
+                <li><a id="shader-reference-util-gaussian-blur" href="shader-reference/util-shaders/gaussian-blur.html">gaussian-blur</a></li>
+                <li><a id="shader-reference-util-tonemap-and-downsample" href="shader-reference/util-shaders/tonemap-and-downsample.html">tonemap-and-downsample</a></li>
+              </ul>
+            </li>
+            <li class="submenu">
+              <a id="shader-reference-generator" href="shader-reference/generator-shaders/index.html">Generator Shaders</a>
+              <ul>
+                <li><a id="shader-reference-generator-apply-artifacts" href="shader-reference/generator-shaders/apply-artifacts.html">apply-artifacts</a></li>
+                <li><a id="shader-reference-generator-gen-phase" href="shader-reference/generator-shaders/gen-phase.html">gen-phase</a></li>
+                <li><a id="shader-reference-generator-rgb-to-svideo-or-composite" href="shader-reference/generator-shaders/rgb-to-svideo-or-composite.html">rgb-to-svideo-or-composite</a></li>
+              </ul>
+            </li>
+            <li class="submenu">
+              <a id="shader-reference-decoder" href="shader-reference/decoder-shaders/index.html">Decoder Shaders</a>
+              <ul>
+                <li><a id="shader-reference-decoder-composite-to-svideo" href="shader-reference/decoder-shaders/composite-to-svideo.html">composite-to-svideo</a></li>
+                <li><a id="shader-reference-decoder-filter-rgb" href="shader-reference/decoder-shaders/filter-rgb.html">filter-rgb</a></li>
+                <li><a id="shader-reference-decoder-svideo-to-modulated-chroma" href="shader-reference/decoder-shaders/svideo-to-modulated-chroma.html">svideo-to-modulated-chroma</a></li>
+                <li><a id="shader-reference-decoder-svideo-to-rgb" href="shader-reference/decoder-shaders/svideo-to-rgb.html">svideo-to-rgb</a></li>
+              </ul>
+            </li>
+            <li class="submenu">
+              <a id="shader-reference-crt-headers" href="shader-reference/crt-headers/index.html">CRT Shader Headers</a>
+              <ul>
+                <li><a id="shader-reference-crt-distort-coordinates" href="shader-reference/crt-headers/distort-coordinates.html">distort-coordinates</a></li>
+              </ul>
+            </li>
+            <li class="submenu">
+              <a id="shader-reference-crt" href="shader-reference/crt-shaders/index.html">CRT Shaders</a>
+              <ul>
+                <li><a id="shader-reference-crt-generate-aperture-grille" href="shader-reference/crt-shaders/generate-aperture-grille.html">generate-aperture-grille</a></li>
+                <li><a id="shader-reference-crt-generate-screen-texture" href="shader-reference/crt-shaders/generate-screen-texture.html">generate-screen-texture</a></li>
+                <li><a id="shader-reference-crt-generate-shadow-mask" href="shader-reference/crt-shaders/generate-shadow-mask.html">generate-shadow-mask</a></li>
+                <li><a id="shader-reference-crt-generate-slot-mask" href="shader-reference/crt-shaders/generate-slot-mask.html">generate-slot-mask</a></li>
+                <li><a id="shader-reference-crt-rgb-to-crt" href="shader-reference/crt-shaders/rgb-to-crt.html">rgb-to-crt</a></li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
   </body>
 </html>

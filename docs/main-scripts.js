@@ -26,4 +26,15 @@ function OnLoad()
     sidebar.classList.remove("opened");
     document.body.classList.remove("sidebar-opened");
   };
+
+  for (codeDef of document.querySelectorAll(".code-definition"))
+  {
+    for (pre of codeDef.querySelectorAll("pre"))
+    {
+      // Figure out the indentation of the first line and remove that many spaces from all subsequent lines.
+      let text = pre.textContent.trimEnd().replaceAll("\r\n", "\n").replaceAll("\r", "\n").replace(/^\n+/, "");
+      let spaces = text.match(/^[ ]*/)[0];
+      pre.textContent = text.substring(spaces.length).replaceAll(`\n${spaces}`, "\n");
+    }
+  }
 }

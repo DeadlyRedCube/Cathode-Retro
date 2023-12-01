@@ -7,13 +7,586 @@
     <script src="../../main-scripts.js"></script>
   </head>
   <body onload="OnLoad()" class="page">
-    <header class="header"><button id="sidebar-button"></button></header>
+    <header class="header"><button id="sidebar-button"></header>
     <div id="sidebar-container" class="sidebar-container"><iframe class="sidebar-frame" src="../../sidebar.html?page=cpp-reference-classes-cathoderetro"></iframe></div>
     <div id="content-outer" class="content-outer">
-      <div class="content">
+      <main>
         <h1>CathodeRetro::<wbr>CathodeRetro</h1>
-        (Content coming soon)
-      </div>
+        <div>
+          <p>
+            The main class that handles the whole Cathode Retro pipeline.
+          </p>
+          <p>
+            At creation time it is supplied a pointer to an <code><a href="../interfaces/igraphicsdevice.html">IGraphicsDevice</a></code> instance, which it will
+            subsequently use to do the actual rendering.
+          </p>
+          <p>
+            See <a href="../../start-cpp/using-class.html">Using the Main CathodeRetro Class</a> for information on how to use this class.
+          </p>
+        </div>
+        <h2>Index</h2>
+        <div class ="index">
+          <h3>Public Member Functions</h3>
+          <nav>
+            <menu>
+              <li><a href="#constructor">(constructor)</a></li>
+              <li><a href="#UpdateSourceSettings">UpdateSourceSettings</a></li>
+              <li><a href="#UpdateSettings">UpdateSettings</a></li>
+              <li><a href="#SetOutputSize">SetOutputSize</a></li>
+              <li><a href="#Render">Render</a></li>
+            </menu>
+          </nav>
+          
+          <h3>Private Member Variables</h3>
+          <nav>
+            <code>
+              <menu>
+                <li><a href="#device">device</a></li>
+                <li><a href="#signalType">signalType</a></li>
+                <li><a href="#cachedSourceSettings">cachedSourceSettings</a></li>
+                <li><a href="#cachedArtifactSettings">cachedArtifactSettings</a></li>
+                <li><a href="#cachedKnobSettings">cachedKnobSettings</a></li>
+                <li><a href="#cachedOverscanSettings">cachedOverscanSettings</a></li>
+                <li><a href="#cachedScreenSettings">cachedScreenSettings</a></li>
+                <li><a href="#inWidth">inWidth </a></li>
+                <li><a href="#inHeight">inHeight </a></li>
+                <li><a href="#outWidth">outWidth </a></li>
+                <li><a href="#outHeight">outHeight </a></li>
+                <li><a href="#signalGenerator">signalGenerator</a></li>
+                <li><a href="#signalDecoder">signalDecoder</a></li>
+                <li><a href="#rgbToCRT">rgbToCRT</a></li>
+
+              </menu>
+            </code>
+          </nav>
+        </div>
+        
+        <h2>Public Member Functions</h2>
+        <dl class="member-list">
+          <dt id="constructor">(constructor)</dt>
+          <dd>
+            <div class="code-definition">
+              <pre>
+                CathodeRetro(
+                  IGraphicsDevice *graphicsDevice,
+                  SignalType sigType,
+                  uint32_t inputWidth,
+                  uint32_t inputHeight,
+                  const SourceSettings &sourceSettings)
+              </pre>
+            </div>
+            <h4>Description</h4>
+            <section>
+              Constructs a new instance of the <code>CathodeRetro</code> class.
+            </section>
+            <h4>Parameters</h4>
+            <section>
+              <dl>
+                <dt><code>graphicsDevice</code></dt>
+                <dd>
+                  <p>Type: <code><a href="../interfaces/igraphicsdevice.html">IGraphicsDevice</a> *</code></p>
+                  <p>
+                    Pointer to the graphics device instance that this instance should use for all of its drawing-related functionality.
+                    This pointer will be cached so the lifetime of <code>graphicsDevice</code> must extend past the lifetime of the
+                    CathodeRetro instance being created.
+                  </p>
+                </dd>
+                <dt><code>sigType</code></dt>
+                <dd>
+                  <p>Type: <code><a href="../enums/signaltype.html">SignalType</a></code></p>
+                  <p>
+                    The type of signal that we want to emulate (for instance, <code>Composite</code> or <code>SVideo</code>).
+                  </p>
+                </dd>
+                <dt><code>inputWidth</code></dt>
+                <dd>
+                  <p>Type: <code>uint32_t</code></p>
+                  <p>
+                    The width of the input texture that we will be given on a call to <code><a href="#Render">Render</a></code>.
+                  </p>
+                </dd>
+                <dt><code>inputHeight</code></dt>
+                <dd>
+                  <p>Type: <code>uint32_t</code></p>
+                  <p>
+                    The height of the input texture that we will be given on a call to <code><a href="#Render">Render</a></code>.
+                  </p>
+                </dd>
+                <dt><code>sourceSettings</code></dt>
+                <dd>
+                  <p>Type: <code>const <a href="../structs/sourcesettings.html">SourceSettings</a> &</code></p>
+                  <p>
+                    A description of the properties of the hypothetical source "machine" that is generating the composite or S-Video
+                    signal that we are emulating (if we're not in RGB mode).
+                  </p>
+                </dd>
+              </dl>
+            </section>
+          </dd>
+
+          <dt id="UpdateSourceSettings">UpdateSourceSettings</dt>
+          <dd>
+            <div class="code-definition">
+              <pre>
+                void UpdateSourceSettings(
+                  SignalType sigType,
+                  uint32_t inputWidth,
+                  uint32_t inputHeight,
+                  const SourceSettings &sourceSettings)              
+              </pre>
+            </div>
+            <h4>Description</h4>
+            <section>
+              <p>Update the source signal properties</p>
+              <p>
+                Call this whenever the input signal type changes (signal type, timings, or input dimensions). These changes
+                require internal textures and other objects to be potentially reallocated, so care should be taken when
+                updating these settings.
+              </p>
+            </section>
+            <h4>Parameters</h4>
+            <section>
+              <dl>
+                <dt><code>sigType</code></dt>
+                <dd>
+                  <p>Type: <code><a href="../enums/signaltype.html">SignalType</a></code></p>
+                  <p>
+                    The type of signal that we want to emulate (for instance, <code>Composite</code> or <code>SVideo</code>).
+                  </p>
+                </dd>
+                <dt><code>inputWidth</code></dt>
+                <dd>
+                  <p>Type: <code>uint32_t</code></p>
+                  <p>
+                    The width of the input texture that we will be given on a call to <code><a href="#Render">Render</a></code>.
+                  </p>
+                </dd>
+                <dt><code>inputHeight</code></dt>
+                <dd>
+                  <p>Type: <code>uint32_t</code></p>
+                  <p>
+                    The height of the input texture that we will be given on a call to <code><a href="#Render">Render</a></code>.
+                  </p>
+                </dd>
+                <dt><code>sourceSettings</code></dt>
+                <dd>
+                  <p>Type: <code>const <a href="../structs/sourcesettings.html">SourceSettings</a> &</code></p>
+                  <p>
+                    A description of the properties of the hypothetical source "machine" that is generating the composite or S-Video
+                    signal that we are emulating (if we're not in RGB mode).
+                  </p>
+                </dd>
+              </dl>
+            </section>
+          </dd>
+
+          <dt id="UpdateSettings">UpdateSettings</dt>
+          <dd>
+            <div class="code-definition">
+              <pre>
+                void UpdateSettings(
+                  const ArtifactSettings &artifactSettings,
+                  const TVKnobSettings &knobSettings,
+                  const OverscanSettings &overscanSettings,
+                  const ScreenSettings &screenSettings)              
+              </pre>
+            </div>
+            <h4>Description</h4>
+            <section>
+              <p>
+                Updates the various generator/decoder/screen emulation settings used by Cathode Retro.
+              </p>
+              <p>
+                Call this to change any settings other than the ones specified by <code><a href="#UpdateSourceSettings">UpdateSourceSettings</a></code>.
+                No reallocations or texture re-creations will occur here, so it is fine to update these parameters per-frame.
+              </p>
+            </section>
+            <h4>Parameters</h4>
+            <section>
+              <dl>
+                <dt><code>artifactSettings</code></dt>
+                <dd>
+                  <p>Type: <code><a href="../structs/artifactsettings.html">ArtifactSettings</a></code></p>
+                  <p>
+                    The new artifact settings used in the signal generation process.
+                  </p>
+                </dd>
+                <dt><code>knobSettings</code></dt>
+                <dd>
+                  <p>Type: <code><a href="../structs/tvknobsettings.html">TVKnobSettings</a></code></p>
+                  <p>
+                    The new TV knob settings used in the signal decode process.
+                  </p>
+                </dd>
+                <dt><code>overscanSettings</code></dt>
+                <dd>
+                  <p>Type: <code><a href="../structs/overscansettings.html">OverscanSettings</a></code></p>
+                  <p>
+                    The new overscan settings used in the CRT emulation process.
+                  </p>
+                </dd>
+                <dt><code>screenSettings</code></dt>
+                <dd>
+                  <p>Type: <code><a href="../struct/screensettings.html">ScreenSettings</a></code></p>
+                  <p>
+                    The new screen settings used in the CRT emulation process.
+                  </p>
+                </dd>
+              </dl>
+            </section>
+          </dd>
+
+          <dt id="SetOutputSize">SetOutputSize</dt>
+          <dd>
+            <div class="code-definition">
+              <pre>
+                void SetOutputSize(
+                  uint32_t outputWidth, 
+                  uint32_t outputHeight)
+              </pre>
+            </div>
+            <h4>Description</h4>
+            <section>
+              <p>Update the expected size of the outpu texture that will be supplied to the <code><a href="#Render">Render</a></code> method.</p>
+              <p>
+                These changes require internal textures to be potentially reallocated, so care should be taken when
+                updating these settings.
+              </p>
+            </section>
+            <h4>Parameters</h4>
+            <section>
+              <dl>
+                <dt><code>outputWidth</code></dt>
+                <dd>
+                  <p>Type: <code>uint32_t</code></p>
+                  <p>
+                  </p>
+                </dd>
+                <dt><code>outputHeight</code></dt>
+                <dd>
+                  <p>Type: <code>uint32_t</code></p>
+                  <p>
+                  </p>
+                </dd>
+              </dl>
+            </section>
+          </dd>
+
+          <dt id="Render">Render</dt>
+          <dd>
+            <div class="code-definition">
+              <pre>
+                void Render(
+                  const ITexture *currentFrameRGBInput,
+                  IRenderTarget *outputTexture,
+                  ScanlineType scanType)
+              </pre>
+            </div>
+            <h4>Description</h4>
+            <section>
+              <p>Performs the actual rendering of the Cathode Retro effect.</p>
+            </section>
+            <h4>Parameters</h4>
+            <section>
+              <dl>
+                <dt><code>currentFrameRGBInput</code></dt>
+                <dd>
+                  <p>Type: <code>const <a href="../interfaces/itexture.html">ITexture</a> *</code></p>
+                  <p>
+                    The RGB or RGBA input texture. Must have dimensions that match those supplied to the <a href="#constructor">constructor</a> or 
+                    <code><a href="#UpdateSourceSettings">UpdateSourceSettings</a></code>.
+                  </p>
+                </dd>
+                <dt><code>outputTexture</code></dt>
+                <dd>
+                  <p>Type: <code><a href="../interfaces/irendertarget.html">IRenderTarget</a> *</code></p>
+                  <p>
+                    The RGB or RGBA output texture. Must have dimensions that mtach those supplied to <code><a href="#SetOutputSize">SetOutputSize</a></code>.
+                  </p>
+                </dd>
+                <dt><code>scanType</code></dt>
+                <dd>
+                  <p>Type: <code><a href="../enums/scanlinetype.html">ScanlineType</a></code></p>
+                  <p>
+                    The type of scanline (even or odd) that this frame will render. This should alternate between even and odd for interlacing,
+                    or stay even or odd in "progressive" modes.
+                  </p>
+                </dd>
+              </dl>
+            </section>
+          </dd>
+        </dl>
+
+        <h2>Private Member Variables</h2>
+        <dl class="member-list">
+
+          <dt id="device">device</dt>
+          <dd>
+            <div class="code-definition">
+              <pre>
+                IGraphicsDevice *device
+              </pre>
+            </div>
+            <h4>Type</h4>
+            <section>
+              <code><a href="../interfaces/igraphicsdevice.html">IGraphicsDevice</a> *</code>
+            </section>
+            <h4>Description</h4>
+            <section>
+              Pointer to the graphics device that this instance of the <code>CathodeRetro</code> class should use.
+              This is the same device that was supplied to the constructor.
+            </section>
+          </dd>
+
+          <dt id="signalType">signalType</dt>
+          <dd>
+            <div class="code-definition">
+              <pre>
+                SignalType signalType
+              </pre>
+            </div>
+            <h4>Type</h4>
+            <section>
+              <code><a href="../enums/signaltype.html">SignalType</a></code>
+            </section>
+            <h4>Description</h4>
+            <section>
+              The type of input signal we are emulating.
+            </section>
+          </dd>
+
+          <dt id="cachedSourceSettings">cachedSourceSettings</dt>
+          <dd>
+            <div class="code-definition">
+              <pre>
+                SourceSettings cachedSourceSettings
+              </pre>
+            </div>
+            <h4>Type</h4>
+            <section>
+              <code><a href="../structs/sourcesettings.html">SourceSettings</a></code>
+            </section>
+            <h4>Description</h4>
+            <section>
+              A cached copy of the source settings we are working with. This is used to detect when the source
+              settings are changed in a call to <code><a href="#UpdateSourceSettings">UpdateSourceSettings</a></code>.
+            </section>
+          </dd>
+
+          <dt id="cachedArtifactSettings">cachedArtifactSettings</dt>
+          <dd>
+            <div class="code-definition">
+              <pre>
+                ArtifactSettings cachedArtifactSettings
+              </pre>
+            </div>
+            <h4>Type</h4>
+            <section>
+              <code><a href="../structs/artifactsettings.html">ArtifactSettings</a></code>
+            </section>
+            <h4>Description</h4>
+            <section>
+              A cached copy of the artifact settings supplied by the last call to <code><a href="#UpdateSettings">UpdateSettings</a></code>.
+              Used by <code><a href="#UpdateSourceSettings">UpdateSourceSettings</a></code> to update <code><a href="#signalGenerator">signalGenerator</a></code>'s 
+              settings if it is rebuilt.
+            </section>
+          </dd>
+
+          <dt id="cachedKnobSettings">cachedKnobSettings</dt>
+          <dd>
+            <div class="code-definition">
+              <pre>
+                TVKnobSettings cachedKnobSettings
+              </pre>
+            </div>
+            <h4>Type</h4>
+            <section>
+              <code><a href="../structs/tvknobsettings.html">TVKnobSettings</a></code>
+            </section>
+            <h4>Description</h4>
+            <section>
+              A cached copy of the TV knob settings supplied by the last call to <code><a href="#UpdateSettings">UpdateSettings</a></code>.
+              Used by <code><a href="#UpdateSourceSettings">UpdateSourceSettings</a></code> to update <code><a href="#signalDecoder">signalDecoder</a></code>'s 
+              settings if it is rebuilt.
+            </section>
+          </dd>
+
+          <dt id="cachedOverscanSettings">cachedOverscanSettings</dt>
+          <dd>
+            <div class="code-definition">
+              <pre>
+                OverscanSettings cachedOverscanSettings
+              </pre>
+            </div>
+            <h4>Type</h4>
+            <section>
+              <code><a href="../structs/overscansettings.html">OverscanSettings</a></code>
+            </section>
+            <h4>Description</h4>
+            <section>
+              A cached copy of the overscan settings supplied by the last call to <code><a href="#UpdateSettings">UpdateSettings</a></code>.
+              Used by <code><a href="#UpdateSourceSettings">UpdateSourceSettings</a></code> to update <code><a href="#rgbToCRT">rgbToCRT</a></code>'s 
+              settings if it is rebuilt.
+            </section>
+          </dd>
+
+          <dt id="cachedScreenSettings">cachedScreenSettings</dt>
+          <dd>
+            <div class="code-definition">
+              <pre>
+                ScreenSettings cachedScreenSettings
+              </pre>
+            </div>
+            <h4>Type</h4>
+            <section>
+              <code><a href="../struct/screensettings.html">ScreenSettings</a></code>
+            </section>
+            <h4>Description</h4>
+            <section>
+              A cached copy of the screen settings supplied by the last call to <code><a href="#ScreenSettings">ScreenSettings</a></code>.
+              Used by <code><a href="#UpdateSourceSettings">UpdateSourceSettings</a></code> to update <code><a href="#rgbToCRT">rgbToCRT</a></code>'s 
+              settings if it is rebuilt.
+            </section>
+          </dd>
+
+          <dt id="inWidth">inWidth</dt>
+          <dd>
+            <div class="code-definition">
+              <pre>
+                uint32_t inWidth = 0
+              </pre>
+            </div>
+            <h4>Type</h4>
+            <section>
+              <code>uint32_t</code>
+            </section>
+            <h4>Description</h4>
+            <section>
+              The expected width of the input texture supplied to the <code><a href="#Render">Render</a></code> method.
+            </section>
+          </dd>
+
+          <dt id="inHeight">inHeight</dt>
+          <dd>
+            <div class="code-definition">
+              <pre>
+                uint32_t inHeight = 0
+              </pre>
+            </div>
+            <h4>Type</h4>
+            <section>
+              <code>uint32_t</code>
+            </section>
+            <h4>Description</h4>
+            <section>
+              The expected height of the input texture supplied to the <code><a href="#Render">Render</a></code> method.
+            </section>
+          </dd>
+
+          <dt id="outWidth">outWidth</dt>
+          <dd>
+            <div class="code-definition">
+              <pre>
+                uint32_t outWidth = 0
+              </pre>
+            </div>
+            <h4>Type</h4>
+            <section>
+              <code>uint32_t</code>
+            </section>
+            <h4>Description</h4>
+            <section>
+              The expected width of the output texture supplied to the <code><a href="#Render">Render</a></code> method.
+            </section>
+          </dd>
+
+          <dt id="outHeight">outHeight</dt>
+          <dd>
+            <div class="code-definition">
+              <pre>
+                uint32_t outHeight = 0
+              </pre>
+            </div>
+            <h4>Type</h4>
+            <section>
+              <code>uint32_t</code>
+            </section>
+            <h4>Description</h4>
+            <section>
+              The expected height of the output texture supplied to the <code><a href="#Render">Render</a></code> method.
+            </section>
+          </dd>
+
+          <dt id="signalGenerator">signalGenerator</dt>
+          <dd>
+            <div class="code-definition">
+              <pre>
+                std::<wbr>unique_ptr&lt;Internal::<wbr>SignalGenerator&gt; signalGenerator
+              </pre>
+            </div>
+            <h4>Type</h4>
+            <section>
+              <code>std::<wbr>unique_ptr&lt;<wbr><a href="signalgenerator.html">Internal::<wbr>SignalGenerator</a>&gt;</code>
+            </section>
+            <h4>Description</h4>
+            <section>
+              <p>
+                If <code>signalType</code> is not <code>SignalType::<wbr>RGB</code>, this contains an instance of an 
+                <code><a href="signalgenerator.html">Internal::<wbr>SignalGenerator</a></code> used to convert the input image into the 
+                emulated signal scanlines.
+              </p>
+              <p>
+                If <code>signalType</code> is <code>SignalType::<wbr>RGB</code>, this will be <code>null</code>.
+              </p>
+            </section>
+          </dd>
+
+          <dt id="signalDecoder">signalDecoder</dt>
+          <dd>
+            <div class="code-definition">
+              <pre>
+                std::<wbr>unique_ptr&lt;Internal::<wbr>SignalDecoder&gt; signalDecoder
+              </pre>
+            </div>
+            <h4>Type</h4>
+            <section>
+              <code>std::<wbr>unique_ptr&lt;<wbr><a href="signaldecoder.html">Internal::<wbr>SignalDecoder</a>&gt;</code>
+            </section>
+            <h4>Description</h4>
+            <section>
+              <p>
+                If <code>signalType</code> is not <code>SignalType::<wbr>RGB</code>, this contains an instance of an 
+                <code><a href="signaldecoder.html">Internal::<wbr>SignalDecoder</a></code> used to decode the emulated scanlines
+                that are generated by <code>signalGenerator</code> into an RGB texture.
+              </p>
+              <p>
+                If <code>signalType</code> is <code>SignalType::<wbr>RGB</code>, this will be <code>null</code>.
+              </p>
+            </section>
+          </dd>
+
+          <dt id="rgbToCRT">rgbToCRT</dt>
+          <dd>
+            <div class="code-definition">
+              <pre>
+                std::<wbr>unique_ptr&lt;Internal::<wbr>RGBToCRT&gt; rgbToCRT
+              </pre>
+            </div>
+            <h4>Type</h4>
+            <section>
+              <code>std::<wbr>unique_ptr&lt;<wbr><a href="rgbtocrt.html">Internal::<wbr>RGBToCRT</a>&gt;</code>
+            </section>
+            <h4>Description</h4>
+            <section>
+              This contains an instance of an <code><a href="rgbtocrt.html">Internal::<wbr>RGBToCRT</a></code> that is used
+              to take an RGB image (either supplied via the <code>currentFrameInputRGB</code> parameter to the <code>Render</code> method
+              or the output from <code>signalDecoder</code>) and apply the CRT emulation pass to it to get the output of the entire rendering
+              process.
+            </section>
+          </dd>
+
+        </dl>
+      </main>
     </div>
   </body>
 </html>
