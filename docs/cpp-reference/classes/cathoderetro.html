@@ -72,7 +72,7 @@
                   SignalType sigType,
                   uint32_t inputWidth,
                   uint32_t inputHeight,
-                  const SourceSettings &sourceSettings)
+                  const SourceSettings &amp;sourceSettings)
               </pre>
             </div>
             <h4>Description</h4>
@@ -114,7 +114,7 @@
                 </dd>
                 <dt><code>sourceSettings</code></dt>
                 <dd>
-                  <p>Type: <code>const <a href="../structs/sourcesettings.html">SourceSettings</a> &</code></p>
+                  <p>Type: <code>const <a href="../structs/sourcesettings.html">SourceSettings</a> &amp;</code></p>
                   <p>
                     A description of the properties of the hypothetical source "machine" that is generating the composite or S-Video
                     signal that we are emulating (if we're not in RGB mode).
@@ -132,7 +132,7 @@
                   SignalType sigType,
                   uint32_t inputWidth,
                   uint32_t inputHeight,
-                  const SourceSettings &sourceSettings)              
+                  const SourceSettings &amp;sourceSettings)              
               </pre>
             </div>
             <h4>Description</h4>
@@ -170,7 +170,7 @@
                 </dd>
                 <dt><code>sourceSettings</code></dt>
                 <dd>
-                  <p>Type: <code>const <a href="../structs/sourcesettings.html">SourceSettings</a> &</code></p>
+                  <p>Type: <code>const <a href="../structs/sourcesettings.html">SourceSettings</a> &amp;</code></p>
                   <p>
                     A description of the properties of the hypothetical source "machine" that is generating the composite or S-Video
                     signal that we are emulating (if we're not in RGB mode).
@@ -185,10 +185,10 @@
             <div class="code-definition">
               <pre>
                 void UpdateSettings(
-                  const ArtifactSettings &artifactSettings,
-                  const TVKnobSettings &knobSettings,
-                  const OverscanSettings &overscanSettings,
-                  const ScreenSettings &screenSettings)              
+                  const ArtifactSettings &amp;artifactSettings,
+                  const TVKnobSettings &amp;knobSettings,
+                  const OverscanSettings &amp;overscanSettings,
+                  const ScreenSettings &amp;screenSettings)              
               </pre>
             </div>
             <h4>Description</h4>
@@ -206,28 +206,28 @@
               <dl>
                 <dt><code>artifactSettings</code></dt>
                 <dd>
-                  <p>Type: <code><a href="../structs/artifactsettings.html">ArtifactSettings</a></code></p>
+                  <p>Type: <code>const <a href="../structs/artifactsettings.html">ArtifactSettings</a> &amp;</code></p>
                   <p>
                     The new artifact settings used in the signal generation process.
                   </p>
                 </dd>
                 <dt><code>knobSettings</code></dt>
                 <dd>
-                  <p>Type: <code><a href="../structs/tvknobsettings.html">TVKnobSettings</a></code></p>
+                  <p>Type: <code>const <a href="../structs/tvknobsettings.html">TVKnobSettings</a> &amp;</code></p>
                   <p>
                     The new TV knob settings used in the signal decode process.
                   </p>
                 </dd>
                 <dt><code>overscanSettings</code></dt>
                 <dd>
-                  <p>Type: <code><a href="../structs/overscansettings.html">OverscanSettings</a></code></p>
+                  <p>Type: <code>const <a href="../structs/overscansettings.html">OverscanSettings</a> &amp;</code></p>
                   <p>
                     The new overscan settings used in the CRT emulation process.
                   </p>
                 </dd>
                 <dt><code>screenSettings</code></dt>
                 <dd>
-                  <p>Type: <code><a href="../struct/screensettings.html">ScreenSettings</a></code></p>
+                  <p>Type: <code>const <a href="../struct/screensettings.html">ScreenSettings</a> &amp;</code></p>
                   <p>
                     The new screen settings used in the CRT emulation process.
                   </p>
