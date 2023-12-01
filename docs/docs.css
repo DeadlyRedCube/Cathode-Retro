@@ -246,6 +246,59 @@ a:active
 }
 
 
+.spaced-dl > dd
+{
+  margin-bottom: 20px;
+}
+
+/* Syntax highlighting */
+.syntax-cpp,
+.syntax-hlsl
+{
+  background-color: var(--sol-background-color-deep);
+  color: var(--sol-neutral);
+}
+
+.syntax-identifier
+{
+  color: var(--sol-neutral-emphasis);
+}
+
+.syntax-keyword
+{
+  color: var(--sol-accent-blue);
+}
+
+.syntax-comment
+{
+  color: var(--sol-accent-cyan);
+}
+
+.syntax-operator
+{
+  color: var(--sol-accent-blue);
+}
+
+.syntax-preprocessor
+{
+  color: var(--sol-accent-blue);
+}
+
+.syntax-cr-type
+{
+  color: var(--sol-accent-green);
+}
+
+.syntax-string
+{
+  color: var(--sol-accent-orange);
+}
+
+.syntax-number
+{
+  color: var(--sol-accent-yellow);
+}
+
 /* Header Stuff */
 
 

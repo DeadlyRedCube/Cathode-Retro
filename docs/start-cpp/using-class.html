@@ -12,7 +12,140 @@
     <div id="content-outer" class="content-outer">
       <div class="content">
         <h1>Using the Main CathodeRetro Class</h1>
-        (Content coming soon)
+        <section>
+          Once you have your <a href="setup.html">project set up</a> and you have <a href="interfaces.html">implemented the required interfaces</a>,
+          you're ready to start using the main <code><a href="../cpp-reference/classes/cathoderetro.html">CathodeRetro::<wbr>CathodeRetro</a></code> class.
+        </section>
+        <h2>Creating a CathodeRetro Instance</h2>
+        <section>
+          <p>
+            You will need to <code>#include "<a href="https://github.com/DeadlyRedCube/Cathode-Retro/blob/main/Include/CathodeRetro/CathodeRetro.h" target="_blank">CathodeRetro/<wbr>CathodeRetro.h</a>"</code>
+            to begin.
+          </p>
+          <p>
+            Next, you will need to create an instance of the <code><a href="../cpp-reference/interfaces/igraphicsdevice.html">CathodeRetro::<wbr>IGraphicsDevice</a></code>-derived
+            class that you implemented in <a href="interfaces.html">the previous step</a>.
+          </p>
+          <p>
+            Now you can pass a pointer to that instance to the <a href="../cpp-reference/classes/cathoderetro.html#constructor">constructor</a> 
+            of the <code>CathodeRetro</code> class, as well as information about the type of signal you are
+            (initially) trying to emulate:
+          </p>
+          <ul>
+            <li>The type of signal (for instance: "Composite") to emulate</li>
+            <li>The dimensions of the input texture</li>
+            <li>
+              a set of <a href="../cpp-reference/structs/sourcesettings.html">source settings</a> that
+              describe the properties of the hypothetical "machine" that is generating the composite or 
+              S-Video signal.
+            </li>
+          </ul>
+          <p>
+            (The above values can be changed at a later time via a call to the 
+            <code><a href="../cpp-reference/classes/cathoderetro.html#UpdateSourceSettings">UpdateSourceSettings</a></code>
+            method)
+          </p>
+          <p>
+            There are additional settings that control the quality of the signal, the decoding process, and the
+            way the virtual CRT TV appears, which can be set via the <code><a href="../cpp-reference/classes/cathoderetro.html#UpdateSettings">UpdateSettings</a></code>
+            method.
+          </p>
+        </section>
+        <h2>Setting the Output Size</h2>
+        <section>
+          <p>
+            You will now need to let the <code>CathodeRetro</code> instance know the dimensions of
+            the texture that we will be rendering to. You can do this by calling its <code><a href="../cpp-reference/classes/cathoderetro.html#SetOutputSize">SetOutputSize</a></code>
+            method.
+          </p>
+          <p>
+            Note that you will need to call this function at least once before <code><a href="../cpp-reference/classes/cathoderetro.html#Render">Render</a></code> 
+            is called, and should additionally be called every time the output size changes (for instance, if the window you are rendering
+            into gets resized).
+          </p>
+        </section>
+        <h2>Rendering</h2>
+        <section>
+          <p>
+            Now that everything is set up, you can call the <code><a href="../cpp-reference/classes/cathoderetro.html#Render">Render</a></code>
+            method on your <code>CathodeRetro</code> instance.
+            <ul>
+              <li>
+                Takes an RGB or RGBA <code><a href="../cpp-reference/interfaces/itexture.html">CathodeRetro::<wbr>ITexture</a></code> 
+                pointer as the input - the dimensions of this texture should match the 
+                width/height that were specified in the 
+                <a href="../cpp-reference/classes/cathoderetro.html#constructor">constructor</a> 
+                or <code><a href="../cpp-reference/classes/cathoderetro.html#UpdateSourceSettings">UpdateSourceSettings</a></code>.
+              </li>
+              <li>
+                The <code>scanlineType</code> parameter specifies whether we are rendering an "even" or "odd" 
+                frame (for interlaced frames), or whether it's a "progressive" (non-interlaced)
+                frame.
+              </li>
+              <li>
+                The output texture's dimensions must match the dimensions specified via
+                <code><a href="../cpp-reference/classes/cathoderetro.html#SetOutputSize">SetOutputSize</a></code>.
+              </li>
+            </ul>
+          </p>
+        </section>
+        <h2>Example Code</h2>
+        <section>
+          <div class="code-definition syntax-cpp">
+            <pre>
+              #include "CathodeRetro/CathodeRetro.h"
+              #include "CathodeRetro/SettingPresets.h"
+
+              void Run()
+              {
+                using namespace CathodeRetro;
+
+                // A pointer to your IGraphicsDevice-derived class.
+                MyGraphicsDeviceImpl *myDevice = ...;
+
+                // Also some texture that is going to be rendered through
+                //  the system.
+                ITexture *myInputTexture = ... ;
+
+                // Construct a new CathodeRetro instance
+                CathodeRetro cr { 
+                  myDevice, 
+                  SignalType::Composite,    // Emulate a composite signal
+                  myInputTexture->Width(),
+                  myInputTexture->Height(),
+                  k_sourcePresets[0],       // Use the first source setting 
+                                            //  preset
+                };
+
+                // The dimensions of the output texture
+                uint32_t outputWidth = ...;
+                uint32_t outputHeight = ...;
+
+                // Call this before we start rendering.
+                cr.SetOutputSize(outputWidth, outputHeight);
+
+                ScanlineType scanType = 
+                  ScanlineType::Odd;
+                for (each frame) // pseudocode!
+                {
+                  // Get the output texture that we need.
+                  IRenderTarget *myOutputTexture = ...;
+
+                  cr.Render(
+                    myInputTexture,
+                    scanType,
+                    myOutputTexture);
+
+                  // Alternate even/odd for interlacing, if desired.
+                  scanType = 
+                    (scanType == ScanlineType::Odd)
+                      ? ScanlineType::Even
+                      : ScanlineType::Odd;
+                }
+              }
+            </pre>
+          </div>
+        </section>
       </div>
     </div>
   </body>

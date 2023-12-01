@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Cathode Retro Docs</title>
+    <link href="../docs.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../main-scripts.js"></script>
+  </head>
+  <body onload="OnLoad()" class="page">
+    <header class="header"><button id="sidebar-button"></button></header>
+    <div id="sidebar-container" class="sidebar-container"><iframe class="sidebar-frame" src="../sidebar.html?page=start-cpp-interfaces"></iframe></div>
+    <div id="content-outer" class="content-outer">
+      <main>
+        <h1>Introduction and Initial Setup</h1>
+        <p>
+          The Cathode Retro C++ code is a header-only library intended to aid in the use of the Cathode Retro shaders.
+          It should compile with any C++ compiler that supports at least <a href="https://en.wikipedia.org/wiki/C%2B%2B14" target="_blank">C++14</a>.
+        </p>
+        <p>
+          All of the C++ Code in <a href="https://github.com/DeadlyRedCube/cathode-retro/" target=_blank">the Cathode Retro repository</a>
+          is contained within the <code><a href="https://github.com/DeadlyRedCube/Cathode-Retro/tree/main/Include/CathodeRetro" target="_blank">Include/<wbr>CathodeRetro</a></code> directory.
+        </p>
+        <p>
+          In order to use this code in your project, you will need to ensure that the <code>&lt;Your Cathode Retro Repository Path&gt;/Include</code>
+          directory is in your C++ project's include path.
+        </p>
+        <p>
+          The main class is <code><a href="../cpp-reference/classes/cathoderetro.html">CathodeRetro::<wbr>CathodeRetro</a></code> 
+          and is in <a href="https://github.com/DeadlyRedCube/Cathode-Retro/blob/main/Include/CathodeRetro/CathodeRetro.h" target="_blank">Include/<wbr>CathodeRetro/<wbr>CathodeRetro.h</a></code>. 
+          It, however, requires you to <a href="interfaces.html">implement a set of classes</a> derived from the interfaces in 
+          <code><a href="https://github.com/DeadlyRedCube/Cathode-Retro/blob/main/Include/CathodeRetro/GraphicsDevice.h" target=_blank">Include/<wbr>CathodeRetro/<wbr>GraphicsDevice.h</a></code>, 
+          which are the hooks into your application's renderer.
+        </p>
+        <p>
+          Next: <a href="interfaces.html">Implementing the Required Interfaces</a>.
+        </p>
+      </main>
+    </div>
+  </body>
+</html>

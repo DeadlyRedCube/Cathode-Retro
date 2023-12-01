@@ -12,7 +12,156 @@
     <div id="content-outer" class="content-outer">
       <div class="content">
         <h1>Implementing the Required Interfaces</h1>
-        (Content coming soon)
+        <p>
+          Once you have your <a href="setup.html">project set up</a> to include the Cathode Retro headers, it's
+          time to start implementing the interfaces that will allow Cathode Retro to interface with your renderer.
+        </p>
+        <p>
+          For this, you'll need to <code>#include "<a href="https://github.com/DeadlyRedCube/Cathode-Retro/blob/main/Include/CathodeRetro/GraphicsDevice.h" target="_blank">CathodeRetro/<wbr>GraphicsDevice.h</a>"</code>.
+        </p>
+        <h2>Sample Implementations</h2>
+        <p>
+          There is a sample Direct3D 11 implementation of these interfaces in <code><a href="https://github.com/DeadlyRedCube/Cathode-Retro/blob/main/Samples/D3D11-Sample/D3D11GraphicsDevice.h" target="_blank">Samples/<wbr>D3D11-Sample/<wbr>D3D11GraphicsDevice.h</a></code>.
+        </p>
+        <p>
+          There is a sample OpenGL 3.3 Core implementation of these interfaces in <code><a href="https://github.com/DeadlyRedCube/Cathode-Retro/blob/main/Samples/GL-Sample/GLGraphicsDevice.h" target="_blank">Samples/<wbr>GL-Sample/<wbr>GLGraphicsDevice.h</a></code>.
+        </p>
+        <h2>The IGraphicsDevice Interface</h2>
+        <section>
+          <p>
+            The core interface you'll need to implement is <code><a href="../cpp-reference/interfaces/igraphicsdevice.html">CathodeRetro::<wbr>IGraphicsDevice</a></code>,
+            which is the interface that is passed to the main <code><a href="../cpp-reference/classes/cathoderetro.html">CathodeRetro::<wbr>CathodeRetro</a></code> class.
+          </p>
+          <p>
+            This interface can create objects (render targets, constant buffers, shaders) and render.
+          </p>
+          <p>
+            You'll need to implement the following methods:
+          </p>
+          <h3>Creation Methods</h3>
+          <dl class="spaced-dl">
+            <dt><code><a href="../cpp-reference/interfaces/igraphicsdevice.html#CreateRenderTarget">CreateRenderTarget</a></code></dt>
+            <dd>
+              Create a <code><a href="../cpp-reference/interfaces/irendertarget.html">CathodeRetro::<wbr>IRenderTarget</a></code>-derived
+              object representing a render target (or frame buffer object) with the given properties.
+            </dd>
+
+            <dt><code><a href="../cpp-reference/interfaces/igraphicsdevice.html#CreateConstantBuffer">CreateConstantBuffer</a></code></dt>
+            <dd>
+              Create a <code><a href="../cpp-reference/interfaces/iconstantbuffer.html">CathodeRetro::<wbr>IConstantBuffer</a></code>-derived
+              object representing a block of bytes that is used to pass data to the shaders.
+            </dd>
+
+            <dt><code><a href="../cpp-reference/interfaces/igraphicsdevice.html#CreateShader">CreateShader</a></code></dt>
+            <dd>
+              Create a <code><a href="../cpp-reference/interfaces/ishader.html">CathodeRetro::<wbr>IShader</a></code>-derived
+              object representing the specified shader (requested via an <a href="../cpp-reference/enums/shaderid.html">ID</a>) and
+              whatever other associated pipeline objects are necessary to use it.
+            </dd>
+          </dl>
+          <h3>Render Methods</h3>
+          <dl class="spaced-dl">
+            <dt><code><a href="../cpp-reference/interfaces/igraphicsdevice.html#BeginRendering">BeginRendering</a></code></dt>
+            <dd>
+              This is called by the <code><a href="../cpp-reference/classes/cathoderetro.html">CathodeRetro::<wbr>CathodeRetro</a></code> 
+              class when it is beginning its rendering, and is where you should set up any render
+              state that is going to be consistent across the whole pipeline (the vertex shader, blending mode, etc).
+              <ul>
+                <li>Cathode Retro specifically wants no alpha blending or testing enabled.</li>
+                <li>Additionally, it expects floating-point textures to be able to use the full range of values, so if the API allows for truncating floating-point values to the 0..1 range on either shader output or sampling input, that should be disabled.</li>
+              </ul>
+            </dd>
+
+            <dt><code><a href="../cpp-reference/interfaces/igraphicsdevice.html#RenderQuad">RenderQuad</a></code></dt>
+            <dd>
+              This is called by the <code><a href="../cpp-reference/classes/cathoderetro.html">CathodeRetro::<wbr>CathodeRetro</a></code> 
+              class during rendering to render a full-render-target quad using the given <code><a href="../cpp-reference/interfaces/ishader.html">IShader</a></code>, 
+              to the given <code><a href="../cpp-reference/interfaces/irendertarget.html">IRenderTarget</a></code>,
+              using a set of input <code><a href="../cpp-reference/structs/shaderresourceview.html">ShaderResourceView</a></code>s 
+              and an <code><a href="../cpp-reference/interfaces/iconstantbuffer.html">IConstantBuffer</a></code>.
+            </dd>
+
+            <dt><code><a href="../cpp-reference/interfaces/igraphicsdevice.html#EndRendering">EndRendering</a></code></dt>
+            <dd>
+              This is called when the <code><a href="../cpp-reference/classes/cathoderetro.html">CathodeRetro::<wbr>CathodeRetro</a></code> 
+              class is done rendering, and is where you should restore any render states necessary for the rest of your renderer to continue as normal.
+            </dd>
+          </dl>
+        </section>
+        <h2>The IConstantBuffer Interface</h2>
+        <section>
+          <p>
+            <code><a href="../cpp-reference/interfaces/iconstantbuffer.html">CathodeRetro::<wbr>IConstantBuffer</a></code> 
+            is a "constant buffer" (GL/Vulkan refer to these as "uniform buffers") - basically a 
+            data buffer to be handed to a shader. These will be fully updated every frame 
+            so it is valid for this to allocate GPU bytes out of a pool and update for 
+            graphics APIs that prefer that style of CPU -> GPU buffering. These may be 
+            updated by the <code><a href="../cpp-reference/classes/cathoderetro.html">CathodeRetro::<wbr>CathodeRetro</a></code> 
+            class more than once per frame.
+          </p>
+          <p>
+            This interface only has a single method that needs to be implemented:
+          </p>
+          <dl class="spaced-dl">
+            <dt><code><a href="../cpp-reference/interfaces/iconstantbuffer.html#Update">Update</a></code></dt>
+            <dd>
+              Copy the given data bytes into the constant buffer so that it is ready for rendering via a call to
+              <code><a href="../cpp-reference/interfaces/igraphicsdevice.html#RenderQuad">IGraphicsDevice::<wbr>RenderQuad</a></code>.
+            </dd>
+          </dl>
+        </section>
+        <h2>The IShader Interface</h2>
+        <section>
+          <p>
+            <code><a href="../cpp-reference/interfaces/ishader.html">CathodeRetro::<wbr>IShader</a></code> 
+            is a wrapper around any shader-related objects for a specified shader.
+          </p>
+          <p>
+            It contains no methods, and can be considered a handle or identifier for the given shader.
+          </p>
+        </section>
+        <h2>The ITexture and IRenderTarget Interfaces</h2>
+        <section>
+          <p>
+            <code><a href="../cpp-reference/interfaces/itexture.html">CathodeRetro::<wbr>ITexture</a></code> 
+            and <code><a href="../cpp-reference/interfaces/irendertarget.html">CathodeRetro::<wbr>IRenderTarget</a></code> 
+            are two interfaces that share the same methods (<code>IRenderTarget</code> inherits from <code>ITexture</code>).
+          </p>
+          <p>
+            While the <code><a href="../cpp-reference/interfaces/igraphicsdevice.html">CathodeRetro::<wbr>IGraphicsDevice</a></code>
+            interface can only directly create <code>IRenderTarget</code> objects, you will potentially need to implement an 
+            <code>ITexture</code>-derived class as well, to represent the texture that is the input into 
+            <code><a href="../cpp-reference/classes/cathoderetro.html#Render">CathodeRetro::<wbr>CathodeRetro::<wbr>Render</a></code>.
+          </p>
+          <p>These interfaces both have the following methods:</p>
+          <dl class="spaced-dl">
+            <dt><code><a href="../cpp-reference/interfaces/itexture.html#Width">Width</a></code></dt>
+            <dd>
+              Get the width of this texture.
+            </dd>
+
+            <dt><code><a href="../cpp-reference/interfaces/itexture.html#Height">Height</a></code></dt>
+            <dd>
+              Get the height of this texture.
+            </dd>
+
+            <dt><code><a href="../cpp-reference/interfaces/itexture.html#MipCount">MipCount</a></code></dt>
+            <dd>
+              Get the number of <a href="https://en.wikipedia.org/wiki/Mipmap" target="_blank">mipmap</a>
+              levels the texture contains.
+            </dd>
+
+            <dt><code><a href="../cpp-reference/interfaces/itexture.html#Format">Format</a></code></dt>
+            <dd>
+              Get the format of this texture.
+            </dd>
+          </dl>
+        </section>
+        <h2>What's Next?</h2>
+        <section>
+          Once all of these interfaces have been implemented, you are now ready to 
+          <a href="using-class.html">use the main <code>CathodeRetro</code> class</a>.
+        </section>
       </div>
     </div>
   </body>
