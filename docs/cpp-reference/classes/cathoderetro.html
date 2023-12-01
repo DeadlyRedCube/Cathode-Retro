@@ -77,7 +77,7 @@
             </div>
             <h4>Description</h4>
             <section>
-              Constructs a new instance of the <code>CathodeRetro</code> class.
+              Construct a new instance of the <code>CathodeRetro</code> class.
             </section>
             <h4>Parameters</h4>
             <section>
@@ -95,21 +95,21 @@
                 <dd>
                   <p>Type: <code><a href="../enums/signaltype.html">SignalType</a></code></p>
                   <p>
-                    The type of signal that we want to emulate (for instance, <code>Composite</code> or <code>SVideo</code>).
+                    The type of signal that to emulate (for instance, <code>Composite</code> or <code>SVideo</code>).
                   </p>
                 </dd>
                 <dt><code>inputWidth</code></dt>
                 <dd>
                   <p>Type: <code>uint32_t</code></p>
                   <p>
-                    The width of the input texture that we will be given on a call to <code><a href="#Render">Render</a></code>.
+                    The width of the input texture that <code><a href="#Render">Render</a></code> will be provided.
                   </p>
                 </dd>
                 <dt><code>inputHeight</code></dt>
                 <dd>
                   <p>Type: <code>uint32_t</code></p>
                   <p>
-                    The height of the input texture that we will be given on a call to <code><a href="#Render">Render</a></code>.
+                    The height of the input texture that <code><a href="#Render">Render</a></code> will be provided.
                   </p>
                 </dd>
                 <dt><code>sourceSettings</code></dt>
@@ -117,7 +117,7 @@
                   <p>Type: <code>const <a href="../structs/sourcesettings.html">SourceSettings</a> &amp;</code></p>
                   <p>
                     A description of the properties of the hypothetical source "machine" that is generating the composite or S-Video
-                    signal that we are emulating (if we're not in RGB mode).
+                    signal that should be emulated (if <code>sigType</code> is not set to <code><a href="../enums/signaltype.html">SignalType</a>::<wbr>RGB</code>).
                   </p>
                 </dd>
               </dl>
@@ -137,7 +137,7 @@
             </div>
             <h4>Description</h4>
             <section>
-              <p>Update the source signal properties</p>
+              <p>Update the source signal properties.</p>
               <p>
                 Call this whenever the input signal type changes (signal type, timings, or input dimensions). These changes
                 require internal textures and other objects to be potentially reallocated, so care should be taken when
@@ -151,21 +151,21 @@
                 <dd>
                   <p>Type: <code><a href="../enums/signaltype.html">SignalType</a></code></p>
                   <p>
-                    The type of signal that we want to emulate (for instance, <code>Composite</code> or <code>SVideo</code>).
+                    The type of signal to emulate (for instance, <code>Composite</code> or <code>SVideo</code>).
                   </p>
                 </dd>
                 <dt><code>inputWidth</code></dt>
                 <dd>
                   <p>Type: <code>uint32_t</code></p>
                   <p>
-                    The width of the input texture that we will be given on a call to <code><a href="#Render">Render</a></code>.
+                    The width of the input texture that <code><a href="#Render">Render</a></code> will be provided.
                   </p>
                 </dd>
                 <dt><code>inputHeight</code></dt>
                 <dd>
                   <p>Type: <code>uint32_t</code></p>
                   <p>
-                    The height of the input texture that we will be given on a call to <code><a href="#Render">Render</a></code>.
+                    The height of the input texture that <code><a href="#Render">Render</a></code> will be provided.
                   </p>
                 </dd>
                 <dt><code>sourceSettings</code></dt>
@@ -173,7 +173,7 @@
                   <p>Type: <code>const <a href="../structs/sourcesettings.html">SourceSettings</a> &amp;</code></p>
                   <p>
                     A description of the properties of the hypothetical source "machine" that is generating the composite or S-Video
-                    signal that we are emulating (if we're not in RGB mode).
+                    signal that should be emulated (if <code>sigType</code> is not set to <code><a href="../enums/signaltype.html">SignalType</a>::<wbr>RGB</code>).
                   </p>
                 </dd>
               </dl>
@@ -227,7 +227,7 @@
                 </dd>
                 <dt><code>screenSettings</code></dt>
                 <dd>
-                  <p>Type: <code>const <a href="../struct/screensettings.html">ScreenSettings</a> &amp;</code></p>
+                  <p>Type: <code>const <a href="../structs/screensettings.html">ScreenSettings</a> &amp;</code></p>
                   <p>
                     The new screen settings used in the CRT emulation process.
                   </p>
@@ -247,10 +247,13 @@
             </div>
             <h4>Description</h4>
             <section>
-              <p>Update the expected size of the outpu texture that will be supplied to the <code><a href="#Render">Render</a></code> method.</p>
+              <p>Update the expected size of the output texture that will be supplied to the <code><a href="#Render">Render</a></code> method.</p>
               <p>
                 These changes require internal textures to be potentially reallocated, so care should be taken when
                 updating these settings.
+              </p>
+              <p>
+                This must be called at least once before <code><a href="#Render">Render</a></code> is called.
               </p>
             </section>
             <h4>Parameters</h4>
@@ -260,12 +263,14 @@
                 <dd>
                   <p>Type: <code>uint32_t</code></p>
                   <p>
+                    The expected width of the output texture (the texture that <code><a href="#Render">Render</a></code> will render to).
                   </p>
                 </dd>
                 <dt><code>outputHeight</code></dt>
                 <dd>
                   <p>Type: <code>uint32_t</code></p>
                   <p>
+                    The expected height of the output texture (the texture that <code><a href="#Render">Render</a></code> will render to).
                   </p>
                 </dd>
               </dl>
@@ -351,7 +356,7 @@
             </section>
             <h4>Description</h4>
             <section>
-              The type of input signal we are emulating.
+              The type of input signal that is being emulated.
             </section>
           </dd>
 
@@ -368,8 +373,10 @@
             </section>
             <h4>Description</h4>
             <section>
-              A cached copy of the source settings we are working with. This is used to detect when the source
-              settings are changed in a call to <code><a href="#UpdateSourceSettings">UpdateSourceSettings</a></code>.
+              A cached copy of the source settings provided via the <a href="#constructor">constructor</a> or 
+              a call to <code><a href="#UpdateSourceSettings">UpdateSourceSettings</a></code>.
+              Used by <code><a href="#UpdateSourceSettings">UpdateSourceSettings</a></code> to detect if the source settings are being
+              changed (and, thus, internal objects and textures need to be rebuilt).
             </section>
           </dd>
 
@@ -439,11 +446,11 @@
             </div>
             <h4>Type</h4>
             <section>
-              <code><a href="../struct/screensettings.html">ScreenSettings</a></code>
+              <code><a href="../structs/screensettings.html">ScreenSettings</a></code>
             </section>
             <h4>Description</h4>
             <section>
-              A cached copy of the screen settings supplied by the last call to <code><a href="#ScreenSettings">ScreenSettings</a></code>.
+              A cached copy of the screen settings supplied by the last call to <code><a href="#UpdateSettings">UpdateSettings</a></code>.
               Used by <code><a href="#UpdateSourceSettings">UpdateSourceSettings</a></code> to update <code><a href="#rgbToCRT">rgbToCRT</a></code>'s 
               settings if it is rebuilt.
             </section>
