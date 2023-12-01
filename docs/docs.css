@@ -261,7 +261,7 @@ a:active
 
   background-color: var(--background-emphasis);
 
-  background-image: url("cr-logo-small.png");
+  background-image: url("images/cr-logo-small.png");
   background-repeat: no-repeat;
   background-position: center center;
 }
@@ -382,15 +382,15 @@ a:active
   margin-bottom: 80px;
 }
 
-.member-list .code-definition
+.code-definition
 {
   border: 1px solid var(--background-emphasis);
   padding: 20px;
   overflow-x: auto;
 }
 
-.member-list .code-definition pre,
-.member-list .code-definition code
+.code-definition pre,
+.code-definition code
 {
   padding: 0;
   margin: 0;
@@ -408,6 +408,19 @@ a:active
 {
   padding-left: 20px;
 }
+
+.image-right
+{
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
+.image-right > img
+{
+  margin-left: auto;
+}
+
 
 /* Sidebar stuff */
 
@@ -632,7 +645,7 @@ a:active
 {
   .header
   {
-    background-image: url("cr-logo-large.png");
+    background-image: url("images/cr-logo-large.png");
     background-size: auto 50px;
   }
 }
@@ -641,7 +654,7 @@ a:active
 {
   .header
   {
-    background-image: url("cr-logo-tiny.png");
+    background-image: url("images/cr-logo-tiny.png");
     background-size: auto auto;
   }
 
@@ -675,4 +688,9 @@ a:active
     padding-top: 25px;
   }
 
+  .image-right > img
+  {
+    width: 75px;
+    height: auto;
+  }
 }
