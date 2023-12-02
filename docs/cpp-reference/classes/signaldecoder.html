@@ -10,10 +10,568 @@
     <header class="header"><button id="sidebar-button"></button></header>
     <div id="sidebar-container" class="sidebar-container"><iframe class="sidebar-frame" src="../../sidebar.html?page=cpp-reference-classes-internal-signaldecoder"></iframe></div>
     <div id="content-outer" class="content-outer">
-      <div class="content">
+      <main>
         <h1>CathodeRetro::<wbr>Internal::<wbr>SignalDecoder</h1>
-        (Content coming soon)
-      </div>
+        <div>
+          <p>
+            This is an internal class used by <code><a href="cathoderetro.html">CathodeRetro::<wbr>CathodeRetro</a></code>
+            to take a texture representing a set of composite or S-Video scanlines (the output of 
+            <code><a href="signalgenerator.html">SignalGenerator</a></code>) and decode it back into an RGB image.
+          </p>
+          <p>
+            If you are using the <code><a href="cathoderetro.html">CathodeRetro::<wbr>CathodeRetro</a></code>
+            class, you should not need to use this class directly.
+          </p>
+          <ul>
+            <li><a href="#public">Go to Public Members</a></li>
+            <li><a href="#private">Go to Private Members</a></li>
+          </ul>
+        </div>          
+        <h2 id="public">Public Members</h2>
+        <div class="index">
+          <h4>Public Methods</h4>
+          <nav>
+            <menu>
+              <li><a href="#constructor">(constructor)</a></li>
+              <li><a href="#SetKnobSettings">SetKnobSettings</a></li>
+              <li><a href="#CurrentFrameRGBOutput">CurrentFrameRGBOutput</a></li>
+              <li><a href="#Decode">Decode</a></li>
+              <li><a href="#OutputTextureWidth">OutputTextureWidth</a></li>
+            </menu>
+          </nav>
+        </div>
+
+        <h3>Public Methods</h3>
+        <dl class="member-list">
+          <dt id="constructor">(constructor)</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                SignalDecoder(
+                  IGraphicsDevice *deviceIn, 
+                  const SignalProperties &amp;signalPropsIn)
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              Construct a new instance of the <code>Internal::<wbr>SignalDecoder</code> class.
+            </section>
+            <h5>Parameters</h5>
+            <section>
+              <dl>
+                <dt><code>deviceIn</code></dt>
+                <dd>
+                  <p>Type: <code><a href="../interfaces/igraphicsdevice.html">IGraphicsDevice</a> *</code></p>
+                  <p>
+                    Pointer to the graphics device instance that this instance should use for all of its drawing-related functionality.
+                    This pointer will be cached so the lifetime of <code>deviceIn</code> must extend past the lifetime of the
+                    <code>Internal::<wbr>SignalDecoder</code> instance being created.
+                  </p>
+                </dd>
+
+                <dt><code>signalPropsIn</code></dt>
+                <dd>
+                  <p>Type: <code>const <a href="../structs/signalproperties.html">Internal::<wbr>SignalProperties</a> &amp;</code></p>
+                  <p>
+                    Properties of the signal being decoded (typically the output of the 
+                    <code><a href="signalgenerator.html#SignalProperties">SignalGenerator::<wbr>SignalProperties</a></code> method).
+                  </p>
+                </dd>
+              </dl>
+            </section>
+          </dd>
+
+          <dt id="SetKnobSettings">SetKnobSettings</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                void SetKnobSettings(
+                  const TVKnobSettings &amp;settings)
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              Update the TV knob settings used by the decode process.
+            </section>
+            <h5>Parameters</h5>
+            <section>
+              <dl>
+                <dt><code>settings</code></dt>
+                <dd>
+                  <p>Type: <code>const <a href="../structs/tvknobsettings.html">TVKnobSettings</a> &amp;</code></p>
+                  <p>
+                    The new TV knob settings to use.
+                  </p>
+                </dd>
+              </dl>
+            </section>
+          </dd>
+
+          <dt id="CurrentFrameRGBOutput">CurrentFrameRGBOutput</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                const ITexture *CurrentFrameRGBOutput() const
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              Return a pointer to the output of the last call to <code><a href="#Decode">Decode</a></code>.
+            </section>
+            <h5>Return Value</h5>
+            <section>
+              Type: <code>const <a href="../interfaces/itexture.html">ITexture</a> *</code></p>
+              <p>
+                A pointer to <code><a href="#rgbTexture">rgbTexture</a></code>, the texture containing the output of the last call to <code><a href="#Decode">Decode</a></code>.
+              </p>
+            </section>
+          </dd>
+
+          <dt id="Decode">Decode</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                void Decode(
+                  const ITexture *inputSignal, 
+                  const ITexture *inputPhases, 
+                  const SignalLevels &amp;levels)
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              Decodes a 
+            </section>
+            <h5>Parameters</h5>
+            <section>
+              <dl>
+                <dt><code>inputSignal</code></dt>
+                <dd>
+                  <p>Type: <code>const <a href="../interfaces/itexture.html">ITexture</a> *</code></p>
+                  <p>
+                    Pointer to the input texture containing composite or S-Video scanlines, usually the output from the
+                    <code><a href="signalgenerator.html#SignalTexture">SignalGenerator::<wbr>SignalTexture</a></code> method.
+                  </p>
+                  <p>
+                    The dimensions of this texture are expected to match the 
+                    <code><a href="../structs/signalproperties.html#scanlineWidth">scanlineWidth</a></code> and 
+                    <code><a href="../structs/signalproperties.html#scanlineCount">scanlineCount</a></code>
+                    values of the <code>signalPropsIn</code> parameter passed to <a href="#constructor">the constructor</a>.
+                  </p>
+                </dd>
+                <dt><code>inputPhases</code></dt>
+                <dd>
+                  <p>Type: <code>const <a href="../interfaces/itexture.html">ITexture</a> *</code></p>
+                  <p>
+                    Pointer to an input texture containing the per-scanline
+                    <a href="../../how/ntsc-basics.html">colorburst phase offset</a> values, usually the output from the 
+                    <code><a href="signalgenerator.html#PhasesTexture">SignalGenerator::<wbr>PhasesTexture</a></code> method.
+                  </p>
+                  <p>
+                    This texture's width should be <code>1</code>, and its height should match the 
+                    <code><a href="../structs/signalproperties.html#scanlineCount">scanlineCount</a></code>
+                    value of the <code>signalPropsIn</code> parameter passed to <a href="#constructor">the constructor</a>.
+                  </p>
+                </dd>
+                <dt><code>levels</code></dt>
+                <dd>
+                  <p>Type: <code>const <a href="../structs/signallevels.html">Internal::<wbr>SignalLevels</a> &amp;</code></p>
+                  <p>
+                    Information about the various levels of the signal and the amount of temporal artifact reduction we should apply.
+                  </p>
+                </dd>
+              </dl>
+            </section>
+          </dd>
+
+          <dt id="OutputTextureWidth">OutputTextureWidth</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                uint32_t OutputTextureWidth() const
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              Get the width of the decoded RGB texture that <code><a href="#Decode">Decode</a></code> will render to.
+            </section>
+            <h5>Return Value</h5>
+            <section>
+              Type: <code>uint32_t</code></p>
+              <p>
+                The width of the decoded RGB texture that <code><a href="#Decode">Decode</a></code> will render to.
+              </p>
+            </section>
+          </dd>
+        </dl>
+
+
+        <h2 id="private">Private Members</h3>
+        <div class="index">
+          <h4>Private Structures</h4>
+          <nav>
+            <menu>
+              <li><a href="#CompositeToSVideoConstantData">CompositeToSVideoConstantData</a></li>
+              <li><a href="#SVideoToModulatedChromaConstantData">SVideoToModulatedChromaConstantData</a></li>
+              <li><a href="#SVideoToRGBConstantData">SVideoToRGBConstantData</a></li>
+              <li><a href="#FilterRGBConstantData">FilterRGBConstantData</a></li>
+            </menu>
+          </nav>
+          <h4>Private Methods</h4>
+          <nav>
+            <menu>
+              <li><a href="#CompositeToSVideo">CompositeToSVideo</a></li>
+              <li><a href="#SVideoToRGB">SVideoToRGB</a></li>
+              <li><a href="#FilterRGB">FilterRGB</a></li>
+            </menu>
+          </nav>
+          <h4>Private Fields</h4>
+          <nav>
+            <menu>
+              <li><a href="#device">device</a></li>
+              <li>&nbsp;</li>
+              <li><a href="#rgbTexture">rgbTexture</a></li>
+              <li><a href="#scratchRGBTexture">scratchRGBTexture</a></li>
+              <li><a href="#signalProps">signalProps</a></li>
+              <li><a href="#knobSettings">knobSettings</a></li>
+              <li>&nbsp;</li>
+              <li><a href="#compositeToSVideoConstantBuffer">compositeToSVideoConstantBuffer</a></li>
+              <li><a href="#decodedSVideoTextureSingle">decodedSVideoTextureSingle</a></li>
+              <li><a href="#decodedSVideoTextureDouble">decodedSVideoTextureDouble</a></li>
+              <li>&nbsp;</li>
+              <li><a href="#modulatedChromaTextureSingle">modulatedChromaTextureSingle</a></li>
+              <li><a href="#modulatedChromaTextureDouble">modulatedChromaTextureDouble</a></li>
+              <li><a href="#sVideoToModulatedChromaConstantBuffer">sVideoToModulatedChromaConstantBuffer</a></li>
+              <li><a href="#sVideoToRGBConstantBuffer">sVideoToRGBConstantBuffer</a></li>
+              <li>&nbsp;</li>
+              <li><a href="#filterRGBConstantBuffer">filterRGBConstantBuffer</a></li>
+            </menu>
+          </nav>
+        </div>      
+
+        <h3>Private Structures</h3>
+        <dl class="member-list">
+          <dt id="CompositeToSVideoConstantData">CompositeToSVideoConstantData</dt>
+          <dd>
+            <h5>Description</h5>
+            <section>
+              This structure maps to the constant buffer input to the <a href="../../shader-reference/decoder-shaders/composite-to-svideo.html">decoder-composite-to-svideo</a>
+              shader. Refer to its page for documentation of the fields.
+            </section>
+          </dd>        
+
+          <dt id="SVideoToModulatedChromaConstantData">SVideoToModulatedChromaConstantData</dt>
+          <dd>
+            <h5>Description</h5>
+            <section>
+              This structure maps to the constant buffer input to the <a href="../../shader-reference/decoder-shaders/svideo-to-modulated-chroma.html">decoder-svideo-to-modulated-chroma</a>
+              shader. Refer to its page for documentation of the fields.
+            </section>
+          </dd>        
+
+          <dt id="SVideoToRGBConstantData">SVideoToRGBConstantData</dt>
+          <dd>
+            <h5>Description</h5>
+            <section>
+              This structure maps to the constant buffer input to the <a href="../../shader-reference/decoder-shaders/svideo-to-rgb.html">decoder-svideo-to-rgb</a>
+              shader. Refer to its page for documentation of the fields.
+            </section>
+          </dd>        
+
+          <dt id="FilterRGBConstantData">FilterRGBConstantData</dt>
+          <dd>
+            <h5>Description</h5>
+            <section>
+              This structure maps to the constant buffer input to the <a href="../../shader-reference/decoder-shaders/filter-rgb.html">decoder-filter-rgb</a>
+              shader. Refer to its page for documentation of the fields.
+            </section>
+          </dd>        
+        </dl>
+
+        <h3>Private Methods</h3>
+        <dl class="member-list">
+          <dt id="CompositeToSVideo">CompositeToSVideo</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                void CompositeToSVideo(
+                  const ITexture *inputSignal, 
+                  bool isDoubled)
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+            </section>
+            <h5>Parameters</h5>
+            <section>
+              <dl>
+                <dt><code></code></dt>
+                <dd>
+                  <p>Type: <code></code></p>
+                  <p>
+                  </p>
+                </dd>
+              </dl>
+            </section>
+          </dd>
+
+          <dt id="SVideoToRGB">SVideoToRGB</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                void SVideoToRGB(
+                  const ITexture *sVideoTexture, 
+                  const ITexture *inputPhases, 
+                  const SignalLevels &amp;levels)
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+            </section>
+            <h5>Parameters</h5>
+            <section>
+              <dl>
+                <dt><code></code></dt>
+                <dd>
+                  <p>Type: <code></code></p>
+                  <p>
+                  </p>
+                </dd>
+              </dl>
+            </section>
+          </dd>
+
+          <dt id="FilterRGB">FilterRGB</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                void FilterRGB()
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+            </section>
+          </dd>
+        </dl>
+
+        <h3>Private Fields</h3>
+        <dl class="member-list">
+          <dt id="device">device</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                IGraphicsDevice *device
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code></code>
+            </section>
+            <h5>Description</h5>
+            <section>
+            </section>
+          </dd>        
+
+
+
+          <dt id="rgbTexture">rgbTexture</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                std::unique_ptr&lt;IRenderTarget&gt; rgbTexture
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code></code>
+            </section>
+            <h5>Description</h5>
+            <section>
+            </section>
+          </dd>        
+
+          <dt id="scratchRGBTexture">scratchRGBTexture</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                std::unique_ptr&lt;IRenderTarget&gt; scratchRGBTexture
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code></code>
+            </section>
+            <h5>Description</h5>
+            <section>
+            </section>
+          </dd>        
+
+          <dt id="signalProps">signalProps</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                SignalProperties signalProps
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code></code>
+            </section>
+            <h5>Description</h5>
+            <section>
+            </section>
+          </dd>        
+
+          <dt id="knobSettings">knobSettings</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                TVKnobSettings knobSettings
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code></code>
+            </section>
+            <h5>Description</h5>
+            <section>
+            </section>
+          </dd>        
+
+
+
+          <dt id="compositeToSVideoConstantBuffer">compositeToSVideoConstantBuffer</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                std::unique_ptr&lt;IConstantBuffer&gt; compositeToSVideoConstantBuffer
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code></code>
+            </section>
+            <h5>Description</h5>
+            <section>
+            </section>
+          </dd>        
+
+          <dt id="decodedSVideoTextureSingle">decodedSVideoTextureSingle</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                std::unique_ptr&lt;IRenderTarget&gt; decodedSVideoTextureSingle
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code></code>
+            </section>
+            <h5>Description</h5>
+            <section>
+            </section>
+          </dd>        
+
+          <dt id="decodedSVideoTextureDouble">decodedSVideoTextureDouble</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                std::unique_ptr&lt;IRenderTarget&gt; decodedSVideoTextureDouble
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code></code>
+            </section>
+            <h5>Description</h5>
+            <section>
+            </section>
+          </dd>        
+
+
+
+          <dt id="modulatedChromaTextureSingle">modulatedChromaTextureSingle</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                std::unique_ptr&lt;IRenderTarget&gt; modulatedChromaTextureSingle
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code></code>
+            </section>
+            <h5>Description</h5>
+            <section>
+            </section>
+          </dd>        
+
+          <dt id="modulatedChromaTextureDouble">modulatedChromaTextureDouble</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                std::unique_ptr&lt;IRenderTarget&gt; modulatedChromaTextureDouble
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code></code>
+            </section>
+            <h5>Description</h5>
+            <section>
+            </section>
+          </dd>        
+
+          <dt id="sVideoToModulatedChromaConstantBuffer">sVideoToModulatedChromaConstantBuffer</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                std::unique_ptr&lt;IConstantBuffer&gt; sVideoToModulatedChromaConstantBuffer
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code></code>
+            </section>
+            <h5>Description</h5>
+            <section>
+            </section>
+          </dd>        
+
+          <dt id="sVideoToRGBConstantBuffer">sVideoToRGBConstantBuffer</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                std::unique_ptr&lt;IConstantBuffer&gt; sVideoToRGBConstantBuffer
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code></code>
+            </section>
+            <h5>Description</h5>
+            <section>
+            </section>
+          </dd>        
+
+
+
+          <dt id="filterRGBConstantBuffer">filterRGBConstantBuffer</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                std::unique_ptr&lt;IConstantBuffer&gt; filterRGBConstantBuffer
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code></code>
+            </section>
+            <h5>Description</h5>
+            <section>
+            </section>
+          </dd>        
+        </dl>
+      </main>
     </div>
   </body>
 </html>

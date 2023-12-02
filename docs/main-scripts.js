@@ -46,6 +46,7 @@ const crTypes =
   "Vec2",
 
   "AspectData", "CommonConstants", "ScreenTextureConstants", "RGBToScreenConstants", "GaussianBlurConstants", "ToneMapConstants",
+  "CompositeToSVideoConstantData", "SVideoToModulatedChromaConstantData", "SVideoToRGBConstantData", "FilterRGBConstantData",
 ];
 
 function SyntaxHighlight(element, keywords)
