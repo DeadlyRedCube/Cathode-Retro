@@ -104,11 +104,11 @@ function OnLoad()
 
   const cppKeywords =
   [
-    "auto", "break", "case", "catch", "char", "class", "const", "continue", "default",
-    "delete", "do", "double", "else", "enum", "extern", "final", "float", "for",
-    "friend", "goto", "if", "inline", "int", "long", "namespace", "new", "operator",
+    "auto", "bool", "break", "case", "catch", "char", "class", "const", "continue", "default",
+    "delete", "do", "double", "else", "enum", "extern", "false", "final", "float", "for",
+    "friend", "goto", "if", "inline", "int", "long", "namespace", "new", "nullptr", "operator",
     "override", "private", "protected", "public", "return", "sealed", "short", "signed", "sizeof",
-    "static", "struct", "switch", "template", "this", "throw", "try", "typedef", "union",
+    "static", "struct", "switch", "template", "this", "throw", "true", "try", "typedef", "union",
     "unsigned", "using", "virtual", "void", "volatile", "while",
 
     // Not really keywords but I want to highlight them as such

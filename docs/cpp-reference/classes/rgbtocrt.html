@@ -611,14 +611,16 @@
           <dd>
             <div class="code-definition syntax-cpp">
               <pre>
+                IGraphicsDevice *device
               </pre>
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code><a href="../interfaces/igraphicsdevice.html">IGraphicsDevice</a> *</code>
             </section>
             <h5>Description</h5>
             <section>
+              Pointer to the graphics device that should be used to create graphics objects and render.
             </section>
           </dd>
 
@@ -628,14 +630,16 @@
           <dd>
             <div class="code-definition syntax-cpp">
               <pre>
+                uint32_t originalInputImageWidth
               </pre>
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>uint32_t</code>
             </section>
             <h5>Description</h5>
             <section>
+              The width of the original image (before the generator/decoder process).
             </section>
           </dd>
 
@@ -643,14 +647,23 @@
           <dd>
             <div class="code-definition syntax-cpp">
               <pre>
+                uint32_t processedRGBTextureWidth
               </pre>
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>uint32_t</code>
             </section>
             <h5>Description</h5>
             <section>
+              <p>
+                The expected width of the texture that will be passed in to <code><a href="#Render">Render</a></code>.
+              </p>
+              <p>
+                If no generator/decoder process is being used (i.e. if the <code><a href="cathoderetro.html">CathodeRetro</a></code> class 
+                is being used in <a href="../enums/signaltype.html#RGB">RGB mode</a>, this will be the same value as 
+                <code><a href="#originalInputImageWidth">originalInputImageWidth</a></code>.
+              </p>
             </section>
           </dd>
 
@@ -658,14 +671,18 @@
           <dd>
             <div class="code-definition syntax-cpp">
               <pre>
+                uint32_t scanlineCount
               </pre>
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>uint32_t</code>
             </section>
             <h5>Description</h5>
             <section>
+              <p>
+                The number of scanlines per input image (i.e. the height of the input texture).
+              </p>
             </section>
           </dd>
 
@@ -673,14 +690,29 @@
           <dd>
             <div class="code-definition syntax-cpp">
               <pre>
+                float pixelAspect
               </pre>
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>float</code>
             </section>
             <h5>Description</h5>
             <section>
+              <p>
+                The aspect ratio (width/height) of an input pixel (pre-generator/decoder) on the screen.
+                This allows for emulation of non-square-pixel video modes.
+              </p>
+              <p>
+                For example: 
+                <ul>
+                  <li>On the NES, pixels were slightly stretched horizontally and have an 8:7 (8/7) aspect ratio.</li>
+                  <li>
+                    Old <a href="https://en.wikipedia.org/wiki/Mode_13h" target="_blank">mode 13h</a> 
+                    modes had slightly tall pixels on 4x3 monitors, resulting in pixels that are 5:6.
+                  </li>
+                </ul>
+              </p>
             </section>
           </dd>
 
@@ -688,14 +720,24 @@
           <dd>
             <div class="code-definition syntax-cpp">
               <pre>
+                bool isFirstFrame = true
               </pre>
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>bool</code>
             </section>
             <h5>Description</h5>
             <section>
+              <p>
+                This is true before <code><a href="#Render">Render</a></code> is called the first time,
+                and false afterward.
+              </p>
+              <p>
+                Because this class keeps a copy of the previous frame (in <code><a href="#prevRGBInput">prevRGBInput</a></code>)
+                and uses that to handle phosphor persistence, on the very first call to <code>Render</code> this flag is used 
+                to initialize <code>prevRGBInput</code> so that it can be used.
+              </p>
             </section>
           </dd>
 
@@ -705,14 +747,18 @@
           <dd>
             <div class="code-definition syntax-cpp">
               <pre>
+                std::unique_ptr&lt;IConstantBuffer&gt; screenTextureConstantBuffer
               </pre>
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>std::unique_ptr&lt;<a href="../interfaces/iconstantbuffer.html">IConstantBuffer</a>&gt;</code>
             </section>
             <h5>Description</h5>
             <section>
+              The constant buffer that is used in <code><a href="#RenderScreenTexture">RenderScreenTexture</a></code> as an input to the 
+              <a href="../../shader-reference/crt-shaders/generate-screen-texture.html">crt-generate-screen-texture</a>
+              shader.
             </section>
           </dd>
 
@@ -720,14 +766,18 @@
           <dd>
             <div class="code-definition syntax-cpp">
               <pre>
+                std::unique_ptr&lt;IConstantBuffer&gt; rgbToScreenConstantBuffer
               </pre>
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>std::unique_ptr&lt;<a href="../interfaces/iconstantbuffer.html">IConstantBuffer</a>&gt;</code>
             </section>
             <h5>Description</h5>
             <section>
+              The constant buffer that is used in <code><a href="#Render">Render</a></code> as an input to the 
+              <a href="../../shader-reference/crt-shaders/rgb-to-crt.html">crt-rgb-to-crt</a>
+              shader.
             </section>
           </dd>
 
@@ -735,14 +785,18 @@
           <dd>
             <div class="code-definition syntax-cpp">
               <pre>
+                std::unique_ptr&lt;IConstantBuffer&gt; toneMapConstantBuffer
               </pre>
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>std::unique_ptr&lt;<a href="../interfaces/iconstantbuffer.html">IConstantBuffer</a>&gt;</code>
             </section>
             <h5>Description</h5>
             <section>
+              The constant buffer that is used in <code><a href="#RenderBlur">RenderBlur</a></code> as an input to the 
+              <a href="../../shader-reference/util-shaders/tonemap-and-downsample.html">util-tonemap-and-downsample</a>
+              shader.
             </section>
           </dd>
 
@@ -750,14 +804,18 @@
           <dd>
             <div class="code-definition syntax-cpp">
               <pre>
+                std::unique_ptr&lt;IConstantBuffer&gt; blurDownsampleConstantBuffer
               </pre>
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>std::unique_ptr&lt;<a href="../interfaces/iconstantbuffer.html">IConstantBuffer</a>&gt;</code>
             </section>
             <h5>Description</h5>
             <section>
+              The constant buffer that is used in <code><a href="#RenderBlur">RenderBlur</a></code> as an input to the 
+              <a href="../../shader-reference/util-shaders/downsample-2x.html">util-downsample-2x</a>
+              shader, to do a horizontal downsample before the blurring.
             </section>
           </dd>
 
@@ -765,14 +823,18 @@
           <dd>
             <div class="code-definition syntax-cpp">
               <pre>
+                std::unique_ptr&lt;IConstantBuffer&gt; gaussianBlurConstantBufferH
               </pre>
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>std::unique_ptr&lt;<a href="../interfaces/iconstantbuffer.html">IConstantBuffer</a>&gt;</code>
             </section>
             <h5>Description</h5>
             <section>
+              The constant buffer that is used in <code><a href="#RenderBlur">RenderBlur</a></code> as an input to the 
+              <a href="../../shader-reference/util-shaders/gaussian-blur.html">util-gaussian-blur</a>
+              shader, to do the horizontal blur pass.
             </section>
           </dd>
 
@@ -780,13 +842,17 @@
           <dd>
             <div class="code-definition syntax-cpp">
               <pre>
+                std::unique_ptr&lt;IConstantBuffer&gt; gaussianBlurConstantBufferV
               </pre>
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>std::unique_ptr&lt;<a href="../interfaces/iconstantbuffer.html">IConstantBuffer</a>&gt;</code>
             </section>
             <h5>Description</h5>
+              The constant buffer that is used in <code><a href="#RenderBlur">RenderBlur</a></code> as an input to the 
+              <a href="../../shader-reference/util-shaders/gaussian-blur.html">util-gaussian-blur</a>
+              shader, to do the vertical blur pass.
             <section>
             </section>
           </dd>
@@ -795,14 +861,22 @@
           <dd>
             <div class="code-definition syntax-cpp">
               <pre>
+                std::unique_ptr&lt;IConstantBuffer&gt; generateMaskConstantBuffer
               </pre>
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>std::unique_ptr&lt;<a href="../interfaces/iconstantbuffer.html">IConstantBuffer</a>&gt;</code>
             </section>
             <h5>Description</h5>
             <section>
+              The constant buffer that is used in <code><a href="#RenderMaskTexture">RenderMaskTexture</a></code> 
+              as an input to one of the
+              <a href="../../shader-reference/crt-shaders/generate-shadow-mask.html">crt-generate-shadow-mask</a>,
+              <a href="../../shader-reference/crt-shaders/generate-slot-mask.html">crt-generate-slot-mask</a>,
+              or <a href="../../shader-reference/crt-shaders/generate-aperture-grille.html">crt-generate-aperture-grille</a>
+              shaders (depending on the value of <code><a href="#screenSettings">screenSettings</a>.<a href="../structs/screensettings.html#maskType">maskType</a></code>) 
+              to generate the largest mip level of <code><a href="#maskTexture">maskTexture</a></code>.
             </section>
           </dd>
 
@@ -810,14 +884,19 @@
           <dd>
             <div class="code-definition syntax-cpp">
               <pre>
+                std::unique_ptr&lt;IConstantBuffer&gt; maskDownsampleConstantBufferH
               </pre>
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>std::unique_ptr&lt;<a href="../interfaces/iconstantbuffer.html">IConstantBuffer</a>&gt;</code>
             </section>
             <h5>Description</h5>
             <section>
+              The constant buffer that is used in <code><a href="#RenderMaskTexture">RenderMaskTexture</a></code> 
+              as an input to the <a href="../../shader-reference/util-shaders/downsample-2x.html">util-downsample-2x</a>
+              shader to do the horizontal downsample into a scratch texture (<code><a href="#halfWidthMaskTexture">halfWidthMaskTexture</a></code>)
+              during the generation of the mipmaps of <code><a href="#maskTexture">maskTexture</a></code>.
             </section>
           </dd>
 
@@ -825,14 +904,19 @@
           <dd>
             <div class="code-definition syntax-cpp">
               <pre>
+                std::unique_ptr&lt;IConstantBuffer&gt; maskDownsampleConstantBufferV
               </pre>
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>std::unique_ptr&lt;<a href="../interfaces/iconstantbuffer.html">IConstantBuffer</a>&gt;</code>
             </section>
             <h5>Description</h5>
             <section>
+              The constant buffer that is used in <code><a href="#RenderMaskTexture">RenderMaskTexture</a></code> 
+              as an input to the <a href="../../shader-reference/util-shaders/downsample-2x.html">util-downsample-2x</a>
+              shader to do the vertical downsample from the scratch texture (<code><a href="#halfWidthMaskTexture">halfWidthMaskTexture</a></code>),
+              during the generation of the mipmaps of <code><a href="#maskTexture">maskTexture</a></code>.
             </section>
           </dd>
 
@@ -842,14 +926,18 @@
           <dd>
             <div class="code-definition syntax-cpp">
               <pre>
+                std::unique_ptr&lt;IRenderTarget&gt; prevRGBInput
               </pre>
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>std::unique_ptr&lt;<a href="../interfaces/irendertarget.html">IRenderTarget</a>&gt;</code>
             </section>
             <h5>Description</h5>
             <section>
+              This texture is a copy of the <code>currentFrameRGBInput</code> parameter that was passed to the previous call
+              to <code><a href="#Render">Render</a></code>, and is used to emulate phosphor persistence (where a little of the previous frame
+              is still visible).
             </section>
           </dd>
 
@@ -859,14 +947,19 @@
           <dd>
             <div class="code-definition syntax-cpp">
               <pre>
+                std::unique_ptr&lt;IRenderTarget&gt; maskTexture
               </pre>
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>std::unique_ptr&lt;<a href="../interfaces/irendertarget.html">IRenderTarget</a>&gt;</code>
             </section>
             <h5>Description</h5>
             <section>
+              This is a mipmapped texture, which holds the CRT mask texture that we use to generate the screen texture.
+              It is generated by <code><a href="#RenderMaskTexture">RenderMaskTexture</a></code> whenever 
+              the value of value of <code><a href="#screenSettings">screenSettings</a>.<a href="../structs/screensettings.html#maskType">maskType</a></code>
+              changes.
             </section>
           </dd>
 
@@ -874,14 +967,18 @@
           <dd>
             <div class="code-definition syntax-cpp">
               <pre>
+                std::unique_ptr&lt;IRenderTarget&gt; halfWidthMaskTexture
               </pre>
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>std::unique_ptr&lt;<a href="../interfaces/irendertarget.html">IRenderTarget</a>&gt;</code>
             </section>
             <h5>Description</h5>
             <section>
+              This is an intermediate texture used during the generation of mipmap levels in <code><a href="#RenderMaskTexture">RenderMaskTexture</a></code>.
+              It has the same height as <code><a href="#maskTexture">maskTexture</a></code> but has half the width, and is used as
+              the target for the horizontal pass of the downsample.
             </section>
           </dd>
 
@@ -889,14 +986,19 @@
           <dd>
             <div class="code-definition syntax-cpp">
               <pre>
+                std::unique_ptr&lt;IRenderTarget&gt; screenTexture
               </pre>
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>std::unique_ptr&lt;<a href="../interfaces/irendertarget.html">IRenderTarget</a>&gt;</code>
             </section>
             <h5>Description</h5>
             <section>
+              This texture has an image that has the CRT mask (with proper curvature applied) in the RGB channels and a 
+              mask of what is or is not visible on the screen in the alpha channel. It is generated by
+              <code><a href="#RenderScreenTexture">RenderScreenTexture</a></code>. It has the same width and height as
+              the final output texture of the <code><a href="#Render">Render</a></code> method.
             </section>
           </dd>
 
@@ -906,14 +1008,17 @@
           <dd>
             <div class="code-definition syntax-cpp">
               <pre>
+                std::unique_ptr&lt;IRenderTarget&gt; toneMapTexture
               </pre>
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>std::unique_ptr&lt;<a href="../interfaces/irendertarget.html">IRenderTarget</a>&gt;</code>
             </section>
             <h5>Description</h5>
             <section>
+              This texture is the target of the first pass of <code><a href="#RenderBlur">RenderBlur</a></code>,
+              which does the tonemapping (and also a resize to get closer to the desired blur resolution).
             </section>
           </dd>
 
@@ -921,14 +1026,18 @@
           <dd>
             <div class="code-definition syntax-cpp">
               <pre>
+                std::unique_ptr&lt;IRenderTarget&gt; blurScratchTexture
               </pre>
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>std::unique_ptr&lt;<a href="../interfaces/irendertarget.html">IRenderTarget</a>&gt;</code>
             </section>
             <h5>Description</h5>
             <section>
+              This texture is the target of the second and fourth passes of <code><a href="#RenderBlur">RenderBlur</a></code>
+              (and is the ultimate result of that method), and ultimately contains the blurred version of the input texture
+              that is used to emulate CRT diffusion (the scattering of photons as they pass through the glass front of the CRT screen).
             </section>
           </dd>
 
@@ -936,14 +1045,18 @@
           <dd>
             <div class="code-definition syntax-cpp">
               <pre>
+                std::unique_ptr&lt;IRenderTarget&gt; blurTexture
               </pre>
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>std::unique_ptr&lt;<a href="../interfaces/irendertarget.html">IRenderTarget</a>&gt;</code>
             </section>
             <h5>Description</h5>
             <section>
+              This texture is the target of the third pass of <code><a href="#RenderBlur">RenderBlur</a></code>,
+              which is the horizontal gaussian blur pass. It is then used in the final pass to do the vertical blur
+              to get the final result.
             </section>
           </dd>
 
@@ -953,14 +1066,16 @@
           <dd>
             <div class="code-definition syntax-cpp">
               <pre>
+                ScreenSettings screenSettings
               </pre>
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code><a href="../structs/screensettings.html">ScreenSettings</a></code>
             </section>
             <h5>Description</h5>
             <section>
+              The screen settings that were applied by <code><a href="#SetSettings">SetSettings</a></code>.
             </section>
           </dd>
 
@@ -968,14 +1083,16 @@
           <dd>
             <div class="code-definition syntax-cpp">
               <pre>
+                OverscanSettings overscanSettings
               </pre>
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code><a href="../structs/overscansettings.html">OverscanSettings</a></code>
             </section>
             <h5>Description</h5>
             <section>
+              The overscan settings that were applied by <code><a href="#SetSettings">SetSettings</a></code>.
             </section>
           </dd>
 
@@ -983,14 +1100,20 @@
           <dd>
             <div class="code-definition syntax-cpp">
               <pre>
+                bool needsRenderScreenTexture = false
               </pre>
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>bool</code>
             </section>
             <h5>Description</h5>
             <section>
+              This value is set to true by <code><a href="#SetSettings">SetSettings</a></code>
+              or <code><a href="#SetSettings">SetOutputSize</a></code> when there is a change to
+              the way the screen texture appears (including a change to the output resolution), 
+              so that <code><a href="#Render">Render</a></code> will
+              call <code><a href="#RenderScreenTexture">RenderScreenTexture</a></code>.
             </section>
           </dd>
 
@@ -998,14 +1121,19 @@
           <dd>
             <div class="code-definition syntax-cpp">
               <pre>
+                bool needsRenderMaskTexture = false
               </pre>
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>bool</code>
             </section>
             <h5>Description</h5>
             <section>
+              This value is set to true by <code><a href="#SetSettings">SetSettings</a></code> when
+              the value of <code><a href="#screenSettings">screenSettings</a>.<a href="../structs/screensettings.html#maskType">maskType</a></code>
+              changes, so that <code><a href="#Render">Render</a></code> will
+              call <code><a href="#RenderMaskTexture">RenderMaskTexture</a></code>.
             </section>
           </dd>
 
@@ -1015,14 +1143,20 @@
           <dd>
             <div class="code-definition syntax-cpp">
               <pre>
+                ScanlineType prevScanlineType 
+                  = ScanlineType::Progressive
               </pre>
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code><a href="../enums/scanlinetype.html">ScanlineType</a></code>
             </section>
             <h5>Description</h5>
             <section>
+              The scanline type from the previous call to <code><a href="#Render">Render</a></code>.
+              This is used by <code>Render</code> to ensure that the scanlines from the previous frame are
+              rendered with the correct even/odd parity to handle both progressive and interlacing modes
+              when phosphor persistence emulation is enabled.
             </section>
           </dd>
 
@@ -1030,14 +1164,19 @@
           <dd>
             <div class="code-definition syntax-cpp">
               <pre>
+                float downsampleDirX
               </pre>
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>float</code>
             </section>
             <h5>Description</h5>
             <section>
+              The x component of the direction of the downsample during the tonemap pass in 
+              <code><a href="#RenderBlur">RenderBlur</a></code>. This and <code><a href="#downsampleDirY">downsampleDirY</a></code>
+              are set to do either a horizontal or vertical blur depending on which blur gets us closer to the desired
+              aspect ratio for the final blurred texture.
             </section>
           </dd>
 
@@ -1045,14 +1184,19 @@
           <dd>
             <div class="code-definition syntax-cpp">
               <pre>
+                float downsampleDirY
               </pre>
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>float</code>
             </section>
             <h5>Description</h5>
             <section>
+              The y component of the direction of the downsample during the tonemap pass in 
+              <code><a href="#RenderBlur">RenderBlur</a></code>. This and <code><a href="#downsampleDirX">downsampleDirX</a></code>
+              are set to do either a horizontal or vertical blur depending on which blur gets us closer to the desired
+              aspect ratio for the final blurred texture.
             </section>
           </dd>
         </dl>
