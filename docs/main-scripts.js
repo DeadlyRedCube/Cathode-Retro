@@ -40,155 +40,36 @@ function IsWhitespace(c)
 
 const crTypes =
 [
-  "CathodeRetro",
-  "Internal",
-  "RGBToCRT",
-  "SignalDecoder",
-  "SignalGenerator",
-  "MaskType",
-  "SamplerType",
-  "ScanlineType",
-  "ShaderID",
-  "SignalType",
-  "TextureFormat",
-  "IConstantBuffer",
-  "IGraphicsDevice",
-  "IRenderTarget",
-  "IShader",
-  "ITexture",
-  "ArtifactSettings",
-  "Color",
-  "SignalLevels",
-  "SignalProperties",
-  "OverscanSettings",
-  "Preset",
-  "RenderTargetView",
-  "ScreenSettings",
-  "ShaderResourceView",
-  "SourceSettings",
-  "TVKnobSettings",
+  "CathodeRetro", "Internal", "RGBToCRT", "SignalDecoder", "SignalGenerator", "MaskType", "SamplerType", "ScanlineType", "ShaderID",
+  "SignalType", "TextureFormat", "IConstantBuffer", "IGraphicsDevice", "IRenderTarget", "IShader", "ITexture", "ArtifactSettings", "Color",
+  "SignalLevels", "SignalProperties", "OverscanSettings", "Preset", "RenderTargetView", "ScreenSettings", "ShaderResourceView", "SourceSettings", "TVKnobSettings",
   "Vec2",
 
-  "AspectData",
-  "CommonConstants",
-  "ScreenTextureConstants",
-  "RGBToScreenConstants",
-  "GaussianBlurConstants",
-  "ToneMapConstants",
+  "AspectData", "CommonConstants", "ScreenTextureConstants", "RGBToScreenConstants", "GaussianBlurConstants", "ToneMapConstants",
 ];
 
 function SyntaxHighlight(element, keywords)
 {
-  let tokens = [];
-  const text = Array.from(element.textContent);
-  let i = 0;
-  while (i < text.length)
-  {
-    if (text[i] == '/' && text[i + 1] == '/')
-    {
-      // Comment! Snag the entire rest of the line.
-      let token = "";
-      while (i < text.length && !IsNewline(text[i]))
-      {
-        token = token.concat(text[i]);
-        i++;
-      }
-      tokens.push([token, "comment"]);
-    }
-    else if (text[i] == '#')
-    {
-      let token = text[i];
-      i++;
-      while (i < text.length && IsIdentifierChar(text[i]))
-      {
-        token = token.concat(text[i]);
-        i++;
-      }
-      tokens.push([token, "preprocessor"]);
-    }
-    else if (IsNum(text[i]))
-    {
-      // Number: Does not currently support hex.
-      let token = "";
-      while (i < text.length && IsNum(text[i]))
-      {
-        token = token.concat(text[i]);
-        i++;
-      }
-      tokens.push([token, "number"]);
-    }
-    else if (IsAlphaOrUnderscore(text[i]))
-    {
-      // Identifier or keyword
-      let token = "";
-      while (i < text.length && IsIdentifierChar(text[i]))
-      {
-        token = token.concat(text[i]);
-        i++;
-      }
-      tokens.push([token, "identifier"]);
-    }
-    else if (text[i] == '"')
-    {
-      // String!
-      let token = text[i];
-      i++;
-      while (i < text.length && text[i] != '"')
-      {
-        token = token.concat(text[i]);
-        i++;
-      }
-
-      if (i < text.length)
-      {
-        token = token.concat(text[i]);
-        i++;
-      }
-
-      tokens.push([token, "string"]);
-    }
-    else if (IsWhitespace(text[i]))
-    {
-      let token = "";
-      while (i < text.length && IsWhitespace(text[i]))
-      {
-        token = token.concat(text[i]);
-        i++;
-      }
-
-      tokens.push([token, "whitespace"]);
-    }
-    else
-    {
-      let token = "";
-      while (i < text.length
-        && !IsIdentifierChar(text[i])
-        && text[i] !== '"'
-        && !IsWhitespace(text[i])
-        && (text[i] != '/' || text[i + 1] != '/'))
-      {
-        token = token.concat(text[i]);
-        i++;
-      }
-
-      tokens.push([token, "operator"]);
-    }
-  }
-
+  let matches = [...element.textContent.matchAll(/(\/\/[^\r\n]*)|(#[\A-Za-z_]*)|("[^"]*")|([A-Za-z_][\w]*)|(\d+)|(\s+)|([!@%^&*\(\)~{}\[\]\|:;\.\,=\-\>\<\?\/]+)/g)];
   let newHTML = "";
-  for (token of tokens)
+  for (v of matches)
   {
-    let type = token[1];
-    const text = token[0];
-
-    if (type === "identifier" && keywords.includes(text))
-    {
-      type = "keyword";
-    }
-    else if (type === "identifier" && crTypes.includes(text))
-    {
-      type = "cr-type";
-    }
+    const text = v[0];
+    let type="operator";
+    if (v[1] !== undefined)
+      type = "comment";
+    else if (v[2] !== undefined)
+      type = "preprocessor";
+    else if (v[3] !== undefined)
+      type = "string";
+    else if (v[4] !== undefined)
+      type = keywords.includes(text) ? "keyword" : crTypes.includes(text) ? "cr-type" : "identifier";
+    else if (v[5] !== undefined)
+      type = "number";
+    else if (v[6] !== undefined)
+      type = "whitespace";
+    else
+      console.assert(v[7] !== undefined);
 
     newHTML = newHTML.concat(`<span class="syntax-${type}">${text}</span>`);
   }
@@ -223,61 +104,17 @@ function OnLoad()
 
   const cppKeywords =
   [
-    "auto",
-    "break",
-    "case",
-    "catch",
-    "char",
-    "class",
-    "const",
-    "continue",
-    "default",
-    "delete",
-    "do",
-    "double",
-    "else",
-    "enum",
-    "extern",
-    "final",
-    "float",
-    "for",
-    "friend",
-    "goto",
-    "if",
-    "inline",
-    "int",
-    "long",
-    "namespace",
-    "new",
-    "operator",
-    "override",
-    "private",
-    "protected",
-    "public",
-    "return",
-    "sealed",
-    "short",
-    "signed",
-    "sizeof",
-    "static",
-    "struct",
-    "switch",
-    "template",
-    "this",
-    "throw",
-    "try",
-    "typedef",
-    "union",
-    "unsigned",
-    "using",
-    "virtual",
-    "void",
-    "volatile",
-    "while",
+    "auto", "break", "case", "catch", "char", "class", "const", "continue", "default",
+    "delete", "do", "double", "else", "enum", "extern", "final", "float", "for",
+    "friend", "goto", "if", "inline", "int", "long", "namespace", "new", "operator",
+    "override", "private", "protected", "public", "return", "sealed", "short", "signed", "sizeof",
+    "static", "struct", "switch", "template", "this", "throw", "try", "typedef", "union",
+    "unsigned", "using", "virtual", "void", "volatile", "while",
 
     // Not really keywords but I want to highlight them as such
     "uint32_t",
   ];
+
   for (codeDef of document.querySelectorAll(".syntax-cpp"))
   {
     for (pre of codeDef.querySelectorAll("pre"))
