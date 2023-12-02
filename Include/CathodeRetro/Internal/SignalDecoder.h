@@ -21,7 +21,6 @@ namespace CathodeRetro
         {
           // We need a Composite -> SVideo step (luma/chroma separation), so run that
           compositeToSVideoConstantBuffer = device->CreateConstantBuffer(sizeof(CompositeToSVideoConstantData));
-          compositeToSVideoShader = device->CreateShader(ShaderID::Decoder_CompositeToSVideo);
 
           decodedSVideoTextureSingle = device->CreateRenderTarget(
             signalProps.scanlineWidth,
@@ -54,8 +53,6 @@ namespace CathodeRetro
         sVideoToRGBConstantBuffer = device->CreateConstantBuffer(sizeof(SVideoToRGBConstantData));
         sVideoToModulatedChromaConstantBuffer =
           device->CreateConstantBuffer(sizeof(SVideoToModulatedChromaConstantData));
-        sVideoToModulatedChromaShader = device->CreateShader(ShaderID::Decoder_SVideoToModulatedChroma);
-        sVideoToRGBShader = device->CreateShader(ShaderID::Decoder_SVideoToRGB);
         rgbTexture = device->CreateRenderTarget(
           rgbWidth,
           signalProps.scanlineCount,
@@ -69,7 +66,6 @@ namespace CathodeRetro
 
         // Finally, the RGB filtering portions
         filterRGBConstantBuffer = device->CreateConstantBuffer(sizeof(FilterRGBConstantData));
-        filterRGBShader = device->CreateShader(ShaderID::Decoder_FilterRGB);
       }
 
       void SetKnobSettings(const TVKnobSettings &settings)
@@ -112,7 +108,7 @@ namespace CathodeRetro
       {
         compositeToSVideoConstantBuffer->Update(CompositeToSVideoConstantData{ k_signalSamplesPerColorCycle });
         device->RenderQuad(
-          compositeToSVideoShader.get(),
+          ShaderID::Decoder_CompositeToSVideo,
           (isDoubled ? decodedSVideoTextureDouble : decodedSVideoTextureSingle).get(),
           {{inputSignal, SamplerType::LinearClamp}},
           compositeToSVideoConstantBuffer.get());
@@ -133,7 +129,7 @@ namespace CathodeRetro
           : modulatedChromaTextureSingle.get();
 
         device->RenderQuad(
-          sVideoToModulatedChromaShader.get(),
+          ShaderID::Decoder_SVideoToModulatedChroma,
           modulatedChromaTex,
           {
             {sVideoTexture, SamplerType::LinearClamp},
@@ -157,7 +153,7 @@ namespace CathodeRetro
           });
 
         device->RenderQuad(
-          sVideoToRGBShader.get(),
+          ShaderID::Decoder_SVideoToRGB,
           rgbTexture.get(),
           {
             {sVideoTexture, SamplerType::LinearClamp},
@@ -176,7 +172,7 @@ namespace CathodeRetro
           });
 
         device->RenderQuad(
-          filterRGBShader.get(),
+          ShaderID::Decoder_FilterRGB,
           scratchRGBTexture.get(),
           {{rgbTexture.get(), SamplerType::LinearClamp}},
           filterRGBConstantBuffer.get());
@@ -198,7 +194,6 @@ namespace CathodeRetro
         uint32_t outputTexelsPerColorburstCycle;        // This value should match k_signalSamplesPerColorCycle
       };
 
-      std::unique_ptr<IShader> compositeToSVideoShader;
       std::unique_ptr<IConstantBuffer> compositeToSVideoConstantBuffer;
       std::unique_ptr<IRenderTarget> decodedSVideoTextureSingle;
       std::unique_ptr<IRenderTarget> decodedSVideoTextureDouble;
@@ -226,10 +221,8 @@ namespace CathodeRetro
         uint32_t inputWidth;
       };
 
-      std::unique_ptr<IShader> sVideoToModulatedChromaShader;
       std::unique_ptr<IRenderTarget> modulatedChromaTextureSingle;
       std::unique_ptr<IRenderTarget> modulatedChromaTextureDouble;
-      std::unique_ptr<IShader> sVideoToRGBShader;
       std::unique_ptr<IConstantBuffer> sVideoToModulatedChromaConstantBuffer;
       std::unique_ptr<IConstantBuffer> sVideoToRGBConstantBuffer;
 
@@ -240,7 +233,6 @@ namespace CathodeRetro
         float blurSampleStepSize;
       };
 
-      std::unique_ptr<IShader> filterRGBShader;
       std::unique_ptr<IConstantBuffer> filterRGBConstantBuffer;
     };
   }

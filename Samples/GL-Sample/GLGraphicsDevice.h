@@ -57,8 +57,8 @@ private:
 };
 
 
-// This is a Cathode Retro "shader" which is really a wrapper around a GL shader program.
-class GLShader : public CathodeRetro::IShader
+// Wrapper around a GL shader program.
+class GLShader
 {
 public:
   // Build a GLShader given a vertex shader handle and a path to the pixel shader.
@@ -275,6 +275,11 @@ public:
     vertexShaderHandle = CompileShaderFromFile(
       GL_VERTEX_SHADER,
       "Content/cathode-retro-util-basic-vertex-shader.hlsl");
+
+    for (uint32_t i = 0; i < sizeof(shadersByID) / sizeof(shadersByID[0]); i++)
+    {
+      shadersByID[i] = CreateShader(CathodeRetro::ShaderID(i));
+    }
   }
 
 
@@ -315,78 +320,6 @@ public:
   }
 
 
-  std::unique_ptr<CathodeRetro::IShader> CreateShader(CathodeRetro::ShaderID id) override
-  {
-    struct SShaderStuff
-    {
-      const char *path;
-      const char *textureNames[32];
-    };
-
-
-    constexpr SShaderStuff k_shaderInfo[]
-    {
-      // GL (pre 4.2) needs a mapping from uniform to binding, and so here we list the expected binding orders in
-      //  order. It would have been nicer to iterate through them by querying the shader (which is possible) but
-      //  naturally they show up in arbitrary orders, rather than the order that they were declared in the shader.
-      { .path = "Content/cathode-retro-util-copy.hlsl", .textureNames = { "g_sourceTexture" } },
-      { .path = "Content/cathode-retro-util-downsample-2x.hlsl", .textureNames = { "g_sourceTexture" } },
-      { .path = "Content/cathode-retro-util-tonemap-and-downsample.hlsl", .textureNames = { "g_sourceTexture" } },
-      { .path = "Content/cathode-retro-util-gaussian-blur.hlsl", .textureNames = { "g_sourceTex" } },
-
-      { .path = "Content/cathode-retro-generator-gen-phase.hlsl", .textureNames = {} },
-      {
-        .path = "Content/cathode-retro-generator-rgb-to-svideo-or-composite.hlsl",
-        .textureNames = { "g_sourceTexture", "g_scanlinePhases"}
-      },
-      { .path = "Content/cathode-retro-generator-apply-artifacts.hlsl", .textureNames = { "g_sourceTexture" } },
-
-      { .path = "Content/cathode-retro-decoder-composite-to-svideo.hlsl", .textureNames = { "g_sourceTexture" } },
-      {
-        .path = "Content/cathode-retro-decoder-svideo-to-modulated-chroma.hlsl",
-        .textureNames = { "g_sourceTexture", "g_scanlinePhases"}
-      },
-      {
-        .path = "Content/cathode-retro-decoder-svideo-to-rgb.hlsl",
-        .textureNames = { "g_sourceTexture", "g_modulatedChromaTexture"}
-      },
-      { .path = "Content/cathode-retro-decoder-filter-rgb.hlsl", .textureNames = { "g_sourceTexture" } },
-
-      { .path = "Content/cathode-retro-crt-generate-screen-texture.hlsl", .textureNames = { "g_maskTexture" } },
-      { .path = "Content/cathode-retro-crt-generate-slot-mask.hlsl", .textureNames = {} },
-      { .path = "Content/cathode-retro-crt-generate-shadow-mask.hlsl", .textureNames = {} },
-      { .path = "Content/cathode-retro-crt-generate-aperture-grille.hlsl", .textureNames = {} },
-      {
-        .path = "Content/cathode-retro-crt-rgb-to-crt.hlsl",
-        .textureNames =
-        {
-          "g_currentFrameTexture",
-          "g_previousFrameTexture",
-          "g_screenMaskTexture",
-          "g_diffusionTexture",
-        }
-      },
-    };
-
-    auto &info = k_shaderInfo[size_t(id)];
-    auto l = std::make_unique<GLShader>(vertexShaderHandle, info.path);
-
-    glUseProgram(l->ShaderProgramHandle());
-    for (uint32_t i = 0; info.textureNames[i] != nullptr; i++)
-    {
-      auto location = glGetUniformLocation(l->ShaderProgramHandle(), info.textureNames[i]);
-      // assert(location >= 0);
-      if (location >= 0)
-      {
-        glUniform1i(location, i);
-      }
-    }
-    glUseProgram(0);
-
-    return l;
-  }
-
-
   void BeginRendering() override
   {
     // All of our quads use the same vertex array.
@@ -396,7 +329,7 @@ public:
 
 
   void RenderQuad(
-    CathodeRetro::IShader *ps,
+    CathodeRetro::ShaderID id,
     CathodeRetro::RenderTargetView output,
     std::initializer_list<CathodeRetro::ShaderResourceView> inputs,
     CathodeRetro::IConstantBuffer *constantBuffer) override
@@ -410,7 +343,7 @@ public:
       std::max(output.texture->Height() >> output.mipLevel, 1U));
 
     // Bind our shaders
-    auto programHandle = static_cast<GLShader *>(ps)->ShaderProgramHandle();
+    auto programHandle = shadersByID[uint32_t(id)]->ShaderProgramHandle();
     glUseProgram(programHandle);
 
     // Set up our constants if we have any
@@ -503,7 +436,80 @@ public:
 
 
 private:
+  std::unique_ptr<GLShader> CreateShader(CathodeRetro::ShaderID id)
+  {
+    struct SShaderStuff
+    {
+      const char *path;
+      const char *textureNames[32];
+    };
+
+
+    constexpr SShaderStuff k_shaderInfo[]
+    {
+      // GL (pre 4.2) needs a mapping from uniform to binding, and so here we list the expected binding orders in
+      //  order. It would have been nicer to iterate through them by querying the shader (which is possible) but
+      //  naturally they show up in arbitrary orders, rather than the order that they were declared in the shader.
+      { .path = "Content/cathode-retro-util-copy.hlsl", .textureNames = { "g_sourceTexture" } },
+      { .path = "Content/cathode-retro-util-downsample-2x.hlsl", .textureNames = { "g_sourceTexture" } },
+      { .path = "Content/cathode-retro-util-tonemap-and-downsample.hlsl", .textureNames = { "g_sourceTexture" } },
+      { .path = "Content/cathode-retro-util-gaussian-blur.hlsl", .textureNames = { "g_sourceTex" } },
+
+      { .path = "Content/cathode-retro-generator-gen-phase.hlsl", .textureNames = {} },
+      {
+        .path = "Content/cathode-retro-generator-rgb-to-svideo-or-composite.hlsl",
+        .textureNames = { "g_sourceTexture", "g_scanlinePhases"}
+      },
+      { .path = "Content/cathode-retro-generator-apply-artifacts.hlsl", .textureNames = { "g_sourceTexture" } },
+
+      { .path = "Content/cathode-retro-decoder-composite-to-svideo.hlsl", .textureNames = { "g_sourceTexture" } },
+      {
+        .path = "Content/cathode-retro-decoder-svideo-to-modulated-chroma.hlsl",
+        .textureNames = { "g_sourceTexture", "g_scanlinePhases"}
+      },
+      {
+        .path = "Content/cathode-retro-decoder-svideo-to-rgb.hlsl",
+        .textureNames = { "g_sourceTexture", "g_modulatedChromaTexture"}
+      },
+      { .path = "Content/cathode-retro-decoder-filter-rgb.hlsl", .textureNames = { "g_sourceTexture" } },
+
+      { .path = "Content/cathode-retro-crt-generate-screen-texture.hlsl", .textureNames = { "g_maskTexture" } },
+      { .path = "Content/cathode-retro-crt-generate-slot-mask.hlsl", .textureNames = {} },
+      { .path = "Content/cathode-retro-crt-generate-shadow-mask.hlsl", .textureNames = {} },
+      { .path = "Content/cathode-retro-crt-generate-aperture-grille.hlsl", .textureNames = {} },
+      {
+        .path = "Content/cathode-retro-crt-rgb-to-crt.hlsl",
+        .textureNames =
+        {
+          "g_currentFrameTexture",
+          "g_previousFrameTexture",
+          "g_screenMaskTexture",
+          "g_diffusionTexture",
+        }
+      },
+    };
+
+    auto &info = k_shaderInfo[size_t(id)];
+    auto l = std::make_unique<GLShader>(vertexShaderHandle, info.path);
+
+    glUseProgram(l->ShaderProgramHandle());
+    for (uint32_t i = 0; info.textureNames[i] != nullptr; i++)
+    {
+      auto location = glGetUniformLocation(l->ShaderProgramHandle(), info.textureNames[i]);
+      // assert(location >= 0);
+      if (location >= 0)
+      {
+        glUniform1i(location, i);
+      }
+    }
+    glUseProgram(0);
+
+    return l;
+  }
+
+
   GLuint vertexBufferObject = 0;
   GLuint vertexArrayObject = 0;
   GLuint vertexShaderHandle = 0;
+  std::unique_ptr<GLShader> shadersByID[16]; // This size needs to match the number of entries in ShaderID
 };

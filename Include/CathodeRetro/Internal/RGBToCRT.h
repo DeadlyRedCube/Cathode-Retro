@@ -31,16 +31,6 @@ namespace CathodeRetro
       , scanlineCount(scanlineCountIn)
       , pixelAspect(pixelAspectIn)
       {
-        rgbToScreenShader = device->CreateShader(ShaderID::CRT_RGBToCRT);
-        generateScreenTextureShader = device->CreateShader(ShaderID::CRT_GenerateScreenTexture);
-        copyShader = device->CreateShader(ShaderID::Util_Copy);
-        downsample2XShader = device->CreateShader(ShaderID::Util_Downsample2X);
-        gaussianBlurShader = device->CreateShader(ShaderID::Util_GaussianBlur13);
-        toneMapShader = device->CreateShader(ShaderID::Util_TonemapAndDownsample);
-        generateSlotMaskShader = device->CreateShader(ShaderID::CRT_GenerateSlotMask);
-        generateShadowMaskShader = device->CreateShader(ShaderID::CRT_GenerateShadowMask);
-        generateApertureGrilleShader = device->CreateShader(ShaderID::CRT_GenerateApertureGrille);
-
         screenTextureConstantBuffer = device->CreateConstantBuffer(sizeof(ScreenTextureConstants));
         rgbToScreenConstantBuffer = device->CreateConstantBuffer(sizeof(RGBToScreenConstants));
         toneMapConstantBuffer = device->CreateConstantBuffer(sizeof(ToneMapConstants));
@@ -122,7 +112,7 @@ namespace CathodeRetro
         {
           isFirstFrame = false;
           device->RenderQuad(
-            copyShader.get(),
+            ShaderID::Util_Copy,
             prevRGBInput.get(),
             { { currentFrameRGBInput, SamplerType::LinearClamp } });
         }
@@ -157,7 +147,7 @@ namespace CathodeRetro
         }
 
         device->RenderQuad(
-          rgbToScreenShader.get(),
+          ShaderID::CRT_RGBToCRT,
           outputTexture,
           {
             {currentFrameRGBInput, SamplerType::LinearClamp},
@@ -168,14 +158,14 @@ namespace CathodeRetro
           rgbToScreenConstantBuffer.get());
 
         device->RenderQuad(
-          copyShader.get(),
+          ShaderID::Util_Copy,
           prevRGBInput.get(),
           { { currentFrameRGBInput, SamplerType::LinearClamp } });
 
         prevScanlineType = scanType;
       }
 
-    protected:
+    private:
       static constexpr uint32_t k_maskSize = 512;
 
       struct AspectData
@@ -330,7 +320,7 @@ namespace CathodeRetro
         screenTextureConstantBuffer->Update(data);
 
         device->RenderQuad(
-          generateScreenTextureShader.get(),
+          ShaderID::CRT_GenerateScreenTexture,
           screenTexture.get(),
           {{maskTexture.get(), SamplerType::LinearWrap}},
           screenTextureConstantBuffer.get());
@@ -393,19 +383,20 @@ namespace CathodeRetro
       // Generate the mask texture we use for the CRT emulation
       void RenderMaskTexture()
       {
-        IShader *shader = nullptr;
+        ShaderID shader;
         switch (screenSettings.maskType)
         {
         case MaskType::SlotMask:
-          shader = generateSlotMaskShader.get();
+          shader = ShaderID::CRT_GenerateSlotMask;
           break;
 
         case MaskType::ShadowMask:
-          shader = generateShadowMaskShader.get();
+          shader = ShaderID::CRT_GenerateShadowMask;
           break;
 
         case MaskType::ApertureGrille:
-          shader = generateApertureGrilleShader.get();
+        default:
+          shader = ShaderID::CRT_GenerateApertureGrille;
           break;
         }
 
@@ -423,13 +414,13 @@ namespace CathodeRetro
         for (uint32_t destMip = 1; destMip < maskTexture->MipCount(); destMip++)
         {
           device->RenderQuad(
-            downsample2XShader.get(),
+            ShaderID::Util_Downsample2X,
             {halfWidthMaskTexture.get(), destMip - 1},
             {{maskTexture.get(), destMip - 1, SamplerType::LinearWrap}},
             maskDownsampleConstantBufferH.get());
 
           device->RenderQuad(
-            downsample2XShader.get(),
+            ShaderID::Util_Downsample2X,
             {maskTexture.get(), destMip},
             {{halfWidthMaskTexture.get(), destMip - 1, SamplerType::LinearWrap}},
             maskDownsampleConstantBufferV.get());
@@ -455,27 +446,27 @@ namespace CathodeRetro
         blurDownsampleConstantBuffer->Update(Vec2{ 1.0f, 0.0f });
 
         device->RenderQuad(
-          toneMapShader.get(),
+          ShaderID::Util_TonemapAndDownsample,
           toneMapTexture.get(),
           {{inputTexture, SamplerType::LinearClamp}},
           toneMapConstantBuffer.get());
 
         device->RenderQuad(
-          downsample2XShader.get(),
+          ShaderID::Util_Downsample2X,
           blurTexture.get(),
           {{toneMapTexture.get(), SamplerType::LinearClamp}},
           blurDownsampleConstantBuffer.get());
 
         gaussianBlurConstantBufferH->Update(GaussianBlurConstants{1.0f, 0.0f});
         device->RenderQuad(
-          gaussianBlurShader.get(),
+          ShaderID::Util_GaussianBlur13,
           blurScratchTexture.get(),
           {{blurTexture.get(), SamplerType::LinearClamp}},
           gaussianBlurConstantBufferH.get());
 
         gaussianBlurConstantBufferV->Update(GaussianBlurConstants{0.0f, 1.0f});
         device->RenderQuad(
-          gaussianBlurShader.get(),
+          ShaderID::Util_GaussianBlur13,
           blurTexture.get(),
           {{blurScratchTexture.get(), SamplerType::LinearClamp}},
           gaussianBlurConstantBufferV.get());
@@ -499,16 +490,6 @@ namespace CathodeRetro
       std::unique_ptr<IConstantBuffer> generateMaskConstantBuffer;
       std::unique_ptr<IConstantBuffer> maskDownsampleConstantBufferH;
       std::unique_ptr<IConstantBuffer> maskDownsampleConstantBufferV;
-
-      std::unique_ptr<IShader> rgbToScreenShader;
-      std::unique_ptr<IShader> copyShader;
-      std::unique_ptr<IShader> downsample2XShader;
-      std::unique_ptr<IShader> toneMapShader;
-      std::unique_ptr<IShader> gaussianBlurShader;
-      std::unique_ptr<IShader> generateScreenTextureShader;
-      std::unique_ptr<IShader> generateSlotMaskShader;
-      std::unique_ptr<IShader> generateShadowMaskShader;
-      std::unique_ptr<IShader> generateApertureGrilleShader;
 
       std::unique_ptr<IRenderTarget> prevRGBInput;
 
