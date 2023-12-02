@@ -330,6 +330,22 @@ a:active
   background-position: center center;
 }
 
+/* 
+  Safari on iOS lets you sometimes see *above* the top of the page, so add a little
+  blocker so that you can't.
+*/
+.header::before
+{
+  content: " ";
+  position: fixed;
+  top: -2000px;
+  left: 0px;
+  width:100vw;
+  height: 2001px;
+
+  background-color: var(--background-emphasis);
+}
+
 
 #sidebar-button
 {
