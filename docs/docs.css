@@ -7,8 +7,8 @@
 
   --main-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
   --title-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
-  --code-font: Consolas, Courier, monospace;
-  --code-font-weight: 600;
+  --code-font: "Fira Code", Consolas, Courier, monospace;
+  --code-font-weight: 500;
   --code-font-size: 1em;
 
   /* --sol- colors from  Solarized by Ethan Schoonover: https://ethanschoonover.com/solarized/ */
