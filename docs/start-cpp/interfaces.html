@@ -33,7 +33,7 @@
             which is the interface that is passed to the main <code><a href="../cpp-reference/classes/cathoderetro.html">CathodeRetro::<wbr>CathodeRetro</a></code> class.
           </p>
           <p>
-            This interface can create objects (render targets, constant buffers, shaders) and render.
+            This interface can create objects (render targets and constant buffers) and render.
           </p>
           <p>
             You'll need to implement the following methods:
@@ -50,13 +50,6 @@
             <dd>
               Create a <code><a href="../cpp-reference/interfaces/iconstantbuffer.html">CathodeRetro::<wbr>IConstantBuffer</a></code>-derived
               object representing a block of bytes that is used to pass data to the shaders.
-            </dd>
-
-            <dt><code><a href="../cpp-reference/interfaces/igraphicsdevice.html#CreateShader">CreateShader</a></code></dt>
-            <dd>
-              Create a <code><a href="../cpp-reference/interfaces/ishader.html">CathodeRetro::<wbr>IShader</a></code>-derived
-              object representing the specified shader (requested via an <a href="../cpp-reference/enums/shaderid.html">ID</a>) and
-              whatever other associated pipeline objects are necessary to use it.
             </dd>
           </dl>
           <h3>Render Methods</h3>
@@ -75,7 +68,8 @@
             <dt><code><a href="../cpp-reference/interfaces/igraphicsdevice.html#RenderQuad">RenderQuad</a></code></dt>
             <dd>
               This is called by the <code><a href="../cpp-reference/classes/cathoderetro.html">CathodeRetro::<wbr>CathodeRetro</a></code> 
-              class during rendering to render a full-render-target quad using the given <code><a href="../cpp-reference/interfaces/ishader.html">IShader</a></code>, 
+              class during rendering to render a full-render-target quad using the shader with the given 
+              <code><a href="../cpp-reference/enums/shaderid.html">ShaderID</a></code>, 
               to the given <code><a href="../cpp-reference/interfaces/irendertarget.html">IRenderTarget</a></code>,
               using a set of input <code><a href="../cpp-reference/structs/shaderresourceview.html">ShaderResourceView</a></code>s 
               and an <code><a href="../cpp-reference/interfaces/iconstantbuffer.html">IConstantBuffer</a></code>.
@@ -109,16 +103,6 @@
               <code><a href="../cpp-reference/interfaces/igraphicsdevice.html#RenderQuad">IGraphicsDevice::<wbr>RenderQuad</a></code>.
             </dd>
           </dl>
-        </section>
-        <h2>The IShader Interface</h2>
-        <section>
-          <p>
-            <code><a href="../cpp-reference/interfaces/ishader.html">CathodeRetro::<wbr>IShader</a></code> 
-            is a wrapper around any shader-related objects for a specified shader.
-          </p>
-          <p>
-            It contains no methods, and can be considered a handle or identifier for the given shader.
-          </p>
         </section>
         <h2>The ITexture and IRenderTarget Interfaces</h2>
         <section>

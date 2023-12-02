@@ -41,7 +41,7 @@ function IsWhitespace(c)
 const crTypes =
 [
   "CathodeRetro", "Internal", "RGBToCRT", "SignalDecoder", "SignalGenerator", "MaskType", "SamplerType", "ScanlineType", "ShaderID",
-  "SignalType", "TextureFormat", "IConstantBuffer", "IGraphicsDevice", "IRenderTarget", "IShader", "ITexture", "ArtifactSettings", "Color",
+  "SignalType", "TextureFormat", "IConstantBuffer", "IGraphicsDevice", "IRenderTarget", "ITexture", "ArtifactSettings", "Color",
   "SignalLevels", "SignalProperties", "OverscanSettings", "Preset", "RenderTargetView", "ScreenSettings", "ShaderResourceView", "SourceSettings", "TVKnobSettings",
   "Vec2",
 
