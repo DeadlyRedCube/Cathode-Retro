@@ -29,15 +29,6 @@ namespace CathodeRetro
   };
 
 
-  // This is effectively a handle for a "shader" (generally, a vertex/pixel (or vertex/fragment) shader combination).
-  //  It has no interface methods because Cathode Retro just needs to refer to them.
-  class IShader
-  {
-  public:
-    virtual ~IShader() = default;
-  };
-
-
   // Cathode Retro has shaders with these identifiers, it can ask for shaders with these IDs, and it is up to the
   //  graphics device to define how these IDs get translated into the actual loaded shader.
   enum class ShaderID
@@ -164,9 +155,6 @@ namespace CathodeRetro
     // Create a constant buffer that can hold the given amount of bytes.
     virtual std::unique_ptr<IConstantBuffer> CreateConstantBuffer(size_t byteCount) = 0;
 
-    // Create a shader object for the given shader ID.
-    virtual std::unique_ptr<IShader> CreateShader(ShaderID id) = 0;
-
     // This is called when Cathode Retro is beginning its rendering, and is a great place to set up any render state
     //  that is going to be consistent across the whole pipeline (the vertex shader, blending mode, etc).
     // Cathode Retro specifically wants no alpha blending or testing enabled. Additionally, it expects floating-point
@@ -176,7 +164,7 @@ namespace CathodeRetro
 
     // Render a quad using the given objects.
     virtual void RenderQuad(
-      IShader *ps,
+      ShaderID shaderID,
       RenderTargetView output,
       std::initializer_list<ShaderResourceView> inputs,
       IConstantBuffer *constantBuffer = nullptr) = 0;

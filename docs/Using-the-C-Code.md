@@ -17,18 +17,14 @@ Then you will need to implement classes derived from the interfaces in that file
 * **CathodeRetro::IGraphicsDevice**: This is the main interface that Cathode Retro uses to interact with the graphics device. It can create objects (render targets, constant buffers, shaders) and render. You'll need to implement the following methods:
 	* **CreateRenderTarget**: Create a `CathodeRetro::IRenderTarget`-derived object representing a render target (or frame buffer object) with the given properties.
 	*  **CreateConstantBuffer**: Create a `CathodeRetro::IConstantBuffer`-derived object that represents a block of bytes used as a constant buffer (or uniform buffer) to pass data to the shaders.
-	* **CreateShader**: Create a `CathodeRetro::IShader`-derived object that represents the specified shader (requested via an ID) and whatever other associated pipeline objects are necessary to use it.
 	* **BeginRendering**: This is called by the `CathodeRetro::CathodeRetro` class when it is beginning its rendering, and is where you should set up any render state that is going to be consistent across the whole pipeline (the vertex shader, blending mode, etc).
 		* Cathode Retro specifically wants no alpha blending or testing enabled. 
 		* Additionally, it expects floating-point textures to be able to use the full range of values, so if the API allows for truncating floating-point values to the 0..1 range on either shader output or sampling input, that should be disabled.
-	* **RenderQuad**: This is called during rendering to render a full-target quad using the given `IShader`, to the given `IRenderTarget`, using a set of input `ITexture`s and an `IConstantBuffer`.
+	* **RenderQuad**: This is called during rendering to render a full-target quad using a shader with the given `ShaderID`, to the given `IRenderTarget`, using a set of input `ITexture`s and an `IConstantBuffer`.
 	* **EndRendering**: This is called when the `CathodeRetro::CathodeRetro` class is done rendering, and is where you should restore any render states necessary for the rest of your renderer to continue as normal.
 	
 * **CathodeRetro::IConstantBuffer**: This is a "constant buffer" (GL/Vulkan refer to these as "uniform buffers" - basically a data buffer to be handed to a shader. These will be fully updated every frame so it's valid for this to allocate GPU bytes out of a pool and update for graphics APIs that prefer that style of CPU -> GPU buffering. These may be updated by the `CathodeRetro::CathodeRetro` class more than once per frame. It contains the following method:
 	* **Update**: Copy the given data bytes into the constant buffer so that it is ready for rendering.
-
-* **CathodeRetro::IShader**: This is a wrapper around any shader-related objects for a specified shader. It contains no methods.
-	* There is a `ShaderID` enum in this file that is used to create the shaders in the `IGraphicsDevice::CreateShader` method, and each one corresponds to a specific shader in the `Shaders/` directory.
 
 * **CathodeRetro::IRenderTarget**: This is a wrapper around a render target (or frame buffer object), and is derived from the `CathodeRetro::ITexture` interface which contains the following methods:
 	* **Width**: Get the width of this texture.

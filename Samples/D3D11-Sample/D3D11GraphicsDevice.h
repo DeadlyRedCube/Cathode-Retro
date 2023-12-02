@@ -60,20 +60,6 @@ private:
 };
 
 
-class D3DPixelShader : public CathodeRetro::IShader
-{
-public:
-  D3DPixelShader(ID3D11PixelShader *s)
-    : shader(s)
-    { }
-
-private:
-  ComPtr<ID3D11PixelShader> shader;
-
-  friend class D3D11GraphicsDevice;
-};
-
-
 class D3DConstantBuffer : public CathodeRetro::IConstantBuffer
 {
 public:
@@ -165,6 +151,12 @@ public:
       backbufferHeight = bbDesc.Height;
     }
 
+    for (uint32_t i = 0; i < ARRAYSIZE(pixelShadersByID); i++)
+    {
+      pixelShadersByID[i] = CreateShader(CathodeRetro::ShaderID(i));
+    }
+
+
     InitializeBuiltIns();
   }
 
@@ -231,7 +223,7 @@ public:
   // CathodeRetro::IGraphicsDevice Implementations ////////////////////////////////////////////////////////////////////
 
 
-  std::unique_ptr<CathodeRetro::IShader> CreateShader(CathodeRetro::ShaderID id) override
+  ComPtr<ID3D11PixelShader> CreateShader(CathodeRetro::ShaderID id)
   {
     assert(!isRendering);
     int resourceID = 0;
@@ -267,7 +259,7 @@ public:
         shader.AddressForReplace()),
       "create pixel shader");
 
-    return std::make_unique<D3DPixelShader>(shader.Ptr());
+    return shader;
   }
 
 
@@ -328,7 +320,7 @@ public:
 
 
   void RenderQuad(
-    CathodeRetro::IShader *ps,
+    CathodeRetro::ShaderID shader,
     CathodeRetro::RenderTargetView output,
     std::initializer_list<CathodeRetro::ShaderResourceView> inputs,
     CathodeRetro::IConstantBuffer *constantBuffer = nullptr) override
@@ -392,7 +384,7 @@ public:
       context->RSSetViewports(1, &vp);
     }
 
-    context->PSSetShader(static_cast<D3DPixelShader *>(ps)->shader, nullptr, 0);
+    context->PSSetShader(pixelShadersByID[uint32_t(shader)], nullptr, 0);
 
     {
       auto ptr = vertexBuffer.Ptr();
@@ -732,6 +724,8 @@ private:
   HWND window;
   uint32_t prevSamplerCount = 0;
   bool isRendering = false;
+
+  ComPtr<ID3D11PixelShader> pixelShadersByID[16]; // This size needs to match the number of entries in ShaderID
 };
 
 

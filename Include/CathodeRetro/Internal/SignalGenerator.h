@@ -41,11 +41,8 @@ namespace CathodeRetro
 
         generateSignalConstantBuffer = device->CreateConstantBuffer(
           std::max(sizeof(RGBToSVideoConstantData), sizeof(GeneratePhaseTextureConstantData)));
-        rgbToSVideoShader = device->CreateShader(ShaderID::Generator_RGBToSVideoOrComposite);
-        generatePhaseTextureShader = device->CreateShader(ShaderID::Generator_GeneratePhaseTexture);
 
         applyArtifactsConstantBuffer = device->CreateConstantBuffer(sizeof(ApplyArtifactsConstantData));
-        applyArtifactsShader = device->CreateShader(ShaderID::Generator_ApplyArtifacts);
 
         frameStartPhaseNumerator = sourceSettings.initialFramePhase;
 
@@ -182,7 +179,7 @@ namespace CathodeRetro
           });
 
         device->RenderQuad(
-          generatePhaseTextureShader.get(),
+          ShaderID::Generator_GeneratePhaseTexture,
           phasesTexture.get(),
           {},
           generateSignalConstantBuffer.get());
@@ -205,7 +202,7 @@ namespace CathodeRetro
           });
 
         device->RenderQuad(
-          rgbToSVideoShader.get(),
+          ShaderID::Generator_RGBToSVideoOrComposite,
           signalTexture.get(),
           {{rgbTexture, SamplerType::LinearClamp}, {phasesTexture.get(), SamplerType::NearestClamp}},
           generateSignalConstantBuffer.get());
@@ -234,7 +231,7 @@ namespace CathodeRetro
           });
 
         device->RenderQuad(
-          applyArtifactsShader.get(),
+          ShaderID::Generator_ApplyArtifacts,
           scratchSignalTexture.get(),
           {{signalTexture.get(), SamplerType::LinearClamp}},
           applyArtifactsConstantBuffer.get());
@@ -248,9 +245,6 @@ namespace CathodeRetro
 
       uint32_t noiseSeed = 0;
 
-      std::unique_ptr<IShader> rgbToSVideoShader;
-      std::unique_ptr<IShader> generatePhaseTextureShader;
-      std::unique_ptr<IShader> applyArtifactsShader;
       std::unique_ptr<IConstantBuffer> generateSignalConstantBuffer;
       std::unique_ptr<IConstantBuffer> applyArtifactsConstantBuffer;
 
