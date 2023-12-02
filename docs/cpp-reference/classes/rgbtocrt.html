@@ -12,7 +12,639 @@
     <div id="content-outer" class="content-outer">
       <div class="content">
         <h1>CathodeRetro::<wbr>Internal::<wbr>RGBToCRT</h1>
-        (Content coming soon)
+        <div>
+          <p>
+            This is an internal class used by <code><a href="cathoderetro.html">CathodeRetro::<wbr>CathodeRetro</a></code>
+            to take an RGB image and draw it to a render target to look like it is on a CRT TV.
+          </p>
+          <p>
+            If you are using the <code><a href="cathoderetro.html">CathodeRetro::<wbr>CathodeRetro</a></code>
+            class, you should not need to use this code directly.
+          </p>
+          <ul>
+            <li><a href="#public">Go to Public Members</a></li>
+            <li><a href="#private">Go to Private Members</a></li>
+          </ul>
+        </div>          
+        <h2 id="public">Public Members</h2>
+        <div class="index">
+          <h4>Public Methods</h4>
+          <nav>
+            <menu>
+              <li><a href="#constructor">(constructor)</a></li>
+              <li><a href="#SetSettings">SetSettings</a></li>
+              <li><a href="#SetOutputSize">SetOutputSize</a></li>
+              <li><a href="#Render">Render</a></li>
+            </menu>
+          </nav>
+        </div>
+
+        <h3>Public Methods</h3>
+        <dl class="member-list">
+          <dt id="constructor">(constructor)</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                RGBToCRT(
+                  IGraphicsDevice *deviceIn,
+                  uint32_t originalInputImageWidthIn,
+                  uint32_t processedRGBTextureWidthIn,
+                  uint32_t scanlineCountIn,
+                  float pixelAspectIn)
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              Construct a new instance of the <code>Internal::<wbr>RGBToCRT</code> class.
+            </section>
+            <h5>Parameters</h5>
+            <section>
+              <dl>
+                <dt><code>deviceIn</code></dt>
+                <dd>
+                  <p>Type: <code><a href="../interfaces/igraphicsdevice.html">IGraphicsDevice</a> *</code></p>
+                  <p>
+                    Pointer to the graphics device instance that this instance should use for all of its drawing-related functionality.
+                    This pointer will be cached so the lifetime of <code>graphicsDevice</code> must extend past the lifetime of the
+                    <code>Internal::<wbr>RGBToCRT</code> instance being created.
+                  </p>
+                </dd>
+                <dt><code>originalInputImageWidthIn</code></dt>
+                <dd>
+                  <p>Type: <code>uint32_t</code></p>
+                  <p>
+                    The width of the original input image (the one passed to <code><a href="cathoderetro.html#Render">CathodeRetro::<wbr>Render</a></code>),
+                    before running through the generator and decoder.
+                  </p>
+                </dd>
+                <dt><code>processedRGBTextureWidthIn</code></dt>
+                <dd>
+                  <p>Type: <code>uint32_t</code></p>
+                  <p>
+                    The width of the input texture that <code><a href="#Render">Render</a></code> will be provided.
+                  </p>
+                </dd>
+                <dt><code>scanlineCountIn</code></dt>
+                <dd>
+                  <p>Type: <code>uint32_t</code></p>
+                  <p>
+                    The height of the input texture that <code><a href="#Render">Render</a></code> will be provided.
+                  </p>
+                </dd>
+                <dt><code>pixelAspectIn</code></dt>
+                <dd>
+                  <p>Type: <code>float</code></p>
+                  <p>
+                    The pixel aspect ratio of the input signal (relative to the original input). This value comes from
+                    the <code><a href="../structs/signalproperties.html">SignalProperties</a></code> given to the <code><a href="cathoderetro.html">CathodeRetro</a></code>
+                    class.
+                  </p>
+                </dd>
+              </dl>
+            </section>
+          </dd>
+
+          <dt id="SetSettings">SetSettings</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                void SetSettings(
+                  const OverscanSettings &amp;overscan, 
+                  const ScreenSettings &amp;screen)
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              Set the settings that describe how the screen should appear.
+            </section>
+            <h5>Parameters</h5>
+            <section>
+              <dl>
+                <dt><code>overscan</code></dt>
+                <dd>
+                  <p>Type: <code>const <a href="../structs/overscansettings.html">OverscanSettings</a> &amp;</code></p>
+                  <p>
+                    A description of how much the various edges of the input image are cut off by the "bevel" of the TV.
+                  </p>
+                </dd>
+
+                <dt><code>screen</code></dt>
+                <dd>
+                  <p>Type: <code>const <a href="../structs/screensettings.html">ScreenSettings</a> &amp;</code></p>
+                  <p>
+                    Information about the properties of the screen itself.
+                  </p>
+                </dd>
+              </dl>
+            </section>
+          </dd>
+
+          <dt id="SetOutputSize">SetOutputSize</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                void SetOutputSize(
+                  uint32_t outputWidth,
+                  uint32_t outputHeight)
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              <p>
+                Set the size of the final output render target that 
+                <code><a href="cathoderetro.html#Render">CathodeRetro::<wbr>Render</a></code>
+                will be given.
+              </p>
+              <p>
+                If the width or height change from what they were before, this will reallocate a render target.
+              </p>
+            </section>
+            <h5>Parameters</h5>
+            <section>
+              <dl>
+                <dt><code>outputWidth</code></dt>
+                <dd>
+                  <p>Type: <code>uint32_t</code></p>
+                  <p>
+                    The expected width of the final output render target that <code><a href="cathoderetro.html#Render">CathodeRetro::<wbr>Render</a></code>
+                    will be given.
+                  </p>
+                </dd>
+
+                <dt><code>outputHeight</code></dt>
+                <dd>
+                  <p>Type: <code>uint32_t</code></p>
+                  <p>
+                    The expected height of the final output render target that <code><a href="cathoderetro.html#Render">CathodeRetro::<wbr>Render</a></code>
+                    will be given.
+                  </p>
+                </dd>
+              </dl>
+            </section>
+          </dd>
+
+          <dt id="Render">Render</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                void Render(
+                  const ITexture *currentFrameRGBInput,
+                  IRenderTarget *outputTexture,
+                  ScanlineType scanType)
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              Render a CRT TV emulation pass using the input texture as what is on-screen.
+            </section>
+            <h5>Parameters</h5>
+            <section>
+              <dl>
+                <dt><code>currentFrameRGBInput</code></dt>
+                <dd>
+                  <p>Type: <code>const <a href="../interfaces/itexture.html">ITexture</a> *</code></p>
+                  <p>
+                    The input RGB frame data, representing what is "on-screen."
+                  </p>
+                  <p>
+                    Its dimensions are expected to match the <code>processedRGBTextureWidthIn</code> 
+                    (width) and <code>scanlineCountIn</code> (height) values that were passed to the 
+                    <a href="#constructor">constructor</a>.
+                  </p>
+                </dd>
+                <dt><code>outputTexture</code></dt>
+                <dd>
+                  <p>Type: <code><a href="../interfaces/irendertarget.html">IRenderTarget</a> *</code></p>
+                  <p>
+                    The texture that the result of this rendering will be rendered to.
+                  </p>
+                  <p>
+                    Its dimensions are expected to match the <code>outputWidth</code> and <code>outputHeight</code>
+                    values passed to the most-recent call to <code><a href="#SetOutputSize">SetOutputSize</a></code>.
+                  </p>
+                </dd>
+                <dt><code>scanType</code></dt>
+                <dd>
+                  <p>Type: <code><a href="../enums/scanlinetype.html">ScanlineType</a></code></p>
+                  <p>
+                    Which type of scanlines to render for this frame (even or odd).
+                  </p>
+                </dd>
+              </dl>
+            </section>
+          </dd>
+        </dl>
+
+
+        <h2 id="private">Private Members</h3>
+        <div class="index">
+          <h4>Private Constants</h4>
+          <nav>
+            <menu>
+              <li><a href="#k_maskSize">k_maskSize</a></li>
+            </menu>
+          </nav>
+          <h4>Private Structures</h4>
+          <nav>
+            <menu>
+              <li><a href="#AspectData">AspectData</a></li>
+              <li><a href="#CommonConstants">CommonConstants</a></li>
+              <li><a href="#ScreenTextureConstants">ScreenTextureConstants</a></li>
+              <li><a href="#RGBToScreenConstants">RGBToScreenConstants</a></li>
+              <li><a href="#GaussianBlurConstants">GaussianBlurConstants</a></li>
+              <li><a href="#ToneMapConstants">ToneMapConstants</a></li>
+            </menu>
+          </nav>
+          <h4>Private Methods</h4>
+          <nav>
+            <menu>
+              <li><a href="#CalculateAspectData">CalculateAspectData</a></li>
+              <li><a href="#CalculateCommonConstants">CalculateCommonConstants</a></li>
+              <li><a href="#RenderScreenTexture">RenderScreenTexture</a></li>
+              <li><a href="#UpdateBlurTextures">UpdateBlurTextures</a></li>
+              <li><a href="#RenderMaskTexture">RenderMaskTexture</a></li>
+              <li><a href="#RenderBlur">RenderBlur</a></li>
+            </menu>
+          </nav>
+          <h4>Private Fields</h4>
+          <nav>
+            <menu>
+              <li><a href="#device">device</a></li>
+              <li>&nbsp;</li>
+              <li><a href="#originalInputImageWidth">originalInputImageWidth</a></li>
+              <li><a href="#processedRGBTextureWidth">processedRGBTextureWidth</a></li>
+              <li><a href="#scanlineCount">scanlineCount</a></li>
+              <li><a href="#pixelAspect">pixelAspect</a></li>
+              <li><a href="#isFirstFrame">isFirstFrame</a></li>
+              <li>&nbsp;</li>
+              <li><a href="#screenTextureConstantBuffer">screenTextureConstantBuffer</a></li>
+              <li><a href="#rgbToScreenConstantBuffer">rgbToScreenConstantBuffer</a></li>
+              <li><a href="#toneMapConstantBuffer">toneMapConstantBuffer</a></li>
+              <li><a href="#blurDownsampleConstantBuffer">blurDownsampleConstantBuffer</a></li>
+              <li><a href="#gaussianBlurConstantBufferH">gaussianBlurConstantBufferH</a></li>
+              <li><a href="#gaussianBlurConstantBufferV">gaussianBlurConstantBufferV</a></li>
+              <li><a href="#generateMaskConstantBuffer">generateMaskConstantBuffer</a></li>
+              <li><a href="#maskDownsampleConstantBufferH">maskDownsampleConstantBufferH</a></li>
+              <li><a href="#maskDownsampleConstantBufferV">maskDownsampleConstantBufferV</a></li>
+              <li>&nbsp;</li>
+              <li><a href="#rgbToScreenShader">rgbToScreenShader</a></li>
+              <li><a href="#copyShader">copyShader</a></li>
+              <li><a href="#downsample2XShader">downsample2XShader</a></li>
+              <li><a href="#toneMapShader">toneMapShader</a></li>
+              <li><a href="#gaussianBlurShader">gaussianBlurShader</a></li>
+              <li><a href="#generateScreenTextureShader">generateScreenTextureShader</a></li>
+              <li><a href="#generateSlotMaskShader">generateSlotMaskShader</a></li>
+              <li><a href="#generateShadowMaskShader">generateShadowMaskShader</a></li>
+              <li><a href="#generateApertureGrilleShader">generateApertureGrilleShader</a></li>
+              <li>&nbsp;</li>
+              <li><a href="#prevRGBInput">prevRGBInput</a></li>
+              <li>&nbsp;</li>
+              <li><a href="#maskTexture">maskTexture</a></li>
+              <li><a href="#halfWidthMaskTexture">halfWidthMaskTexture</a></li>
+              <li><a href="#screenTexture">screenTexture</a></li>
+              <li>&nbsp;</li>
+              <li><a href="#toneMapTexture">toneMapTexture</a></li>
+              <li><a href="#blurScratchTexture">blurScratchTexture</a></li>
+              <li><a href="#blurTexture">blurTexture</a></li>
+              <li>&nbsp;</li>
+              <li><a href="#screenSettings">screenSettings</a></li>
+              <li><a href="#overscanSettings">overscanSettings</a></li>
+              <li><a href="#needsRenderScreenTexture">needsRenderScreenTexture</a></li>
+              <li><a href="#needsRenderMaskTexture">needsRenderMaskTexture</a></li>
+              <li>&nbsp;</li>
+              <li><a href="#prevScanlineType">prevScanlineType</a></li>
+              <li><a href="#downsampleDirX">downsampleDirX</a></li>
+              <li><a href="#downsampleDirY">downsampleDirY</a></li>
+            </menu>
+          </nav>
+        </div>
+
+        <h3>Private Constants</h3>
+        <dl class="member-list">
+          <dt id="k_maskSize">k_maskSize</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                static constexpr uint32_t k_maskSize = 512
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              <p>
+                The horizontal resolution of <code><a href="#maskTexture">maskTexture</a></code>, the 
+                texture that the CRT mask is rendered to.
+              </p>
+              <p>
+                The vertical resolution of the texture is half this value.
+              </p>
+              <p>
+                Given the small scale of the mask in the render output, this value is - in practice - wildly overkill, but 
+                it downsamples to the mipmaps very well.
+              </p>
+            </section>
+          </dd>        
+        </dl>
+
+        <h3>Private Structures</h3>
+        <dl class="member-list">
+          <dt id="AspectData">AspectData</dt>
+          <dd>
+            <h5>Description</h5>
+            <section>
+            </section>
+            <h5>Fields</h5>
+            <section>
+              <dl>
+                <dt><code></code></dt>
+                <dd>
+                  <p>Type: <code></code></p>
+                  <p>
+                  </p>
+                </dd>
+              </dl>
+            </section>
+          </dd>
+
+          <dt id="CommonConstants">CommonConstants</dt>
+          <dd>
+            <h5>Description</h5>
+            <section>
+            </section>
+            <h5>Fields</h5>
+            <section>
+              <dl>
+                <dt><code></code></dt>
+                <dd>
+                  <p>Type: <code></code></p>
+                  <p>
+                  </p>
+                </dd>
+              </dl>
+            </section>
+          </dd>
+
+
+          <dt id="ScreenTextureConstants">ScreenTextureConstants</dt>
+          <dd>
+            <h5>Description</h5>
+            <section>
+            </section>
+            <h5>Fields</h5>
+            <section>
+              <dl>
+                <dt><code></code></dt>
+                <dd>
+                  <p>Type: <code></code></p>
+                  <p>
+                  </p>
+                </dd>
+              </dl>
+            </section>
+          </dd>
+
+          <dt id="RGBToScreenConstants">RGBToScreenConstants</dt>
+          <dd>
+            <h5>Description</h5>
+            <section>
+            </section>
+            <h5>Fields</h5>
+            <section>
+              <dl>
+                <dt><code></code></dt>
+                <dd>
+                  <p>Type: <code></code></p>
+                  <p>
+                  </p>
+                </dd>
+              </dl>
+            </section>
+          </dd>
+
+          <dt id="GaussianBlurConstants">GaussianBlurConstants</dt>
+          <dd>
+            <h5>Description</h5>
+            <section>
+            </section>
+            <h5>Fields</h5>
+            <section>
+              <dl>
+                <dt><code></code></dt>
+                <dd>
+                  <p>Type: <code></code></p>
+                  <p>
+                  </p>
+                </dd>
+              </dl>
+            </section>
+          </dd>
+
+          <dt id="ToneMapConstants">ToneMapConstants</dt>
+          <dd>
+            <h5>Description</h5>
+            <section>
+            </section>
+            <h5>Fields</h5>
+            <section>
+              <dl>
+                <dt><code></code></dt>
+                <dd>
+                  <p>Type: <code></code></p>
+                  <p>
+                  </p>
+                </dd>
+              </dl>
+            </section>
+          </dd>
+        </dl>
+
+        <h3>Private Methods</h3>
+        <dl class="member-list">
+          <dt id="CalculateAspectData">CalculateAspectData</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                AspectData CalculateAspectData()
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              <p>
+                Calculates the dimensions of the original (pre-generation/decode) input texture would have
+                after overscan is applied, as well as the aspect ratio of the full image. 
+              </p>
+              <p>
+                Called by
+                <code><a href="#CalculateCommonConstants">CalculateCommonConstants</a></code>,
+                <code><a href="#RenderScreenTexture">RenderScreenTexture</a></code>,
+                and <code><a href="#UpdateBlurTextures">UpdateBlurTextures</a></code>.
+              </p>
+            </section>
+            <h5>Return Value</h5>
+            <section>
+              Type: <code><a href="#AspectData">RGBToCRT::<wbr>AspectData</a></code></p>
+              <p>
+                The calculated data.
+              </p>
+            </section>
+          </dd>        
+
+          <dt id="CalculateCommonConstants">CalculateCommonConstants</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                CommonConstants CalculateCommonConstants(
+                  const AspectData &amp;aspectData)
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              <p>
+                Calculate some values that are common to both 
+                <code><a href="#ScreenTextureConstants">RGBToCRT::<wbr>ScreenTextureConstants</a></code>
+                and 
+                <code><a href="#RGBToScreenConstants">RGBToCRT::<wbr>RGBToScreenConstants</a></code>.
+              </p>
+              <p>
+                Called by
+                <code><a href="#Render">Render</a></code>
+                and <code><a href="#RenderScreenTexture">RenderScreenTexture</a></code>.
+              </p>
+            </section>
+            <h5>Parameters</h5>
+            <section>
+              <dl>
+                <dt><code>aspectData</code></dt>
+                <dd>
+                  <p>Type: <code>const <a href="#AspectData">RGBToCRT::<wbr>AspectData</a> &amp;</code></p>
+                  <p>
+                    The output of a call to <code><a href="#CalculateAspectData">CalculateAspectData</a></code>.
+                  </p>
+                </dd>
+              </dl>
+            </section>
+            <h5>Return Value</h5>
+            <section>
+              <p>Type: <code><a href="#CommonConstants">RGBToCRT::<wbr>CommonConstants</a></code></p>
+              <p>
+                The calculated constants.
+              </p>
+            </section>
+          </dd>        
+
+          <dt id="RenderScreenTexture">RenderScreenTexture</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                void RenderScreenTexture()
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              <p>
+                Renders to <code><a href="#screenTexture">screenTexture</a></code>, which contains an image that 
+                has the CRT mask (with proper curvature applied) in the RGB channels and a mask of what is or is not
+                visible on the screen in the alpha channel.
+              </p>
+              <p>
+                It's worth noting that the shader that renders this does a very expensive 64-tap sample of the mask
+                texture to alleviate <a href="https://en.wikipedia.org/wiki/Aliasing" target="_blank">aliasing</a>,
+                so the <code>RGBToCRT</code> does a fair amount of work to only do this when necessary (after a call to
+                <code><a href="#SetSettings">SetSettings</a></code> or <code><a href="#SetOutputSize">SetOutputSize</a></code>
+                in which the values were changed).
+              </p>
+              <p>
+                Called by <code><a href="#Render">Render</a></code>.
+              </p>
+            </section>
+          </dd>        
+
+          <dt id="UpdateBlurTextures">UpdateBlurTextures</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                void UpdateBlurTextures()
+              </pre>
+            </div>
+            <h5>Description</h5>
+              <p>
+                Calculates the required sizes for 
+                <code><a href="#toneMapTexture">toneMapTexture</a></code>,
+                <code><a href="#blurTexture">blurTexture</a></code>,
+                and <code><a href="#blurScratchTexture">blurScratchTexture</a></code>.
+                Then, if the sizes are different from the existing versions of those textures,
+                will create new textures at the proper size.
+              </p>
+              <p>
+                Called by <a href="#constructor">the constructor</a> and <code><a href="#SetSettings">SetSettings</a></code>.
+              </p>
+            <section>
+            </section>
+          </dd>        
+
+          <dt id="RenderMaskTexture">RenderMaskTexture</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                void RenderMaskTexture()
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              <p>
+                Renders a mask to <code><a href="#maskTexture">maskTexture</a></code>, given the 
+                <code><a href="../enums/masktype.html">MaskType</a></code> value
+                stored in <code><a href="#screenSettings">screenSettings</a></code>.
+              </p>
+              <p>
+                This uses a lanczos downsample pass to generate the <a href="https://en.wikipedia.org/wiki/Mipmap" target="_blank">mipmap</a> levels.
+              </p>
+              <p>
+                This is only called after a call to
+                <code><a href="#SetSettings">SetSettings</a></code> or <code><a href="#SetOutputSize">SetOutputSize</a></code>
+                in which the values were changed.
+              </p>
+              <p>
+                Called by <code><a href="#Render">Render</a></code>.
+              </p>
+            </section>
+          </dd>        
+
+          <dt id="RenderBlur">RenderBlur</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                void RenderBlur(
+                  const ITexture *inputTexture)
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              <p>
+                Does a tonemap and blur of the given input texture, which is used as an approximation of CRT diffusion
+                (the scattering of photons as they pass through the glass front of the CRT screen).
+              </p>
+              <p>
+                Called by <code><a href="#Render">Render</a></code>.
+              </p>
+            </section>
+            <h5>Parameters</h5>
+            <section>
+              <dl>
+                <dt><code>inputTexture</code></dt>
+                <dd>
+                  <p>Type: <code>const <a href="../interfaces/itexture.html">ITexture</a> *</code></p>
+                  <p>
+                    The texture to tonemap and then blur.
+                  </p>
+                </dd>
+              </dl>
+            </section>
+          </dd>        
+        </dl>
+
+        <h3>Private Fields</h3>
+        <dl class="member-list">
+        </dl>
       </div>
     </div>
   </body>

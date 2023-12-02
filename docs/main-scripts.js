@@ -68,6 +68,13 @@ const crTypes =
   "SourceSettings",
   "TVKnobSettings",
   "Vec2",
+
+  "AspectData",
+  "CommonConstants",
+  "ScreenTextureConstants",
+  "RGBToScreenConstants",
+  "GaussianBlurConstants",
+  "ToneMapConstants",
 ];
 
 function SyntaxHighlight(element, keywords)

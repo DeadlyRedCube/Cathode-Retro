@@ -133,7 +133,8 @@ code,
   margin-bottom: 80px;
 }
 
-.index > h3:first-of-type
+.index > h3:first-of-type,
+.index > h4:first-of-type
 {
   padding-top: 0;
   margin-top: 0;
@@ -162,6 +163,16 @@ h2
 h3
 {
   font-size: 1.8em;
+}
+
+h4
+{
+  font-size: 1.4em;
+}
+
+h5
+{
+  font-size: 1.0em;
 }
 
 a[name],
