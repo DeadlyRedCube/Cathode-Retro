@@ -134,7 +134,8 @@ code,
 }
 
 .index > h3:first-of-type,
-.index > h4:first-of-type
+.index > h4:first-of-type,
+.member-list > dd > h5:first-child
 {
   padding-top: 0;
   margin-top: 0;
