@@ -771,6 +771,6 @@ a:active
   .image-right > img
   {
     width: 75px;
-    height: auto;
+    height: 75px;
   }
 }
