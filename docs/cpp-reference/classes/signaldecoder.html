@@ -300,14 +300,31 @@
             </div>
             <h5>Description</h5>
             <section>
+              <p>
+                Run the composite-to-S-Video pass, which separates a composite signal into individual
+                luma and chroma signals.
+              </p>
+              <p>
+                Called by <code><a href="#Decode">Decode</a></code>.
+              </p>
             </section>
             <h5>Parameters</h5>
             <section>
               <dl>
-                <dt><code></code></dt>
+                <dt><code>inputSignal</code></dt>
                 <dd>
-                  <p>Type: <code></code></p>
+                  Type: <code>const <a href="../interfaces/itexture.html">ITexture</a> *</code></p>
                   <p>
+                    The composite texture to separate.
+                  </p>
+                </dd>
+
+                <dt><code>isDoubled</code></dt>
+                <dd>
+                  <p>Type: <code>bool</code></p>
+                  <p>
+                    This is set to true if the texture is doubled for temporal aliasing reduction 
+                    (which changes which textures this pass writes out to to ease GPU bandwidth).
                   </p>
                 </dd>
               </dl>
@@ -326,14 +343,44 @@
             </div>
             <h5>Description</h5>
             <section>
+              <p>
+                Does a <a href="https://en.wikipedia.org/wiki/Quadrature_amplitude_modulation" target="_blank">QAM demodulation</a> pass on an S-Video signal (with separate luma and chroma signals)
+                to convert it into an RGB texture.
+              </p>
+              <p>
+                Called by <code><a href="#Decode">Decode</a></code>.
+              </p>
             </section>
             <h5>Parameters</h5>
             <section>
               <dl>
-                <dt><code></code></dt>
+                <dt><code>sVideoTexture</code></dt>
                 <dd>
-                  <p>Type: <code></code></p>
+                  <p>Type: <code>const <a href="../interfaces/itexture.html">ITexture</a> *</code></p>
                   <p>
+                    A texture containing a series of S-Video scanlines (with separate luma and chroma channels)
+                    that we are going to demodulate.
+                  </p>
+                </dd>
+                <dt><code>inputPhases</code></dt>
+                <dd>
+                  <p>Type: <code>const <a href="../interfaces/itexture.html">ITexture</a> *</code></p>
+                  <p>
+                    Pointer to an input texture containing the per-scanline
+                    <a href="../../how/ntsc-basics.html">colorburst phase offset</a> values, usually the output from the 
+                    <code><a href="signalgenerator.html#PhasesTexture">SignalGenerator::<wbr>PhasesTexture</a></code> method.
+                  </p>
+                  <p>
+                    This texture's width should be <code>1</code>, and its height should match the 
+                    <code><a href="../structs/signalproperties.html#scanlineCount">scanlineCount</a></code>
+                    value of the <code>signalPropsIn</code> parameter passed to <a href="#constructor">the constructor</a>.
+                  </p>
+                </dd>
+                <dt><code>levels</code></dt>
+                <dd>
+                  <p>Type: <code>const <a href="../structs/signallevels.html">Internal::<wbr>SignalLevels</a> &amp;</code></p>
+                  <p>
+                    Information about the various levels of the signal and the amount of temporal artifact reduction we should apply.
                   </p>
                 </dd>
               </dl>
@@ -349,6 +396,13 @@
             </div>
             <h5>Description</h5>
             <section>
+              <p>
+                Runs the RGB filtering pass, which is a horizontal sharpen or blur filter based on the <code><a href="../structs/tvknobsettings.html#sharpness">sharpness</a></code> value of
+                <code><a href="#knobSettings">knobSettings</a></code>.
+              </p>
+              <p>
+                Called by <code><a href="#Decode">Decode</a></code>.
+              </p>
             </section>
           </dd>
         </dl>
@@ -364,10 +418,11 @@
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code><a href="../interfaces/igraphicsdevice.html">IGraphicsDevice</a> *</code>
             </section>
             <h5>Description</h5>
             <section>
+              Pointer to the graphics device that should be used to create graphics objects and render.
             </section>
           </dd>        
 
@@ -382,10 +437,11 @@
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>std::unique_ptr&lt;<a href="../interfaces/irendertarget.html">IRenderTarget</a>&gt;</code>
             </section>
             <h5>Description</h5>
             <section>
+              The RGB texture that holds the output of the entire <code><a href="#Decode">Decode</a></code> process.
             </section>
           </dd>        
 
@@ -398,10 +454,17 @@
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>std::unique_ptr&lt;<a href="../interfaces/irendertarget.html">IRenderTarget</a>&gt;</code>
             </section>
             <h5>Description</h5>
             <section>
+              <p>
+                A scratch RGB texture used as the output of <code><a href="#FilterRGB">FilterRGB</a></code>.
+              </p>
+              <p>
+                If <code>FilterRGB</code> is called, this pointer is swapped with <code><a href="#rgbTexture">rgbTexture</a></code>
+                after running the filter, so that <code>rgbTexture</code> contains the final output.
+              </p>
             </section>
           </dd>        
 
@@ -414,10 +477,11 @@
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code><a href="../structs/signalproperties.html">Internal::<wbr>SignalProperties</a></code>
             </section>
             <h5>Description</h5>
             <section>
+              The signal properties that were given to use in <a href="#constructor">the constructor</a>.
             </section>
           </dd>        
 
@@ -430,10 +494,11 @@
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code><a href="../structs/tvknobsettings.html">TVKnobSettings</a></code>
             </section>
             <h5>Description</h5>
             <section>
+              The TV knob settings given by the last call to <code><a href="#SetKnobSettings">SetKnobSettings</a></code>.
             </section>
           </dd>        
 
@@ -448,10 +513,13 @@
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>std::unique_ptr&lt;<a href="../interfaces/iconstantbuffer.html">IConstantBuffer</a>&gt;</code>
             </section>
             <h5>Description</h5>
             <section>
+              The constant buffer that is used in <code><a href="#CompositeToSVideo">CompositeToSVideo</a></code> as an input to the 
+              <a href="../../shader-reference/decoder-shaders/composite-to-svideo.html">decoder-composite-to-svideo</a>
+              shader.              
             </section>
           </dd>        
 
@@ -464,10 +532,17 @@
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>std::unique_ptr&lt;<a href="../interfaces/irendertarget.html">IRenderTarget</a>&gt;</code>
             </section>
             <h5>Description</h5>
             <section>
+              <p>
+                The render target output of <code><a href="#CompositeToSVideo">CompositeToSVideo</a></code>
+                if <a href="../../how/temporal-aliasing.html">temporal aliasing reduction</a> is <b>not</b> in use.
+              </p>
+              <p>
+                It is an RG texture (R is luma and G is chroma).
+              </p>
             </section>
           </dd>        
 
@@ -480,10 +555,17 @@
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>std::unique_ptr&lt;<a href="../interfaces/irendertarget.html">IRenderTarget</a>&gt;</code>
             </section>
             <h5>Description</h5>
             <section>
+              <p>
+                The render target output of <code><a href="#CompositeToSVideo">CompositeToSVideo</a></code>
+                if <a href="../../how/temporal-aliasing.html">temporal aliasing reduction</a> <b>is</b> in use.
+              </p>
+              <p>
+                It is an RGBA texture: (R, G) is (luma, chroma) for signal 1 and (B, A) is (luma, chroma) for signal 2.
+              </p>
             </section>
           </dd>        
 
@@ -498,10 +580,21 @@
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>std::unique_ptr&lt;<a href="../interfaces/irendertarget.html">IRenderTarget</a>&gt;</code>
             </section>
             <h5>Description</h5>
             <section>
+              <p>
+                The output of the 
+                <a href="../../shader-reference/decoder-shaders/svideo-to-modulated-chroma.html">decoder-svideo-to-modulated-chroma</a>
+                shader used as the first step of <code><a href="#SVideoToRGB">SVideoToRGB</a></code>, 
+                if temporal aliasing reduction is <b>not</b> in use.
+              </p>
+              <p>
+                This is an RG texture, where R and G are the chroma waves per scanline multiplied by the 
+                carrier sine wave and its quadrature, as part of 
+                <a href="file:///D:/programming/source/CathodeRetro/docs/how/decoding-scanline.html">the demodulation</a>.
+              </p>
             </section>
           </dd>        
 
@@ -514,10 +607,22 @@
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>std::unique_ptr&lt;<a href="../interfaces/irendertarget.html">IRenderTarget</a>&gt;</code>
             </section>
             <h5>Description</h5>
             <section>
+              <p>
+                The output of the 
+                <a href="../../shader-reference/decoder-shaders/svideo-to-modulated-chroma.html">decoder-svideo-to-modulated-chroma</a>
+                shader used as the first step of <code><a href="#SVideoToRGB">SVideoToRGB</a></code>, 
+                if temporal aliasing reduction <b>is</b> in use.
+              </p>
+              <p>
+                This is an RGBA texture, where R and G are the chroma waves per scanline multiplied by the 
+                carrier sine wave and its quadrature, as part of 
+                <a href="file:///D:/programming/source/CathodeRetro/docs/how/decoding-scanline.html">the demodulation</a>.
+                B and A are the same for the second signal.
+              </p>
             </section>
           </dd>        
 
@@ -530,9 +635,12 @@
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>std::unique_ptr&lt;<a href="../interfaces/iconstantbuffer.html">IConstantBuffer</a>&gt;</code>
             </section>
             <h5>Description</h5>
+              The constant buffer that is used in <code><a href="#SVideoToRGB">SVideoToRGB</a></code> as an input to the 
+              <a href="../../shader-reference/decoder-shaders/svideo-to-modulated-chroma.html">decoder-svideo-to-modulated-chroma</a>
+              shader.              
             <section>
             </section>
           </dd>        
@@ -546,10 +654,13 @@
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>std::unique_ptr&lt;<a href="../interfaces/iconstantbuffer.html">IConstantBuffer</a>&gt;</code>
             </section>
             <h5>Description</h5>
             <section>
+              The constant buffer that is used in <code><a href="#SVideoToRGB">SVideoToRGB</a></code> as an input to the 
+              <a href="../../shader-reference/decoder-shaders/svideo-to-rgb.html">decoder-svideo-to-rgb</a>
+              shader.              
             </section>
           </dd>        
 
@@ -564,10 +675,13 @@
             </div>
             <h5>Type</h5>
             <section>
-              <code></code>
+              <code>std::unique_ptr&lt;<a href="../interfaces/iconstantbuffer.html">IConstantBuffer</a>&gt;</code>
             </section>
             <h5>Description</h5>
             <section>
+              The constant buffer that is used in <code><a href="#FilterRGB">FilterRGB</a></code> as an input to the 
+              <a href="../../shader-reference/decoder-shaders/filter-rgb.html">decoder-filter-rgb</a>
+              shader.              
             </section>
           </dd>        
         </dl>
