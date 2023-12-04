@@ -10,10 +10,102 @@
     <header class="header"><button id="sidebar-button"></button></header>
     <div id="sidebar-container" class="sidebar-container"><iframe class="sidebar-frame" src="../../sidebar.html?page=cpp-reference-structs-rendertargetview"></iframe></div>
     <div id="content-outer" class="content-outer">
-      <div class="content">
+      <main>
         <h1>CathodeRetro::<wbr>RenderTargetView</h1>
-        (Content coming soon)
-      </div>
+        <div>
+          A binding between a <a href="../interfaces/irendertarget.html">render target</a> and 
+          a target mipmap level, used as a parameter to
+          <code><a href="../interfaces/igraphicsdevice.html#RenderQuad">IGraphicsDevice::<wbr>RenderQuad</a></code>.
+        </div>
+        <h2 id="index">Index</h2>
+        <div class="index">
+          <nav>
+            <menu>
+              <li><a href="#constructor">(constructor)</a></li>
+              <li>&nbsp;</li>
+              <li><a href="#texture">texture</a></li>
+              <li><a href="#mipLevel">mipLevel</a></li>
+            </menu>
+          </nav>
+        </div>
+        <h2>Members</h2>
+        <dl class="member-list">
+          <dt id="constructor">(constructor)</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                RenderTargetView(
+                  IRenderTarget *tex, 
+                  uint32_t mip = 0)
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              Construct a new instance of a  <code>RenderTargetView</code> struct.
+            </section>
+            <h5>Parameters</h5>
+            <section>
+              <dl>
+                <dt><code>IRenderTarget</code></dt>
+                <dd>
+                  <p>Type: <code><a href="../interfaces/irendertarget.html">IRenderTarget</a> *</code></p>
+                  <p>
+                    The render target for the view.
+                  </p>
+                </dd>
+                <dt><code>mip</code></dt>
+                <dd>
+                  <p>Type: uint32_t</code></p>
+                  <p>
+                    The mipmap level for the view. <code>0</code> is the largest mipmap level.
+                  </p>
+                  <p>
+                    This value should not exceed the mipmap level of the render target.
+                  </p>
+                </dd>
+              </dl>
+            </section>
+          </dd>
+          
+          <dt id="texture">texture</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                IRenderTarget *texture
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code><a href="../interfaces/irendertarget.html">IRenderTarget</a> *</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The render target that should be rendered to.
+            </section>
+          </dd>
+          <dt id="mipLevel">mipLevel</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                uint32_t mipLevel = 0
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>uint32_t</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                The mipmap level that should be rendered to. <code>0</code> is the largest mipmap level.
+              </p>
+              <p>
+                This value should not exceed the mipmap level of the render target.
+              </p>
+            </section>
+          </dd>
+        </dl>
+      </main>
     </div>
   </body>
 </html>

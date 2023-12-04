@@ -10,10 +10,91 @@
     <header class="header"><button id="sidebar-button"></button></header>
     <div id="sidebar-container" class="sidebar-container"><iframe class="sidebar-frame" src="../../sidebar.html?page=cpp-reference-structs-overscansettings"></iframe></div>
     <div id="content-outer" class="content-outer">
-      <div class="content">
+      <main>
         <h1>CathodeRetro::<wbr>OverscanSettings</h1>
-        (Content coming soon)
-      </div>
+        <div>
+          These settings describe how much overscan we want to have: that is, how many input pixels of the source image get
+          cut off by the "bevel" of the TV.
+        </div>
+        <h2 id="index">Index</h2>
+        <div class="index">
+          <nav>
+            <menu>
+              <li><a href="#overscanLeft">overscanLeft</a></li>
+              <li><a href="#overscanRight">overscanRight</a></li>
+              <li><a href="#overscanTop">overscanTop</a></li>
+              <li><a href="#overscanBottom">overscanBottom</a></li>
+            </menu>
+          </nav>
+        </div>
+        <h2>Members</h2>
+        <dl class="member-list">
+          <dt id="overscanLeft">overscanLeft</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                uint32_t overscanLeft = 0
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>uint32_t</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              How many texels of the input image are cut off on the left side by the screen edge.
+            </section>
+          </dd>
+          <dt id="overscanRight">overscanRight</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                uint32_t overscanRight = 0
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>uint32_t</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              How many texels of the input image are cut off on the right side by the screen edge.
+            </section>
+          </dd>
+          <dt id="overscanTop">overscanTop</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                uint32_t overscanTop = 0
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>uint32_t</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              How many texels of the input image are cut off on the top edge by the screen edge.
+            </section>
+          </dd>
+          <dt id="overscanBottom">overscanBottom</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                uint32_t overscanBottom = 0
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>uint32_t</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              How many texels of the input image are cut off on the bottom edge by the screen edge.
+            </section>
+          </dd>
+        </dl>
+      </main>
     </div>
   </body>
 </html>

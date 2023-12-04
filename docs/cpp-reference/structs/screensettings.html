@@ -10,10 +10,278 @@
     <header class="header"><button id="sidebar-button"></button></header>
     <div id="sidebar-container" class="sidebar-container"><iframe class="sidebar-frame" src="../../sidebar.html?page=cpp-reference-structs-screensettings"></iframe></div>
     <div id="content-outer" class="content-outer">
-      <div class="content">
+      <main>
         <h1>CathodeRetro::<wbr>ScreenSettings</h1>
-        (Content coming soon)
-      </div>
+        <div>
+          Settings describing the screen properties of the virtual CRT TV that is displaying the image:
+          things like "how curved is the screen" and the appearance of the mask and scanlines.
+        </div>
+        <h2 id="index">Index</h2>
+        <div class="index">
+          <nav>
+            <menu>
+              <li><a href="#distortion">distortion</a></li>
+              
+              <li><a href="#screenEdgeRounding">screenEdgeRounding</a></li>
+              
+              <li><a href="#cornerRounding">cornerRounding</a></li>
+              
+              <li><a href="#maskType">maskType</a></li>
+              <li><a href="#maskScale">maskScale</a></li>
+              <li><a href="#maskStrength">maskStrength</a></li>
+              <li><a href="#maskDepth">maskDepth</a></li>
+
+              <li><a href="#phosphorPersistence">phosphorPersistence</a></li>
+              
+              <li><a href="#scanlineStrength">scanlineStrength</a></li>
+
+              <li><a href="#diffusionStrength">diffusionStrength</a></li>
+
+              <li><a href="#borderColor">borderColor</a></li>
+            </menu>
+          </nav>
+        </div>
+        <h2>Members</h2>
+        <dl class="member-list">
+          <dt id="distortion">distortion</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                Vec2 distortion = { 0.0f, 0.0f }
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code><a href="vec2.html">Vec2</a></code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                A pair of <code>[0..1]</code> values describing how much to distort the virtual screen.
+              </p>
+              <p>
+                The <code>x</code> value controls the horizontal distortion, and the <code>y</code> value 
+                controls the vertical distortion. A value of <code>0</code> means "no distortion along that axis."
+              </p>
+              <ul>
+                <li>These values are scaled to really max out at 1.0 - above 1.0 things get ... weird.</li>
+                <li>
+                  It is recommended that these values never get too far from each other - too much distortion on
+                  one axis vs. the other doesn't look right.
+                </li>
+              </ul>
+            </section>
+          </dd>
+
+
+
+          <dt id="screenEdgeRounding">screenEdgeRounding</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                Vec2 screenEdgeRounding = { 0.0f, 0.0f }
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code><a href="vec2.html">Vec2</a></code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              How much additional rounding of the edges we want to emulate a screen that didn't have a rectangular bezel shape.
+            </section>
+          </dd>
+
+
+
+          <dt id="cornerRounding">cornerRounding</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                float cornerRounding = 0.0f
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              How much to round the corners (to emulate an old TV with rounded corners).
+            </section>
+          </dd>
+
+
+
+          <dt id="maskType">maskType</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                MaskType maskType = MaskType::SlotMask
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code><a href="../enums/masktype.html">MaskType</a></code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The variety of mask to use.
+            </section>
+          </dd>
+
+          <dt id="maskScale">maskScale</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                float maskScale = 1.0f
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The scale of the mask on the screen. At <code>1.0</code> there is one "tile" of the
+              mask per input scanline. At <code>2.0</code> it is visually twice as large, making
+              one tile per every two input scanlines.
+            </section>
+          </dd>
+
+          <dt id="maskStrength">maskStrength</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                float maskStrength = 0.0f
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                How much the mask is multiplied with the on-screen image to produce the final output.
+                A value of <code>0.0</code> means the mask is invisible, where a value of <code>1.0</code>
+                means that the mask is fully multiplied with the on-screen image.
+              </p>
+              <p>
+                The math for this is:
+                <div class="code-definition syntax-cpp">
+                  <pre>
+                    maskedRGB = onscreenColor 
+                      * lerp({white, maskRGB}, maskStrength)
+                  </pre>
+                </div>
+              </p>
+            </section>
+          </dd>
+
+          <dt id="maskDepth">maskDepth</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                float maskDepth = 0.5f
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                The darkness of the spaces between the phosphors in the mask. Adjusting this will adjust both the
+                brightness of the resulting image as well as the amount of visibility of the mask.
+              </p>
+              <p>
+                A value of <code>0</code> means that the spaces between the phosphors are pure black.
+              </p>
+            </section>
+          </dd>
+
+
+
+          <dt id="phosphorPersistence">phosphorPersistence</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                float phosphorPersistence = 0.0f
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              How much of the previous frame to blend into the next frame: <code>0</code> for "none" and 
+              <code>1</code> for "the previous frame is just as bright as the current frame.
+            </section>
+          </dd>
+
+
+
+          <dt id="scanlineStrength">scanlineStrength</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                float scanlineStrength = 0.0f
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              A <code>[0..1]</code> value describing how strong the scanline effect is.
+            </section>
+          </dd>
+
+
+
+          <dt id="diffusionStrength">diffusionStrength</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                float diffusionStrength = 0.0f
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              A <code>[0..1]</code> value describing how much the "glass" in front of the "phosphors" 
+              diffuses the light passing through it.
+            </section>
+          </dd>
+
+
+
+          <dt id="borderColor">borderColor</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                Color borderColor 
+                  = { 0.05f, 0.05f, 0.05f, 1.0f }
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code><a href="color.html">Color</a></code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The color around the edges of the screen, where there's no visible picture.
+            </section>
+          </dd>
+        </dl>
+      </main>
     </div>
   </body>
 </html>

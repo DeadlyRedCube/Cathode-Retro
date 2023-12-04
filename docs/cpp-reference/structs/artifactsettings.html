@@ -10,10 +10,180 @@
     <header class="header"><button id="sidebar-button"></button></header>
     <div id="sidebar-container" class="sidebar-container"><iframe class="sidebar-frame" src="../../sidebar.html?page=cpp-reference-structs-artifactsettings"></iframe></div>
     <div id="content-outer" class="content-outer">
-      <div class="content">
+      <main>
         <h1>CathodeRetro::<wbr>ArtifactSettings</h1>
-        (Content coming soon)
-      </div>
+        <div>
+          <p>
+            <a href="#index">Jump to Index</a>
+          </p>
+          <p>&nbsp;</p>
+          <p>
+            A description of how noisy the generated signal is. Think of this as a bad cable or RF transmission between the
+            nice, cleanly-generated source signal and the back of the TV.
+          </p>
+          <p>
+            Specifically, it controls three things:
+          </p>
+          <h3>Ghosting</h3>
+          <p>
+            Ghosting is a rough approximation of what can happen with some connectors, especially
+            with an RF signal: some "pre-echo" of the signal arrives first, adding a little "ghost" version of
+            the image to the side of the main image.
+          </p>
+          <h3>Noise</h3>
+          <p>
+            Noise is both how "snowy" is the picture, as well as how jittery the individual scanlines are.
+          </p>
+          <h3>Temporal Artifact Reduction</h3>
+          <p>
+            Temporal artifact reduction is a way for some emulations to get the approximate feel of the
+            machine being emulated without needing to actually flicker the screen. It effectively renders
+            the same frame twice with two different sets of phase offsets and allows blending between the two.
+          </p>
+          <p>
+            See <a href="../../how/temporal-aliasing.html">Reducing Emulated Temporal Aliasing</a> for additional details.
+          </p>
+        </div>
+        <h2 id="index">Index</h2>
+        <div class="index">
+          <nav>
+            <menu>
+              <li><a href="#ghostVisibility">ghostVisibility</a></li>
+              <li><a href="#ghostSpreadScale">ghostSpreadScale</a></li>
+              <li><a href="#ghostDistance">ghostDistance</a></li>
+              <li><a href="#noiseStrength">noiseStrength</a></li>
+              <li><a href="#instabilityScale">instabilityScale</a></li>
+              <li><a href="#temporalArtifactReduction">temporalArtifactReduction</a></li>
+            </menu>
+          </nav>
+        </div>
+        <h2>Members</h2>
+        <dl class="member-list">
+          <dt id="ghostVisibility">ghostVisibility</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                float ghostVisibility = 0.0f
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              A <code>[0..1]</code> value describing how visible the signal ghost is:
+              <ul>
+                <li><code>0</code> means "not visible at all."</li>
+                <li><code>1</code> means "as strong as the real signal."</li>
+              </ul>
+            </section>
+          </dd>        
+          <dt id="ghostSpreadScale">ghostSpreadScale</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                float ghostSpreadScale = 0.71f
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              How far does each sample of the ghost spread from the last, in input texels. Essentially, it is
+              the "blurriness" of the ghost.
+            </section>
+          </dd>        
+          <dt id="ghostDistance">ghostDistance</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                float ghostDistance= 3.1f
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The offset (in input texels) of the ghost from the main signal:
+              <ul>
+                <li>At 0, the ghost is lined up perfectly with the main signal (i.e. it's not visible).
+                <li>At positive values, the ghost is to the left of (before) the main signal.
+                <li>At negative values, the ghost is to the right of (after) the main signal.
+              </ul>
+            </section>
+          </dd>        
+
+
+
+          <dt id="noiseStrength">noiseStrength</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                float noiseStrength = 0.0f
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The strength of the noise added to each scanline, with <code>0</code> being a pristine
+              signal and <code>1</code> being "wow that is a lot of noise."
+            </section>
+          </dd>        
+
+
+
+          <dt id="instabilityScale">instabilityScale</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                float instabilityScale = 0.0f
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The scale of horizontal "wobble" per-scanline: with <code>0</code> being no wobble at all.
+            </section>
+          </dd>        
+
+
+
+          <dt id="temporalArtifactReduction">temporalArtifactReduction</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                float temporalArtifactReduction = 0.0f
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                A <code>[0..1]</code> value for how much to blend between two different phases (the current frame's phase and the phase
+                that was used in the previous frame) to reduce <a href="../../how/temporal-aliasing.html">temporal aliasing</a>.
+              </p>
+              <p>
+                <code>0</code> disables temporal aliasing reduction completely, and <code>1</code> is a perfect 50/50 blend
+                between the two phases.
+              </p>
+            </section>
+          </dd>        
+        </dl>
+      </main>
     </div>
   </body>
 </html>

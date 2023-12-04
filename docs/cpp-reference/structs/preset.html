@@ -12,7 +12,55 @@
     <div id="content-outer" class="content-outer">
       <div class="content">
         <h1>CathodeRetro::<wbr>Preset&lt;T&gt;</h1>
-        (Content coming soon)
+        <div>
+          A simple wrapper around another type (<code>typename T</code>) that associates it with a name.
+          Used for making the preset lists in 
+          <code><a href="https://github.com/DeadlyRedCube/Cathode-Retro/blob/main/Include/CathodeRetro/SettingPresets.h" target="_blank">Include/CathodeRetro/SettingPresets.h</a></code>.
+        </div>
+        <h2 id="index">Index</h2>
+        <div class="index">
+          <nav>
+            <menu>
+              <li><a href="#name">name</a></li>
+              <li><a href="#settings">settings</a></li>
+            </menu>
+          </nav>
+        </div>
+        <h2>Members</h2>
+        <dl class="member-list">
+          <dt id="name">name</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                const char *name
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>const char *</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The name of this preset.
+            </section>
+          </dd>
+          <dt id="settings">settings</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                T settings
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>typename T</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The actual preset settings object.
+            </section>
+          </dd>
+        </dl>
       </div>
     </div>
   </body>
