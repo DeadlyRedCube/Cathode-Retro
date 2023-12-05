@@ -499,6 +499,7 @@ a:active
 .image-right > img
 {
   margin-left: auto;
+  border: 1px solid var(--foreground-main);
 }
 
 

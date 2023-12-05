@@ -12,7 +12,50 @@
     <div id="content-outer" class="content-outer">
       <main>
         <h1>CathodeRetro::<wbr>SignalType</h1>
-        (Content coming soon)
+        <div class="code-definition syntax-cpp">
+          <pre>
+            enum class SignalType
+            {
+              RGB,
+              SVideo,
+              Composite,
+            }
+          </pre>
+        </div>
+        <div>
+          <p>
+            The type of signal to emulate.
+          </p>
+        </div>
+        <h2>Index</h2>
+        <div class="index">
+          <nav>
+            <menu>
+              <li><a href="#RGB">RGB</a></li>
+              <li><a href="#SVideo">SVideo</a></li>
+              <li><a href="#Composite">Composite</a></li>
+            </menu>
+          </nav>
+        </div>
+        
+        <h2>Values</h2>
+        <dl class="member-list">
+          <dt id="RGB">RGB</dt>
+          <dd>
+            Emulate an RGB signal, which means that no signal generation/decoding will
+            occur, instead the RGB signal will be sent directly to the CRT screen emulation.
+          </dd>
+          <dt id="SVideo">SVideo</dt>
+          <dd>
+            Emulate an <a href="https://en.wikipedia.org/wiki/S-Video">S-Video</a> signal, in which
+            the signal has separated luma (brightness) and chroma (color) components.
+          </dd>
+          <dt id="Composite">Composite</dt>
+          <dd>
+            Emulate a <a href="https://en.wikipedia.org/wiki/Composite_video">composite video</a>
+            signal, in which the signal has a single channel with combined luma and chroma information.
+          </dd>
+        </dl>        
       </main>
     </div>
   </body>

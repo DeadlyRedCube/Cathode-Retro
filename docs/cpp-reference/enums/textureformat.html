@@ -12,7 +12,62 @@
     <div id="content-outer" class="content-outer">
       <main>
         <h1>CathodeRetro::<wbr>TextureFormat</h1>
-        (Content coming soon)
+        <div class="code-definition syntax-cpp">
+          <pre>
+            enum class TextureFormat
+            {
+              RGBA_Unorm8,
+              R_Float32,
+              RG_Float32,
+              RGBA_Float32,
+            }
+          </pre>
+        </div>
+        <div>
+          <p>
+            The format of a given <a href="../interfaces/itexture.html">texture</a> or 
+            <a href="../interfaces/irendertarget.html">render target</a>.
+          </p>
+        </div>
+        <h2>Index</h2>
+        <div class="index">
+          <nav>
+            <menu>
+              <li><a href="#RGBA_Unorm8">RGBA_Unorm8</a></li>
+              <li><a href="#R_Float32">R_Float32</a></li>
+              <li><a href="#RG_Float32">RG_Float32</a></li>
+              <li><a href="#RGBA_Float32">RGBA_Float32</a></li>
+            </menu>
+          </nav>
+        </div>
+        
+        <h2>Values</h2>
+        <dl class="member-list">
+          <dt id="RGBA_Unorm8">RGBA_Unorm8</dt>
+          <dd>
+            <p>
+              A texture with four channels (red, green, blue, and alpha) where each channel is an
+              8-bit unorm value (interpreted by the GPU as having the range <code>[0..1]</code>).
+            </p>
+            <p>
+              Note that the ordering of the channels does not matter, so if your API/GPU requires a
+              BGRA or ARGB ordering (or some other even-less-common ordering), that's fine - as long as
+              it has four channels and has at least at least 8-bits per texel.
+            </p>
+          </dd>      
+          <dt id="R_Float32">R_Float32</dt>
+          <dd>
+            A texture with a single (red) channel that is (at least) a 32-bit float.
+          </dd>      
+          <dt id="RG_Float32">RG_Float32</dt>
+          <dd>
+            A texture with two channels (red and green) whereeach channel is (at least) a 32-bit float.
+          </dd>      
+          <dt id="RGBA_Float32">RGBA_Float32</dt>
+          <dd>
+            A texture with four channels (red, green, blue, and alpha) where each channel is (at least) a 32-bit float.
+          </dd>      
+        </dl>
       </main>
     </div>
   </body>

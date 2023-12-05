@@ -12,7 +12,149 @@
     <div id="content-outer" class="content-outer">
       <main>
         <h1>CathodeRetro::<wbr>ShaderID</h1>
-        (Content coming soon)
+        <div class="code-definition syntax-cpp">
+          <pre>
+            enum class ShaderID
+            {
+              Util_Copy,
+              Util_Downsample2X,
+              Util_TonemapAndDownsample,
+              Util_GaussianBlur13,
+
+              Generator_GeneratePhaseTexture,
+              Generator_RGBToSVideoOrComposite,
+              Generator_ApplyArtifacts,
+
+              Decoder_CompositeToSVideo,
+              Decoder_SVideoToModulatedChroma,
+              Decoder_SVideoToRGB,
+              Decoder_FilterRGB,
+
+              CRT_GenerateScreenTexture,
+              CRT_GenerateSlotMask,
+              CRT_GenerateShadowMask,
+              CRT_GenerateApertureGrille,
+              CRT_RGBToCRT,
+            }
+          </pre>
+        </div>
+        <div>
+          <p>
+            Each entry of this enum corresponds to one of the pixel/fragment shaders used by
+            Cathode Retro, and this enum is passed to 
+            <code><a href="../interfaces/igraphicsdevice.html#RenderQuad">IGraphicsDevice::<wbr>RenderQuad</a></code>
+            to determine which shader to use to render a given quad.
+          </p>
+        </div>
+        <h2>Index</h2>
+        <div class="index">
+          <nav>
+            <menu>
+              <li><a href="#Util_Copy">Util_Copy</a></li>
+              <li><a href="#Util_Downsample2X">Util_Downsample2X</a></li>
+              <li><a href="#Util_TonemapAndDownsample">Util_TonemapAndDownsample</a></li>
+              <li><a href="#Util_GaussianBlur13">Util_GaussianBlur13</a></li>
+              <li>&nbsp;</li>
+              <li><a href="#Generator_GeneratePhaseTexture">Generator_GeneratePhaseTexture</a></li>
+              <li><a href="#Generator_RGBToSVideoOrComposite">Generator_RGBToSVideoOrComposite</a></li>
+              <li><a href="#Generator_ApplyArtifacts">Generator_ApplyArtifacts</a></li>
+              <li>&nbsp;</li>
+              <li><a href="#Decoder_CompositeToSVideo">Decoder_CompositeToSVideo</a></li>
+              <li><a href="#Decoder_SVideoToModulatedChroma">Decoder_SVideoToModulatedChroma</a></li>
+              <li><a href="#Decoder_SVideoToRGB">Decoder_SVideoToRGB</a></li>
+              <li><a href="#Decoder_FilterRGB">Decoder_FilterRGB</a></li>
+              <li>&nbsp;</li>
+              <li><a href="#CRT_GenerateScreenTexture">CRT_GenerateScreenTexture</a></li>
+              <li><a href="#CRT_GenerateSlotMask">CRT_GenerateSlotMask</a></li>
+              <li><a href="#CRT_GenerateShadowMask">CRT_GenerateShadowMask</a></li>
+              <li><a href="#CRT_GenerateApertureGrille">CRT_GenerateApertureGrille</a></li>
+              <li><a href="#CRT_RGBToCRT">CRT_RGBToCRT</a></li>
+            </menu>
+          </nav>
+        </div>
+        <h2>Values</h2>
+        <dl class="member-list">
+          <dt id="Util_Copy">Util_Copy</dt>
+          <dd>
+            The <a href="../../shader-reference/util-shaders/copy.html">util-copy</a>
+            shader.
+          </dd>
+          <dt id="Util_Downsample2X">Util_Downsample2X</dt>
+          <dd>
+            The <a href="../../shader-reference/util-shaders/downsample-2x.html">util-downsample-2x</a>
+            shader.
+          </dd>
+          <dt id="Util_TonemapAndDownsample">Util_TonemapAndDownsample</dt>
+          <dd>
+            The <a href="../../shader-reference/util-shaders/tonemap-and-downsample.html">util-tonemap-and-downsample</a>
+            shader.
+          </dd>
+          <dt id="Util_GaussianBlur13">Util_GaussianBlur13</dt>
+          <dd>
+            The <a href="../../shader-reference/util-shaders/gaussian-blur.html">util-gaussian-blur</a>
+            shader.
+          </dd>
+          <dt id="Generator_GeneratePhaseTexture">Generator_GeneratePhaseTexture</dt>
+          <dd>
+            The <a href="../../shader-reference/generator-shaders/gen-phase.html">generator-gen-phase</a>
+            shader.
+          </dd>
+          <dt id="Generator_RGBToSVideoOrComposite">Generator_RGBToSVideoOrComposite</dt>
+          <dd>
+            The <a href="../../shader-reference/generator-shaders/rgb-to-svideo-or-composite.html">generator-rgb-to-svideo-or-composite</a>
+            shader.
+          </dd>
+          <dt id="Generator_ApplyArtifacts">Generator_ApplyArtifacts</dt>
+          <dd>
+            The <a href="../../shader-reference/generator-shaders/apply-artifacts.html">generator-apply-artifacts</a>
+            shader.
+          </dd>
+          <dt id="Decoder_CompositeToSVideo">Decoder_CompositeToSVideo</dt>
+          <dd>
+            The <a href="../../shader-reference/decoder-shaders/composite-to-svideo.html">decoder-composite-to-svideo</a>
+            shader.
+          </dd>
+          <dt id="Decoder_SVideoToModulatedChroma">Decoder_SVideoToModulatedChroma</dt>
+          <dd>
+            The <a href="../../shader-reference/decoder-shaders/svideo-to-modulated-chroma.html">decoder-svideo-to-modulated-chroma</a>
+            shader.
+          </dd>
+          <dt id="Decoder_SVideoToRGB">Decoder_SVideoToRGB</dt>
+          <dd>
+            The <a href="../../shader-reference/decoder-shaders/svideo-to-rgb.html">decoder-svideo-to-rgb</a>
+            shader.
+          </dd>
+          <dt id="Decoder_FilterRGB">Decoder_FilterRGB</dt>
+          <dd>
+            The <a href="../../shader-reference/decoder-shaders/filter-rgb.html">decoder-filter-rgb</a>
+            shader.
+          </dd>
+          <dt id="CRT_GenerateScreenTexture">CRT_GenerateScreenTexture</dt>
+          <dd>
+            The <a href="../../shader-reference/crt-shaders/generate-screen-texture.html">crt-generate-screen-texture</a>
+            shader.
+          </dd>
+          <dt id="CRT_GenerateSlotMask">CRT_GenerateSlotMask</dt>
+          <dd>
+            The <a href="../../shader-reference/crt-shaders/generate-slot-mask.html">crt-generate-slot-mask</a>
+            shader.
+          </dd>
+          <dt id="CRT_GenerateShadowMask">CRT_GenerateShadowMask</dt>
+          <dd>
+            The <a href="../../shader-reference/crt-shaders/generate-shadow-mask.html">crt-generate-shadow-mask</a>
+            shader.
+          </dd>
+          <dt id="CRT_GenerateApertureGrille">CRT_GenerateApertureGrille</dt>
+          <dd>
+            The <a href="../../shader-reference/crt-shaders/generate-aperture-grille.html">crt-generate-aperture-grille</a>
+            shader.
+          </dd>
+          <dt id="CRT_RGBToCRT">CRT_RGBToCRT</dt>
+          <dd>
+            The <a href="../../shader-reference/crt-shaders/rgb-to-crt.html">crt-rgb-to-crt</a>
+            shader.
+          </dd>
+        </dl>
       </main>
     </div>
   </body>

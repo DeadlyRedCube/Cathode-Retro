@@ -12,7 +12,80 @@
     <div id="content-outer" class="content-outer">
       <main>
         <h1>CathodeRetro::<wbr>ScanlineType</h1>
-        (Content coming soon)
+        <div class="code-definition syntax-cpp">
+          <pre>
+            enum class ScanlineType
+            {
+              Odd,
+              Even,
+
+              Progressive = Odd,
+            }
+        </div>
+        <div>
+          <p>
+            The type of <a href="https://en.wikipedia.org/wiki/Shadow_mask" target="_blank">mask</a>
+            to use for the CRT emulation.
+          </p>
+          <p>
+            To emulate an interlaced mode, the caller of 
+            <code><a href="../classes/cathoderetro.html#Render">CathodeRetro::<wbr>Render</a></code>
+            should alternate between <code>Odd</code> and <code>Even</code> every other scanline.
+          </p>
+          <p>
+            For progressive modes, the caller should keep the same value. For this purpose, a 
+            <code>Progressive</code> entry is also there - it's just an alias for <code>Odd</code>
+            but it can make it clearer at the call site that it is intentionally not alternating for
+            interlacing purposes.
+          </p>
+        </div>
+        <h2>Index</h2>
+        <div class="index">
+          <nav>
+            <menu>
+              <li><a href="#Odd">Odd</a></li>
+              <li><a href="#Even">Even</a></li>
+              <li>&nbsp;</li>
+              <li><a href="#Progressive">Progressive</a></li>
+            </menu>
+          </nav>
+        </div>
+        
+        <h2>Values</h2>
+        <dl class="member-list">
+          <dt id="Odd">Odd</dt>
+          <dd class="image-right">
+            <div>
+              This frame is an "odd" frame, which means the input image contains the (1-based)
+              odd scanlines of a frame (that is, the first scanline of the input image is the first
+              scanline of the output, second input scanline is third output scanline, third input is 
+              fifth output, etc).
+            </div>
+            <img src="../../images/odd-scanlines.png">
+          </dd>
+          <dt id="Even">Even</dt>
+          <dd class="image-right">
+            <div>
+              This frame is an "even" frame, which means the input image contains the (1-based)
+              even scanlines of a frame (that is, the first scanline of the input image is the second
+              scanline of the output, second input scanline is fourth output scanline, third input is 
+              sixth output, etc).
+            </div>
+            <img src="../../images/even-scanlines.png">
+          </dd>
+          <dt id="Progressive">Progressive</dt>
+          <dd>
+            <p>
+              This is just an alias for <code><a href="#Odd">Odd</a></code>, to make it 
+              clearer at call sites when using a progressive (non-interlaced) output.
+            </p>
+            <p>
+              Rather than alternate every other frame between <code>Even</code> and <code>Odd</code>,
+              non-interlaced drawing should keep a consistent one - and it seems that most consoles
+              that ran interlaced at 240p used odd rather than even scanlines.
+            </p>
+          </dd>
+        </dl>
       </main>
     </div>
   </body>

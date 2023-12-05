@@ -12,7 +12,56 @@
     <div id="content-outer" class="content-outer">
       <main>
         <h1>CathodeRetro::<wbr>SamplerType</h1>
-        (Content coming soon)
+        <div class="code-definition syntax-cpp">
+          <pre>
+            enum class SamplerType
+            {
+              NearestClamp,
+              NearestWrap,
+              LinearClamp,
+              LinearWrap,
+            }
+          </pre>        
+        </div>
+        <div>
+          <p>
+            The type of texture sampling and addressing to use for a given sampler.
+          </p>
+        </div>
+        <h2>Index</h2>
+        <div class="index">
+          <nav>
+            <menu>
+              <li><a href="#NearestClamp">NearestClamp</a></li>
+              <li><a href="#NearestWrap">NearestWrap</a></li>
+              <li><a href="#LinearClamp">LinearClamp</a></li>
+              <li><a href="#LinearWrap">LinearWrap</a></li>
+            </menu>
+          </nav>
+        </div>
+        <h2>Values</h2>
+        <dl class="member-list">
+          <dt id="NearestClamp">NearestClamp</dt>
+          <dd>
+            The sampler this is attached to should use <b>nearest-neighbor</b> texture sampling 
+            and <b>clamped</b> addressing.
+          </dd>
+          <dt id="NearestWrap">NearestWrap</dt>
+          <dd>
+            The sampler this is attached to should use <b>nearest-neighbor</b> texture sampling 
+            and <b>wrapped</b> addressing.
+          </dd>
+          <dt id="LinearClamp">LinearClamp</dt>
+          <dd>
+            The sampler this is attached to should use <b>linear</b> texture sampling 
+            and <b>clamped</b> addressing.
+          </dd>
+          <dt id="LinearWrap">LinearWrap</dt>
+          <dd>
+            The sampler this is attached to should use <b>linear</b> texture sampling 
+            and <b>wrapped</b> addressing.
+          </dd>
+        </dl>
       </main>
     </div>
   </body>
