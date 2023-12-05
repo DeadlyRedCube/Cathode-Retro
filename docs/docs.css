@@ -225,8 +225,7 @@ a[name],
   width: calc(100vw - (var(--sidebar-width) + var(--max-content-width)));
 }
 
-main,
-.content
+main
 {
   margin: 0px;
   overflow-wrap: break-word;
