@@ -10,10 +10,139 @@
     <header class="header"><button id="sidebar-button"></button></header>
     <div id="sidebar-container" class="sidebar-container"><iframe class="sidebar-frame" src="../../sidebar.html?page=cpp-reference-structs-shaderresourceview"></iframe></div>
     <div id="content-outer" class="content-outer">
-      <div class="content">
+      <main>
         <h1>CathodeRetro::<wbr>ShaderResourceView</h1>
-        (Content coming soon)
-      </div>
+        <div>
+          <p>
+            This represents a view to the input to a shader - it has a 
+            <a href="../interfaces/itexture.html">texture</a>, a 
+            <a href="../enums/samplertype.html">sampler type</a>, and an optional mipmap level.
+          </p>
+          <p>
+            If the mipmap level is specified, the sampling of the texture should be restricted to only that level, otherwise all
+            mip levels should be samplable (using linear or, more ideally, anisotropic mip level filtering).
+          </p>
+          <p>
+            This is used as an input parameter to 
+            <code><a href="../interfaces/igraphicsdevice.html#RenderQuad">IGraphicsDevice::<wbr>RenderQuad</a></code>.
+          </p>
+        </div>
+        <h2 id="index">Index</h2>
+        <div class="index">
+          <nav>
+            <menu>
+              <li><a href="#constructors">(constructors)</a></li>
+              <li>&nbsp;</li>
+              <li><a href="#texture">texture</a></li>
+              <li><a href="#mipLevel">mipLevel</a></li>
+              <li><a href="#samplerType">samplerType</a></li>
+            </menu>
+          </nav>
+        </div>
+        <h2>Members</h2>
+        <dl class="member-list">
+          <dt id="constructors">(constructors)</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                ShaderResourceView(
+                  const ITexture *tex, 
+                  SamplerType samp)
+
+                ShaderResourceView(
+                  const ITexture *tex, 
+                  uint32_t mip, 
+                  SamplerType samp)
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              <p>
+                Construct a new instance of a  <code>ShaderResourceView</code> struct.
+              </p>
+              <p>
+                There are two constructors here: Both take <code>tex</code> and <code>samp</code> parameters,
+                but the second additionally takes <code>mip</code>.
+              </p>
+            </section>
+            <h5>Parameters</h5>
+            <section>
+              <dl>
+                <dt><code>tex</code></dt>
+                <dd>
+                  <p>Type: <code>const <a href="../interfaces/itexture.html">ITexture</a> *</code></p>
+                  <p>
+                    The texture to use.
+                  </p>
+                </dd>
+                <dt><code>mip</code></dt>
+                <dd>
+                  <p>Type: <code>uint32_t</code></p>
+                  <p>The mipmap level to use for this view.</p>
+                  <p>This value should not exceed the mipmap level count of the given texture.</p>
+                </dd>
+                <dt><code>samp</code></dt>
+                <dd>
+                  <p>Type: <code><a href="../enums/samplertype.html">SamplerType</a></code></p>
+                  <p>
+                  </p>
+                </dd>
+              </dl>
+            </section>
+          </dd>
+          
+          <dt id="texture">texture</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                const ITexture *texture
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>const <a href="../interfaces/itexture.html">ITexture</a> *</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The red channel value.
+            </section>
+          </dd>
+          <dt id="mipLevel">mipLevel</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                int32_t mipLevel = -1
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>int32_t</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>The mipmap level to use when sampling this texture.</p>
+              <p>A negative value means "sample from all levels using linear or anisotropic level filtering."</p>
+              <p>If the value is non-negative, it should not exceed the mipmap level count of the given texture.</p>
+            </section>
+          </dd>
+          <dt id="samplerType">samplerType</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                SamplerType samplerType
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code><a href="../enums/samplertype.html">SamplerType</a></code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              Which type of sampler to use when sampling the given texture.
+            </section>
+          </dd>
+        </dl>
+      </main>
     </div>
   </body>
 </html>

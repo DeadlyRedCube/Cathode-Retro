@@ -59,8 +59,8 @@ namespace CathodeRetro
     //  Use 1/1 for square input pixels, but for the NES/SNES it's 8/7
     float inputPixelAspectRatio = 1.0f;
 
-    // the number of color cycles to pad on either side of the signal texture (so that filtering won't have visible
-    //  rtifacts on the left and right sides). Defaults to 2, but can be set to 0 if you don't need padding (like for a
+    // The number of color cycles to pad on either side of the signal texture (so that filtering won't have visible
+    //  Artifacts on the left and right sides). Defaults to 2, but can be set to 0 if you don't need padding (like for a
     //  real signal, or a generated signal that already has expected overscan on the sides).
     uint32_t sidePaddingColorCycleCount = 2;
 

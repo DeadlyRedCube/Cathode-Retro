@@ -10,10 +10,96 @@
     <header class="header"><button id="sidebar-button"></button></header>
     <div id="sidebar-container" class="sidebar-container"><iframe class="sidebar-frame" src="../../sidebar.html?page=cpp-reference-structs-tvknobsettings"></iframe></div>
     <div id="content-outer" class="content-outer">
-      <div class="content">
+      <main>
         <h1>CathodeRetro::<wbr>TVKnobSettings</h1>
-        (Content coming soon)
-      </div>
+        <div>
+          Settings that mimic the knobs that would have been on the front of a CRT TV.
+        </div>
+        <h2 id="index">Index</h2>
+        <div class="index">
+          <nav>
+            <menu>
+              <li><a href="#saturation">saturation</a></li>
+              <li><a href="#brightness">brightness</a></li>
+              <li><a href="#tint">tint</a></li>
+              <li><a href="#sharpness">sharpness</a></li>
+            </menu>
+          </nav>
+        </div>
+        <h2>Members</h2>
+        <dl class="member-list">
+          <dt id="saturation">saturation</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                float saturation = 1.0f
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The saturation of the decoded signal (where 1.0 is "fully saturated")
+            </section>
+          </dd>
+          <dt id="brightness">brightness</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                float brightness = 1.0f
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The brightnesss of the decoded signal (where 1.0 is "full brightness")
+            </section>
+          </dd>
+          <dt id="tint">tint</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                float tint = 0.0f
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              An additional tint to apply to the output signal (0.0 gives the original hue, other values 
+              are a hue shift from there).
+            </section>
+          </dd>
+          <dt id="sharpness">sharpness</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                float sharpness = 0.0f
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The amount of sharpness (or blurring) to apply:
+              <ul>
+                <li><code>0.0</code> is unfiltered.</li>
+                <li><code>1.0</code> is fully-sharpened.</li>
+                <li><code>-1.0</code> is fully blurred.</li>
+              </ul>
+            </section>
+          </dd>
+        </dl>
+      </main>
     </div>
   </body>
 </html>

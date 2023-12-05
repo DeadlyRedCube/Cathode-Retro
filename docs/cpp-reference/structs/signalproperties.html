@@ -10,10 +10,147 @@
     <header class="header"><button id="sidebar-button"></button></header>
     <div id="sidebar-container" class="sidebar-container"><iframe class="sidebar-frame" src="../../sidebar.html?page=cpp-reference-structs-signalproperties"></iframe></div>
     <div id="content-outer" class="content-outer">
-      <div class="content">
+      <main>
         <h1>CathodeRetro::<wbr>Internal::<wbr>SignalProperties</h1>
-        (Content coming soon)
-      </div>
+        <div>
+          <p>
+            An internal structure containing various important properties about the signal.
+          </p>
+          <p>
+            This structure is created by 
+            <code><a href="../classes/signalgenerator.html">Internal::<wbr>SignalGenerator</a></code>
+            and used by
+            <code><a href="../classes/signaldecoder.html">Internal::<wbr>SignalDecoder</a></code>.
+          </p>
+        </div>
+        <h2 id="index">Index</h2>
+        <div class="index">
+          <nav>
+            <menu>
+              <li><a href="#type">type</a></li>
+              <li><a href="#scanlineWidth">scanlineWidth</a></li>
+              <li><a href="#scanlineCount">scanlineCount</a></li>
+              <li><a href="#colorCyclesPerInputPixel">colorCyclesPerInputPixel</a></li>
+              <li><a href="#inputPixelAspectRatio">inputPixelAspectRatio</a></li>
+              <li><a href="#totalSidePaddingTexelCount">totalSidePaddingTexelCount</a></li>
+            </menu>
+          </nav>
+        </div>
+        <h2>Members</h2>
+        <dl class="member-list">
+          <dt id="type">type</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                SignalType type
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code><a href="../enums/signaltype.html">SignalType</a></code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The type of signal that has been generated. This will either be <code>RGB</code> or <code>SVideo</code>
+              (an <code>RGB</code> signal would not have been generated or sent to the decoder).
+            </section>
+          </dd>
+          <dt id="scanlineWidth">scanlineWidth</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                uint32_t scanlineWidth
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>uint32_t</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The width, in signal texels, of a scanline (i.e. the width of the generated signal texture).
+            </section>
+          </dd>
+          <dt id="scanlineCount">scanlineCount</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                uint32_t scanlineCount
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>uint32_t</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The number of scanlines in the current frame's texture (i.e. the height of the generated signal texture).
+            </section>
+          </dd>
+          <dt id="colorCyclesPerInputPixel">colorCyclesPerInputPixel</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                float colorCyclesPerInputPixel
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The number of cycles of the <a href="../../how/ntsc-basics.html">color carrier wave</a>
+               there are per input pixel.
+            </section>
+          </dd>
+          <dt id="inputPixelAspectRatio">inputPixelAspectRatio</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                float inputPixelAspectRatio
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                The display aspect ratio of an input pixel when displayed.
+              </p>
+              <p>
+                Corresponds to <code><a href="sourcesettings.html#inputPixelAspectRatio">SourceSettings::<wbr>inputPixelAspectRatio</a></code>.
+              </p>
+            </section>
+          </dd>
+          <dt id="totalSidePaddingTexelCount">totalSidePaddingTexelCount</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                uint32_t totalSidePaddingTexelCount = 0
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>uint32_t</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                The number of texels that have been added to the width of the generated signal texture to allow for
+                additional padding such that the color demodulation filters have data to use near the edges of the screen,
+                so there aren't strange color artifacts at the edges.
+              </p>
+              <p>
+                This is the total number of extra texels, so there will be half this many texels added on the left and another 
+                half on the right.
+              </p>
+            </section>
+          </dd>
+        </dl>
+      </main>
     </div>
   </body>
 </html>

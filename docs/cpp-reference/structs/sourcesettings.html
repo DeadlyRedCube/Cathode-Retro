@@ -10,10 +10,207 @@
     <header class="header"><button id="sidebar-button"></button></header>
     <div id="sidebar-container" class="sidebar-container"><iframe class="sidebar-frame" src="../../sidebar.html?page=cpp-reference-structs-sourcesettings"></iframe></div>
     <div id="content-outer" class="content-outer">
-      <div class="content">
+      <main>
         <h1>CathodeRetro::<wbr>SourceSettings</h1>
-        (Content coming soon)
-      </div>
+        <div>
+          A description of the properties of the hypothetical source "machine" that is generating the composite or
+          S-Video signal. Specifically, it gives scanline timings and color-cycle-to-pixel ratios and phase offsets, as
+          well as a display pixel ratio.
+        </div>
+        <h2 id="index">Index</h2>
+        <div class="index">
+          <nav>
+            <menu>
+              <li><a href="#inputPixelAspectRatio">inputPixelAspectRatio</a></li>
+              <li><a href="#sidePaddingColorCycleCount">sidePaddingColorCycleCount</a></li>
+              <li><a href="#denominator">denominator</a></li>
+              <li><a href="#colorCyclesPerInputPixel">colorCyclesPerInputPixel</a></li>
+              <li><a href="#initialFramePhase">initialFramePhase</a></li>
+              <li><a href="#phaseIncrementPerLine">phaseIncrementPerLine</a></li>
+              <li><a href="#phaseIncrementPerEvenFrame">phaseIncrementPerEvenFrame</a></li>
+              <li><a href="#phaseIncrementPerOddFrame">phaseIncrementPerOddFrame</a></li>
+            </menu>
+          </nav>
+        </div>
+        <h2>Members</h2>
+        <dl class="member-list">
+          <dt id="inputPixelAspectRatio">inputPixelAspectRatio</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                float inputPixelAspectRatio = 1.0f
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                The display aspect ratio of an input pixel when displayed.
+              </p>
+              <p>
+                Use 1/1 for square input pixels, but some systems had non-square pixels (for instance,
+                the NES which had slightly wider 8:7 pixels, for which you would use 8/7).
+              </p>
+            </section>
+          </dd>     
+          <dt id="sidePaddingColorCycleCount">sidePaddingColorCycleCount</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                uint32_t sidePaddingColorCycleCount = 2
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>uint32_t</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The number of color cycles to pad on either side of the signal texture (so that filtering won't have visible
+              artifacts on the left and right sides). Defaults to 2, but can be set to 0 if you don't need padding (like for a
+              real signal, or a generated signal that already has expected overscan on the sides).
+            </section>
+          </dd>     
+          <dt id="denominator">denominator</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                uint32_t denominator = 1
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>uint32_t</code>
+            </section>
+            <h5>Description</h5>
+              <p>
+                This is the common denominator of all phase generation values (kept as a fraction to maintain 
+                numerical precision, because in practice they're all rational values). So if the denominator 
+                is 3, a (for example) <code><a href="#colorCyclesPerInputPixel">colorCyclesPerInputPixel</a></code> 
+                value of 1 would be 1/3rd of a color cycle, 2 would be  2/3rds, etc.
+              </p>
+              <p>
+                Basically, all subsequent values are fractions with this as the denominator.            
+              </p>
+            <section>
+            </section>
+          </dd>     
+          <dt id="colorCyclesPerInputPixel">colorCyclesPerInputPixel</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                uint32_t colorCyclesPerInputPixel = 1
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>uint32_t</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                This value (when divided by <code><a href="#denominator">denominator</a></code>)
+                represents the number of cycles of the <a href="../../how/ntsc-basics.html">color carrier wave</a>
+                there are per input pixel.
+              </p>
+              <p>
+                If the value of <code>colorCyclesPerInputPixel</code> is <code>1</code> and 
+                <code><a href="#denominator">denominator</a></code> is <code>3</code>, that means that there is
+                1/3 color cycles per input pixel (or three input pixels per color cycle).
+              </p>
+            </section>
+          </dd>     
+          <dt id="initialFramePhase">initialFramePhase</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                uint32_t initialFramePhase = 0
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>uint32_t</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                When divided by <code><a href="#denominator">denominator</a></code>, this is 
+                the color cycle phase (as a fraction of the color carrier frequency) for the first scanline of
+                the first frame.
+              </p>
+              <p>
+                Some systems have a constant phase offset per scanline (such as the Apple II, which outputs 1/4 off from 
+                the reference phase), and this value can be used to store that, keeping 
+                <code><a href="#phaseIncrementPerLine">phaseIncrementPerLine</a></code>,
+                <code><a href="#phaseIncrementPerEvenFrame">phaseIncrementPerEvenFrame</a></code>,
+                and <code><a href="#phaseIncrementPerOddFrame">phaseIncrementPerOddFrame</a></code> at <code>0</code>.
+              </p>
+            </section>
+          </dd>     
+          <dt id="phaseIncrementPerLine">phaseIncrementPerLine</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                uint32_t phaseIncrementPerLine = 0
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>uint32_t</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                When divided by <code><a href="#denominator">denominator</a></code>, this is the amount of
+                phase change per scanline (as a fraction of the color carrier frequency).
+              </p>
+              <p>
+                Some systems, like the NES, have an consistent 1/3 phase offset from scanline to scanline, and
+                this is the value that represents that.
+              </p>
+            </section>
+          </dd>     
+          <dt id="phaseIncrementPerEvenFrame">phaseIncrementPerEvenFrame</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                uint32_t phaseIncrementPerEvenFrame = 0
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>uint32_t</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              Some systems have a different initial scanline phase (the phase at the top scanline) per
+              frame, and this represents the per-increment for <b>even</b> frames (when divided by 
+              <code><a href="#denominator">denominator</a></code>).
+            </section>
+          </dd>     
+          <dt id="phaseIncrementPerOddFrame">phaseIncrementPerOddFrame</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                uint32_t phaseIncrementPerOddFrame = 0
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>uint32_t</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              Some systems have a different initial scanline phase (the phase at the top scanline) per
+              frame, and this represents the per-increment for <b>odd</b> frames (when divided by 
+              <code><a href="#denominator">denominator</a></code>).
+            </section>
+          </dd>     
+        </dl>
+      </main>
     </div>
   </body>
 </html>

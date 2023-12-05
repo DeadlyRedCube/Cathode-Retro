@@ -10,10 +10,118 @@
     <header class="header"><button id="sidebar-button"></button></header>
     <div id="sidebar-container" class="sidebar-container"><iframe class="sidebar-frame" src="../../sidebar.html?page=cpp-reference-structs-signallevels"></iframe></div>
     <div id="content-outer" class="content-outer">
-      <div class="content">
+      <main>
         <h1>CathodeRetro::<wbr>Internal::<wbr>SignalLevels</h1>
-        (Content coming soon)
-      </div>
+        <div>
+          <p>
+            An internal structure containing information about the various voltage levels of the signal, as well as 
+            how much <a href="../../how/temporal-aliasing.html">temporal artifact reduction</a> to apply.
+          </p>
+          <p>
+            This structure is created by 
+            <code><a href="../classes/signalgenerator.html">Internal::<wbr>SignalGenerator</a></code>
+            and used by
+            <code><a href="../classes/signaldecoder.html">Internal::<wbr>SignalDecoder</a></code>.
+          </p>
+        </div>
+        <h2 id="index">Index</h2>
+        <div class="index">
+          <nav>
+            <menu>
+              <li><a href="#r">temporalArtifactReduction</a></li>
+              <li><a href="#g">whiteLevel</a></li>
+              <li><a href="#b">blackLevel</a></li>
+              <li><a href="#a">saturationScale</a></li>
+            </menu>
+          </nav>
+        </div>
+        <h2>Members</h2>
+        <dl class="member-list">
+          <dt id="temporalArtifactReduction">temporalArtifactReduction</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                float temporalArtifactReduction
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              How much <a href="../../how/temporal-aliasing.html">temporal artifact reduction</a> to apply when decoding: <code>0</code> means that
+              there's only one version of the incoming signal and no artifact reduction should be applied.
+            </section>
+          </dd>
+          <dt id="whiteLevel">whiteLevel</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                float whiteLevel
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                The scanline signal level corresponding to the brightest displayable color (white).
+              </p>
+              <p>
+                For the output from the generator, this is always <code>1.0</code>. For a true signal
+                from an actual source, this may be some other value.
+              </p>
+            </section>
+          </dd>
+          <dt id="blackLevel">blackLevel</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                float blackLevel
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                The scanline signal level corresponding to the darkest displayable color (black).
+              </p>
+              <p>
+                For the output from the generator, this is always <code>0.0</code>. For a true signal
+                from an actual source, this may be some other value.
+              </p>
+            </section>
+          </dd>
+          <dt id="saturationScale">saturationScale</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                float saturationScale
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                The amplitude of the color carrier waveform that corresponds to full saturation.
+              </p>
+              <p>
+                For the output from the generator, this is always <code>0.5</code>. For a true signal
+                from an actual source, this may be some other value.
+              </p>
+            </section>
+          </dd>
+        </dl>
+      </main>
     </div>
   </body>
 </html>
