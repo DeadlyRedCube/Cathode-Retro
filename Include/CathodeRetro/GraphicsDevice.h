@@ -39,7 +39,7 @@ namespace CathodeRetro
     Util_GaussianBlur13,                            // cathode-retro-util-gaussian-blur.hlsl
 
     Generator_GeneratePhaseTexture,                 // cathode-retro-generator-gen-phase.hlsl
-    Generator_RGBToSVideoOrComposite,               // cathode-retro-generator-rgb-to-svideo-or-compsite.hlsl
+    Generator_RGBToSVideoOrComposite,               // cathode-retro-generator-rgb-to-svideo-or-composite.hlsl
     Generator_ApplyArtifacts,                       // cathode-retro-generator-apply-artifacts.hlsl
 
     Decoder_CompositeToSVideo,                      // cathode-retro-decoder-composite-to-svideo.hlsl

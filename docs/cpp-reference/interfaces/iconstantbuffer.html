@@ -12,7 +12,121 @@
     <div id="content-outer" class="content-outer">
       <main>
         <h1>CathodeRetro::<wbr>IConstantBuffer</h1>
-        (Content coming soon)
+        <div>
+          <p>
+            This is one of the interfaces that the user code needs to implement in order to use the 
+            <code><a href="../classes/cathoderetro.html">CathodeRetro</a></code> class. 
+            See <a href="../../start-cpp/interfaces.html">Implementing the Required Interfaces</a> for details.
+          </p>
+          <p>
+            This interface represents a texture that can be used as an input to 
+            <code><a href="igraphicsdevice.html#RenderQuad">IGraphicsDevice::<wbr>RenderQuad</a></code>.
+          </p>
+        </div>
+        <h2>Index</h2>
+        <div class="index">
+          <h3>Interface Method</h3>
+          <nav>
+            <menu>
+              <li><a href="#Update">Update</a></li>
+            </menu>
+          </nav>
+          <h3>Helper Method</h3>
+          <nav>
+            <menu>
+              <li><a href="#UpdateT">Update&lt;T&gt;</a></li>
+            </menu>
+          </nav>
+        </div>
+        <h2>Interface Method</h2>
+        <dl class="member-list">
+          <dt id="Update">Update</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                void Update(
+                  const void *data, 
+                  size_t dataByteCount)
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              <p>
+                Copy the given bytes into the constant buffer for GPU use.
+              </p>
+              <p>
+                This may be called multiple times during rendering, and will only be called between calls to
+                <code><a href="igraphicsdevice.html#BeginRendering">IGraphicsDevice::<wbr>BeginRendering</a></code> and
+                <code><a href="igraphicsdevice.html#EndRendering">IGraphicsDevice::<wbr>EndRendering</a></code>.
+              </p>
+              <p>
+                Every time this is called, the previous data in this constant buffer is no longer required,
+                so if your API has discard semantics (or requires you to allocate a new buffer from a pool per
+                update) you have a lot of leeway in how to implement this.
+              </p>
+            </section>
+            <h5>Parameters</h5>
+            <section>
+              <dl>
+                <dt><code>data</code></dt>
+                <dd>
+                  <p>Type: <code>const void *</code></p>
+                  <p>
+                    The source buffer from which the bytes will be copied.
+                  </p>
+                </dd>
+                <dt><code>dataByteCount</code></dt>
+                <dd>
+                  <p>Type: <code>size_t</code></p>
+                  <p>
+                    The number of bytes to copy into the constant buffer.
+                  </p>
+                  <p>
+                    Must not exceed the size of the constant buffer.
+                  </p>
+                </dd>
+              </dl>
+            </section>
+          </dd>      
+        </dl>
+        <h2>Helper Method</h2>
+        <dl class="member-list">
+          <dt id="UpdateT">Update&lt;T&gt;</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                template &lt;typename T&gt;
+                void Update(
+                  const T &data)
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              <p>
+                Helper function to copy the bytes from the given object into the constant buffer for GPU use.
+              </p>
+              <p>
+                This calls directly into <code><a href="#Update">Update</a></code>, and the
+                same stated restrictions on when that function will be called apply to this function as well.
+              </p>
+            </section>
+            <h5>Parameters</h5>
+            <section>
+              <dl>
+                <dt><code>data</code></dt>
+                <dd>
+                  <p>Type: <code>const typename T &</code></p>
+                  <p>
+                    The object to copy into the data buffer.
+                  </p>
+                  <p>
+                    The size of the object must not exceed the size of the constant buffer.
+                  </p>
+                </dd>
+              </dl>
+            </section>
+          </dd>      
+        </div>
       </main>
     </div>
   </body>

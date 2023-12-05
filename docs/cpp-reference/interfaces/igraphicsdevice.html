@@ -12,7 +12,262 @@
     <div id="content-outer" class="content-outer">
       <main>
         <h1>CathodeRetro::<wbr>IGraphicsDevice</h1>
-        (Content coming soon)
+        <div>
+          <p>
+            This is one of the interfaces that the user code needs to implement in order to use the 
+            <code><a href="../classes/cathoderetro.html">CathodeRetro</a></code> class. 
+            See <a href="../../start-cpp/interfaces.html">Implementing the Required Interfaces</a> for details.
+          </p>
+          <p>
+            This interface represents a texture that can be used as an input to 
+            <code><a href="igraphicsdevice.html#RenderQuad">IGraphicsDevice::<wbr>RenderQuad</a></code>.
+          </p>
+        </div>
+        <h2>Index</h2>
+        <div class="index">
+          <h3>Interface Methods</h3>
+          <nav>
+            <menu>
+              <li><a href="#CreateRenderTarget">CreateRenderTarget</a></li>
+              <li><a href="#CreateConstantBuffer">CreateConstantBuffer</a></li>
+              <li><a href="#BeginRendering">BeginRendering</a></li>
+              <li><a href="#RenderQuad">RenderQuad</a></li>
+              <li><a href="#EndRendering">EndRendering</a></li>
+            </menu>
+          </nav>
+        </div>
+        <h2>Interface Method</h2>
+        <dl class="member-list">
+          <dt id="CreateRenderTarget">CreateRenderTarget</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                std::unique_ptr&lt;IRenderTarget&gt; CreateRenderTarget(
+                  uint32_t width,
+                  uint32_t height,
+                  uint32_t mipCount,
+                  TextureFormat format)              
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              <p>
+                Create a render target with the given dimensions, mip count, and format.
+              </p>
+              <p>
+                This will only be called during certain Cathode Retro state changes (including
+                class initialization), and will never be called between calls to
+                <code><a href="#BeginRendering">BeginRendering</a></code> and
+                <code><a href="#EndRendering">EndRendering</a></code>.
+              </p>
+            </section>
+            <h5>Parameters</h5>
+            <section>
+              <dl>
+                <dt><code>width</code></dt>
+                <dd>
+                  <p>Type: <code>uint32_t</code></p>
+                  <p>
+                    The width of the render target to create, in texels.
+                  </p>
+                </dd>
+                <dt><code>height</code></dt>
+                <dd>
+                  <p>Type: <code>uint32_t</code></p>
+                  <p>
+                    The height of the render target to create, in texels.
+                  </p>
+                </dd>
+                <dt><code>mipCount</code></dt>
+                <dd>
+                  <p>Type: <code>uint32_t</code></p>
+                  <p>
+                    The number of mipmap levels to create.
+                  </p>
+                  <p>
+                    If this value is <code>0</code>, then the render target should
+                    have the maximum number of mipmap levels for its size.
+                  </p>
+                </dd>
+                <dt><code>format</code></dt>
+                <dd>
+                  <p>Type: <code><a href="../enums/textureformat.html">TextureFormat</a></code></p>
+                  <p>
+                    The format that this render target needs.
+                  </p>
+                </dd>
+              </dl>
+            </section>
+            <h5>Return Value</h5>
+            <section>
+              Type: <code>std::unique_ptr&lt;<a href="irendertarget.html">IRenderTarget</a>&gt;</code>
+              <p>
+                A unique_ptr to a created <code>IRenderTarget</code>, which can be used as
+                a parameter to <code><a href="#RenderQuad">RenderQuad</a></code>, as either
+                a texture input or an output.
+              </p>
+            </section>
+          </dd>
+          <dt id="CreateConstantBuffer">CreateConstantBuffer</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                std::unique_ptr&lt;IConstantBuffer&gt; CreateConstantBuffer(
+                  size_t byteCount)
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              <p>
+                Create a constant buffer that can hold at least the given amount of bytes.
+              </p>
+              <p>
+                This will only be called during certain Cathode Retro state changes (including
+                class initialization), and will never be called between calls to
+                <code><a href="#BeginRendering">BeginRendering</a></code> and
+                <code><a href="#EndRendering">EndRendering</a></code>.
+              </p>
+            </section>
+            <h5>Parameters</h5>
+            <section>
+              <dl>
+                <dt><code>byteCount</code></dt>
+                <dd>
+                  <p>Type: <code>size_t</code></p>
+                  <p>
+                    The minimum number of bytes that this buffer object needs to be able to hold.
+                  </p>
+                </dd>
+              </dl>
+            </section>
+            <h5>Return Value</h5>
+            <section>
+              Type: <code>std::unique_ptr&lt;<a href="iconstantbuffer.html">IConstantBuffer</a>&gt;</code>
+              <p>
+                A unique_ptr to a created <code>IConstantBuffer</code> which can be used as a
+                parameter to <code><a href="#RenderQuad">RenderQuad</a></code>.
+              </p>
+            </section>
+          </dd>
+          <dt id="BeginRendering">BeginRendering</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                void BeginRendering()
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              <p>
+                Perform the setup necessary for Cathode Retro to render a frame.
+              </p>
+              <p>
+                This is called when Cathode Retro is beginning its rendering, and is a great place to set up any render state
+                that is going to be consistent across the whole pipeline (the vertex shader, blending mode, etc).
+              </p>
+              <ul>
+                <li>Cathode Retro specifically wants no alpha blending or testing enabled.</li>
+                <li>
+                  Additionally, it expects floating-point textures to be able to use the full range of values, 
+                  so if the API allows for truncating floating-point values to the <code>[0..1]</code> 
+                  range on either shader output or sampling input, that should be disabled.              
+                </li>
+              </ul>
+              <p>
+                This will be called once per frame.
+              </p>
+            </section>
+          </dd>
+          <dt id="RenderQuad">RenderQuad</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                void RenderQuad(
+                  ShaderID shaderID,
+                  RenderTargetView output,
+                  std::initializer_list&lt;ShaderResourceView&gt; inputs,
+                  IConstantBuffer *constantBuffer = nullptr)              
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              <p>
+                Render to the given output render target (as a quad that is the full
+                size of the output target) using the supplied shader, input textures, 
+                and constant buffer.
+              </p>
+              <p>
+                This is called multiple times during rendering, and will only be called between calls to
+                <code><a href="#BeginRendering">BeginRendering</a></code> and
+                <code><a href="#EndRendering">EndRendering</a></code>.
+              </p>
+            </section>
+            <h5>Parameters</h5>
+            <section>
+              <dl>
+                <dt><code>shaderID</code></dt>
+                <dd>
+                  <p>Type: <code><a href="../enums/shaderid.html">ShaderID</a></code></p>
+                  <p>
+                    The ID of the shader to use.
+                  </p>
+                </dd>
+                <dt><code>output</code></dt>
+                <dd>
+                  <p>Type: <code><a href="../structs/rendertargetview.html">RenderTargetView</a></code></p>
+                  <p>
+                    The output render target to use.
+                  </p>
+                  <p>
+                    The render target view contains both a pointer to a <a href="irendertarget.html">render target</a> and
+                    a desired target mipmap level to render to.
+                  </p>
+                </dd>
+                <dt><code>inputs</code></dt>
+                <dd>
+                  <p>Type: <code>std::initializer_list&lt;<a href="../structs/shaderresourceview.html">ShaderResourceView</a>&gt;</code></p>
+                  <p>
+                    A list of input textures to use.
+                  </p>
+                  <p>
+                    Each input is a shader resource view that contains a pointer to 
+                    a <a href="itexture.html">texture</a>, an optional mip level to use as the input,
+                    and a <a href="../enums/samplertype.html">sampler type</a> to use for sampling the given texture.
+                  </p>
+                </dd>
+                <dt><code>constantBuffer</code></dt>
+                <dd>
+                  <p>Type: <code><a href="iconstantbuffer.html">IConstantBuffer</a> *</code></p>
+                  <p>
+                    The constant buffer to used to hand data bytes to the shader.
+                  </p>
+                </dd>
+              </dl>
+            </section>
+          </dd>
+          <dt id="EndRendering">EndRendering</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                void EndRendering()
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              <p>
+                Perform the steps necessary to return the renderer into the state it needs to be in to render
+                whatever else is being rendered, now that Cathode Retro is done rendering.
+              </p>
+              <p>
+                This is called when Cathode Retro is done rendering, and is a good spot for render state to be restored back to
+                whatever the enclosing app expects (i.e. if it's a game, the game probably has its own standard state setup).              
+              </p>
+              <p>
+                This will be called once per frame.
+              </p>
+            </section>
+          </dd>
+        </dl>
       </main>
     </div>
   </body>
