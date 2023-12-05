@@ -12,7 +12,724 @@
     <div id="content-outer" class="content-outer">
       <main>
         <h1>CathodeRetro::<wbr>Internal::<wbr>SignalGenerator</h1>
-        (Content coming soon)
+        <div>
+          <p>
+            This is an internal class used by <code><a href="cathoderetro.html">CathodeRetro::<wbr>CathodeRetro</a></code>
+            to take an input RGB texture and generate a texture containing a set of 
+            composite or S-Video scanlines to send to
+            <code><a href="signaldecoder.html">SignalDecoder</a></code>).
+          </p>
+          <p>
+            If you are using the <code><a href="cathoderetro.html">CathodeRetro::<wbr>CathodeRetro</a></code>
+            class, you should not need to use this class directly.
+          </p>
+          <p>
+            For a description of what this class does, see <a href="../../how/generating-scanline.html">Generating a Fake NTSC Scanline</a>.
+          </p>
+          <ul>
+            <li><a href="#public">Go to Public Members</a></li>
+            <li><a href="#private">Go to Private Members</a></li>
+          </ul>
+        </div>
+        <h2 id="public">Public Members</h2>
+        <div class="index">
+          <h4>Public Methods</h4>
+          <nav>
+            <menu>
+              <li><a href="#constructor">(constructor)</a></li>
+              <li><a href="#SignalProperties">SignalProperties</a></li>
+              <li><a href="#SignalLevels">SignalLevels</a></li>
+              <li><a href="#PhasesTexture">PhasesTexture</a></li>
+              <li><a href="#SignalTexture">SignalTexture</a></li>
+              <li><a href="#SetArtifactSettings">SetArtifactSettings</a></li>
+              <li><a href="#Generate">Generate</a></li>
+            </menu>
+          </nav>
+        </div>
+        <h3>Public Methods</h3>
+        <dl class="member-list">
+          <dt id="constructor">(constructor)</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                SignalGenerator(
+                  IGraphicsDevice *deviceIn,
+                  SignalType type,
+                  uint32_t inputWidth,
+                  uint32_t inputHeight,
+                  const SourceSettings &amp;inputSettings)
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              Construct a new instance of the <code>Internal::<wbr>SignalGenerator</code> class.
+            </section>
+            <h5>Parameters</h5>
+            <section>
+              <dl>
+                <dt><code>deviceIn</code></dt>
+                <dd>
+                  <p>Type: <code><a href="../interfaces/igraphicsdevice.html">IGraphicsDevice</a> *</code></p>
+                  <p>
+                    Pointer to the graphics device instance that this instance should use for all of its drawing-related functionality.
+                    This pointer will be cached so the lifetime of <code>deviceIn</code> must extend past the lifetime of the
+                    <code>Internal::<wbr>SignalGenerator</code> instance being created.
+                  </p>
+                </dd>
+                <dt><code>type</code></dt>
+                <dd>
+                  <p>Type: <code><a href="../enums/signaltype.html">SignalType</a></code></p>
+                  <p>
+                    The type of signal to emulate.
+                  </p>
+                  <p>
+                    This value should not be <code><a href="../enums/signaltype.html#RGB">SignalType::<wbr>RGB</a></code>,
+                    as no generator/decoder is needed for RGB signals.
+                  </p>
+                </dd>
+                <dt><code>inputWidth</code></dt>
+                <dd>
+                  <p>Type: <code>uint32_t</code></p>
+                  <p>
+                    The expected width of the input RGB image, in texels.
+                  </p>
+                </dd>
+                <dt><code>inputHeight</code></dt>
+                <dd>
+                  <p>Type: <code>uint32_t</code></p>
+                  <p>
+                    The expected height of the input RGB image, in texels.
+                  </p>
+                </dd>
+                <dt><code>inputSettings</code></dt>
+                <dd>
+                  <p>Type: <code>const <a href="../structs/sourcesettings.html">SourceSettings</a> &amp;</code></p>
+                  <p>
+                    Properties of the hypothetical source "machine" that is generating the signal being emulated.
+                  </p>
+                </dd>
+              </dl>
+            </section>
+          </dd>
+
+          <dt id="SignalProperties">SignalProperties</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                const Internal::SignalProperties &amp;SignalProperties() const
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              Get the roperties of the hypothetical source "machine" that is generating the signal being emulated.
+            </section>
+            <h5>Return Value</h5>
+            <section>
+              Type: <code>const <a href="../structs/signalproperties.html">Internal::<wbr>SignalProperties</a> &amp;</code></p>
+              <p>
+                The properties of the hypothetical source "machine" that is generating the signal being emulated.
+              </p>
+            </section>
+          </dd>
+
+          <dt id="SignalLevels">SignalLevels</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                const Internal::SignalLevels &amp;SignalLevels() const
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              Get information about the various voltage levels of the signal, as well as how much temporal artifact reduction to apply.
+            </section>
+            <h5>Return Value</h5>
+            <section>
+              Type: <code>const <a href="../structs/signallevels.html">Internal::<wbr>SignalLevels</a> &amp;</code></p>
+              <p>
+                The level information for this generator.
+              </p>
+            </section>
+          </dd>
+
+          <dt id="PhasesTexture">PhasesTexture</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                const ITexture *PhasesTexture() const
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              Get a texture (with dimensions of 
+              <code>(1 x <a href="#signalProps">signalProps.scanlineCount</a>)</code>
+              containing the colorburst phase for each scanline (in fractional multiples of the 
+              color carrier frequency) of the last frame rendered by <code><a href="#Generate">Generate</a></code>.
+            </section>
+            <h5>Return Value</h5>
+            <section>
+              Type: <code>const <a href="../interfaces/itexture.html">ITexture</a> *</code></p>
+              <p>
+                The phases texture.
+              </p>
+            </section>
+          </dd>
+
+          <dt id="SignalTexture">SignalTexture</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                const ITexture *SignalTexture() const
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              Get a texture (with dimensions of 
+              <code>(
+                <a href="#signalProps">signalProps.scanlineWidth</a>
+                x <a href="#signalProps">signalProps.scanlineCount</a>)</code>
+              containing the generated composite or S-Video scanline signals for the last 
+              frame rendered by <code><a href="#Generate">Generate</a></code>.
+            </section>
+            <h5>Return Value</h5>
+            <section>
+              Type: <code>const <a href="../interfaces/itexture.html">ITexture</a> *</code></p>
+              <p>
+                The scanline signal texture.
+              </p>
+            </section>
+          </dd>
+
+          <dt id="SetArtifactSettings">SetArtifactSettings</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                void SetArtifactSettings(
+                  const ArtifactSettings &amp;settings)
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              <p>
+                Update the artifact settings that this generator will use to generate its signal textures.
+              </p>
+              <p>
+                Note that, if the <code><a href="../structs/artifactsettings.html#temporalArtifactReduction">temporalArtifactReduction</a></code> member of
+                the supplied artifact settings changes from zero to or non-zero or vice-versa, internal textures will
+                be reallocated, so caution is advised when changing these settings on the fly.
+              </p>
+            </section>
+            <h5>Parameters</h5>
+            <section>
+              <dl>
+                <dt><code>settings</code></dt>
+                <dd>
+                  <p>Type: <code>const <a href="../structs/artifactsettings.html">ArtifactSettings</a> &amp;</code></p>
+                  <p>
+                    The new artifact settings to use in <code><a href="#Generate">Generate</a></code>.
+                  </p>
+                </dd>
+              </dl>
+            </section>
+          </dd>
+
+          <dt id="Generate">Generate</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                void Generate(
+                  const ITexture *inputRGBTexture, 
+                  int32_t frameStartPhaseNumeratorIn = -1)
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              Take the input RGB texture (with expected dimensions equal to the <code>inputWidth</code>
+              and <code>inputHeight</code> parameters passed to <a href="#constructor">the constructor</a>),
+              and convert it into a composite or S-Video signal (based on the <a href="../enums/signaltype.html">signal type</a> 
+              given to the constructor), using an optional start-of-frame phase value.
+            </section>
+            <h5>Parameters</h5>
+            <section>
+              <dl>
+                <dt><code>inputRGBTexture</code></dt>
+                <dd>
+                  <p>Type: <code>const <a href="../interfaces/itexture.html">ITexture</a> *</code></p>
+                  <p>
+                    The input RGB texture for the current frame, that we want to generate a signal from.
+                  </p>
+                </dd>
+                <dt><code>frameStartPhaseNumeratorIn</code></dt>
+                <dd>
+                  <p>Type: <code>int32_t</code></p>
+                  <p>
+                    An optional frame start phase numerator.
+                  </p>
+                  <p>
+                    A negative value (the default) means "use the internally-tracked phase numerator (<code><a href="#frameStartPhaseNumerator">frameStartPhaseNumerator</a></code>)".
+                  </p>
+                  <p>
+                    When divided by 
+                    <code><a href="#sourceSettings">sourceSettings</a>.<a href="../structs/sourcesettings.html#denominator">denominator</a></code>,
+                    this represents the phase offset of the colorburst for the first scanline.
+                  </p>
+                </dd>
+              </dl>
+            </section>
+          </dd>
+        </dl>
+        <h2 id="private">Private Members</h3>
+        <div class="index">
+          <h4>Private Structures</h4>
+          <nav>
+            <menu>
+              <li><a href="#RGBToSVideoConstantData">RGBToSVideoConstantData</a></li>
+              <li><a href="#GeneratePhaseTextureConstantData">GeneratePhaseTextureConstantData</a></li>
+              <li><a href="#ApplyArtifactsConstantData">ApplyArtifactsConstantData</a></li>
+            </menu>
+          </nav>
+          <h4>Private Methods</h4>
+          <nav>
+            <menu>
+              <li><a href="#GeneratePhasesTexture">GeneratePhasesTexture</a></li>
+              <li><a href="#GenerateCleanSignal">GenerateCleanSignal</a></li>
+              <li><a href="#ApplyArtifacts">ApplyArtifacts</a></li>
+            </menu>
+          </nav>
+          <h4>Private Fields</h4>
+          <nav>
+            <menu>
+              <li><a href="#device">device</a></li>
+              <li>&nbsp;</li>
+              <li><a href="#noiseSeed">noiseSeed</a></li>
+              <li>&nbsp;</li>
+              <li><a href="#generateSignalConstantBuffer">generateSignalConstantBuffer</a></li>
+              <li><a href="#applyArtifactsConstantBuffer">applyArtifactsConstantBuffer</a></li>
+              <li>&nbsp;</li>
+              <li><a href="#phasesTexture">phasesTexture</a></li>
+              <li>&nbsp;</li>
+              <li><a href="#signalTexture">signalTexture</a></li>
+              <li><a href="#scratchSignalTexture">scratchSignalTexture</a></li>
+              <li>&nbsp;</li>
+              <li><a href="#sourceSettings">sourceSettings</a></li>
+              <li><a href="#signalProps">signalProps</a></li>
+              <li><a href="#levels">levels</a></li>
+              <li>&nbsp;</li>
+              <li><a href="#artifactSettings">artifactSettings</a></li>
+              <li>&nbsp;</li>
+              <li><a href="#frameStartPhaseNumerator">frameStartPhaseNumerator</a></li>
+              <li><a href="#prevFrameStartPhaseNumerator">prevFrameStartPhaseNumerator</a></li>
+              <li><a href="#isEvenFrame">isEvenFrame</a></li>
+            </menu>
+          </nav>
+        </div>      
+
+        <h3>Private Structures</h3>
+        <dl class="member-list">
+          <dt id="RGBToSVideoConstantData">RGBToSVideoConstantData</dt>
+          <dd>
+            <h5>Description</h5>
+            <section>
+              This structure maps to the constant buffer input to the <a href="../../shader-reference/generator-shaders/rgb-to-svideo-or-composite.html">generator-rgb-to-svideo-or-composite</a>
+              shader. Refer to its page for documentation of the fields.
+            </section>
+          </dd>        
+          <dt id="GeneratePhaseTextureConstantData">GeneratePhaseTextureConstantData</dt>
+          <dd>
+            <h5>Description</h5>
+            <section>
+              This structure maps to the constant buffer input to the <a href="../../shader-reference/generator-shaders/gen-phase.html">generator-gen-phase</a>
+              shader. Refer to its page for documentation of the fields.
+            </section>
+          </dd>        
+          <dt id="ApplyArtifactsConstantData">ApplyArtifactsConstantData</dt>
+          <dd>
+            <h5>Description</h5>
+            <section>
+              This structure maps to the constant buffer input to the <a href="../../shader-reference/generator-shaders/apply-artifacts.html">generator-apply-artifacts</a>
+              shader. Refer to its page for documentation of the fields.
+            </section>
+          </dd>        
+        </dl>
+        <h3>Private Methods</h3>
+        <dl class="member-list">
+          <dt id="GeneratePhasesTexture">GeneratePhasesTexture</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                void GeneratePhasesTexture()
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              <p>
+                Generates the per-scanline phases texture (<code><a href="#phasesTexture">phasesTexture</a></code>).
+              </p>
+              <p>
+                This texture is used both by <code><a href="#GenerateCleanSignal">GenerateCleanSignal</a></code> and by
+                <code><a href="signaldecoder.html">Internal::<wbr>SignalDecoder</a></code> for the phase
+                of the color carrier wave.
+              </p>
+              <p>
+                Called by <code><a href="#Generate">Generate</a></code>.
+              </p>
+            </section>
+          </dd>
+
+          <dt id="GenerateCleanSignal">GenerateCleanSignal</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                void GenerateCleanSignal(
+                  const ITexture *rgbTexture)
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              <p>
+                Generate a fake NTSC signal based on the input texture.
+              </p>
+              <p>
+                Called by <code><a href="#Generate">Generate</a></code>.
+              </p>
+            </section>
+            <h5>Parameters</h5>
+            <section>
+              <dl>
+                <dt><code>rgbTexture</code></dt>
+                <dd>
+                  Type: <code>const <a href="../interfaces/itexture.html">ITexture</a> *</code></p>
+                  <p>
+                    The input texture to generate our fake NTSC signal from.
+                  </p>
+                </dd>
+              </dl>
+            </section>
+          </dd>
+
+          <dt id="ApplyArtifacts">ApplyArtifacts</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                void ApplyArtifacts()
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              <p>
+                Applies any ghosting or noise artifacts to the clean signal, resulting in the final
+                output signal texture.
+              </p>
+              <p>
+                Will render from <code><a href="#signalTexture">signalTexture</a></code>
+                to <code><a href="#scratchSignalTexture">scratchSignalTexture</a></code>,
+                then swap the two (so that <code>signalTexture</code> contains the output).
+              </p>
+              <p>
+                Called (when needed) by <code><a href="#Generate">Generate</a></code>.
+              </p>
+            </section>
+          </dd>
+        </dl>
+        <h3>Private Fields</h3>
+        <dl class="member-list">
+          <dt id="device">device</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                IGraphicsDevice *device
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code><a href="../interfaces/igraphicsdevice.html">IGraphicsDevice</a> *</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              Pointer to the graphics device that should be used to create graphics objects and render.
+            </section>
+          </dd>        
+
+
+
+          <dt id="noiseSeed">noiseSeed</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                uint32_t noiseSeed = 0
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>uint32_t</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              A seed value used to generate noise, in the shaders. Increments every frame and wraps
+              every so often (every ~1 million frames) to avoid numerical issues in the shader.
+            </section>
+          </dd>        
+
+
+
+          <dt id="generateSignalConstantBuffer">generateSignalConstantBuffer</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                std::unique_ptr&lt;IConstantBuffer&gt; generateSignalConstantBuffer
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>std::unique_ptr&lt;<a href="../interfaces/iconstantbuffer.html">IConstantBuffer</a>&gt;</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The constant buffer that is used in <code><a href="#GeneratePhasesTexture">GeneratePhasesTexture</a></code> as an input to the 
+              <a href="../../shader-reference/generator-shaders/gen-phase.html">generator-gen-phase</a>
+              shader, and in <code><a href="#GenerateCleanSignal">GenerateCleanSignal</a></code> as an input to the 
+              <a href="../../shader-reference/generator-shaders/rgb-to-svideo-or-composite.html">generator-rgb-to-svideo-or-composite</a>
+              shader.
+            </section>
+          </dd>        
+
+          <dt id="applyArtifactsConstantBuffer">applyArtifactsConstantBuffer</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                std::unique_ptr&lt;IConstantBuffer&gt; applyArtifactsConstantBuffer
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>std::unique_ptr&lt;<a href="../interfaces/iconstantbuffer.html">IConstantBuffer</a>&gt;</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The constant buffer that is used in <code><a href="#ApplyArtifacts">ApplyArtifacts</a></code> as an input to the 
+              <a href="../../shader-reference/generator-shaders/apply-artifacts.html">generator-apply-artifacts</a>
+              shader.
+            </section>
+          </dd>        
+
+
+
+          <dt id="phasesTexture">phasesTexture</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                std::unique_ptr&lt;IRenderTarget&gt; phasesTexture
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>std::unique_ptr&lt;<a href="../interfaces/irendertarget.html">IRenderTarget</a>&gt;</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              A texture (with dimensions of 
+              <code>(1 x <a href="#signalProps">signalProps.scanlineCount</a>)</code>
+              containing the colorburst phase for each scanline (in fractional multiples of the 
+              color carrier frequency) of the last frame rendered by <code><a href="#Generate">Generate</a></code>.            
+            </section>
+          </dd>        
+
+
+
+          <dt id="signalTexture">signalTexture</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                std::unique_ptr&lt;IRenderTarget&gt; signalTexture
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>std::unique_ptr&lt;<a href="../interfaces/irendertarget.html">IRenderTarget</a>&gt;</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              A texture (with dimensions of 
+              <code>(
+                <a href="#signalProps">signalProps.scanlineWidth</a>
+                x <a href="#signalProps">signalProps.scanlineCount</a>)</code>
+              containing the generated composite or S-Video scanline signals for the last 
+              frame rendered by <code><a href="#Generate">Generate</a></code>.
+            </section>
+          </dd>        
+
+          <dt id="scratchSignalTexture">scratchSignalTexture</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                std::unique_ptr&lt;IRenderTarget&gt; scratchSignalTexture
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>std::unique_ptr&lt;<a href="../interfaces/irendertarget.html">IRenderTarget</a>&gt;</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                A texture (with the same dimensions and format as <code><a href="#signalTexture">signalTexture</a></code>)
+                used as the temporary output of <code><a href="#ApplyArtifacts">ApplyArtifacts</a></code>.
+              </p>
+              <p>
+                At the end of <code>ApplyArtifacts</code>, this texture is swapped with <code>signalTexture</code> so
+                <code>signalTexture</code> always contains the latest signal output.
+              </p>
+            </section>
+          </dd>        
+
+
+
+          <dt id="sourceSettings">sourceSettings</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                SourceSettings sourceSettings
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code><a href="../structs/sourcesettings.html">SourceSettings</a></code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The source settings that were given to use in <a href="#constructor">the constructor</a>.
+            </section>
+          </dd>        
+
+          <dt id="signalProps">signalProps</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                Internal::SignalProperties signalProps
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code><a href="../structs/signalproperties.html">Internal::<wbr>SignalProperties</a></code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              Properties of the signal generated based on the inputs to <a href="#constructor">the constructor</a>.
+            </section>
+          </dd>        
+
+          <dt id="levels">levels</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                Internal::SignalLevels levels
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code><a href="../structs/signallevels.html">Internal::<wbr>SignalLevels</a></code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              Level information that is generated when <code><a href="#GenerateCleanSignal">GenerateCleanSignal</a></code>
+              runs.
+            </section>
+          </dd>        
+
+
+
+          <dt id="artifactSettings">artifactSettings</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                ArtifactSettings artifactSettings
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code><a href="../structs/artifactsettings.html">ArtifactSettings</a></code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The artifact settings that were given to us on the last call to 
+              <code><a href="#SetArtifactSettings">SetArtifactSettings</a></code>.
+            </section>
+          </dd>        
+
+
+
+          <dt id="frameStartPhaseNumerator">frameStartPhaseNumerator</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                uint32_t frameStartPhaseNumerator = 0
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>uint32_t</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                The numerator of the scanline phase value for the first scanline of the current frame.
+              </p>
+              <p>
+                The actual phase value is this divided by <code><a href="#sourceSettings">sourceSettings</a>.<a href="../structs/sourcesettings.html#denominator">denominator</a></code>.
+              </p>
+            </section>
+          </dd>        
+
+          <dt id="prevFrameStartPhaseNumerator">prevFrameStartPhaseNumerator</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                uint32_t prevFrameStartPhaseNumerator = 0
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>uint32_t</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                The numerator of the scanline phase value for the first scanline of the previously-generated frame.
+              </p>
+              <p>
+                This is used as the starting phase for the (optional) second version of the current frame generated
+                for <a href="../../how/temporal-aliasing.html">temporal artifact reduction</a>.
+              </p>
+              <p>
+                The actual phase value is this divided by <code><a href="#sourceSettings">sourceSettings</a>.<a href="../structs/sourcesettings.html#denominator">denominator</a></code>.
+              </p>
+            </section>
+          </dd>        
+
+          <dt id="isEvenFrame">isEvenFrame</dt>
+          <dd>
+            <div class="code-definition syntax-cpp">
+              <pre>
+                bool isEvenFrame = false
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>bool</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                This is true if this is an "even" frame, false if it's an "odd" frame, tracked for purposes of knowing
+                which value to increment <code><a href="#frameStartPhaseNumerator">frameStartPhaseNumerator</a></code>
+                by every frame.
+              </p>
+              <p>
+                The first frame is considered the even frame, and then it alternates from there.
+              </p>
+            </section>
+          </dd>        
+        </dl>
       </main>
     </div>
   </body>
