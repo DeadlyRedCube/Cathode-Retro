@@ -51,7 +51,7 @@ const crTypes =
 
 function SyntaxHighlight(element, keywords)
 {
-  let matches = [...element.textContent.matchAll(/(\/\/[^\r\n]*)|(#[\A-Za-z_]*)|("[^"]*")|([A-Za-z_][\w]*)|(\d+)|(\s+)|([!@%^&*\(\)~{}\[\]\|:;\.\,=\-\>\<\?\/]+)/g)];
+  let matches = [...element.textContent.matchAll(/(\/\/[^\r\n]*)|(#[\A-Za-z_]*)|("[^"]*")|([A-Za-z_][\w]*)|(\d+)(?:\.\d*f?)?|(\s+)|([!@%^&*\(\)~{}\[\]\|:;\.\,=\-\>\<\?\/]+)/g)];
   let newHTML = "";
   for (v of matches)
   {
