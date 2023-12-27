@@ -12,7 +12,183 @@
     <div id="content-outer" class="content-outer">
       <main>
         <h1>Shader Reference</h1>
-        (Content coming soon)
+        <p>
+          The core of Cathode Retro is a series of shaders that, combined, create the effect
+          of an NTSC signal running on a CRT TV or monitor.</p>
+        </p>
+        <p>This section contains reference information about all of the various shaders and shader headers.</p>
+        <p>
+          For information about how these shaders are intended to chain together, see
+          the <a href="../start-shaders/shader-graph.html">shader graph</a> page.
+        <hgroup>
+          <h2>Utility Shader Headers</h2>
+          <div class="lr-table">
+            <div class="left">
+              <a href="util-headers/box-filter.html"><code>box-filter</code></a>
+            </div>
+            <div class="right">
+              Distort a given texture coordinate to emulate a curved CRT screen
+            </div>
+            <div class="left">
+              <a href="util-headers/lanczos.html"><code>lanczos</code></a>
+            </div>
+            <div class="right">
+              Separable Lanczos2 downsample
+            </div>
+            <div class="left">
+              <a href="util-headers/language-helpers.html"><code>language-helpers</code></a>
+            </div>
+            <div class="right">
+              Common header for all shaders, providing cross-platform (HLSL and GLSL) macros and functions
+            </div>
+            <div class="left">
+              <a href="util-headers/noise.html"><code>noise</code></a>
+            </div>
+            <div class="right">
+              Some noise generators
+            </div>
+            <div class="left">
+              <a href="util-headers/tracking-instability.html"><code>tracking-instability</code></a>
+            </div>
+            <div class="right">
+              Calculate the per-scanline instability noise
+            </div>          
+          </div>
+        </hgroup>
+        <hgroup>
+          <h2>Utility Shaders</h2>
+          <div class="lr-table">
+            <div class="left">
+              <a href="util-shaders/basic-vertex-shader.html"><code>basic-vertex-shader</code></a>
+            </div>
+            <div class="right">
+              A simple quad in/quad out vertex shader
+            </div>
+            <div class="left">
+              <a href="util-shaders/copy.html"><code>copy</code></a>
+            </div>
+            <div class="right">
+              Shader that just writes out the texture directly (for copying textures)
+            </div>
+            <div class="left">
+              <a href="util-shaders/downsample-2x.html"><code>downsample-2x</code></a>
+            </div>
+            <div class="right">
+              Do a separable 2x downsample
+            </div>
+            <div class="left">
+              <a href="util-shaders/gaussian-blur.html"><code>gaussian-blur</code></a>
+            </div>
+            <div class="right">
+              13-tap separable gaussian blur
+            </div>
+            <div class="left">
+              <a href="util-shaders/tonemap-and-downsample.html"><code>tonemap-and-downsample</code></a>
+            </div>
+            <div class="right">
+              Does both a basic tonemap (for the diffusion shader) as well as a downsample
+            </div>          
+          </div>
+        </hgroup>
+        <hgroup>
+          <h2>Generator Shaders</h2>
+          <div class="lr-table">
+            <div class="left">
+              <a href="generator-shaders/apply-artifacts.html"><code>apply-artifacts</code></a>
+            </div>
+            <div class="right">
+              Apply ghosting and noise to an S-Video or Composite signal
+            </div>
+            <div class="left">
+              <a href="generator-shaders/gen-phase.html"><code>gen-phase</code></a>
+            </div>
+            <div class="right">
+              Generate the phase of the colorburst for each scanline
+            </div>
+            <div class="left">
+              <a href="generator-shaders/rgb-to-svideo-or-composite.html"><code>rgb-to-svideo-or-composite</code></a>
+            </div>
+            <div class="right">
+              Take an RGB image and turn it into either an S-Video or Composite signal
+            </div>          
+          </div>
+        </hgroup>
+        <hgroup>
+          <h2>Decoder Shaders</h2>
+          <div class="lr-table">
+            <div class="left">
+              <a href="decoder-shaders/composite-to-svideo.html"><code>composite-to-svideo</code></a>
+            </div>
+            <div class="right">
+              Break a composite signal apart into its separate luma and chroma signals
+            </div>
+            <div class="left">
+              <a href="decoder-shaders/filter-rgb.html"><code>filter-rgb</code></a>
+            </div>
+            <div class="right">
+              Do a blur or sharpen on an RGB texture
+            </div>
+            <div class="left">
+              <a href="decoder-shaders/svideo-to-modulated-chroma.html"><code>svideo-to-modulated-chroma</code></a>
+            </div>
+            <div class="right">
+              Run <a href="../how/decoding-scanline.html">demodulation</a>
+              on an S-Video signal to prepare for conversion to RGB
+            </div>
+            <div class="left">
+              <a href="decoder-shaders/svideo-to-rgb.html"><code>svideo-to-rgb</code></a>
+            </div>
+            <div class="right">
+              Take an S-Video signal (and its pre-modulated chroma) and converts it to RGB
+            </div>
+          </div>
+        </hgroup>
+        <hgroup>
+          <h2>CRT Shader Headers</h2>
+          <div class="lr-table">
+            <div class="left">
+              <a href="crt-headers/distort-coordinates.html"><code>distort-coordinates</code></a>
+            </div>
+            <div class="right">
+              Distort a given texture coordinate to emulate a curved CRT screen.
+            </div>
+          </div>
+        </hgroup>
+        <hgroup>
+          <h2>CRT Shaders</h2>
+          <div class="lr-table">
+            <div class="left">
+              <a href="crt-shaders/generate-aperture-grille.html"><code>generate-aperture-grille</code></a>
+            </div>
+            <div class="right">
+              Generate a texture representing an aperture grille, one of the CRT mask options
+            </div>
+            <div class="left">
+              <a href="crt-shaders/generate-screen-texture.html"><code>generate-screen-texture</code></a>
+            </div>
+            <div class="right">
+              Generate a full-output-sized texture with the CRT mask overlay and a mask channel
+            </div>
+            <div class="left">
+              <a href="crt-shaders/generate-shadow-mask.html"><code>generate-shadow-mask</code></a>
+            </div>
+            <div class="right">
+              Generate a texture representing a shadow mask, one of the CRT mask options
+            </div>
+            <div class="left">
+              <a href="crt-shaders/generate-slot-mask.html"><code>generate-slot-mask</code></a>
+            </div>
+            <div class="right">
+              Generate a texture representing a slot mask, one of the CRT mask options
+            </div>
+            <div class="left">
+              <a href="crt-shaders/rgb-to-crt.html"><code>rgb-to-crt</code></a>
+            </div>
+            <div class="right">
+              Take an RGB input image and run it through an emulation of a CRT screen
+            </div>
+          </div>
+        </hgroup>
       </main>
     </div>
   </body>

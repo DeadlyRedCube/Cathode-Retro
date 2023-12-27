@@ -1,23 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// This signal takes an input S-Video signal and converts it into a set of YIQ color space values.
-//
-// This process is called NTSC color demodulation, which is a type of QAM demodulation.
-//
-// An NTSC signal (either composite or S-Video) is really just encoded YIQ data, where the Y value is encoded as luma
-//  and IQ is encoded as a waveform in the chroma. Since this shader takes an effective S-Video signal as input, the Y
-//  component is easy - it's just the luma channel of the input.
-//
-// Just like filtering the luma from the chroma (see the comment in CompositeToSVideo.hlsl), rather than doing any sort
-//  of fancy filtering here, the absolute best results I've gotten were from a super-basic average (which very nicely
-//  removes a very specific frequency and all integer multiples of it), which is also exactly what we need here.
-//
-// Additionally, if we want temporal artifact reduction, we're doing two of this calculation (we have a
-//  (lumaA, chromaA, lumaB, chromaB) texture representing the same frame with two different color phases), and we use
-//  the temporal artifact reduction value to blend between them, which reduces or eliminates alternating-phase-related
-//  flickering that systems like the NES could generate.
-//
-// The output of this shader is a texture that contains the decoded Y, I, and Q channels in R, G, and B
-//  (plus 1.0 in alpha).
+// This signal takes an input S-Video signal and modulates the chroma channel with a reference waveform (relative to
+//  the per-scanline phase) in preparation for getting the I and Q chroma channels (of the YIQ color space) for
+//  conversion to RGB.
 
 
 #include "cathode-retro-util-language-helpers.hlsli"
