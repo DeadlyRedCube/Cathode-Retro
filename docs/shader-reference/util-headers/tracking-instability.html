@@ -12,7 +12,83 @@
     <div id="content-outer" class="content-outer">
       <main>
         <h1>util-tracking-instability</h1>
-        (Content coming soon)
+        <p>
+          Generate the instability value for a given scanline - used to emulate the horizontal jitter (instability) of
+          a picture due to less-than-ideal signal quality.
+        <p>
+        <div class="index">
+          <h3>Functions</h3>
+          <nav>
+            <menu>
+              <li><a href="#CalculateTrackingInstabilityOffset">CalculateTrackingInstabilityOffset</a></li>
+            </menu>
+          </nav>
+        </div>
+        <h2>Functions</h2>
+        <dl class="member-list">
+          <dt id="CalculateTrackingInstabilityOffset">CalculateTrackingInstabilityOffset</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float CalculateTrackingInstabilityOffset(
+                  uint scanlineIndex, 
+                  uint noiseSeed, 
+                  float scale, 
+                  uint signalTextureWidth)
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              <p>
+                Generate the instability value for a given scanline.
+              </p>
+              <p>
+                Called by <a href="../generator-shaders/gen-phase.html">gen-phase</a>
+                and <a href="../generator-shaders/rgb-to-svideo-or-composite.html">rgb-to-svideo-or-composite</a>.
+              </p>
+            </section>
+            <h5>Parameters</h5>
+            <section>
+              <dl>
+                <dt><code>scanlineIndex</code></dt>
+                <dd>
+                  <p>Type: <code>uint</code></p>
+                  <p>
+                    The (0-based) index of the scanline to get the tracking instability offset from.
+                  </p>
+                </dd>
+                <dt><code>noiseSeed</code></dt>
+                <dd>
+                  <p>Type: <code>uint</code></p>
+                  <p>
+                    A seed value for noise generation, used to allow time-varying noise.
+                  </p>
+                </dd>
+                <dt><code>scale</code></dt>
+                <dd>
+                  <p>Type: <code>float</code></p>
+                  <p>
+                    The scale of the tracking instability.
+                  </p>
+                </dd>
+                <dt><code>signalTextureWidth</code></dt>
+                <dd>
+                  <p>Type: <code>uint</code></p>
+                  <p>
+                    The width of the signal texture, in texels.
+                  </p>
+                </dd>
+              </dl>
+            </section>
+            <h5>Return Value</h5>
+            <section>
+              Type: <code>float</code>
+              <p>
+                A noise value in the range <code>[0..1)</code>.
+              </p>
+            </section>
+          </dd>
+        </dl>
       </main>
     </div>
   </body>

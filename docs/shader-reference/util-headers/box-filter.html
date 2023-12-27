@@ -12,7 +12,96 @@
     <div id="content-outer" class="content-outer">
       <main>
         <h1>util-box-filter</h1>
-        (Content coming soon)
+        <p>
+          Perform a centered box filter (an average) - which means we might need to sample a half-texel off of either end of the filter, if
+          the filter width is even (and it probably is)
+        </p>
+        <h2>Index</h2>
+        <div class="index">
+          <h3>Functions</h3>
+          <nav>
+            <menu>
+              <li><a href="#BoxFilter">BoxFilter</a></li>
+            </menu>
+          </nav>
+        </div>
+        <h2>Functions</h2>
+        <dl class="member-list">
+          <dt id="BoxFilter">BoxFilter</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float4 BoxFilter(
+                  DECLARE_TEXTURE2D_AND_SAMPLER_PARAM(
+                    sourceTexture, 
+                    samp),
+                  float2 invTextureSize,
+                  uint filterWidth,
+                  float2 texCoord,
+                  out float4 centerSample)
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              <p>
+                Perform a centered box filter.
+              </p>
+              <p>
+                Called by <a href="../decoder-shaders/svideo-to-rgb.html">svideo-to-rgb</a> and 
+                <a href="../decoder-shaders/composite-to-svideo.html">composite-to-svideo</a>.
+              </p>
+              <p>
+              </p>
+            </section>
+            <h5>Parameters</h5>
+            <section>
+              <dl>
+                <dt><code>sourceTexture, samp</code></dt>
+                <dd>
+                  <p>Type: <code>DECLARE_TEXTURE2D_AND_SAMPLER_PARAM</code></p>
+                  <p>
+                    A texture and sampler pair used to sample the texture to be filtered.
+                  </p>
+                </dd>
+                <dt><code>invTextureSize</code></dt>
+                <dd>
+                  <p>Type: <code>float2</code></p>
+                  <p>
+                    The inverse of the texture size, equivalent to <code>(1/sourceTexture.width, 1/sourceTexture.height)</code>
+                  </p>
+                </dd>
+                <dt><code>filterWidth</code></dt>
+                <dd>
+                  <p>Type: <code>uint</code></p>
+                  <p>
+                    The width of the filter, in texels.
+                  </p>
+                </dd>
+                <dt><code>texCoord</code></dt>
+                <dd>
+                  <p>Type: <code>float2</code></p>
+                  <p>
+                    The texture coordinate for the center of the filter.
+                  </p>
+                </dd>
+                <dt><code>centerSample</code></dt>
+                <dd>
+                  <p>Type: <code>out float4</code></p>
+                  <p>
+                    Outputs the texture sample from the center point of the filter (at <code>texCoord</code>).
+                  </p>
+                </dd>
+              </dl>
+            </section>
+            <h5>Return Value</h5>
+            <section>
+              Type: <code>float4</code>
+              <p>
+                The result of the box filter.
+              </p>
+            </section>
+          </dd>      
+        </dl>      
       </main>
     </div>
   </body>

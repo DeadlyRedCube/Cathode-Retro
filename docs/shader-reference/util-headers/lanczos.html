@@ -12,7 +12,104 @@
     <div id="content-outer" class="content-outer">
       <main>
         <h1>util-lanczos</h1>
-        (Content coming soon)
+        <p>
+          This contains the function and coefficients to perform a 2x <a href="https://en.wikipedia.org/wiki/Lanczos_resampling" target="_blank">Lanczos downsample</a> along a 
+          specific direction (either horizontal or vertical).
+        </p>
+        <p>
+          The code has been optimized to take advantage of linear texture filtering (using the same technique 
+          used to generate the gaussian filters at <a href="https://drilian.com/gaussian-kernel/">https://drilian.com/gaussian-kernel/</a>,
+          using 4 texture samples for an 8-tap filter.
+        </p>
+        <h2>Index</h2>
+        <div class="index">
+          <h3>Constants</h3>
+          <nav>
+            <menu>
+              <li><a href="#k_coeffs">k_coeffs</a></li>
+              <li><a href="#k_offsets">k_offsets</a></li>
+            </menu>
+          </nav>
+          <h3>Functions</h3>
+          <nav>
+            <menu>
+              <li><a href="#Lanczos2xDownsample">Lanczos2xDownsample</a></li>
+            </menu>
+          </nav>
+        </div>        
+        <h2>Constants</h2>
+        <div class="lr-table">
+          <div id="k_coeffs"><code>float k_coeffs[4]</code></div>
+          <div>
+            An array of coefficients to use for the downsample. Each entry of this table is
+            multiplied with the result of a single sample of the input texture.
+          </div>
+          <div id="k_offsets"><code>float k_offsets[4]</code></div>
+          <div>
+            An array of texture coordinate offsets to use for the downsample, in texels. 
+            Each value is scaled down to standard texture coordinate space then added to the 
+            texture coordinate before each sample of the input texture.
+          </div>
+        </div>
+        <h2>Functions</h2>
+        <dl class="member-list">
+          <dt id="Lanczos2xDownsample">Lanczos2xDownsample</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float4 Lanczos2xDownsample(
+                  DECLARE_TEXTURE2D_AND_SAMPLER_PARAM(sourceTexture, samp),
+                  float2 centerTexCoord,
+                  float2 filterDir)
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              <p>
+                Perform a 2x Lanczos downsample along a specific direction (either horizontal or vertical).
+              </p>
+              <p>
+                Called by <a href="../util-shaders/downsample-2x.html">downsample-2x</a> and 
+                <a href="../util-shaders/tonemap-and-downsample.html">tonemap-and-downsample</a>.
+              </p>
+              <p>
+              </p>
+            </section>
+            <h5>Parameters</h5>
+            <section>
+              <dl>
+                <dt><code>sourceTexture, samp</code></dt>
+                <dd>
+                  <p>Type: <code>DECLARE_TEXTURE2D_AND_SAMPLER_PARAM</code></p>
+                  <p>
+                    A texture and sampler pair used to sample the texture to be filtered.
+                  </p>
+                </dd>
+                <dt><code>centerTexCoord</code></dt>
+                <dd>
+                  <p>Type: <code>float2</code></p>
+                  <p>
+                    The texture coordinate for the center of the filter.
+                  </p>
+                </dd>
+                <dt><code>filterDir</code></dt>
+                <dd>
+                  <p>Type: <code>float2</code></p>
+                  <p>
+                    The direction of the filter: <code>(1, 0)</code> for a horizontal downsample and <code>(0, 1)</code> for a vertical downsample.
+                  </p>
+                </dd>
+              </dl>
+            </section>
+            <h5>Return Value</h5>
+            <section>
+              Type: <code>float4</code>
+              <p>
+                The result of the 2x downsample.
+              </p>
+            </section>
+          </dd>      
+        </dl>      
       </main>
     </div>
   </body>

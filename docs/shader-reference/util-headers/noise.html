@@ -12,7 +12,124 @@
     <div id="content-outer" class="content-outer">
       <main>
         <h1>util-noise</h1>
-        (Content coming soon)
+        <p>
+          A set of deterministic, pseudo-random noise generator functions.
+        </p>
+        <p> 
+          For each function, noise generated at a given coordinate with a given seed will result in the same value every time.
+        </p>
+        <h2>Index</h2>
+        <div class="index">
+          <h3>Functions</h3>
+          <nav>
+            <menu>
+              <li><a href="#Noise1D">Noise1D</a></li>
+              <li><a href="#Noise2D">Noise2D</a></li>
+            </menu>
+          </nav>
+        </div>
+        <h2>Functions</h2>
+        <dl class="member-list">
+          <dt id="Noise1D">Noise1D</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float Noise1D(
+                  float2 coord, 
+                  float iseed)
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              <p>
+                Generate noise from a 2D coordinate and a seed.
+              </p>
+              </p>
+                The resulting value will be in the range <code>[0..1)</code>.
+              </p>
+              <p>
+                Called by <a href="../util-headers/tracking-instability.html">tracking-instability</a>.
+              </p>
+            </section>
+            <h5>Parameters</h5>
+            <section>
+              <dl>
+                <dt><code>coord</code></dt>
+                <dd>
+                  <p>Type: <code>float</code></p>
+                  <p>
+                    The 1D coordinate to generate noise at.
+                  </p>
+                </dd>
+                <dt><code>iseed</code></dt>
+                <dd>
+                  <p>Type: <code>float</code></p>
+                  <p>
+                    A seed value for the noise.
+                  </p>
+                </dd>
+              </dl>
+            </section>
+            <h5>Return Value</h5>
+            <section>
+              Type: <code>float</code>
+              <p>
+                A noise value in the range <code>[0..1)</code>.
+              </p>
+            </section>
+          </dd>
+
+          <dt id="Noise2D">Noise2D</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float Noise2D(
+                  float2 coord, 
+                  float iseed)
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              <p>
+                Generate noise from a 2D coordinate and a seed.
+              </p>
+              </p>
+                The resulting value will be in the range <code>[0..1)</code>.
+              </p>
+              <p>
+                Called by <a href="../generator-shaders/apply-artifacts.html">svideo-to-rgb</a>,
+                <a href="../crt-shaders/generate-screen-texture.html">composite-to-svideo</a>,
+                and <a href="#Noise1D"><code>Noise1D</code></a>.
+              </p>
+            </section>
+            <h5>Parameters</h5>
+            <section>
+              <dl>
+                <dt><code>coord</code></dt>
+                <dd>
+                  <p>Type: <code>float2</code></p>
+                  <p>
+                    The 2D coordinate to generate noise at.
+                  </p>
+                </dd>
+                <dt><code>iseed</code></dt>
+                <dd>
+                  <p>Type: <code>float</code></p>
+                  <p>
+                    A seed value for the noise.
+                  </p>
+                </dd>
+              </dl>
+            </section>
+            <h5>Return Value</h5>
+            <section>
+              Type: <code>float</code>
+              <p>
+                A noise value in the range <code>[0..1)</code>.
+              </p>
+            </section>
+          </dd>
+        </dl>
       </main>
     </div>
   </body>

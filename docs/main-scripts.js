@@ -116,11 +116,27 @@ function OnLoad()
     "uint32_t", "size_t",
   ];
 
+  const hlslKeywords =
+  [
+    "int", "int2", "int3", "int4",
+    "uint", "uint2", "uint3", "uint4",
+    "float", "float2", "float3", "float4",
+    "return", "void", "out",
+  ];
+
   for (codeDef of document.querySelectorAll(".syntax-cpp"))
   {
     for (pre of codeDef.querySelectorAll("pre"))
     {
       SyntaxHighlight(pre, cppKeywords);
+    }
+  }
+
+  for (codeDef of document.querySelectorAll(".syntax-hlsl"))
+  {
+    for (pre of codeDef.querySelectorAll("pre"))
+    {
+      SyntaxHighlight(pre, hlslKeywords);
     }
   }
 }
