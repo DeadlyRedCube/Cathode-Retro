@@ -12,7 +12,128 @@
     <div id="content-outer" class="content-outer">
       <main>
         <h1>util-tonemap-and-downsample</h1>
-        (Content coming soon)
+        <p>
+          This shader does a tonemap and 1D downsample of a texture, which is intended to be for the diffusion emulation in
+          the CRT side of the whole Cathode Retro process.
+        </p>
+        <p>
+          It's worth noting that in practice it is not doing a true 2x downsample, it's going to be something in that ballpark, 
+          but not exact. However, the output of this shader is expected to be blurred so it doesn't actually matter in practice.
+        </p>
+        <h2>Index</h2>
+        <div class="index">
+          <h3>Input Textures/Samplers</h3>
+          <nav>
+            <menu>
+              <li><a href="#g_sourceTexture">g_sourceTexture</a></li>
+              <li><a href="#g_sampler">g_sampler</a></li>
+            </menu>
+          </nav>
+          <h3>Uniform Buffer Values</h3>
+          <nav>
+            <menu>
+              <li><a href="#g_downsampleDir">g_downsampleDir</a></li>
+              <li><a href="#g_minLuminosity">g_minLuminosity</a></li>
+              <li><a href="#g_colorPower">g_colorPower</a></li>
+            </menu>
+          </nav>
+        </div>
+        <h2>Input Textures/Samplers</h2>
+        <dl class="member-list">
+          <dt id="g_sourceTexture">g_sourceTexture</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                g_sourceTexture
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>texture</code> (platform-specific)
+            </section>
+            <h5>Description</h5>
+            <section>
+              The texture to sample.
+            </section>
+          </dd>
+          <dt id="g_sampler">g_sampler</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                g_sampler
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>sampler</code> (platform-specific, does not exist on some platforms)
+            </section>
+            <h5>Description</h5>
+            <section>
+              The sampler to use to sample <a href="#g_sourceTexture">g_sourceTexture</a>.
+            </section>
+          </dd>
+        </dl>
+        <h2>Uniform Buffer Values</h2>
+        <dl class="member-list">
+          <dt id="g_downsampleDir">g_downsampleDir</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float2 g_downsampleDir
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float2</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The direction that we're downsampling along. 
+              Should either be <code>(1, 0)</code> to downsample horizontally to a half-width texture or
+              <code>(0, 1)</code> to downsample vertically to a half-height texture.
+            </section>
+          </dd>
+          <dt id="g_minLuminosity">g_minLuminosity</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float g_minLuminosity
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                The minimum luminosity that will contribute to the output.
+              </p>
+              <p>
+                Values at or below this luminosity in the input texture will becomes black in the output texture.
+              </p>
+              <p>
+                Values above this value will be scaled down accordingly.
+              </p>
+            </section>
+          </dd>
+          <dt id="g_colorPower">g_colorPower</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float g_colorPower
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The power to take the output value to.
+            </section>
+          </dd>
+        </dl>
       </main>
     </div>
   </body>

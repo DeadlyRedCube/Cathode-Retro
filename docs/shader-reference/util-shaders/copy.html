@@ -12,7 +12,52 @@
     <div id="content-outer" class="content-outer">
       <main>
         <h1>util-copy</h1>
-        (Content coming soon)
+        This shader does a 1:1 copy of a texture.
+        <h2>Index</h2>
+        <div class="index">
+          <h3>Input Textures/Samplers</h3>
+          <nav>
+            <menu>
+              <li><a href="#g_sourceTexture">g_sourceTexture</a></li>
+              <li><a href="#g_sampler">g_sampler</a></li>
+            </menu>
+          </nav>
+        </div>
+        <h2>Input Textures/Samplers</h2>
+        <dl class="member-list">
+          <dt id="g_sourceTexture">g_sourceTexture</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                g_sourceTexture
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>texture</code> (platform-specific)
+            </section>
+            <h5>Description</h5>
+            <section>
+              The texture to sample.
+            </section>
+          </dd>
+          <dt id="g_sampler">g_sampler</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                g_sampler
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>sampler</code> (platform-specific, does not exist on some platforms)
+            </section>
+            <h5>Description</h5>
+            <section>
+              The sampler to use to sample <a href="#g_sourceTexture">g_sourceTexture</a>.
+            </section>
+          </dd>
+        </dl>
       </main>
     </div>
   </body>
