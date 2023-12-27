@@ -12,7 +12,167 @@
     <div id="content-outer" class="content-outer">
       <main>
         <h1>generator-gen-phase</h1>
-        (Content coming soon)
+        <p>
+          This shader generates the phase of the colorburst for each scanline.
+        </p>
+        <p>
+          Basically, outside of the visible portion of a color NTSC scanline, there is a colorburst which the TV uses to tell
+          which color is the reference phase (which is yellow in color).  We're not generating a full NTSC signal, but we
+          still need to generate this data, and to do that we have a set of emulated timings for the virtual system that is
+          generating our output.
+        </p>
+        <h2>Index</h2>
+        <div class="index">
+          <h3>Uniform Buffer Values</h3>
+          <nav>
+            <menu>
+              <li><a href="#g_initialFrameStartPhase">g_initialFrameStartPhase</a></li>
+              <li><a href="#g_prevFrameStartPhase">g_prevFrameStartPhase</a></li>
+              <li><a href="#g_phaseIncrementPerScanline">g_phaseIncrementPerScanline</a></li>
+              <li><a href="#g_samplesPerColorburstCycle">g_samplesPerColorburstCycle</a></li>
+              <li><a href="#g_instabilityScale">g_instabilityScale</a></li>
+              <li><a href="#g_noiseSeed">g_noiseSeed</a></li>
+              <li><a href="#g_signalTextureWidth">g_signalTextureWidth</a></li>
+              <li><a href="#g_scanlineCount">g_scanlineCount</a></li>
+            </menu>
+          </nav>
+        </div>
+        <h2>Uniform Buffer Values</h2>
+        <dl class="member-list">
+          <dt id="g_initialFrameStartPhase">g_initialFrameStartPhase</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float g_initialFrameStartPhase
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The colorburst phase (in fractional multiples of the colorburst wavelength) for the first scanline in our
+              generated signal.
+            </section>
+          </dd>
+          <dt id="g_prevFrameStartPhase">g_prevFrameStartPhase</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float g_prevFrameStartPhase
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The colorburst phase for the first scanline of the previous frame - this is used if we're generating two
+              sets of phase information for use with temporal artifact reduction.
+            </section>
+          </dd>
+          <dt id="g_phaseIncrementPerScanline">g_phaseIncrementPerScanline</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float g_phaseIncrementPerScanline
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The amount that the phase increments every scanline, in (fractional) multiples of the colorburst wavelength.
+            </section>
+          </dd>
+          <dt id="g_samplesPerColorburstCycle">g_samplesPerColorburstCycle</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                uint g_samplesPerColorburstCycle
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>uint</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              How many samples (texels along a scanline) there are per colorburst cycle (the color wave in the composite signal)
+            </section>
+          </dd>
+          <dt id="g_instabilityScale">g_instabilityScale</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float g_instabilityScale
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The scale of any picture instability (horizontal scanline-by-scanline tracking issues). This is used to ensure the
+              phase values generated line up with the offset of the texture sampling that happens in the RGB to signal conversion.
+              Must match the similarly-named value in <a href="rgb-to-svideo-or-composite.html">rgb-to-svideo-or-composite</a>.
+            </section>
+          </dd>
+          <dt id="g_noiseSeed">g_noiseSeed</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                uint g_noiseSeed
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>uint</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              A seed for the noise used to generate the scanline-by-scanline picture instability. Must match the simiarly-named
+              value in <a href="rgb-to-svideo-or-composite.html">rgb-to-svideo-or-composite</a>.
+            </section>
+          </dd>
+          <dt id="g_signalTextureWidth">g_signalTextureWidth</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                uint g_signalTextureWidth
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>uint</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The width of the signal texture that is being generated, in texels.
+            </section>
+          </dd>
+          <dt id="g_scanlineCount">g_scanlineCount</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                uint g_scanlineCount
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>uint</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The number of scanlines for this field of video (i.e. the height of the signal texture, in texels).
+            </section>
+          </dd>
+        </dl>
       </main>
     </div>
   </body>

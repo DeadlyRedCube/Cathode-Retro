@@ -12,7 +12,251 @@
     <div id="content-outer" class="content-outer">
       <main>
         <h1>generator-rgb-to-svideo-or-composite</h1>
-        (Content coming soon)
+        <p>
+          This shader takes an RGB image and turns it into either an S-Video or Composite signal (Based on whether
+          <a href="#g_compositeBlend"><code>g_compositeBlend</code></a> is 0 or 1). We might also be generating a PAIR of these, 
+          using two different sets of phase inputs (if 
+          <a href="#g_scanlinePhases"><code>g_scanlinePhases</code></a> is a two-component input), for purposes of 
+          <a href="../how/temporal-aliasing.html">temporal aliasing reduction</a>.
+        </p>
+        <h2>Index</h2>
+        <div class="index">
+          <h3>Input Textures/Samplers</h3>
+          <nav>
+            <menu>
+              <li><a href="#g_sourceTexture">g_sourceTexture</a></li>
+              <li><a href="#g_sourceSampler">g_sourceSampler</a></li>
+              <li>&nbsp;</li>
+              <li><a href="#g_sourceTexture">g_scanlinePhases</a></li>
+              <li><a href="#g_sourceSampler">g_scanlinePhasesSampler</a></li>
+            </menu>
+          </nav>
+          <h3>Uniform Buffer Values</h3>
+          <nav>
+            <menu>
+              <li><a href="#g_filterDir">g_filterDir</a></li>
+            </menu>
+          </nav>
+        </div>
+        <h2>Input Textures/Samplers</h2>
+        <dl class="member-list">
+          <dt id="g_sourceTexture">g_sourceTexture</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                g_sourceTexture
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>texture</code> (platform-specific)
+            </section>
+            <h5>Description</h5>
+            <section>
+              The RGB input texture. It is expected to be <a href="#g_inputWidth"><code>g_inputWidth</code></a>
+              by <a href="#g_scanlineCount"><code>g_scanlineCount</code></a> in size.
+            </section>
+          </dd>
+          <dt id="g_sourceSampler">g_sourceSampler</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                g_sampler
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>sampler</code> (platform-specific, does not exist on some platforms)
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                The sampler to use to sample <a href="#g_sourceTexture">g_sourceTexture</a>.
+              </p>
+              <p>
+                This sampler should be set up with linear filtering, and either clamp or border addressing.
+              </p>
+            </section>
+          </dd>
+          <dt id="g_scanlinePhases">g_scanlinePhases</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                g_scanlinePhases
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>texture</code> (platform-specific)
+            </section>
+            <h5>Description</h5>
+            <section>
+              This is the scanline phases texture (the output of <a href="gen-phase.html">gen-phase</a>).
+              It is <code><a href="#g_scanlineCount">g_scanlineCount</a> x 1</code> in size, and each
+              texel component in it represents the phase offset of the NTSC colorburst for the corresponding scanline, in
+              multiples of the colorburst wavelength.
+            </section>
+          </dd>
+          <dt id="g_scanlinePhasesSampler">g_scanlinePhasesSampler</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                g_scanlinePhasesSampler
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>sampler</code> (platform-specific, does not exist on some platforms)
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                The sampler to use to sample <a href="#g_scanlinePhases">g_scanlinePhases</a>.
+              </p>
+              <p>
+                This sampler should be set up with linear filtering, and either clamp or border addressing.
+              </p>
+            </section>
+          </dd>
+        </dl>
+        <h2>Uniform Buffer Values</h2>
+        <dl class="member-list">
+          <dt id="g_outputTexelsPerColorburstCycle">g_outputTexelsPerColorburstCycle</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                uint g_outputTexelsPerColorburstCycle
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>uint </code>
+            </section>
+            <h5>Description</h5>
+            <section>
+            The number of texels that the output texture will contain for each color cycle wave (i.e. the wavelength in output
+            samples of the color carrier wave).
+            </section>
+          </dd>
+          <dt id="g_inputWidth">g_inputWidth</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                uint g_inputWidth
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>uint</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The width of the input texture.
+            </section>
+          </dd>
+          <dt id="g_outputWidth">g_outputWidth</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                uint g_outputWidth
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>uint</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The width of the output render target.
+            </section>
+          </dd>
+          <dt id="g_scanlineCount">g_scanlineCount</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                uint g_scanlineCount
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>uint</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The number of scanlines in the current field of video (the height of the input texture).
+            </section>
+          </dd>
+          <dt id="g_compositeBlend">g_compositeBlend</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float g_compositeBlend
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float </code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              Whether we're blending the generated luma/chroma into a single output channel or not. It is expected to
+              be <code>0</code> or <code>1</code> (no intermediate values), where "<code>0</code>" means "keep luma and chroma separate, like an S-Video signal" and
+              "<code>1</code>" means "add the two together, like a composite signal".
+            </section>
+          </dd>
+          <dt id="g_instabilityScale">g_instabilityScale</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float g_instabilityScale
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The scale of any picture instability (horizontal scanline-by-scanline tracking issues). This is used to offset our
+              texture sampling when generating the output so the picture tracking is imperfect.  Must match the similarly-named
+              value in <a href="gen-phase.html">gen-phase</a>.
+            </section>
+          </dd>
+          <dt id="g_noiseSeed">g_noiseSeed</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                uint g_noiseSeed
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>uint</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              A seed for the noise used to generate the scanline-by-scanline picture instability. Must match the simiarly-named
+              value in <a href="gen-phase.html">gen-phase</a>.
+            </section>
+          </dd>
+          <dt id="g_sidePaddingTexelCount">g_sidePaddingTexelCount</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                uint g_sidePaddingTexelCount
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>uint</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The number of output texels to pad on either side of the signal texture (so that filtering won't have visible
+              artifacts on the left and right sides).
+            </section>
+          </dd>
+        </dl>
       </main>
     </div>
   </body>
