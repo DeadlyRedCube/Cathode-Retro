@@ -208,7 +208,7 @@ a[name],
   margin: 0px;
   margin-left: var(--sidebar-width);
   margin-top: var(--header-height);
-  width: calc(100vw - var(--sidebar-width));
+  width: calc(100% - var(--sidebar-width));
   max-width: var(--max-content-width);
   padding: 30px;
   box-sizing: border-box;
@@ -219,10 +219,10 @@ a[name],
   content: "";
   background-color: var(--background-far);
   position: fixed;
-  right: 0;
+  left: calc(var(--sidebar-width) + var(--max-content-width));
   top: 0;
   height: 100vh;
-  width: calc(100vw - (var(--sidebar-width) + var(--max-content-width)));
+  width: 100vw;
 }
 
 main
@@ -492,9 +492,21 @@ a:active
 .image-right
 {
   display: flex;
-  flex-direction: row;
+  flex-direction: row-reverse;
   gap: 10px;
+  margin: 0px;
+  align-items: start;
 }
+
+.image-right > div > p:first-of-type
+{
+  margin-top: 0px;
+} 
+
+.image-right > div > p:last-of-type
+{
+  margin-bottom: 0px;
+} 
 
 .image-right > img
 {
@@ -682,12 +694,12 @@ a:active
     left: 0;
     top: 0;
     height: 100vh;
-    width: calc((100vw - var(--max-content-width)) / 2);
+    width: calc((100% - var(--max-content-width)) / 2);
   }
 
   .content-outer::after
   {
-    width: calc((100vw - var(--max-content-width)) / 2);
+    left: calc(var(--max-content-width) + (100% - var(--max-content-width)) / 2);
   }
 
 
@@ -768,10 +780,24 @@ a:active
   {
     padding-top: 25px;
   }
+  
+  .image-right
+  {
+    position: relative;
+    display: block;
+  }
+
+  .image-right > div
+  {
+    min-height: 75px;
+  }
 
   .image-right > img
   {
     width: 75px;
     height: 75px;
+    float: inline-end;
+    margin-left: 10px;
+    margin-bottom: 10px;
   }
 }
