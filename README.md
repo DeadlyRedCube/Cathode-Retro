@@ -1,4 +1,4 @@
-![Cathode Retro Logo](https://github.com/DeadlyRedCube/Cathode-Retro/assets/3751413/79c2b350-ae60-45ce-9953-ee9aef767a3c)
+![Cathode Retro Logo](https://github.com/DeadlyRedCube/Cathode-Retro/blob/main/Images/CathodeRetroLogo-CRTSmall.png)
 ## Table of Contents
 * [Introduction](#introduction)
 * [Screenshots](#screenshots)
