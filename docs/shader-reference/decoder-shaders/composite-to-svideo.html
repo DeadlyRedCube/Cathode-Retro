@@ -12,7 +12,95 @@
     <div id="content-outer" class="content-outer">
       <main>
         <h1>decoder-composite-to-svideo</h1>
-        (Content coming soon)
+        <p>
+          This shader takes a composite signal (like you'd get via a console's composite input) and separates out the luma
+          from the chroma so it is effectively an SVideo signal.
+        </p>
+        <p>
+          This shader is capable of doing TWO luma/chroma demodulations at once (one to the
+          r and g output channels and one to b and a), for purposes of <a href="../../how/temporal-aliasing.html">temporal aliasing reduction</a>.
+        </p>
+        <p>
+          See <a href="../../how/decoding-scanline.html">Decoding A Fake NTSC Scanline</a> for more information.
+        </p>
+        <h2>Index</h2>
+        <div class="index">
+          <h3>Input Textures/Samplers</h3>
+          <nav>
+            <menu>
+              <li><a href="#g_sourceTexture">g_sourceTexture</a></li>
+              <li><a href="#g_sampler">g_sampler</a></li>
+            </menu>
+          </nav>
+          <h3>Uniform Buffer Values</h3>
+          <nav>
+            <menu>
+              <li><a href="#g_samplesPerColorburstCycle">g_samplesPerColorburstCycle</a></li>
+            </menu>
+          </nav>
+        </div>
+        <h2>Input Textures/Samplers</h2>
+        <dl class="member-list">
+          <dt id="g_sourceTexture">g_sourceTexture</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                g_sourceTexture
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>texture</code> (platform-specific)
+            </section>
+            <h5>Description</h5>
+            <section>
+              The texture to sample.
+            </section>
+          </dd>
+          <dt id="g_sampler">g_sampler</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                g_sampler
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>sampler</code> (platform-specific, does not exist on some platforms)
+            </section>
+            <h5>Description</h5>
+            <section>
+              The sampler to use to sample <a href="#g_sourceTexture">g_sourceTexture</a>.
+            </section>
+          </dd>
+        </dl>
+        <h2>Uniform Buffer Values</h2>
+        <dl class="member-list">
+          <dt id="g_samplesPerColorburstCycle">g_samplesPerColorburstCycle</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                uint g_samplesPerColorburstCycle
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>uint</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                How many samples (texels along a scanline) there are per colorburst cycle (the color wave in the composite
+                signal). 
+              </p>
+              <p>
+                This shader currently assumes that it is integral (hence the int input) but it is totally possible to
+                make the shader support a floating-point value instead - it would just need to do an extra fractional addition of
+                the last texel.
+              </p>
+            </section>
+          </dd>
+        </dl>
       </main>
     </div>
   </body>

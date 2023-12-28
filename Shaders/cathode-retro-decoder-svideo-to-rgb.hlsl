@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// This signal takes an input S-Video signal and converts it into a set of YIQ color space values.
+// This shader takes an input S-Video signal and converts it into an RGB color.
 //
 // This process is called NTSC color demodulation, which is a type of QAM demodulation.
 //

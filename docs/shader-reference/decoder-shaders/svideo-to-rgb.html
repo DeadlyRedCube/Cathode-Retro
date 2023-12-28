@@ -12,7 +12,301 @@
     <div id="content-outer" class="content-outer">
       <main>
         <h1>decoder-svideo-to-rgb</h1>
-        (Content coming soon)
+        <p>
+          This shader takes an input S-Video signal (with separate luma and chroma components) and converts it into an RGB color.
+        </p>
+        <p>
+          For more information, refer to <a href="../../how/decoding-scanline.html">Decoding A Fake NTSC Scanline</a>.
+        </p>
+        <h2>Index</h2>
+        <div class="index">
+          <h3>Input Textures/Samplers</h3>
+          <nav>
+            <menu>
+              <li><a href="#g_sourceTexture">g_sourceTexture</a></li>
+              <li><a href="#g_sourceSampler">g_sourceSampler</a></li>
+              <li>&nbsp;</li>
+              <li><a href="#g_modulatedChromaTexture">g_modulatedChromaTexture</a></li>
+              <li><a href="#g_modulatedChromaSampler">g_modulatedChromaSampler</a></li>
+            </menu>
+          </nav>
+          <h3>Uniform Buffer Values</h3>
+          <nav>
+            <menu>
+              <li><a href="#g_samplesPerColorburstCycle">g_samplesPerColorburstCycle</a></li>
+              <li><a href="#g_saturation">g_saturation</a></li>
+              <li><a href="#g_brightness">g_brightness</a></li>
+              <li><a href="#g_blackLevel">g_blackLevel</a></li>
+              <li><a href="#g_whiteLevel">g_whiteLevel</a></li>
+              <li><a href="#g_temporalArtifactReduction">g_temporalArtifactReduction</a></li>
+              <li><a href="#g_inputWidth">g_inputWidth</a></li>
+              <li><a href="#g_outputWidth">g_outputWidth</a></li>
+            </menu>
+          </nav>
+        </div>
+        <h2>Input Textures/Samplers</h2>
+        <dl class="member-list">
+          <dt id="g_sourceTexture">g_sourceTexture</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                g_sourceTexture
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>texture</code> (platform-specific)
+            </section>
+            <h5>Description</h5>
+            <section>
+              This is a 2- or 4-component texture that contains either a single luma, chroma sample pair or two luma, chroma pairs
+              of S-Video-like signal. It is 2 components if we have no temporal artifact reduction (we're not blending two
+              versions of the same frame), 4 if we do.
+            </section>
+          </dd>
+          <dt id="g_sourceSampler">g_sourceSampler</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                g_sourceSampler
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>sampler</code> (platform-specific, does not exist on some platforms)
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                The sampler to use to sample <a href="#g_sourceTexture">g_sourceTexture</a>.
+              </p>
+              <p>
+                This sampler should be set up for linear filtering and clamped addressing.
+              </p>
+            </section>
+          </dd>
+
+          <dt id="g_modulatedChromaTexture">g_modulatedChromaTexture</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                g_modulatedChromaTexture
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>texture</code> (platform-specific)
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                This is a 2- or 4-component texture that contains the output of the 
+                <a href="svideo-to-modulated-chroma.html">svideo-to-modulated-chroma</a> shader 
+                (the chroma portions of the input signal modulated with the carrier
+                quadrature). Basically, it's <code>float4(chromaA * sin, chromaA * cos, chromaB * sin, chromaB * cos)</code>.
+              </p>
+              <p>
+                This has been modulated in a separate pass for efficiency - otherwise this shader would need to do a bunch of sines and cosines
+                per texel.
+              </p>
+            </section>
+          </dd>
+          <dt id="g_modulatedChromaSampler">g_modulatedChromaSampler</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                g_modulatedChromaSampler
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>sampler</code> (platform-specific, does not exist on some platforms)
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                The sampler to use to sample <a href="#g_modulatedChromaTexture">g_modulatedChromaTexture</a>.
+              </p>
+              <p>
+                This sampler should be set up for linear filtering and clamped addressing.
+              </p>
+            </section>
+          </dd>
+        </dl>
+        <h2>Uniform Buffer Values</h2>
+        <dl class="member-list">
+          <dt id="g_samplesPerColorburstCycle">g_samplesPerColorburstCycle</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                uint g_samplesPerColorburstCycle
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>uint</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              How many samples (horizontal texels) there are per each color wave cycle.
+            </section>
+          </dd>
+          <dt id="g_saturation">g_saturation</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float g_saturation
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                This is a value representing how saturated we want the output to be. 
+                <code>0</code> basically means we'll decode as a grayscale
+                image, <code>1</code> means fully saturated color (i.e. the intended input saturation), 
+                and you could even set values greater than <code>1</code> to oversaturate.
+              </p>
+              <p>
+                This corresponds to the saturation dial of a CRT TV.
+              </p>
+              <p>
+                <b>NOTE:</b> This value should be pre-scaled by the <a href="#g_brightness"><code>g_brightness</code></a> value, so that if brightness is 
+                <code>0</code>, saturation is always <code>0</code> - otherwise, you get 
+                weird output values where there should have been nothing visible but instead you get a
+                pure color instead.
+              </p>
+            </section>
+          </dd>
+          <dt id="g_brightness">g_brightness</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float g_brightness
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                This is a value representing the brightness of the output. a value of <code>0</code> means 
+                the shader will output pure black, and <code>1</code> means
+                "the intended brightness based on the input signal". Values above <code>1</code> will over-brighten the output.
+              </p>
+              <p>
+                This corresponds to the brightness dial of a CRT TV.            
+              </p>
+            </section>
+          </dd>
+          <dt id="g_blackLevel">g_blackLevel</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float g_blackLevel
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                This is the luma value of the input signal that represents black. 
+                For our synthetic signals it's typically <code>0.0</code>,
+                but from a real NTSC signal this can be some other voltage level, since a voltage of <code>0</code> typically indicates a
+                horizontal or vertical blank instead. 
+              </p>
+              <p>
+                This is calculated from/generated with the composite or S-Video signal the decoder is given.
+              </p>
+            </section>
+          </dd>
+          <dt id="g_whiteLevel">g_whiteLevel</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float g_whiteLevel
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                This is the luma value of the input signal that represents brightest white.  For our synthetic signals it's
+                typically <code>1.0</code>, but from a real NTSC signal it could be some other value.
+              </p>
+              <p>
+                This is calculated from/generated with the composite or S-Video signal the decoder is given.
+              </p>
+            </section>
+          </dd>
+          <dt id="g_temporalArtifactReduction">g_temporalArtifactReduction</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float g_temporalArtifactReduction
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                A [0..1] value indicating how much we want to blend in an alternate version of the generated signal to adjust for
+                any <a href="../../how/temporal-aliasing.html">aliasing between successive frames</a>. 
+              </p>
+              <p>
+                A value of <code>0</code> means we only have (or want to use) a single input luma/chroma pair.
+                A value greater than <code>0</code> means we are going to blend the results of two parallel-computed versions of our RGB values, with a
+                value of <code>1.0</code> being a pure average of the two.
+              </p>
+            </section>
+          </dd>
+          <dt id="g_inputWidth">g_inputWidth</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                uint g_inputWidth
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>uint</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The width of the input signal (including any side padding)
+            </section>
+          </dd>
+          <dt id="g_outputWidth">g_outputWidth</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                uint g_outputWidth
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>uint</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The width of the output RGB image (should be the width of the input signal minus the side padding).
+            </section>
+          </dd>
+        </dl>
       </main>
     </div>
   </body>

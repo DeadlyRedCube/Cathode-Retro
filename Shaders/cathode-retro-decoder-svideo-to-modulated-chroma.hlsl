@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// This signal takes an input S-Video signal and modulates the chroma channel with a reference waveform (relative to
+// This shader takes an input S-Video signal and modulates the chroma channel with a reference waveform (relative to
 //  the per-scanline phase) in preparation for getting the I and Q chroma channels (of the YIQ color space) for
-//  conversion to RGB.
+//  conversion to RGB. This is essentially a pre-pass for cathode-retro-decoder-svideo-to-rgb.
 
 
 #include "cathode-retro-util-language-helpers.hlsli"
 
 
 // This is a 2- or 4-component texture that contains either a single luma, chroma sample pair or two luma, chroma pairs
-//  of S-Video-like signal. It's 2 components if we have no temporal artifact reduction (we're not blending two
+//  of S-Video-like signal. It is 2 components if we have no temporal artifact reduction (we're not blending two
 //  versions of the same frame), 4 if we do.
 // This sampler should be set up for linear filtering and clamped addressing (no wrapping).
 DECLARE_TEXTURE2D(g_sourceTexture, g_sourceSampler);

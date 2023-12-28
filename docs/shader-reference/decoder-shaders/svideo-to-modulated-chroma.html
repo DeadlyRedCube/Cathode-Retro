@@ -12,7 +12,178 @@
     <div id="content-outer" class="content-outer">
       <main>
         <h1>decoder-svideo-to-modulated-chroma</h1>
-        (Content coming soon)
+        <p>
+          This shader takes an input S-Video signal and modulates the chroma channel with a reference waveform (relative to
+          the per-scanline phase) in preparation for getting the I and Q chroma channels (of the YIQ color space) for
+          conversion to RGB. 
+        </p>
+        <p>
+          This is essentially a pre-pass for <a href="svideo-to-rgb.html">svideo-to-rgb</a>, to avoid doing
+          (with the standard filter sizes) 8 sines and cosines per output texel from that shader.
+        </p>
+        <h2>Index</h2>
+        <div class="index">
+          <h3>Input Textures/Samplers</h3>
+          <nav>
+            <menu>
+              <li><a href="#g_sourceTexture">g_sourceTexture</a></li>
+              <li><a href="#g_sourceSampler">g_sourceSampler</a></li>
+              <li>&nbsp;</li>
+              <li><a href="#g_scanlinePhases">g_scanlinePhases</a></li>
+              <li><a href="#g_scanlinePhasesSampler">g_scanlinePhasesSampler</a></li>
+            </menu>
+          </nav>
+          <h3>Uniform Buffer Values</h3>
+          <nav>
+            <menu>
+              <li><a href="#g_samplesPerColorburstCycle">g_samplesPerColorburstCycle</a></li>
+              <li><a href="#g_tint">g_tint</a></li>
+              <li><a href="#g_inputWidth">g_inputWidth</a></li>
+            </menu>
+          </nav>
+        </div>
+        <h2>Input Textures/Samplers</h2>
+        <dl class="member-list">
+          <dt id="g_sourceTexture">g_sourceTexture</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                g_sourceTexture
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>texture</code> (platform-specific)
+            </section>
+            <h5>Description</h5>
+            <section>
+              This is a 2- or 4-component texture that contains either a single luma, chroma sample pair or two luma, chroma pairs
+              of S-Video-like signal. It is 2 components if we have no <a href="../../how/temporal-aliasing.html">temporal aliasing reduction</a> (we're not blending two
+              versions of the same frame), 4 components if we do.
+            </section>
+          </dd>
+          <dt id="g_sourceSampler">g_sourceSampler</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                g_sourceSampler
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>sampler</code> (platform-specific, does not exist on some platforms)
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                The sampler to use to sample <a href="#g_sourceTexture">g_sourceTexture</a>.
+              </p>
+              <p>
+                This sampler should be set up for linear filtering and clamped addressing (no wrapping).
+              </p>
+            </section>
+          </dd>
+          <dt id="g_scanlinePhases">g_scanlinePhases</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                g_scanlinePhases
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>texture</code> (platform-specific)
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                This is a 1- or 2-component texture that contains the colorburst phase offsets for each scanline. It's 1 component
+                if we have no temporal artifact reduction, and 2 if we do.
+              </p>
+              <p>
+                Each phase value in this texture is the phase in (fractional) multiples of the colorburst wavelength.
+              </p>
+            </section>
+          </dd>
+          <dt id="g_scanlinePhasesSampler">g_scanlinePhasesSampler</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                g_scanlinePhasesSampler
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>sampler</code> (platform-specific, does not exist on some platforms)
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                The sampler to use to sample <a href="#g_scanlinePhases">g_scanlinePhases</a>.
+              </p>
+              <p>
+                This sampler should be set up for linear filtering and clamped addressing (no wrapping).
+              </p>
+            </section>
+          </dd>
+        </dl>
+        <h2>Uniform Buffer Values</h2>
+        <dl class="member-list">
+          <dt id="g_samplesPerColorburstCycle">g_samplesPerColorburstCycle</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                uint g_samplesPerColorburstCycle
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>uint</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              How many samples (horizontal texels) there are per each color wave cycle.
+            </section>
+          </dd>
+          <dt id="g_tint">g_tint</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float g_tint
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                A value representing the tint offset (in colorburst wavelengths) from baseline that we want to use. Mostly used
+                for fun to emulate the tint dial of a CRT TV.            
+              </p>
+              <p>
+                A value of <code>0.0</code> represents using the standard decoded colors.
+              </p>
+            </section>
+          </dd>
+          <dt id="g_inputWidth">g_inputWidth</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                uint g_filterDir
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>uint</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The width of the input signal (in texels).
+            </section>
+          </dd>
+        </dl>
       </main>
     </div>
   </body>
