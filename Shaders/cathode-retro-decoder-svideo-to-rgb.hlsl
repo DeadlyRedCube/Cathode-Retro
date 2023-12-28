@@ -25,7 +25,7 @@
 
 
 // This is a 2- or 4-component texture that contains either a single luma, chroma sample pair or two luma, chroma pairs
-//  of S-Video-like signal. It's 2 components if we have no temporal artifact reduction (we're not blending two
+//  of S-Video-like signal. It is 2 components if we have no temporal artifact reduction (we're not blending two
 //  versions of the same frame), 4 if we do. This sampler should be set up for linear filtering and clamped addressing.
 DECLARE_TEXTURE2D(g_sourceTexture, g_sourceSampler);
 

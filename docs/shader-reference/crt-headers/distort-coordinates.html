@@ -12,7 +12,116 @@
     <div id="content-outer" class="content-outer">
       <main>
         <h1>crt-distort-coordinates</h1>
-        (Content coming soon)
+        <p>
+          Do a barrel distortion to a given texture coordinate to emulate a curved CRT screen.
+        </p>
+        <h2>Index</h2>
+        <div class="index">
+          <h3>Functions</h3>
+          <nav>
+            <menu>
+              <li><a href="#ApproxAtan2">ApproxAtan2</a></li>
+              <li><a href="#DistortCRTCoordinates">DistortCRTCoordinates</a></li>
+            </menu>
+          </nav>
+        </div>
+        <h2>Functions</h2>
+        <dl class="member-list">
+          <dt id="ApproxAtan2">ApproxAtan2</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float2 ApproxAtan2(
+                  float2 y, 
+                  float2 x)
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              <p>
+                Do a fast approximation of a two-component <a href="https://en.wikipedia.org/wiki/Atan2" target="_blank">atan2</a> calculation.
+                This is only accurate near 0 (it only uses a few terms from its <a href="https://en.wikipedia.org/wiki/Taylor_series" target="_blank">taylor series</a>,
+                so becomes increasingly inaccurate away from the origin. But it is good enough for our purposes.
+              </p>
+              <p>
+                Called by <a href="#DistortCRTCoordinates"><code>DistortCRTCoordinates</code></a>.
+              </p>
+            </section>
+            <h5>Parameters</h5>
+            <section>
+              <dl>
+                <dt><code>y</code></dt>
+                <dd>
+                  <p>Type: <code>float2</code></p>
+                  <p>
+                    The y component(s) of the angle (corresponding to the sine of the angle(s)).
+                  </p>
+                </dd>
+                <dt><code>x</code></dt>
+                <dd>
+                  <p>Type: <code>float2</code></p>
+                  <p>
+                    The x component(s) of the angle (corresponding to the cosine of the output angle(s)).
+                  </p>
+                </dd>
+              </dl>
+            </section>
+            <h5>Return Value</h5>
+            <section>
+              Type: <code>float2</code>
+              <p>
+                A pair of angles, one for each y, x pair of inputs.
+              </p>
+            </section>
+          </dd>
+          <dt id="DistortCRTCoordinates">DistortCRTCoordinates</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float2 DistortCRTCoordinates(
+                  float2 texCoord,
+                  float2 distortion)              
+              </pre>
+            </div>
+            <h5>Description</h5>
+            <section>
+              <p>
+                Do a barrel distortion to a given texture coordinate to emulate a curved CRT screen.
+              </p>
+              <p>
+                Called by <a href="../crt-shaders/generate-screen-texture.html">generate-screen-texture</a> and
+                <a href="../crt-shaders/rgb-to-crt.html">rgb-to-crt</a>.
+              </p>
+            </section>
+             <h5>Parameters</h5>
+            <section>
+              <dl>
+                <dt><code>texCoord</code></dt>
+                <dd>
+                  <p>Type: <code>float2</code></p>
+                  <p>
+                    The original texture coordinate, intended to come straight from the full-render-target quad, 
+                    in <code>[-1..1]</code> range <b>(not standard <code>[0..1]</code>)</b>
+                  </p>
+                </dd>
+                <dt><code>distortion</code></dt>
+                <dd>
+                  <p>Type: <code>float2</code></p>
+                  <p>
+                    A (horizontal, vertical) distortion pair which describes the effective curvature of the virtual screen.
+                  </p>
+                </dd>
+              </dl>
+            </section>
+            <h5>Return Value</h5>
+            <section>
+              Type: <code>float2</code>
+              <p>
+                The texture coordinates, distorted to emulate being on a curved screen.
+              </p>
+            </section>
+          </dd>
+        </dl>        
       </main>
     </div>
   </body>

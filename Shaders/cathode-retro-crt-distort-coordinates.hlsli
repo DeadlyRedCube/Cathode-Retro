@@ -2,13 +2,13 @@
 
 #include "cathode-retro-util-language-helpers.hlsli"
 
-float2 ApproxAtan2(float2 x, float2 y)
+float2 ApproxAtan2(float2 y, float2 x)
 {
   // A simple approximation of atan2 will suffice here, just a few terms of the taylor series are good enough for the
   //  angle ranges we're dealing with.
-  x /= y;
-  float2 x2 = x*x;
-  return x*(1.0 + x2*(x2*0.2 - 0.333333333));
+  y /= x;
+  float2 y2 = y*y;
+  return y*(1.0 + y2*(y2*0.2 - 0.333333333));
 }
 
 
