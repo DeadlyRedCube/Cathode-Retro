@@ -12,7 +12,47 @@
     <div id="content-outer" class="content-outer">
       <main>
         <h1>crt-generate-aperture-grille</h1>
-        (Content coming soon)
+        <dd class="image-right">
+          <img src="../../images/mask-aperture-grille.png" alt="a tiled example of the aperture grille texture, showing its characteristic vertical RGB stripes">
+          <div>
+            <p>
+              This shader generates an <a href="https://en.wikipedia.org/wiki/Aperture_grille" target="_blank">aperture grille</a>
+              texture, used as the mask by the <a href="generate-screen-texture.html">generate-screen-texture</a> shader.
+            </p>
+            <p>
+              This type of mask was originally released as <a href="https://en.wikipedia.org/wiki/Trinitron" target="_blank">Trinitron</a>.
+              It is characterized by long vertical columns of red, green, and blue rather than individual groupings of phosphors.
+            </p>
+          </div>
+        </dd>
+        <h2>Index</h2>
+        <div class="index">
+          <h3>Uniform Buffer Values</h3>
+          <nav>
+            <menu>
+              <li><a href="#g_texSize">g_texSize</a></li>
+            </menu>
+          </nav>
+        </div>
+        <h2>Uniform Buffer Values</h2>
+        <dl class="member-list">
+          <dt id="g_texSize">g_texSize</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float2 g_texSize
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float2</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The size of the render target we are rendering to. It is expected that <code>g_texSize.x == 2 * g_texSize.y</code>.
+            </section>
+          </dd>
+        </dl>
       </main>
     </div>
   </body>

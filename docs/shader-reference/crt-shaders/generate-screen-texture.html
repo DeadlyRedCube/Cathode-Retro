@@ -12,7 +12,319 @@
     <div id="content-outer" class="content-outer">
       <main>
         <h1>crt-generate-screen-texture</h1>
-        (Content coming soon)
+        <p>
+          This shader generates the screen texture, which is effectively overlayed on top of the actual screen image in the
+          <a href="rgb-to-crt.html">rgb-to-crt</a> shader. This includes the emulation of the shadow mask (or slot mask, aperture grill) of a CRT screen, as
+          well as masking around the edges to handle blacking out values that are outside of the visible screen.
+        </p>
+        <p>
+          This shader uses an expensive 64-tap filter to minimize <a href="https://en.wikipedia.org/wiki/Moir%C3%A9_pattern" target="_blank">Moiré patterns</a>
+          in the mask, so it is not intended for this to be run every frame - merely whenever the render parameters change, including
+          the width and height of the final emulated image.
+        </p>
+        <h2>Index</h2>
+        <div class="index">
+          <h3>Example Images</h3>
+          <nav>
+            <menu>
+              <li><a href="#example-rgb">RGB Output</a></li>
+              <li><a href="#example-alpha">Alpha Output</a></li>
+            </menu>
+          </nav>
+
+          <h3>Input Textures/Samplers</h3>
+          <nav>
+            <menu>
+              <li><a href="#g_maskTexture">g_maskTexture</a></li>
+              <li><a href="#g_sampler">g_sampler</a></li>
+            </menu>
+          </nav>
+          <h3>Uniform Buffer Values</h3>
+          <nav>
+            <menu>
+              <li><a href="#g_viewScale">g_viewScale</a></li>
+              <li><a href="#g_overscanScale">g_overscanScale</a></li>
+              <li><a href="#g_overscanOffset">g_overscanOffset</a></li>
+              <li><a href="#g_distortion">g_distortion</a></li>
+              <li><a href="#g_maskDistortion">g_maskDistortion</a></li>
+              <li><a href="#g_maskScale">g_maskScale</a></li>
+              <li><a href="#g_aspect">g_aspect</a></li>
+              <li><a href="#g_roundedCornerSize">g_roundedCornerSize</a></li>
+            </menu>
+          </nav>
+        </div>
+        <h2>Example Images</h2>
+        <div id="example-rgb" class="captioned-image">
+          <img src="../../images/screen-texture-rgb.jpg">
+          <label>Example of RGB output</label>
+        </div>
+        <div id="example-alpha" class="captioned-image">
+          <img src="../../images/screen-texture-alpha.jpg">
+          <label>Example of alpha channel output</label>
+        </div>
+
+        <h2>Input Textures/Samplers</h2>
+        <dl class="member-list">
+          <dt id="g_maskTexture">g_maskTexture</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                g_maskTexture
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>texture</code> (platform-specific)
+            </section>
+            <h5>Description</h5>
+            <section>
+              The mask texture we wish to use. This is typically the output from one of
+              <a href="generate-shadow-mask.html">generate-shadow-mask</a>,
+              <a href="generate-slot-mask.html">generate-slot-mask</a>,
+              or <a href="generate-aperture-grille.html">generate-aperture-grille</a>.
+            </section>
+          </dd>
+          <dt id="g_sampler">g_sampler</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                g_sampler
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>sampler</code> (platform-specific, does not exist on some platforms)
+            </section>
+            <h5>Description</h5>
+            <section>
+              The sampler to use to sample <a href="#g_maskTexture">g_maskTexture</a>.
+            </section>
+          </dd>
+        </dl>
+        <h2>Uniform Buffer Values</h2>
+        <dl class="member-list">
+          <dt id="g_viewScale">g_viewScale</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float2 g_viewScale
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float2</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                <b>NOTE:</b> this value is expected to match the equivalent value in <a href="rgb-to-crt.html">rgb-to-crt</a>.
+              </p>
+              <p>
+                This value describes how to scale the screen to account for different aspect
+                ratios between the output dimensions and the emulated visible CRT dimensions (i.e. excluding any overscan-clipped
+                content).
+              </p>
+              <p>
+                This shader is intended to render a screen of the correct shape regardless of the output render target shape,
+                effectively <a href="https://en.wikipedia.org/wiki/Letterboxing_(filming)" target="_blank">letterboxing</a> or <a href="https://en.wikipedia.org/wiki/Pillarbox" target="_blank">pillarboxing</a> as needed (i.e. rendering a 4:3 screen to a 16:9 render target).
+              </p>
+              <p>
+                In the event the output render target is wider than the intended screen, the screen needs to be scaled down horizontally to pillarbox,
+                usually like:
+              </p>
+              <div class="code-definition syntax-hlsl">
+                <pre>
+                  x = (renderTargetWidth / renderTargetHeight) 
+                    * (crtScreenHeight / crtScreenWidth)
+                  y = 1.0
+                </pre>
+              </div>
+              <p>
+                if the output render target is taller than the intended screen, it will end up letterboxed using something like:
+              </p>
+              <div class="code-definition syntax-hlsl">
+                <pre>
+                  x = 1.0
+                  y = (renderTargetHeight / renderTargetWidth) 
+                    * (crtScreenWidth / crtScreenHeight)
+                </pre>
+              </div>
+            </section>
+          </dd>
+          <dt id="g_overscanScale">g_overscanScale</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float2 g_overscanScale
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float2</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                <b>NOTE:</b> this value is expected to match the equivalent value in <a href="rgb-to-crt.html">rgb-to-crt</a>.
+              </p>
+              <p>
+                If overscan emulation is intended (where the edges of the screen cover up some of the picture), then this is the
+                amount of signal texture scaling needed to account for that.
+              </p>
+              <p>
+                Given an overscan value named <code>overscanAmount</code> that is (where the given values are in texels):
+              </p>
+              <div class="code-definition syntax-hlsl">
+                <pre>
+                  overscanAmount.x = overscanLeft + overscanRight
+                  overscanAmount.y = overscanTop + overscanBottom
+                </pre>
+              </div>
+              <p>
+                the value of <code>g_overscanScale</code> should end up being:
+              </p>
+              <div class="code-definition syntax-hlsl">
+                <pre>
+                  (inputImageSize.xy - overscanAmount.xy)
+                    * 0.5
+                    / inputImageSize.xy
+                </pre>
+              </div>
+            </section>
+          </dd>
+          <dt id="g_overscanOffset">g_overscanOffset</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float2 g_overscanOffset
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float2</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                <b>NOTE:</b> this value is expected to match the equivalent value in <a href="rgb-to-crt.html">rgb-to-crt</a>.
+              </p>
+              <p>
+                the texture coordinate offset to adjust for overscan. Because the screen coordinates are <code>[-1..1]</code> instead
+                of <code>[0..1]</code>, this is the offset needed to recenter the value.
+              </p>
+              <p>
+                Given an overscan value named <code>overscanAmount</code> that is (where the given values are in texels):
+              </p>
+              <div class="code-definition syntax-hlsl">
+                <pre>
+                  overscanDifference.x = overscanLeft - overscanRight
+                  overscanDifference.y = overscanTop - overscanBottom
+                </pre>
+              </div>
+              <p>
+                the value of <code>g_overscanScale</code> should end up being:
+              </p>
+              <div class="code-definition syntax-hlsl">
+                <pre>
+                  overscanDifference.xy
+                    * 0.5
+                    / inputImageSize.xy
+                </pre>
+              </div>
+            </section>
+          </dd>
+          <dt id="g_distortion">g_distortion</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float2 g_distortion
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float2</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                <b>NOTE:</b> this value is expected to match the equivalent value in <a href="rgb-to-crt.html">rgb-to-crt</a>.
+              </p>
+              <p>
+                The amount along each axis to apply the virtual-curved screen distortion. Usually a value in <code>[0..1]</code>,
+                where <code>0</code> indicates 
+                no curvature (a flat screen) and <code>1</code> indicates "quite curved"
+              </p>
+            </section>
+          </dd>
+          <dt id="g_maskDistortion">g_maskDistortion</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float2 g_maskDistortion
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float2</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The distortion amount used for where the edges of the screen should be. Should be at least <code><a href="#g_distortion">g_distortion</a></code>, 
+              but if emulating an older TV which had some additional bevel curvature that cut off part of the picture, this can be
+              applied by adding additional value to this.
+            </section>
+          </dd>
+          <dt id="g_maskScale">g_maskScale</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float2 g_maskScale
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float2</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The scale of the mask texture. Higher value means the coordinates are scaled more and, thus, the shadow mask is smaller.
+            </section>
+          </dd>
+          <dt id="g_aspect">g_aspect</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float g_aspect
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The aspect ratio of the source texture (width / height, used for aspect correction)
+            </section>
+          </dd>
+          <dt id="g_roundedCornerSize">g_roundedCornerSize</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float g_roundedCornerSize
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              How much to round the corners of the screen to emulate a TV with rounded corners that cut off a little picture.
+               <code>0</code> indicates no rounding (squared-off corners), while a value of <code>1</code> means "the whole screen is an oval."
+               Values smaller than <code>0.2</code> are recommended.
+            </section>
+          </dd>
+        </dl>
       </main>
     </div>
   </body>

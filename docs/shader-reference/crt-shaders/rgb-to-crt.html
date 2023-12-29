@@ -12,7 +12,531 @@
     <div id="content-outer" class="content-outer">
       <main>
         <h1>crt-rgb-to-crt</h1>
-        (Content coming soon)
+        <p>
+          This shader combines the current frame, the previous frame, screen mask, and diffusion into the final render.
+        </p>
+        <p>
+          It is a relatively complex shader, and certainly if there are features that aren't needed for a given use case,
+          the shader could be simplified.
+        </p>
+        <h2>Index</h2>
+        <div class="index">
+          <h3>Input Textures/Samplers</h3>
+          <nav>
+            <menu>
+              <li><a href="#g_currentFrameTexture">g_currentFrameTexture</a></li>
+              <li><a href="#g_currentFrameSampler">g_currentFrameSampler</a></li>
+              <li>&nbsp;</li>
+              <li><a href="#g_previousFrameTexture">g_previousFrameTexture</a></li>
+              <li><a href="#g_previousFrameSampler">g_previousFrameSampler</a></li>
+              <li>&nbsp;</li>
+              <li><a href="#g_screenMaskTexture">g_screenMaskTexture</a></li>
+              <li><a href="#g_screenMaskSampler">g_screenMaskSampler</a></li>
+              <li>&nbsp;</li>
+              <li><a href="#g_diffusionTexture">g_diffusionTexture</a></li>
+              <li><a href="#g_diffusionSampler">g_diffusionSampler</a></li>
+            </menu>
+          </nav>
+          <h3>Uniform Buffer Values</h3>
+          <nav>
+            <menu>
+              <li><a href="#g_viewScale">g_viewScale</a></li>
+              <li><a href="#g_overscanScale">g_overscanScale</a></li>
+              <li><a href="#g_overscanOffset">g_overscanOffset</a></li>
+              <li><a href="#g_distortion">g_distortion</a></li>
+              <li><a href="#g_backgroundColor">g_backgroundColor</a></li>
+              <li><a href="#g_phosphorPersistence">g_phosphorPersistence</a></li>
+              <li><a href="#g_scanlineCount">g_scanlineCount</a></li>
+              <li><a href="#g_scanlineStrength">g_scanlineStrength</a></li>
+              <li><a href="#g_curEvenOddTexelOffset">g_curEvenOddTexelOffset</a></li>
+              <li><a href="#g_prevEvenOddTexelOffset">g_prevEvenOddTexelOffset</a></li>
+              <li><a href="#g_diffusionStrength">g_diffusionStrength</a></li>
+              <li><a href="#g_maskStrength">g_maskStrength</a></li>
+              <li><a href="#g_maskDepth">g_maskDepth</a></li>
+            </menu>
+          </nav>
+        </div>
+
+
+        <h2>Input Textures/Samplers</h2>
+        <dl class="member-list">
+          <dt id="g_currentFrameTexture">g_currentFrameTexture</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                g_currentFrameTexture
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>texture</code> (platform-specific)
+            </section>
+            <h5>Description</h5>
+            <section>
+              This is the RGB current frame texture, i.e. the image that will be displayed on the virtual CRT screen.
+            </section>
+          </dd>
+          <dt id="g_currentFrameSampler">g_currentFrameSampler</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                g_currentFrameSampler
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>sampler</code> (platform-specific, does not exist on some platforms)
+            </section>
+            <h5>Description</h5>
+            <section>
+              The sampler to use to sample <a href="#g_currentFrameTexture">g_currentFrameTexture</a>.
+            </section>
+          </dd>
+          <dt id="g_previousFrameTexture">g_previousFrameTexture</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                g_previousFrameTexture
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>texture</code> (platform-specific)
+            </section>
+            <h5>Description</h5>
+            <section>
+              This is the previous frame's texture (i.e. last frame's <a href="#g_currentFrameTexture"><code>g_currentFrameTexture</code></a>).
+            </section>
+          </dd>
+          <dt id="g_previousFrameSampler">g_previousFrameSampler</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                g_previousFrameSampler
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>sampler</code> (platform-specific, does not exist on some platforms)
+            </section>
+            <h5>Description</h5>
+            <section>
+              The sampler to use to sample <a href="#g_previousFrameTexture">g_previousFrameTexture</a>.
+            </section>
+          </dd>
+          <dt id="g_screenMaskTexture">g_screenMaskTexture</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                g_screenMaskTexture
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>texture</code> (platform-specific)
+            </section>
+            <h5>Description</h5>
+            <section>
+              This texture is the output of the <a href="generate-screen-texture.html">generate-screen-texture</a> shader, containing 
+              the (scaled, tiled, and antialiased) mask texture in the rgb channels and the edge-of-screen mask value in the alpha channel. 
+              It is expected to have been generated at our output resolution (i.e. it's 1:1 pixels with our output render target),
+              using the same values of <a href="#g_viewScale"><code>g_viewScale</code></a>,
+              <a href="#g_overscanScale"><code>g_overscanScale</code></a>,
+              <a href="#g_overscanOffset"><code>g_overscanOffset</code></a>,
+              and <a href="#g_distortion"><code>g_distortion</code></a> as this shader is given.
+            </section>
+          </dd>
+          <dt id="g_screenMaskSampler">g_screenMaskSampler</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                g_screenMaskSampler
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>sampler</code> (platform-specific, does not exist on some platforms)
+            </section>
+            <h5>Description</h5>
+            <section>
+              The sampler to use to sample <a href="#g_screenMaskTexture">g_screenMaskTexture</a>.
+            </section>
+          </dd>
+          <dt id="g_diffusionTexture">g_diffusionTexture</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                g_diffusionTexture
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>texture</code> (platform-specific)
+            </section>
+            <h5>Description</h5>
+            <section>
+              This texture contains a tonemapped/blurred version of the input texture, to emulate the diffusion of the light from
+              the phosphors through the glass on the front of a CRT screen.
+
+            </section>
+          </dd>
+          <dt id="g_diffusionSampler">g_diffusionSampler</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                g_diffusionSampler
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>sampler</code> (platform-specific, does not exist on some platforms)
+            </section>
+            <h5>Description</h5>
+            <section>
+              The sampler to use to sample <a href="#g_diffusionTexture">g_diffusionTexture</a>.
+            </section>
+          </dd>
+        </dl>
+
+
+        <h2>Uniform Buffer Values</h2>
+        <dl class="member-list">
+          <dt id="g_viewScale">g_viewScale</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float2 g_viewScale
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float2</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                <b>NOTE:</b> this value is expected to match the equivalent value in <a href="generate-screen-texture.html">generate-screen-texture</a>.
+              </p>
+              <p>
+                This value describes how to scale the screen to account for different aspect
+                ratios between the output dimensions and the emulated visible CRT dimensions (i.e. excluding any overscan-clipped
+                content).
+              </p>
+              <p>
+                This shader is intended to render a screen of the correct shape regardless of the output render target shape,
+                effectively <a href="https://en.wikipedia.org/wiki/Letterboxing_(filming)" target="_blank">letterboxing</a> or <a href="https://en.wikipedia.org/wiki/Pillarbox" target="_blank">pillarboxing</a> as needed (i.e. rendering a 4:3 screen to a 16:9 render target).
+              </p>
+              <p>
+                In the event the output render target is wider than the intended screen, the screen needs to be scaled down horizontally to pillarbox,
+                usually like:
+              </p>
+              <div class="code-definition syntax-hlsl">
+                <pre>
+                  x = (renderTargetWidth / renderTargetHeight) 
+                    * (crtScreenHeight / crtScreenWidth)
+                  y = 1.0
+                </pre>
+              </div>
+              <p>
+                if the output render target is taller than the intended screen, it will end up letterboxed using something like:
+              </p>
+              <div class="code-definition syntax-hlsl">
+                <pre>
+                  x = 1.0
+                  y = (renderTargetHeight / renderTargetWidth) 
+                    * (crtScreenWidth / crtScreenHeight)
+                </pre>
+              </div>
+            </section>
+          </dd>
+          <dt id="g_overscanScale">g_overscanScale</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float2 g_overscanScale
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float2</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                <b>NOTE:</b> this value is expected to match the equivalent value in <a href="generate-screen-texture.html">generate-screen-texture</a>.
+              </p>
+              <p>
+                If overscan emulation is intended (where the edges of the screen cover up some of the picture), then this is the
+                amount of signal texture scaling needed to account for that.
+              </p>
+              <p>
+                Given an overscan value named <code>overscanAmount</code> that is (where the given values are in texels):
+              </p>
+              <div class="code-definition syntax-hlsl">
+                <pre>
+                  overscanAmount.x = overscanLeft + overscanRight
+                  overscanAmount.y = overscanTop + overscanBottom
+                </pre>
+              </div>
+              <p>
+                the value of <code>g_overscanScale</code> should end up being:
+              </p>
+              <div class="code-definition syntax-hlsl">
+                <pre>
+                  (inputImageSize.xy - overscanAmount.xy)
+                    * 0.5
+                    / inputImageSize.xy
+                </pre>
+              </div>
+            </section>
+          </dd>
+          <dt id="g_overscanOffset">g_overscanOffset</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float2 g_overscanOffset
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float2</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                <b>NOTE:</b> this value is expected to match the equivalent value in <a href="generate-screen-texture.html">generate-screen-texture</a>.
+              </p>
+              <p>
+                the texture coordinate offset to adjust for overscan. Because the screen coordinates are <code>[-1..1]</code> instead
+                of <code>[0..1]</code>, this is the offset needed to recenter the value.
+              </p>
+              <p>
+                Given an overscan value named <code>overscanAmount</code> that is (where the given values are in texels):
+              </p>
+              <div class="code-definition syntax-hlsl">
+                <pre>
+                  overscanDifference.x = overscanLeft - overscanRight
+                  overscanDifference.y = overscanTop - overscanBottom
+                </pre>
+              </div>
+              <p>
+                the value of <code>g_overscanScale</code> should end up being:
+              </p>
+              <div class="code-definition syntax-hlsl">
+                <pre>
+                  overscanDifference.xy
+                    * 0.5
+                    / inputImageSize.xy
+                </pre>
+              </div>
+            </section>
+          </dd>
+          <dt id="g_distortion">g_distortion</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float2 g_distortion
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float2</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                <b>NOTE:</b> this value is expected to match the equivalent value in <a href="generate-screen-texture.html">generate-screen-texture</a>.
+              </p>
+              <p>
+                The amount along each axis to apply the virtual-curved screen distortion. Usually a value in <code>[0..1]</code>,
+                where <code>0</code> indicates 
+                no curvature (a flat screen) and <code>1</code> indicates "quite curved"
+              </p>
+            </section>
+          </dd>
+          <dt id="g_backgroundColor">g_backgroundColor</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float4 g_backgroundColor
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float4</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The RGBA color of the area around the screen.
+            </section>
+          </dd>
+          <dt id="g_phosphorPersistence">g_phosphorPersistence</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float g_phosphorPersistence
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                How much of the previous frame's brightness to keep. <code>0</code> means "we don't use the previous frame at all" and <code>1</code> means
+                "the previous frame is at full brightness".
+              </p>
+              <p>
+                In many CRTs, the phosphor persistence is short enough that it would
+                be effectively 0 at 50-60fps (As a CRT's phospors could potentially be completely faded out by then). However,
+                for some cases (for instance, interlaced video or for actual NES/SNES/probably other console output) it is
+                generally preferable to turn on a little bit of persistance to lessen temporal flickering on an LCD screen as it
+                can tend to look bad depending on the panel.
+              </p>
+              <p>
+                <i>
+                  [Author's Note: seriously, check out 
+                  <a href="https://www.youtube.com/watch?v=kA8CIY0DeS8" target="_blank" >https://www.youtube.com/watch?v=kA8CIY0DeS8</a>
+                  which is what my LCD panel was doing *after* the flickering interlace test truck I was using had been gone for 10
+                  minutes]
+                </i>
+              </p>
+              </p>
+
+            </section>
+          </dd>
+          <dt id="g_scanlineCount">g_scanlineCount</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float g_scanlineCount
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              How many scanlines there are in this field of the input (where a field is either the even or odd scanlines of an
+              interlaced frame, or the entirety of a progressive-scan frame). In other words, the height of
+              the input texture, in texels.
+            </section>
+          </dd>
+          <dt id="g_scanlineStrength">g_scanlineStrength</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float g_scanlineStrength
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The strength of the separation between scanlines. <code>0</code> means "no scanline separation at all" and <code>1</code> means "separate
+              the scanlines as much as possible" - on high-enough resolution output render target (at 4k for sure) <code>1</code> means
+              "fully black between scanlines", but to reduce aliasing that amount of separation will diminish at lower output
+              resolutions.
+            </section>
+          </dd>
+          <dt id=g_curEvenOddTexelOffset"">g_curEvenOddTexelOffset</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float g_curEvenOddTexelOffset
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              This is the scanline-space coordinate offset to use to adjust the input texture coordinate's y value based on whether
+              this is a (1-based) odd frame or an even frame (in the context of interlacing). 
+              It will be <code>0.5</code> (shifting the texture up half a scanline) for
+              an odd frame and <code>-0.5</code> (shifting the texture down half a scanline) for an even frame.
+            </section>
+          </dd>
+          <dt id="g_prevEvenOddTexelOffset">g_prevEvenOddTexelOffset</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float g_prevEvenOddTexelOffset
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              <p>
+                This value corresponds to the value that <code><a href="#g_curEvenOddTexelOffset">g_curEvenOddTexelOffset</a></code>
+                had on the previous frame.
+              </p>
+              <p>
+                This should match <code>g_curEvenOddTexelOffset</code> for a progressive-scan signal and should be
+                <code>-g_curEvenOddTexelOffset</code> if interlaced.
+              </p>
+            </section>
+          </dd>
+          <dt id="g_diffusionStrength">g_diffusionStrength</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float g_diffusionStrength
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              This is how much diffusion to apply, blending in the diffusion texture which is an emulation of the light from the
+               screen scattering in the glass on the front of the CRT - <code>0</code> means "no diffusion" and <code>1</code> means "a whole lot of
+               diffusion."
+            </section>
+          </dd>
+          <dt id="g_maskStrength">g_maskStrength</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float g_maskStrength
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+                How much we want to blend in the mask. <code>0</code> means "mask is not visible" and <code>1</code> means "mask is fully visible."
+            </section>
+          </dd>
+          <dt id="g_maskDepth">g_maskDepth</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float g_maskDepth
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The darkness of the darkest part of the mask. <code>0</code> means the area between the RGB sections is black, <code>0.9</code> means the spaces
+              between are nearly white.
+            </section>
+          </dd>
+        </dl>
       </main>
     </div>
   </body>

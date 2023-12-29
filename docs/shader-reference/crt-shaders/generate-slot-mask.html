@@ -12,7 +12,47 @@
     <div id="content-outer" class="content-outer">
       <main>
         <h1>crt-generate-slot-mask</h1>
-        (Content coming soon)
+        <dd class="image-right">
+          <img src="../../images/mask-slot-mask.png" alt="a tiled example of the slot mask texture, showing its characteristic rectangular RGB groupings">
+          <div>
+            <p>
+              This shader generates a <a href="https://en.wikipedia.org/wiki/Shadow_mask" target="_blank">slot mask</a>
+              texture, used as the mask by the <a href="generate-screen-texture.html">generate-screen-texture</a> shader.
+            </p>
+            <p>
+              A mask that uses rectangular "slots" instead of the circular phosphors from earlier color
+              TVs, with columns of RGB phosphor groups, where alternating columns are offset by half.
+            </p>
+          </div>
+        </dd>
+        <h2>Index</h2>
+        <div class="index">
+          <h3>Uniform Buffer Values</h3>
+          <nav>
+            <menu>
+              <li><a href="#g_texSize">g_texSize</a></li>
+            </menu>
+          </nav>
+        </div>
+        <h2>Uniform Buffer Values</h2>
+        <dl class="member-list">
+          <dt id="g_texSize">g_texSize</dt>
+          <dd>
+            <div class="code-definition syntax-hlsl">
+              <pre>
+                float2 g_texSize
+              </pre>
+            </div>
+            <h5>Type</h5>
+            <section>
+              <code>float2</code>
+            </section>
+            <h5>Description</h5>
+            <section>
+              The size of the render target we are rendering to. It is expected that <code>g_texSize.x == 2 * g_texSize.y</code>.
+            </section>
+          </dd>
+        </dl>
       </main>
     </div>
   </body>

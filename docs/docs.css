@@ -229,6 +229,7 @@ main
 {
   margin: 0px;
   overflow-wrap: break-word;
+  position: relative;
 }
 
 a,
@@ -514,6 +515,26 @@ a:active
   border: 1px solid var(--foreground-main);
 }
 
+
+.captioned-image
+{
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.captioned-image > img
+{
+  border: 1px solid var(--foreground-main);
+  max-width: 100%;
+}
+
+.captioned-image > label
+{
+  font-size: 0.8em;
+}
 
 /* Sidebar stuff */
 

@@ -127,7 +127,7 @@ CBUFFER consts
   //  smaller.
   float2 g_maskScale;
 
-  // The dimensions of the source texture (used for aspect correction
+  // The aspect ratio of the source texture (width / height, used for aspect correction)
   float g_aspect;
 
   // How much to round the corners of the screen to emulate a TV with rounded corners that cut off a little picture.
