@@ -36,6 +36,7 @@
   --sol-neutral: var(--sol-base-color-0);
   --sol-neutral-emphasis: var(--sol-base-color-1);
 
+  --accent-subtle:            #314a72;
   --accent-main:              #6495ed;
   --accent-bright:            #8eb7ff;
 
@@ -87,6 +88,7 @@
     --background-far:       #e6e6e6;
     --background-menu:      #e0e0e0;
 
+    --accent-subtle:        #c4d9FF;
     --accent-main:          #5076ba;
     --accent-bright:        #6495ed;
 
@@ -243,23 +245,26 @@ a:hover,
 a:active,
 a:focus
 {
-  text-decoration: none;
+  --transition-time: 80ms;
+  text-decoration-color: var(--accent-subtle);
   color: var(--link-main);
+  box-shadow: inset 0 0px 0 0px var(--accent-subtle);
+  transition: color var(--transition-time) ease-in-out, background-color var(--transition-time) ease-in-out, box-shadow var(--transition-time) ease-in-out, text-decoration-color var(--transition-time) ease-in-out;
 }
 
 @media(hover: hover)
 {
   a:hover
   {
-    text-decoration: underline;
-    color: var(--link-main);
+    box-shadow: inset 0 -4px 0 0 var(--accent-subtle);
   }
 }
 
 a:active
 {
-  text-decoration: underline;
   color: var(--link-press);
+  text-decoration-color: transparent;
+  box-shadow: inset 0 -4px 0 0 var(--link-hover);
 }
 
 
@@ -599,6 +604,7 @@ a:active
   padding-top: var(--sidebar-padding-y);
   padding-bottom: var(--sidebar-padding-y);
   text-decoration: none;
+  box-shadow: none;
 }
 
 .sidebar ul
