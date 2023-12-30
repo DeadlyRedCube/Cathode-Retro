@@ -107,6 +107,11 @@ body
   background-color: var(--background-main);
 }
 
+b
+{
+  color: var(--foreground-emphasis);
+}
+
 h1,
 h2,
 h3,
@@ -678,6 +683,60 @@ a:active
   display: none;
 }
 
+
+/* Flowcharts */
+
+.flowchart-outer
+{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.flowchart
+{
+  border: 1px solid var(--background-emphasis);
+  padding: 20px;
+}
+
+.flowchart rect,
+.flowchart polygon
+{
+  fill: none;
+  stroke-width: 1px;
+  stroke: var(--accent-main);
+}
+
+.flowchart text
+{
+  fill: var(--foreground-main);
+  font-family: var(--main-font);
+  font-size: 0.9em;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+.flowchart marker
+{
+  fill: var(--accent-main);
+}
+
+.flowchart .io > rect
+{
+  fill: var(--sol-background-color-deep);
+}
+
+.flowchart .shader > rect
+{
+  fill: var(--background-emphasis);
+}
+
+.flowchart line,
+.flowchart path
+{
+  stroke: var(--accent-main);
+}
 
 /* Media queries */
 

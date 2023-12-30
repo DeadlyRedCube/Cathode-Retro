@@ -12,7 +12,140 @@
     <div id="content-outer" class="content-outer">
       <main>
         <h1>Decoder Shaders</h1>
-        (Content coming soon)
+        <h3>Overview</h3>
+        <p>
+          The Decoder starts with a <b>Signal Texture</b> and a <b>Phases Texture</b> (which may have come from the <a href="generator.html">Generator</a>,
+          but could also be from a preprocessed, real NTSC signal) and converts that into an <b>RGB Texture</b>.
+        </p>
+        <p>
+          (That's right, running the Generator followed by the Decoder is an RGB -> RGB process, but the RGB that comes out of the decoder will have
+          the artifacts of a decoded NTSC signal -- since that's basically what it is).
+        </p>
+        <p>
+          For more specifics on how these pieces all work, read the <a href="../how/decoding-scanline.html">Decoding A Fake NTSC Scanline</a> page.
+        </p>
+        <div class="flowchart-outer">
+          <svg class="flowchart" width=300 height=661>
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" />
+              </marker>
+            </defs>
+            <g class="endpoint" transform="translate(50, 1)">
+              <rect x="0" y="0" width="200" height="40" rx=20 />
+              <text x="100" y="20">Start</text>
+            </g>
+
+            <g class="io" transform="translate(10, 60)">
+              <rect x="0" y="0" width="120" height="40" transform="skewX(-20) translate(8, 0)" />
+              <text x="60" y="20">Signal Texture</text>
+            </g>
+
+            <g class="io" transform="translate(150, 60)">
+              <rect x="0" y="0" width="140" height="40" transform="skewX(-20) translate(8, 0)" />
+              <text x="70" y="20">Phases Texture</text>
+            </g>
+            <g class="choice" transform="translate(1, 120)">
+              <polygon points="80,0 160,40 80,80 0,40" />
+              <text x="80" y="40">Is composite?</text>
+            </g>
+            <g class="shader" transform="translate(10, 240)">
+              <rect x="0" y="0" width="140" height="60" rx=10 />
+              <text x="70" y="20">composite-to-</text>
+              <text x="70" y="40">svideo</text>
+            </g>
+
+            <g class="shader" transform="translate(159, 360)">
+              <rect x="0" y="0" width="140" height="60" rx=10 />
+              <text x="70" y="20">svideo-to-</text>
+              <text x="70" y="40">modulated-chroma</text>
+            </g>
+
+            <g class="shader" transform="translate(100, 440)">
+              <rect x="0" y="0" width="100" height="40" rx=10 />
+              <text x="50" y="20">svideo-to-rgb</text>
+            </g>
+            <g class="shader" transform="translate(100, 500)">
+              <rect x="0" y="0" width="100" height="40" rx=10 />
+              <text x="50" y="20">filter-rgb</text>
+            </g>
+            <g class="io" transform="translate(90, 560)">
+              <rect x="0" y="0" width="120" height="40" transform="skewX(-20) translate(8, 0)" />
+              <text x="60" y="20">RGB Texture</text>
+            </g>
+            <g class="endpoint" transform="translate(50, 620)">
+              <rect x="0" y="0" width="200" height="40" rx=20 />
+              <text x="100" y="20">Decoder Output</text>
+            </g>
+
+            <line x1="100" y1="41" x2="100" y2="57" marker-end="url(#arrow)" />
+            <line x1="200" y1="41" x2="200" y2="57" marker-end="url(#arrow)" />
+            <line x1="230" y1="100" x2="230" y2="357" marker-end="url(#arrow)" />
+            <line x1="81" y1="100" x2="81" y2="117" marker-end="url(#arrow)" />
+            
+            <line x1="81" y1="200" x2="81" y2="210" />
+            <text x="81" y="222">Yes</text>
+            <line x1="81" y1="230" x2="81" y2="237" marker-end="url(#arrow)" />
+
+            <line x1="161" y1="160" x2="180" y2="160" />
+            <line x1="180" y1="160" x2="180" y2="180" />
+            <text x="180" y="192">No</text>
+            <line x1="180" y1="200" x2="180" y2="320" />
+
+            <line x1="81" y1="300" x2="81" y2="320" />
+            <line x1="81" y1="320" x2="180" y2="320" />
+            <line x1="140" y1="320" x2="140" y2="437"  marker-end="url(#arrow)" />
+            <line x1="140" y1="340" x2="180" y2="340" />
+            <line x1="180" y1="340" x2="180" y2="357"  marker-end="url(#arrow)" />
+            <line x1="180" y1="420" x2="180" y2="437"  marker-end="url(#arrow)" />
+            <line x1="150" y1="480" x2="150" y2="497"  marker-end="url(#arrow)" />
+            <line x1="150" y1="540" x2="150" y2="557"  marker-end="url(#arrow)" />
+            <line x1="150" y1="600" x2="150" y2="617"  marker-end="url(#arrow)" />
+          </svg>
+        </div>
+        <h3>Optional: Composite to S-Video</h3>
+        <p>
+          If the <b>Signal Texture</b> is a composite signal (as opposed to an S-Video signal), the Decoder starts by using a filter to separate the
+          luma (brightness) and chroma (color) information using the <a href="../shader-reference/decoder-shaders/composite-to-svideo.html">composite-to-svideo</a> shader.
+          The output of that is a <b>S-Video Texture</b>.
+        </p>
+        <p>
+          (If the <b>Signal Texture</b> was already S-Video it will be used directly as the <b>S-Video Texture</b>).
+        </p>
+        <p>
+          See the <a href="../shader-reference/decoder-shaders/composite-to-svideo.html">composite-to-svideo</a> shader documentation for all of the shader inputs.
+        </p>
+        <h3>Modulated Chroma</h3>
+        <p>
+          For performance reasons (to turn a bunch of sines and cosines per texel into a single sine and cosine per), the chroma channel from the <b>S-Video Texture</b> needs to be pre-processed by running it and the <b>Phases Texture</b> 
+          through the <a href="../shader-reference/decoder-shaders/svideo-to-modulated-chroma.html">svideo-to-modulated-chroma</a> shader,
+          which performs the first part of the <a href="https://en.wikipedia.org/wiki/Quadrature_amplitude_modulation" target="_blank">QAM</a>
+          process to get the actual color channels out as the <b>Chroma Texture</b>.
+        </p>
+        <p>
+          See the <a href="../shader-reference/decoder-shaders/svideo-to-modulated-chroma.html">svideo-to-modulated-chroma</a> shader documentation for all of the shader inputs.
+        </p>
+        <h3>S-Video to RGB</h3>
+        <p>
+          After that, both the <b>S-Video Texture</b> (for the luma information) and the preprocessed <b>Chroma Texture</b> (from the previous step) are sent to the
+          <a href="../shader-reference/decoder-shaders/svideo-to-rgb.html">svideo-to-rgb</a> shader, which turns the luma and chroma information into 
+          a set of <a href="https://en.wikipedia.org/wiki/YIQ" target="_blank">YIQ color space</a> values, then those are converted to RGB and output
+          as the <b>RGB Texture</b>.
+        </p>
+        <p>
+          This shader takes information about the various signal levels in the input. When we get a signal that came from the Generator, these are consistent values:
+          a black level of 0 and a white level of 1. However, these values can be used to decode a real NTSC signal (after it has been broken up into scanlines)
+          by setting these level values equal to the voltages of black and white (additionally, the user saturation value would need to be multiplied with the
+          colorburst amplitude from the code that processes the scanlines).
+        </p>
+        <p>
+          See the <a href="../shader-reference/decoder-shaders/svideo-to-rgb.html">svideo-to-rgb</a> shader documentation for all of the shader inputs.
+        </p>
+        <h3>Output & Next Step</h3>
+        <p>
+          The output of this whole process is the <b>RGB Texture</b>, which can be used as-is (without the CRT emulation), or it can be fed
+          into the next (and final) main step: <a href="crt-emulation.html">the CRT Emulator</a>.
+        </p>
       </main>
     </div>
   </body>

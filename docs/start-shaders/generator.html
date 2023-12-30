@@ -12,7 +12,152 @@
     <div id="content-outer" class="content-outer">
       <main>
         <h1>Generator Shaders</h1>
-        (Content coming soon)
+        <h3>Overview</h3>
+        <p>
+          The generator's purpose is to convert an <b>RGB Input Texture</b> into an emulated set of NTSC scanlines, so that the <a href="decoder.html">Decoder</a> 
+          can then convert it back into an RGB texture, but with all of the artifacts that come from the NTSC encoding.
+        </p>
+        <p>
+          An NTSC scanline has <a href="../how/ntsc-basics.html">many parts</a>, but for purposes of the decode, there are two parts
+          that matter (which are the outputs of the Generator): 
+          <ol>
+            <li>The <b>Signal Texture</b>: The visible part of each scanline signal: which contains the luma (Brightness) and chroma (color) image for the scanline</li>
+            <li>
+              The <b>Phases Texture</b>: The phase of the <a href="https://en.wikipedia.org/wiki/Colorburst" target="_blank">colorburst</a> wave,
+              which tells us the reference hue for the colors encoded in the scanline.
+            </li>
+          </ol>
+        </p>
+        <p>
+          For much more detail on how the steps of this process actually work, read the <a href="../how/generating-scanline.html">Generating A Fake NTSC Scanline</a> page.
+        </p>
+        <div class="flowchart-outer">
+          <svg class="flowchart" width=300 height=651 alt="A flowchart diagram of the Generator">
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" />
+              </marker>
+            </defs>        
+            <g class="endpoint" transform="translate(99, 1)">
+              <rect x="0" y="0" width="200" height="40" rx=20 />
+              <text x="100" y="20">Start</text>
+            </g>
+
+            <g transform="translate(0, 60)">
+              <g class="io" transform="translate(50, 1)">
+                <rect x="0" y="0" width="160" height="40" transform="skewX(-20) translate(8, 0)" />
+                <text x="80" y="20">RGB Input Texture</text>
+              </g>
+              <g class="shader" transform="translate(180, 60)">
+                <rect x="0" y="0" width="100" height="40" rx=10 />
+                <text x="50" y="20">gen-phases</text>
+              </g>
+              <g class="io" transform="translate(130, 120)">
+                <rect x="0" y="0" width="160" height="40" transform="skewX(-20) translate(8, 0)" />
+                <text x="80" y="20">Phases Texture</text>
+              </g>
+              <g class="shader" transform="translate(80, 210)">
+                <rect x="0" y="0" width="140" height="60" rx=10 />
+                <text x="70" y="20">rgb-to-svideo-</text>
+                <text x="70" y="40">or-composite</text>
+              </g>
+
+              <g class="choice" transform="translate(70, 290)">
+                <polygon points="80,0 160,40 80,80 0,40" />
+                <text x="80" y="40">Want artifacts?</text>
+              </g>
+              <g class="shader" transform="translate(1, 410)">
+                <rect x="0" y="0" width="100" height="40" rx=10 />
+                <text x="50" y="20">apply-artifacts</text>
+              </g>
+
+              <g class="io" transform="translate(60, 470)">
+                <rect x="0" y="0" width="160" height="40" transform="skewX(-20) translate(8, 0)" />
+                <text x="80" y="20">Signal Texture</text>
+              </g>
+
+              <g class="endpoint" transform="translate(99, 550)">
+                <rect x="0" y="0" width="200" height="40" rx=20 />
+                <text x="100" y="20">Generator Output</text>
+              </g>
+
+              <line x1="100" y1="41" x2="100" y2="207" marker-end="url(#arrow)" />
+              <line x1="230" y1="100" x2="230" y2="117" marker-end="url(#arrow)" />
+              <line x1="170" y1="160" x2="170" y2="207" marker-end="url(#arrow)" />
+              <line x1="250" y1="160" x2="250" y2="547" marker-end="url(#arrow)" />
+              <line x1="150" y1="270" x2="150" y2="287" marker-end="url(#arrow)" />
+
+              <line x1="70" y1="330" x2="50" y2="330" />
+              <line x1="50" y1="330" x2="50" y2="350" />
+              <text x="50" y="362">Yes</text>
+              
+              <line x1="150" y1="370" x2="150" y2="390"  />
+              <text x="150" y="402">No</text>
+              <line x1="150" y1="410" x2="150" y2="467" marker-end="url(#arrow)" />
+
+              <line x1="50" y1="370" x2="50" y2="407" marker-end="url(#arrow)" />
+              <line x1="90" y1="450" x2="90" y2="467" marker-end="url(#arrow)" />
+
+              <line x1="150" y1="510" x2="150" y2="547" marker-end="url(#arrow)" />
+            </g>
+
+            <line x1="140" y1="41" x2="140" y2="57" marker-end="url(#arrow)" />
+            <line x1="230" y1="41" x2="230" y2="117" marker-end="url(#arrow)" />
+          </svg>
+        </div>
+        <h3>Generating the Phases Texture</h3>
+        <p>
+          The first step of the generator is to run the <a href="../shader-reference/generator-shaders/gen-phase.html">gen-phase</a> shader,
+          which generates the second of those two parts (the colorburst phase), based on timing information fed to the shader.
+          That generates the <b>Phases Texture</b> which is one of the outputs from the Generator.
+        </p>
+        <p>
+          The state fed to the gen-phase shader includes timing information about the hypothetical machine that is generating the emulated signal.
+          This includes the phase of the colorburst at the start of the frame as well as the change in that phase per scanline.
+        </p>
+        <p>
+          See the <a href="../shader-reference/generator-shaders/gen-phase.html">gen-phase</a> shader documentation for all of the shader inputs.
+        </p>
+        <h3>Generating a Signal Texture</h3>
+        <p>
+          The next step is to take the <b>RGB Input Texture</b> (the texture that the generator is converting) and
+          the just-generated <b>Phases Texture</b> and pass them to the 
+          <a href="../shader-reference/generator-shaders/rgb-to-svideo-or-composite.html">rgb-to-svideo-or-composite</a> shader,
+          which turns the RGB pixel information into an emulated NTSC scanline texture (Equivalent to item #1 in the above list),
+          which we'll call the <b>Signal Texture</b>.
+        </p>
+        <p>
+          This shader uses the <b>Phases Texture</b> to determine how to generate the color carrier waves to represent the colors
+          from the input texture.
+        </p>
+        <p>
+          This shader can also pad out the generated signal on the sides (generating extra signal on the left and right sides of each scanline) to
+          reduce visible artifacting at the edges of the screen where clamped addressing would do the wrong thing without extra texels to sample from.
+        </p>
+        <p>
+          This signal texture, depending on the parameters sent to the shader, can either be an emulation of a 
+          <a href="https://en.wikipedia.org/wiki/Composite_video" target="_blank">composite video signal</a>
+          (a classic NTSC signal where the luma and chroma are carried in the same signal), or a 
+          <a href="https://en.wikipedia.org/wiki/S-Video" target="_blank"">S-Video signal</a> (where the chroma and
+          luma are in separate channels, greatly increasing the fidelity of the decoded signal).
+        </p>
+        <p>
+          See the <a href="../shader-reference/generator-shaders/rgb-to-svideo-or-composite.html">rgb-to-svideo-or-composite</a> shader documentation for all of the shader inputs.
+        </p>
+        <h3>Optional: Applying Artifacts</h3>
+        <p>
+          The <b>Signal Texture</b> could be sent directly out of the generator, but if we want to add any artifacts (noise and
+          ghosting to emulate a less-than-perfect signal), the generator will finish by running the 
+          <a href="../shader-reference/generator-shaders/apply-artifacts.html">apply-artifacts</a> shader and using the output of
+          that as the actual <b>Signal Texture</b>.
+        </p>
+        <p>
+          This shader takes parameters that are predominantly in two categories: controls for the ghosting being applied, and controls for the noise (snow) being
+          applied.
+        </p>
+        <h3>Output &amp; Next Steps</h3>
+        The <b>Phases Texture</b> and the <b>Signal Texture</b> (which may have come from either of the last two shaders) are the outputs of the Generator process,
+        and are ready to be fed into the next step: <a href="Decoder.html">the Decoder</a>.
       </main>
     </div>
   </body>

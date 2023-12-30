@@ -12,7 +12,314 @@
     <div id="content-outer" class="content-outer">
       <main>
         <h1>CRT Emulation Shaders</h1>
-        (Content coming soon)
+        <h3>Overview</h3>
+        <p>
+          There are four phases to the CRT emulation, two of which run every frame, and two which only
+          need to run when settings or output resolution have changed.
+          <ul>
+            <li><a href="#MaskGeneration">Mask Generation</a>: Generate the CRT mask texture</li>
+            <li><a href="#ScreenTextureGeneration">Screen Texture Generation</a>: Generate the full-resolution CRT-style overlay</li>
+            <li>
+              <a href="#DiffusionTextureGeneration">Diffusion Texture Generation</a>: Generate a blurred version of the 
+              input image to emulate the diffusion of photons through the glass of a CRT
+            </li>
+            <li><a href="#FinalOutput">Final Output</a>: Put it all together into the final Cathode Retro image.</li>
+          </ul>
+        </p>
+        <h3 id="MaskGeneration">Mask Generation</h3>
+        <p>
+          Mask Generation generates a texture that represents one of the supported <a href="../cpp-reference/enums/masktype.html">CRT mask types</a>
+          (which is, perhaps unsurprisingly, called the <b>Mask Texture</b>).
+        </p>
+        <p>
+          Each of the three possible shaders generates the same image each time, so this could easily be done as a pre-process, either once at
+          Cathode Retro startup or even once to generate textures to write to file to read back later.
+        </p>
+        <div class="flowchart-outer">
+          <svg class="flowchart" width=300 height=481>
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" />
+              </marker>
+            </defs>
+            <g class="endpoint" transform="translate(50, 1)">
+              <rect x="0" y="0" width="200" height="40" rx=20 />
+              <text x="100" y="20">Start</text>
+            </g>
+            <g class="choice" transform="translate(70, 60)">
+              <polygon points="80,0 160,40 80,80 0,40" />
+              <text x="80" y="40">Mask type?</text>
+            </g>
+            <g class="shader" transform="translate(10, 210)">
+              <rect x="0" y="0" width="120" height="60" rx=10 />
+              <text x="60" y="20">generate-</text>
+              <text x="60" y="40">aperture-grille</text>
+            </g>
+            <g class="shader" transform="translate(170, 210)">
+              <rect x="0" y="0" width="120" height="60" rx=10 />
+              <text x="60" y="20">generate-</text>
+              <text x="60" y="40">shadow-mask</text>
+            </g>
+            <g class="shader" transform="translate(90, 280)">
+              <rect x="0" y="0" width="120" height="60" rx=10 />
+              <text x="60" y="20">generate-</text>
+              <text x="60" y="40">slot-mask</text>
+            </g>
+            <g class="io" transform="translate(90, 380)">
+              <rect x="0" y="0" width="120" height="40" transform="skewX(-20) translate(8, 0)" />
+              <text x="60" y="20">Mask Texture</text>
+            </g>
+            <g class="endpoint" transform="translate(50, 440)">
+              <rect x="0" y="0" width="200" height="40" rx=20 />
+              <text x="100" y="20">Mask Output</text>
+            </g>
+
+            <line x1="150" y1="41" x2="150" y2="57" marker-end="url(#arrow)" />
+
+            <line x1="70" y1="100" x2="60" y2="100" />
+            <line x1="60" y1="100" x2="60" y2="150" />
+            <text x="60" y="162">Aperture</text>
+            <text x="60" y="182">Grille</text>
+            <line x1="60" y1="190" x2="60" y2="207" marker-end="url(#arrow)" />
+
+            <line x1="150" y1="140" x2="150" y2="150" />
+            <text x="150" y="162">Slot</text>
+            <text x="150" y="182">Mask</text>
+            <line x1="150" y1="190" x2="150" y2="277" marker-end="url(#arrow)" />
+
+            <line x1="230" y1="100" x2="240" y2="100" />
+            <line x1="240" y1="100" x2="240" y2="150" />
+            <text x="240" y="162">Shadow</text>
+            <text x="240" y="182">Mask</text>
+            <line x1="240" y1="190" x2="240" y2="207" marker-end="url(#arrow)" />
+
+            <line x1="60" y1="270" x2="60" y2="365" />
+            <line x1="60" y1="365" x2="150" y2="365" />
+
+            <line x1="240" y1="270" x2="240" y2="365" />
+            <line x1="240" y1="365" x2="150" y2="365" />
+
+            <line x1="150" y1="340" x2="150" y2="377" marker-end="url(#arrow)" />
+            
+            <line x1="150" y1="420" x2="150" y2="437" marker-end="url(#arrow)" />
+          </svg>
+        </div>
+        <p>
+          Simply pick whichever type of mask you wish to use and run the corresponding shader, ending up with the <b>Mask Texture</b>.
+        </p>
+        <p>
+          See the following shader documents for more information on each mask type:
+          <ul>
+            <li><a href="../shader-reference/crt-shaders/generate-aperture-grille.html">generate-aperture-grille</a></li>
+            <li><a href="../shader-reference/crt-shaders/generate-shadow-mask.html">generate-shadow-mask</a></li>
+            <li><a href="../shader-reference/crt-shaders/generate-slot-mask.html">generate-slot-mask</a></li>
+          </ul>
+        </p>
+
+        <h3 id="ScreenTextureGeneration">Screen Texture Generation</h3>
+        <p>
+          Next, the <b>Mask Texture</b> can be handed to the <a href="../shader-reference/crt-shaders/generate-screen-texture.html">generate-screen-texture</a> shader to
+          make the <b>Screen Texture</b>.
+        </p>
+        <div class="flowchart-outer">
+          <svg class="flowchart" width=300 height=281>
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" />
+              </marker>
+            </defs>
+            <g class="endpoint" transform="translate(50, 1)">
+              <rect x="0" y="0" width="200" height="40" rx=20 />
+              <text x="100" y="20">Start</text>
+            </g>
+            <g class="io" transform="translate(90, 60)">
+              <rect x="0" y="0" width="120" height="40" transform="skewX(-20) translate(8, 0)" />
+              <text x="60" y="20">Mask Texture</text>
+            </g>
+            <g class="shader" transform="translate(50, 120)">
+              <rect x="0" y="0" width="200" height="40" rx=10 />
+              <text x="100" y="20">generate-screen-texture</text>
+            </g>
+            <g class="io" transform="translate(90, 180)">
+              <rect x="0" y="0" width="120" height="40" transform="skewX(-20) translate(8, 0)" />
+              <text x="60" y="20">Screen Texture</text>
+            </g>
+            <g class="endpoint" transform="translate(50, 240)">
+              <rect x="0" y="0" width="200" height="40" rx=20 />
+              <text x="100" y="20">Screen Texture Output</text>
+            </g>
+
+            <line x1="150" y1="41" x2="150" y2="57" marker-end="url(#arrow)" />
+            <line x1="150" y1="100" x2="150" y2="117" marker-end="url(#arrow)" />
+            <line x1="150" y1="160" x2="150" y2="177" marker-end="url(#arrow)" />
+            <line x1="150" y1="220" x2="150" y2="237" marker-end="url(#arrow)" />
+          </svg>
+        </div>
+        <p>
+          This texture is expected to have the same width and height as the final output of the CRT emulation, so must be regenerated whenever the output resolution changes.
+        </p>
+        <p>
+          (Additionally, of course, it must be regenerated when the screen properties change, like the scale of the CRT mask or the curvature of the screen).
+        </p>
+        <p>
+          See the <a href="../shader-reference/crt-shaders/generate-screen-texture.html">generate-screen-texture</a> shader documentation for all of the shader inputs.
+        </p>
+
+        <h3 id="DiffusionTextureGeneration">Diffusion Texture Generation</h3>
+        <p>
+          If CRT diffusion is enabled (an approximation of the photons bouncing through the glass in front of the CRT phosphors), 
+          the <b>Diffusion Texture</b> needs to be generated (per-frame). It is basically a tonemapped and blurred version of the <b>RGB Texture</b>.
+        </p>
+        <div class="flowchart-outer">
+          <svg class="flowchart" width=300 height=461>
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" />
+              </marker>
+            </defs>
+            <g class="endpoint" transform="translate(50, 1)">
+              <rect x="0" y="0" width="200" height="40" rx=20 />
+              <text x="100" y="20">Start</text>
+            </g>
+            <g class="io" transform="translate(90, 60)">
+              <rect x="0" y="0" width="120" height="40" transform="skewX(-20) translate(8, 0)" />
+              <text x="60" y="20">RGB Texture</text>
+            </g>
+            <g class="shader" transform="translate(50, 120)">
+              <rect x="0" y="0" width="200" height="40" rx=10 />
+              <text x="100" y="20">tonemap-and-downsample</text>
+            </g>
+            <g class="shader" transform="translate(50, 180)">
+              <rect x="0" y="0" width="200" height="40" rx=10 />
+              <text x="100" y="20">downsample-2x (vertical)</text>
+            </g>
+            <g class="shader" transform="translate(50, 240)">
+              <rect x="0" y="0" width="200" height="40" rx=10 />
+              <text x="100" y="20">gaussian-blur (horizontal)</text>
+            </g>
+            <g class="shader" transform="translate(50, 300)">
+              <rect x="0" y="0" width="200" height="40" rx=10 />
+              <text x="100" y="20">gaussian-blur (vertical)</text>
+            </g>
+            <g class="io" transform="translate(80, 360)">
+              <rect x="0" y="0" width="140" height="40" transform="skewX(-20) translate(8, 0)" />
+              <text x="70" y="20">Diffusion Texture</text>
+            </g>
+            <g class="endpoint" transform="translate(50, 420)">
+              <rect x="0" y="0" width="200" height="40" rx=20 />
+              <text x="100" y="20">Diffusion Texture Output</text>
+            </g>
+            <line x1="150" y1="41" x2="150" y2="57" marker-end="url(#arrow)" />
+            <line x1="150" y1="100" x2="150" y2="117" marker-end="url(#arrow)" />
+            <line x1="150" y1="160" x2="150" y2="177" marker-end="url(#arrow)" />
+            <line x1="150" y1="220" x2="150" y2="237" marker-end="url(#arrow)" />
+            <line x1="150" y1="280" x2="150" y2="297" marker-end="url(#arrow)" />
+            <line x1="150" y1="340" x2="150" y2="357" marker-end="url(#arrow)" />
+            <line x1="150" y1="400" x2="150" y2="417" marker-end="url(#arrow)" />
+          </svg>
+        </div>
+        <p>
+          The first step is the downsampling (to make the blur larger), which is coupled with the tonemapping.
+          So first, the <a href="../shader-reference/util-shaders/tonemap-and-downsample.html">tonemap-and-downsample</a> shader runs,
+          which ends up in a texture that with an aspect ratio of <code>screenWidth/2 : screenHeight</code> (i.e. it should be narrower
+          than the actual screen by half).
+        </p>
+        <p>
+          (This tonemap and downsample pass does not do a perfect downsample, just an approximation using a 2x downsample shader - the goal
+          is to get a texture with the correct aspect ratio - which is then going to be blurred - so it doesn't have to be exact to look good)
+        </p>
+        <p>
+          Then a straight 2x vertical downsample after that (using the <a href="../shader-reference/util-shaders/downsample-2x.html">downsample-2x</a> shader),
+          to get the aspect ratio right (so that the blur is circular and not elliptical)
+        </p>
+        <p>
+          After that, two passes of the <a href="../shader-reference/util-shaders/gaussian-blur.html">gaussian-blur</a> shader are run (one vertical, one horizontal),
+          to result in the final <b>Diffusion Texture</b>.
+        </p>
+        <p>
+          See the following shader documents for more information:
+          <ul>
+            <li><a href="../shader-reference/util-shaders/tonemap-and-downsample.html">tonemap-and-downsample</a></li>
+            <li><a href="../shader-reference/util-shaders/downsample-2x.html">downsample-2x</a></li>
+            <li><a href="../shader-reference/util-shaders/gaussian-blur.html">gaussian-blur</a></li>
+          </ul>
+        </p>
+
+        <h3 id="FinalOutput">Final Output</h3>
+        <p>
+          Given the <b>Screen Texture</b> has already been generated (by the <a href="#ScreenTextureGeneration">Screen Texture Generation step</a> above),
+          the final assembly then is running the above <a href="#DiffusionTextureGeneration">Diffusion Texture Generation step</a> if needed, then
+          running the current <b>RGB Texture</b> the <b>Previous RGB Texture</b> (the RGB texture from the previous frame - only necessary if phosphor persistence 
+          is enabled), and the generated <b>Screen Texture</b> and <b>Diffusion Texture</b> into the <a href="../shader-reference/crt-shaders/rgb-to-crt.html">rgb-to-crt</a> 
+          shader.
+        </p>
+        <div class="flowchart-outer">
+          <svg class="flowchart" width=300 height=431>
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" />
+              </marker>
+            </defs>
+            <g class="endpoint" transform="translate(50, 1)">
+              <rect x="0" y="0" width="200" height="40" rx=20 />
+              <text x="100" y="20">Start</text>
+            </g>
+            <g class="io" transform="translate(10, 60)">
+              <rect x="0" y="0" width="120" height="40" transform="skewX(-20) translate(8, 0)" />
+              <text x="60" y="20">RGB Texture</text>
+            </g>
+            <g class="io" transform="translate(50, 110)">
+              <rect x="0" y="0" width="180" height="40" transform="skewX(-20) translate(8, 0)" />
+              <text x="90" y="20">Previous RGB Texture</text>
+            </g>
+            <g class="io" transform="translate(169, 60)">
+              <rect x="0" y="0" width="120" height="40" transform="skewX(-20) translate(8, 0)" />
+              <text x="60" y="20">Screen Texture</text>
+            </g>
+            <g class="shader" transform="translate(10, 190)">
+              <rect x="0" y="0" width="160" height="60" />
+              <text x="80" y="20">Diffusion</text>
+              <text x="80" y="40">Texture Generation</text>
+            </g>
+            <g class="shader" transform="translate(50, 270)">
+              <rect x="0" y="0" width="200" height="40" rx=10 />
+              <text x="100" y="20">rgb-to-crt</text>
+            </g>
+            <g class="io" transform="translate(90, 330)">
+              <rect x="0" y="0" width="120" height="40" transform="skewX(-20) translate(8, 0)" />
+              <text x="60" y="20">CRT Texture</text>
+            </g>
+            <g class="endpoint" transform="translate(50, 390)">
+              <rect x="0" y="0" width="200" height="40" rx=20 />
+              <text x="100" y="20">CRT Output</text>
+            </g>
+
+            <line x1="80" y1="41" x2="80" y2="57" marker-end="url(#arrow)" />
+            <line x1="150" y1="41" x2="150" y2="107" marker-end="url(#arrow)" />
+            <line x1="220" y1="41" x2="220" y2="57" marker-end="url(#arrow)" />
+
+            <line x1="160" y1="250" x2="160" y2="267" marker-end="url(#arrow)" />
+
+            <line x1="30" y1="100" x2="30" y2="187" marker-end="url(#arrow)" />
+            <line x1="30" y1="170" x2="185" y2="170" />
+            <line x1="185" y1="170" x2="185" y2="267" marker-end="url(#arrow)" />
+
+            <line x1="210" y1="150" x2="210" y2="267" marker-end="url(#arrow)" />
+
+            <line x1="260" y1="100" x2="260" y2="170" />
+            <line x1="260" y1="170" x2="235" y2="170" />
+            <line x1="235" y1="170" x2="235" y2="267" marker-end="url(#arrow)" />
+
+            <line x1="150" y1="310" x2="150" y2="327" marker-end="url(#arrow)" />
+            <line x1="150" y1="370" x2="150" y2="387" marker-end="url(#arrow)" />
+          </svg>
+        </div>
+        <p>
+          The output of this shader is the final output of the CRT emulation.
+        </p>
+        <p>
+          See the <a href="../shader-reference/crt-shaders/rgb-to-crt.html">rgb-to-crt</a>  shader documentation for all of the shader inputs.
+        </p>
       </main>
     </div>
   </body>
