@@ -18,7 +18,7 @@
           can then convert it back into an RGB texture, but with all of the artifacts that come from the NTSC encoding.
         </p>
         <p>
-          An NTSC scanline has <a href="../how/ntsc-basics.html">many parts</a>, but for purposes of the decode, there are two parts
+          An NTSC scanline has <a href="../how/black-and-white.html#Scanline">many parts</a>, but for purposes of the decode, there are two parts
           that matter (which are the outputs of the Generator): 
           <ol>
             <li>The <b>Signal Texture</b>: The visible part of each scanline signal: which contains the luma (Brightness) and chroma (color) image for the scanline</li>
@@ -157,7 +157,7 @@
         </p>
         <h3>Output &amp; Next Steps</h3>
         The <b>Phases Texture</b> and the <b>Signal Texture</b> (which may have come from either of the last two shaders) are the outputs of the Generator process,
-        and are ready to be fed into the next step: <a href="Decoder.html">the Decoder</a>.
+        and are ready to be fed into the next step: <a href="decoder.html">the Decoder</a>.
       </main>
     </div>
   </body>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Cathode Retro Docs</title>
+    <link href="../../docs.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../../main-scripts.js"></script>
+  </head>
+  <body onload="OnLoad()" class="page">
+    <header class="header"><button id="sidebar-button"></button></header>
+    <div id="sidebar-container" class="sidebar-container"><iframe class="sidebar-frame" src="../../sidebar.html?page=how-ntsc-black-and-white"></iframe></div>
+    <div id="content-outer" class="content-outer">
+      <main>
+        <h1>Classic Black &amp; White TV</h1>
+        <p>Previous: <a href="index.html">Understanding NTSC</a></p>
+        <br />
+
+        <p>
+          At the start of broadcast TV in the U.S., broadcasts were entirely in black and white (or, if you prefer, greyscale (or, if you prefer, grayscale)).
+          <ul>
+            <li>
+              Broadcast TV ran at 30 interlaced frames per second. Every frame takes two 60hz U.S. <a href="https://en.wikipedia.org/wiki/Mains_electricity" target="_blank">AC power</a>
+              cycles, leveraging the frequency of AC current to help with consistent timing.
+            </li>
+            <li>
+              Each frame would consist of two interlaced <b>fields</b>, each one displaying half of the final image.
+              <ul>
+                <li>
+                  Each of the two fields in a frame draws half the scanlines of the frame from top to bottom, first the odd scanlines (1, 3, 5, etc) in one field, then the 
+                  evens in the next.
+                </li>
+                <li>Each field starts at the upper left and draws from the top down, with each scanline going left to right.</li>
+                <li>
+                  Alternating the scanlines in this way helped reduce visible flicker: the <a href="https://en.wikipedia.org/wiki/Phosphor" target="_blank">phosphors</a> on a CRT 
+                  do not stay lit for long, and retracing top to bottom twice every frame instead of once meant the overall picture gets lit every 60hz instead of 30hz, 
+                  while keeping the right amount of vertical picture resolution.
+                </li>
+              </ul>
+            </li>
+            <li>
+              Every interlaced frame (every two fields) would have <a href="https://en.wikipedia.org/wiki/525_lines" target="_blank">525 "lines"</a> of signal:
+              <ul>
+                <li>
+                  486 visible lines with 243 lines per interlaced field (<a href="https://en.wikipedia.org/wiki/Rec._601" target="_blank">later standards</a> would drop it to 
+                  480 lines).
+                </li>
+                <li>45 lines of non-visible signal: 22.5 lines between fields with the extra .5 there to keep the timing the same between odd and even fields -
+                more on this when we get to <a href="vsync.html">interlacing</a>.</li>
+              </ul>
+            </li>
+            <li>
+              The audio signal is 4.5MHz above the video carrier signal (This may seem like an out-of-place fact given we're just concerned with the video signal, 
+              but it becomes quite important when <a href="color.html">color TV</a> becomes a thing).
+            </li>
+          </ul>
+        </p>
+
+        <h2 id="Scanline">A Scanline</h2>
+        <p>
+          Here is a diagram of a single visible scanline from a black &amp; white signal:
+        </p>
+        <div class="ntsc-diagram">
+          <svg viewBox="0 -60 655 120">
+            <rect class="hsync-pulse" x="15" width="47" y="-60" height="120" />
+            <rect class="visible-scanline" x="109" width="526" y="-60" height="120" />
+            <rect class="hsync-pulse" x="650" width="47" y="-60" height="120" />
+
+            <line class="phase-divider" x1="15" y1="-60" x2="15" y2="60" />
+            <line class="phase-divider" x1="62" y1="-60" x2="62" y2="60" />
+            <line class="phase-divider" x1="109" y1="-60" x2="109" y2="60" />
+            <line class="phase-divider" x1="635" y1="-60" x2="635" y2="60" />
+            <line class="phase-divider" x1="650" y1="-60" x2="650" y2="60" />
+
+            <text x="7.5" y="-40">FP</text>
+            <text x="38.5" y="-40">HSync</text>
+            <text x="85.5" y="-40">BP</text>
+            <text x="372" y="-40">Visible</text>
+            <text class="faint" x="642.5" y="-40">FP</text>
+
+            <!-- front porch-->
+            <path
+              vector-effect="non-scaling-stroke"
+              d="M0,15
+                l 12.5,0 c 1.821,0 3.179,40 5,40 l 42,0 c 1.821,0 3.179,-40 5,-40 l 44.5,0
+                
+                c 10,0 21,-45 41, -45 c 20,0 40,-25 50,-25 c 20,0 60,45, 80,45 c 10,0 30,-10 40,-10 
+                c 20,0 90,-20 110,-20 c 20,0 70,40 110,40 c 10,0 40,-40 50,-40 c 35,0 42,55 45,55 l 12.5,0                
+                "
+            />
+
+            <path
+              vector-effect="non-scaling-stroke"
+              class="faint"
+              d="M 635,15 l 12.5, 0 c 1.821,0 3.179,40 5,40 l 2.5,0"
+            />
+          </svg>
+        </div>
+        <p>
+          Coarsely, a scanline can be considered as having two sections: the <b>blanking interval</b> (the first three regions in the diagram) and the 
+          <b>visible portion</b> of the scanline, which is the large portion conspicuously labeled "Visible."
+        </p>
+        <h2>The Blanking Interval</h2>
+        <p>
+          The first region (labeled FP in the diagram) is the <b>front porch</b>. This is the start of the blanking interval, and it rests at the
+          <b>blanking level</b> (the upper voltage of the blanking interval) for a short bit to let 
+          voltage levels settle to a known value after the visible portion ends before the sync truly begins.
+        </p>
+        <p>
+          That occurs at the <b>horizontal sync pulse</b> (HSync): a drop in voltage telling the CRT to send the 
+          <a href="https://en.wikipedia.org/wiki/Cathode_ray" target="_blank">electron beam</a> sailing back to the left side of the screen to start the scanline. 
+        </p>
+        <p>
+          After the sync pulse ends is the <b>back porch</b> (BP), a return to the blanking level to once again allow voltage to stabilize, plus
+          give the electron beam enough time to complete its transit from right to left so it's ready when the visible portion of the scanline arrives.
+        </p>
+        <h2>The Visible Portion</h2>
+        <p>
+          After the blanking interval ends, the <b>visible portion</b> of the scanline begins: a part of the picture that you see on-screen. 
+        </p>
+        <p>
+          In black &amp; white TV, this is merely a luminosity value ranging from the <b>black level</b> to the <b>white level</b>
+          (<a href="https://en.wikipedia.org/wiki/IRE_(unit)" target="_blank">canonically</a> the black level is ~53mV 
+          above the blanking level and the white level is ~714mV above that).
+          Basically, the voltage at any given point along this span corresponds <i>directly</i> to the brightness that is visible on-screen at that position,
+          starting on the left and ending on the right. Lower voltages are darker, higher voltages are brighter.
+        </p>
+        <p>
+          Note that this is a purely analog signal - there are no pixels along a scanline (hadn't been invented yet). 
+          Instead, it's a smooth analog signal that changes between bright and dark as needed to display the intended picture.
+        </p>
+        <p>
+          When the visible portion of the scanline ends, the signal drops back down to the blanking level and the front porch of the next scanline begins.
+        </p>
+        <h2>Fields and Frames</h2>
+        <p>
+          Eventually, the field runs out of visible scanlines (it reached the bottom of the picture), and the visible portion of the field ends. 
+          At this point, the next field begins with a series of <i>non</i>-visible scanlines called the <b>vertical blanking interval</b>.
+        </p>
+        <p>Next: <a href="vsync.html">Vertical Sync and Interlacing</a></p>
+      </main>
+    </div>
+  </body>
+</html>

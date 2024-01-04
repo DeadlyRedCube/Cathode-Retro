@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Cathode Retro Docs</title>
+    <link href="../../docs.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../../main-scripts.js"></script>
+  </head>
+  <body onload="OnLoad()" class="page">
+    <header class="header"><button id="sidebar-button"></button></header>
+    <div id="sidebar-container" class="sidebar-container"><iframe class="sidebar-frame" src="../../sidebar.html?page=how-ntsc-vsync"></iframe></div>
+    <div id="content-outer" class="content-outer">
+      <main>
+        <h1>V-Sync and Interlacing</h1>
+        <p>Previous: <a href="black-and-white.html">Classic Black &amp; White TV</a></p>
+        <br />
+
+        <p>
+          As stated in <a href="black-and-white.html">the previous section</a>, every interlaced frame of video consists of 525 scanlines, making each field 
+          262.5 scanlines long. But, why is there a half scanline? And why are there so many more lines than the 486 that are visible?
+        </p>
+        <p>
+          Well, now that we've looked at <a href="black-and-white.html#Scanline">an individual scanline</a>, it's time to break down a whole frame.
+        </p>
+        <h2>The First Field</h2>
+        <p>
+          Each interlaced field in a frame is exactly 262.5 scanlines long, and this first field (the <b>odd field</b>) is no exception.
+        </p>
+        <p>
+          The start of every field is known as the <b>vertical blanking interval</b> and, similar to the horizontal blanking interval that occurs per scanline,
+          this is the setup for the TV to know that a new field is imminent.
+        </p>
+        <p>
+          Here is a diagram of the vertical blanking interval, which is comprised of 20 scanlines. Note that the diagram additionally contains the 
+          last visible scanline of the previous field and the first visible scanline of this new field:
+        </p>
+        <div class="ntsc-diagram">
+          <svg viewBox="0 -60 635 120">
+            <g transform="scale(0.04545 1)">
+              <rect class="visible-scanline" x="0" width="635" y="-60" height="120" />
+              <rect class="vsync" x="2537.5" width="1905" y="-60" height="120" />
+              <rect class="visible-scanline" x="13322.5" width="635" y="-60" height="120" />
+
+              <line vector-effect="non-scaling-stroke" class="phase-divider" x1="637.5" y1="-60" x2="637.5" y2="60" />
+              <line vector-effect="non-scaling-stroke" class="phase-divider" x1="2537.5" y1="-60" x2="2537.5" y2="60" />
+              <line vector-effect="non-scaling-stroke" class="phase-divider" x1="4442.5" y1="-60" x2="4442.5" y2="60" />
+              <line vector-effect="non-scaling-stroke" class="phase-divider" x1="6348.5" y1="-60" x2="6348.5" y2="60" />
+              <line vector-effect="non-scaling-stroke" class="phase-divider" x1="13322.5" y1="-60" x2="13322.5" y2="60" />
+
+              <text x="0" y="0" transform="translate(1586.5, -40) scale(21, 1)">Pre-EQ</text>
+              <text x="0" y="0" transform="translate(3490, -40) scale(21, 1)">VSync</text>
+              <text x="0" y="0" transform="translate(5395, -40) scale(21, 1)">Post-EQ</text>
+              <text x="0" y="0" transform="translate(9840, -40) scale(21, 1)">Interval</text>
+
+              <path
+                class="faint"
+                vector-effect="non-scaling-stroke"
+                d="M 0,15 
+                  c 1.821,0 3.179,40 5,40 l 42.5,0 c 1.821,0 3.179,-40 5,-40 l 44.5,0
+                  c 10,0 31,-45 51, -45 c 20,0 40,-25 50,-25 c 20,0 60,45, 80,45 c 10,0 30,-10 40,-10 
+                  c 20,0 90,-20 110,-20 c 20,0 70,40 110,40 c 10,0 40,-40 50,-40 c 35,0 42,55 45,55 l 12.5,0"
+              />
+
+              <path 
+                vector-effect="non-scaling-stroke" 
+                d="M635,15 
+                  c 1.821,0 3.179,40 5,40 l 29.625,0 c 1.821,0 3.179,-40 5,-40 l 277.875,0
+                  c 1.821,0 3.179,40 5,40 l 29.625,0 c 1.821,0 3.179,-40 5,-40 l 277.875,0
+                  c 1.821,0 3.179,40 5,40 l 29.625,0 c 1.821,0 3.179,-40 5,-40 l 277.875,0
+                  c 1.821,0 3.179,40 5,40 l 29.625,0 c 1.821,0 3.179,-40 5,-40 l 277.875,0
+                  c 1.821,0 3.179,40 5,40 l 29.625,0 c 1.821,0 3.179,-40 5,-40 l 277.875,0
+                  c 1.821,0 3.179,40 5,40 l 29.625,0 c 1.821,0 3.179,-40 5,-40 l 277.875,0
+                  
+                  c 1.821,0 3.179,40 5,40 l 265.5,0 c 1.821,0 3.179,-40 5,-40 l 42,0
+                  c 1.821,0 3.179,40 5,40 l 265.5,0 c 1.821,0 3.179,-40 5,-40 l 42,0
+                  c 1.821,0 3.179,40 5,40 l 265.5,0 c 1.821,0 3.179,-40 5,-40 l 42,0
+                  c 1.821,0 3.179,40 5,40 l 265.5,0 c 1.821,0 3.179,-40 5,-40 l 42,0
+                  c 1.821,0 3.179,40 5,40 l 265.5,0 c 1.821,0 3.179,-40 5,-40 l 42,0
+                  c 1.821,0 3.179,40 5,40 l 265.5,0 c 1.821,0 3.179,-40 5,-40 l 42,0
+                  
+                  c 1.821,0 3.179,40 5,40 l 29.625,0 c 1.821,0 3.179,-40 5,-40 l 277.875,0
+                  c 1.821,0 3.179,40 5,40 l 29.625,0 c 1.821,0 3.179,-40 5,-40 l 277.875,0
+                  c 1.821,0 3.179,40 5,40 l 29.625,0 c 1.821,0 3.179,-40 5,-40 l 277.875,0
+                  c 1.821,0 3.179,40 5,40 l 29.625,0 c 1.821,0 3.179,-40 5,-40 l 277.875,0
+                  c 1.821,0 3.179,40 5,40 l 29.625,0 c 1.821,0 3.179,-40 5,-40 l 277.875,0
+                  c 1.821,0 3.179,40 5,40 l 29.625,0 c 1.821,0 3.179,-40 5,-40 l 277.875,0
+                  
+                  c 1.821,0 3.179,40 5,40 l 42,0 c 1.821,0 3.179,-40 5,-40 l 583,0
+                  c 1.821,0 3.179,40 5,40 l 42,0 c 1.821,0 3.179,-40 5,-40 l 583,0
+                  c 1.821,0 3.179,40 5,40 l 42,0 c 1.821,0 3.179,-40 5,-40 l 583,0
+                  c 1.821,0 3.179,40 5,40 l 42,0 c 1.821,0 3.179,-40 5,-40 l 583,0
+                  c 1.821,0 3.179,40 5,40 l 42,0 c 1.821,0 3.179,-40 5,-40 l 583,0
+                  c 1.821,0 3.179,40 5,40 l 42,0 c 1.821,0 3.179,-40 5,-40 l 583,0
+                  c 1.821,0 3.179,40 5,40 l 42,0 c 1.821,0 3.179,-40 5,-40 l 583,0
+                  c 1.821,0 3.179,40 5,40 l 42,0 c 1.821,0 3.179,-40 5,-40 l 583,0
+                  c 1.821,0 3.179,40 5,40 l 42,0 c 1.821,0 3.179,-40 5,-40 l 583,0
+                  c 1.821,0 3.179,40 5,40 l 42,0 c 1.821,0 3.179,-40 5,-40 l 583,0
+                  c 1.821,0 3.179,40 5,40 l 42,0 c 1.821,0 3.179,-40 5,-40 l 583,0
+                  
+                  c 1.821,0 3.179,40 5,40 l 42.5,0 c 1.821,0 3.179,-40 5,-40 l 44.5,0
+                  c 10,0 31,-45 51, -45 c 20,0 40,-25 50,-25 c 20,0 60,45, 80,45 c 10,0 30,-10 40,-10 
+                  c 20,0 90,-20 110,-20 c 20,0 70,40 110,40 c 10,0 40,-40 50,-40 c 35,0 42,55 45,55 l 12.5,0"
+              />
+            </g>
+          </svg>
+        </div>
+        <p>
+          At the start of a standard vertical blanking interval is a sequence of six half-scanline-duration pulses (the <b>pre-equalizing pulse interval</b>, "Pre-EQ" in 
+          the diagram). This is a buffer between the end of the previous scanline and the <b>vertical sync pulse interval</b>, with a similar purpose as the front porch 
+          for a scanline.
+        </p>
+        <p>
+          We are going to count these six pulses as <b>scanlines 1-3</b>, and they are not only the start of this field, but for illustrative purposes, the start of the
+          entire 525 scanline frame.
+        </p>
+        <p>
+          After the sixth half-scanline pulse, now the signal drops low for extended lengths of time: this is the <b>vertical sync pulse interval</b> ("VSync" in the diagram), 
+          and it is the actual signal to the CRT to send the electron beam back to the upper-left corner (as it just finished in the lower-right) to prepare for this new 
+          field. This is another 6 half-scanline pulses: <b>scanlines 4-6</b>.
+        </p>
+        <p>
+          After that, there are six more half-scanline pulses (<b>scanlines 7-9</b>): the <b>post-equalizing pulse interval</b> ("Post-EQ" in the diagram). 
+        </p>
+        <p>
+          <b>Scanlines 10-20</b> are still not visible, and are there to allow early CRTs the amount of time necessary to get the electron beam back to the upper-left corner.
+          These look like regular scanlines (they're full-length), but without any visible data in them. At the end of this, the vertical blanking interval ends.
+        </p>
+        <p>
+          Finally, <b>scanline 21</b> is the start of the odd field's visible scanlines, which continues until <b>scanline 263.5</b>. Yep, the last visible scanline of the
+          odd frame (<b>scanline 263</b>) is only half-length, and halfway in it stops and the next field's vertical blanking interval begins.
+        </p>
+
+        <h2>The Second Field</h2>
+        <p>
+          The second field (the <b>even field</b>) starts much like the first one does, except it just unceremoniously starts in the middle of a scanline.
+          Here's a diagram of the second field's vertical blanking interval (plus the half-scanline from the previous field, as well as the initial 1.5 scanlines from this one):
+        </p>
+        <div class="ntsc-diagram">
+          <svg viewBox="0 -60 635 120">
+
+            <g transform="scale(0.04545 1)">
+              <rect class="visible-scanline" x="0" width="317.5" y="-60" height="120" />
+              <rect class="vsync" x="2220" width="1905" y="-60" height="120" />
+              <rect class="visible-scanline" x="13015" width="952.5" y="-60" height="120" />
+
+              <line vector-effect="non-scaling-stroke" class="phase-divider" x1="317.5" y1="-60" x2="317.5" y2="60" />
+              <line vector-effect="non-scaling-stroke" class="phase-divider" x1="2220" y1="-60" x2="2220" y2="60" />
+              <line vector-effect="non-scaling-stroke" class="phase-divider" x1="4125" y1="-60" x2="4125" y2="60" />
+              <line vector-effect="non-scaling-stroke" class="phase-divider" x1="5712.5" y1="-60" x2="5712.5" y2="60" />
+              <line vector-effect="non-scaling-stroke" class="phase-divider" x1="13015" y1="-60" x2="13015" y2="60" />
+
+              <text x="0" y="0" transform="translate(1260, -40) scale(21, 1)">Pre-EQ</text>
+              <text x="0" y="0" transform="translate(3172.5, -40) scale(21, 1)">VSync</text>
+              <text x="0" y="0" transform="translate(4918.75, -40) scale(21, 1)">Post-EQ</text>
+              <text x="0" y="0" transform="translate(9522.5, -40) scale(21, 1)">Interval</text>
+
+              <path
+                class="faint"
+                vector-effect="non-scaling-stroke"
+                d="M 0,15 
+                  c 1.821,0 3.179,40 5,40 l 42.5,0 c 1.821,0 3.179,-40 5,-40 l 44.5,0
+                  c 10,0 31,-45 51, -45 c 20,0 40,-25 50,-25 c 20,0 60,45, 80,45 
+                  c 10,0 30,-10 37.5,30"
+              />
+
+              <path 
+                vector-effect="non-scaling-stroke" 
+                d="M317.5,15 
+                  c 1.821,0 3.179,40 5,40 l 29.625,0 c 1.821,0 3.179,-40 5,-40 l 277.875,0
+                  c 1.821,0 3.179,40 5,40 l 29.625,0 c 1.821,0 3.179,-40 5,-40 l 277.875,0
+                  c 1.821,0 3.179,40 5,40 l 29.625,0 c 1.821,0 3.179,-40 5,-40 l 277.875,0
+                  c 1.821,0 3.179,40 5,40 l 29.625,0 c 1.821,0 3.179,-40 5,-40 l 277.875,0
+                  c 1.821,0 3.179,40 5,40 l 29.625,0 c 1.821,0 3.179,-40 5,-40 l 277.875,0
+                  c 1.821,0 3.179,40 5,40 l 29.625,0 c 1.821,0 3.179,-40 5,-40 l 277.875,0
+                  
+                  c 1.821,0 3.179,40 5,40 l 265.5,0 c 1.821,0 3.179,-40 5,-40 l 42,0
+                  c 1.821,0 3.179,40 5,40 l 265.5,0 c 1.821,0 3.179,-40 5,-40 l 42,0
+                  c 1.821,0 3.179,40 5,40 l 265.5,0 c 1.821,0 3.179,-40 5,-40 l 42,0
+                  c 1.821,0 3.179,40 5,40 l 265.5,0 c 1.821,0 3.179,-40 5,-40 l 42,0
+                  c 1.821,0 3.179,40 5,40 l 265.5,0 c 1.821,0 3.179,-40 5,-40 l 42,0
+                  c 1.821,0 3.179,40 5,40 l 265.5,0 c 1.821,0 3.179,-40 5,-40 l 42,0
+                  
+                  c 1.821,0 3.179,40 5,40 l 29.625,0 c 1.821,0 3.179,-40 5,-40 l 277.875,0
+                  c 1.821,0 3.179,40 5,40 l 29.625,0 c 1.821,0 3.179,-40 5,-40 l 277.875,0
+                  c 1.821,0 3.179,40 5,40 l 29.625,0 c 1.821,0 3.179,-40 5,-40 l 277.875,0
+                  c 1.821,0 3.179,40 5,40 l 29.625,0 c 1.821,0 3.179,-40 5,-40 l 277.875,0
+                  c 1.821,0 3.179,40 5,40 l 29.625,0 c 1.821,0 3.179,-40 5,-40 l 277.875,0
+
+                  c 1.821,0 3.179,40 5,40 l 42,0 c 1.821,0 3.179,-40 5,-40 l 583,0
+                  c 1.821,0 3.179,40 5,40 l 42,0 c 1.821,0 3.179,-40 5,-40 l 583,0
+                  c 1.821,0 3.179,40 5,40 l 42,0 c 1.821,0 3.179,-40 5,-40 l 583,0
+                  c 1.821,0 3.179,40 5,40 l 42,0 c 1.821,0 3.179,-40 5,-40 l 583,0
+                  c 1.821,0 3.179,40 5,40 l 42,0 c 1.821,0 3.179,-40 5,-40 l 583,0
+                  c 1.821,0 3.179,40 5,40 l 42,0 c 1.821,0 3.179,-40 5,-40 l 583,0
+                  c 1.821,0 3.179,40 5,40 l 42,0 c 1.821,0 3.179,-40 5,-40 l 583,0
+                  c 1.821,0 3.179,40 5,40 l 42,0 c 1.821,0 3.179,-40 5,-40 l 583,0
+                  c 1.821,0 3.179,40 5,40 l 42,0 c 1.821,0 3.179,-40 5,-40 l 583,0
+                  c 1.821,0 3.179,40 5,40 l 42,0 c 1.821,0 3.179,-40 5,-40 l 583,0
+                  c 1.821,0 3.179,40 5,40 l 42,0 c 1.821,0 3.179,-40 5,-40 l 583,0
+
+                  c 1.821,0 3.179,40 5,40 l 42,0 c 1.821,0 3.179,-40 5,-40 
+                  l 253, 0
+                  c 0.5,-25 0.5,-35 3,-35 c 20,0 90,-20 110,-20 c 20,0 70,40 110,40 c 10,0 40,-40 50,-40  c 35,0 42,55 45,55
+                  l 12.5, 0
+
+                  c 1.821,0 3.179,40 5,40 l 42.5,0 c 1.821,0 3.179,-40 5,-40 l 44.5,0
+                  c 10,0 31,-45 51, -45 c 20,0 40,-25 50,-25 c 20,0 60,45, 80,45 c 10,0 30,-10 40,-10 
+                  c 20,0 90,-20 110,-20 c 20,0 70,40 110,40 c 10,0 40,-40 50,-40 c 35,0 42,55 45,55 l 12.5,0                  
+                "
+              />
+            </g>
+          </svg>
+        </div>
+        <p>
+          Just like with the first field, this starts with the six-half-scanline <b>pre-equalizing pulse interval</b> (which starts at <b>scanline 263.5</b> and stops 
+          halfway into <b>scanline 266</b>) followed by the <b>vertical sync pulse interval</b> (starting at <b>scanline 266.5</b> and ending halfway into 
+          <b>scanline 269</b>).
+        </p>
+        <p>
+          Here's where it differs though: the <b>post-equalizing pulse interval</b> has 5 pulses instead of 6, so it runs from <b>scanline 269.5</b> through the end of 
+          <b>scanline 271</b>.  From there, we get the same 11 full-sized empty scanlines (<b>scanlines 272-282</b>) as in the first field.
+        </p>
+        <p>
+          And then, just as the previous field ended with a half-full visible scanline, this field begins with one: the back half of <b>scanline 283</b> is considered 
+          visible (though the first half of that scanline still counts as part of the vertical blanking interval). This half-scanline is technically the first visible
+          scanline in the frame, displaying just above the first scanline from the previous field.
+        </p>
+        <p>
+          The first full scanline of this second (even) field, then, is <b>scanline 284</b>, and this field continues until the end of <b>scanline 535</b>, after which the 
+          cycle of odd/even fields restarts with a new <b>scanline 1</b>.
+        </p>
+        <h2>How Many Visible Scanlines?</h2>
+        <p>
+          By original convention, there are 486 visible scanlines: 242 full scanlines from the first field and 242 from the second, as well as 1 each for the half-visible
+          scanlines. That counts each half-scanline as one scanline each, so it's kinda sorta overcounting by 1.
+        </p>
+        <p>
+          In the 1980s, however, <a href="https://en.wikipedia.org/wiki/Rec._601" target="_blank">a new standard</a> came along and defined the signal as having only 480 
+          visible scanlines. Where did those other scanlines go?
+        </p>
+        <ul>
+          <li>
+            The two half-scanlines no longer count as part of the visible set, as they were never really visible on properly-set-up TVs anyway.
+          </li>
+          <li>
+            Additionally, the first two visible scanlines of each field (<b>scanlines 21, 22, 284, and 285</b> by our count) were also designated as non-visible so they
+            could be used to contain <a href="https://en.wikipedia.org/wiki/EIA-608" target="_blank">closed captions</a> (lines 21 and 284) or 
+            <a href="https://en.wikipedia.org/wiki/Teletext" target="_blank">Teletext</a> (lines 22 and 285).
+          </li>
+        </ul>
+        <p>
+          So with those 6 scanlines removed from the visible set, that leaves 480 interlaced scanlines per frame.
+        </p>
+        <p>
+          (As an interesting aside: if you ever caught an analog broadcast on an LCD TV with no overscan, you may have seen a bunch of garbled-looking lines at the top of the frame. That was 
+          the closed captioning data for that channel! Now you know.)
+        </p>
+        <h2>Game Consoles &amp; Fake Progressive Modes</h2>
+        <p>
+          All of this information has talked about <i>interlaced</i> video, but many old game consoles did not use interlacing in their primary modes. How did that work?
+        </p>
+        <p>
+          Effectively, they used a trick: only send odd fields (or only send even fields), and rather than getting 480 interlaced lines of picture every 30Hz, you could get
+          240 <i>non-</i>interlaced lines of picture every 60Hz (both doubling the framerate and halving the horizontal resolution). 
+        </p>
+        <p>
+          This did mean, interestingly, that game consoles frequently did not run exactly at a standard framerate: the 
+          <a href="https://en.wikipedia.org/wiki/Nintendo_Entertainment_System" target="_blank">NES</a>, for instance, ran at something closer to 
+          60.10 frames per second, owing to differences in timings between how it generated its (odd-only) frames and how the standard defined its interlaced frames.
+        </p>
+        <p>
+          This "only draw half of the scanlines" trick is also why console games had gaps between the scanlines (these gaps are usually just called "scanlines" in emulators).
+          Without drawing alternating frames there were, in fact, little gaps where the other field's scanlines were intended to go.
+        </p>
+        <h2>Color</h2>
+        <p>
+          We've now broken down how the frames of a TV signal are built, as well as how a black &amp; white scanline works. Of course, the majority of folk don't see 
+          in pure shades of gray. The world has colors, and eventually people took on the task of getting those colors out of the cathode rays.
+        </p>
+        <p>Next: <a href="color.html">Adding Color</a></p>
+      </main>
+    </div>
+  </body>
+</html>

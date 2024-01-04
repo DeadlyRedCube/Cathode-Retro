@@ -57,6 +57,9 @@
   --header-button-hover:      var(--accent-bright);
   --header-button-press:      var(--foreground-emphasis);
   --sidebar-shadow-color:     rgba(0, 0, 0, 0.8);
+
+  --section-border: var(--accent-subtle);
+  --subsection-border: var(--background-emphasis)
 }
 
 
@@ -88,7 +91,7 @@
     --background-far:       #e6e6e6;
     --background-menu:      #e0e0e0;
 
-    --accent-subtle:        #c4d9FF;
+    --accent-subtle:        #ADCBFF;
     --accent-main:          #5076ba;
     --accent-bright:        #6495ed;
 
@@ -96,6 +99,9 @@
     --header-button-hover:  var(--link-hover);
     --header-button-press:  var(--link-main);
     --sidebar-shadow-color: rgba(0, 0, 0, 0.4);
+
+    --section-border: var(--accent-main);
+    --subsection-border: var(--accent-subtle)
   }
 }
 
@@ -125,12 +131,40 @@ h5
   color: var(--foreground-emphasis);
 }
 
+h2,
+h3
+{
+  margin-top: 70px;
+}
+
+h2,
+h3
+{
+  border-top: 1px solid var(--section-border);
+}
+
+h1 + h2,
+h1 + h3,
+h2 + h3
+{
+  margin-top: inherit;
+  border-top: none;
+}
+
+
 code,
 .index
 {
   font-family: var(--code-font);
   font-weight: var(--code-font-weight);
   font-size: var(--code-font-size);
+}
+
+.index.not-code
+{
+  font-family: var(--main-font);
+  font-weight: inherit;
+  font-size: inherit;
 }
 
 .index
@@ -414,13 +448,13 @@ a:active
 .lr-table > div
 {
   padding: 25px 5px;
-  border-bottom: 1px solid var(--background-emphasis);
+  border-bottom: 1px solid var(--subsection-border);
 }
 
 .lr-table > div:first-child,
 .lr-table > div:nth-child(2)
 {
-  border-top: 1px solid var(--background-emphasis);
+  border-top: 1px solid var(--subsection-border);
 }
 
 
@@ -526,7 +560,8 @@ a:active
 }
 
 
-.captioned-image
+.captioned-image,
+.caption
 {
   max-width: 100%;
   display: flex;
@@ -541,11 +576,20 @@ a:active
   max-width: 100%;
 }
 
-.captioned-image > label
+.captioned-image > label,
+.caption
 {
   font-size: 0.8em;
 }
 
+.centered-image-row
+{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
 /* Sidebar stuff */
 
 
@@ -744,6 +788,100 @@ a:active
   stroke: var(--accent-main);
 }
 
+/* svg diagrams */
+
+.ntsc-diagram
+{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ntsc-diagram > label
+{
+  text-align: center;
+  font-size: 0.8em;
+}
+
+.ntsc-diagram svg
+{
+  border: 1px solid var(--background-emphasis);
+  width: 100%;
+}
+
+.ntsc-diagram svg.centered
+{
+  width: inherit;
+  max-width: 100%;
+}
+
+.ntsc-diagram svg path,
+.ntsc-diagram svg line
+{
+  fill: none;
+  stroke-width: 2px;
+  stroke: var(--foreground-emphasis);
+}
+
+.ntsc-diagram svg circle
+{
+  stroke-width: 2px;
+  stroke: var(--foreground-emphasis);
+}
+
+
+.ntsc-diagram .hsync-pulse,
+.ntsc-diagram .vsync
+{
+  fill: var(--background-far);
+}
+
+
+.ntsc-diagram .visible-scanline
+{
+  fill: var(--background-menu);
+}
+
+.ntsc-diagram .phase-divider
+{
+  stroke: var(--accent-main);
+  stroke-width: 1.0;
+  stroke-dasharray: 7 7;
+}
+
+.ntsc-diagram text
+{
+  fill: var(--foreground-main);
+  font-family: var(--main-font);
+  font-size: 0.8em;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+#phase-demo
+{
+  touch-action: none;
+}
+
+.ntsc-diagram text.faint
+{
+  fill: var(--accent-subtle);
+}
+
+
+.ntsc-diagram line.faint,
+.ntsc-diagram path.faint
+{
+  stroke: var(--accent-subtle);
+}
+
+#demo-label,
+#demo-label2
+{
+  fill: #080d0e;
+  font-size: 1.0em;
+}
+
 /* Media queries */
 
 
@@ -827,6 +965,12 @@ a:active
     background-image: url("images/cr-logo-large.png");
     background-size: auto 50px;
   }
+  
+  .ntsc-diagram svg path,
+  .ntsc-diagram svg line
+  {
+    stroke-width: 0.8px;
+  }
 }
 
 @media screen and (max-width: 600px)
@@ -852,13 +996,13 @@ a:active
 
   .lr-table > div:first-child
   {
-    border-top: 1px solid var(--background-emphasis);
+    border-top: 1px solid var(--subsection-border);
     border-bottom: none;
   }
 
   .lr-table > div:nth-child(2n)
   {
-    border-bottom: 1px solid var(--background-emphasis);
+    border-bottom: 1px solid var(--subsection-border);
     padding-bottom: 25px;
   }
 

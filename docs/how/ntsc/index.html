@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Cathode Retro Docs</title>
+    <link href="../../docs.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../../main-scripts.js"></script>
+  </head>
+  <body onload="OnLoad()" class="page">
+    <header class="header"><button id="sidebar-button"></button></header>
+    <div id="sidebar-container" class="sidebar-container"><iframe class="sidebar-frame" src="../../sidebar.html?page=how-ntsc"></iframe></div>
+    <div id="content-outer" class="content-outer">
+      <main>
+        <h1>Understanding NTSC</h1>
+        <p>
+          You don't actually need to understand how any of this NTSC stuff works to use Cathode Retro, but if you're curious about it, this is the section for you!
+        </p>
+        <p>
+          Cathode Retro includes, as part of its effect, an emulation of <a href="https://en.wikipedia.org/wiki/NTSC" target="_blank">NTSC</a> signals. NTSC 
+          is a TV standard that was developed in the United States but has been used in many countries for over-the-air TV broadcast. Due to the way that
+          picture information was encoded in an NTSC broadcast (and over <a href="https://en.wikipedia.org/wiki/Composite_video" target="_blank">Composite</a> and 
+          <a href="https://en.wikipedia.org/wiki/S-Video" target="_blank">S-Video</a> connections), there are certain characteristic artifacts that were present on output devices 
+          at the time (early composite PC monitors, video game consoles, etc), and it is sometimes desired to emulate these artifacts, either for properly
+          emulating <a href="https://en.wikipedia.org/wiki/Composite_artifact_colors" target="_blank">composite artifact colors</a> or just for nostalgia's sake.
+        </p>
+        <p>
+          <b>A note:</b> This is going to be predominantely about broadcast and color TV in the United States (and anywhere else that NTSC was used). While many of the 
+          principles were the same in all locations, the specifics were different. If you're looking for in-depth details of 
+          <a href="https://en.wikipedia.org/wiki/SECAM" target="_blank">SECAM</a> or <a href="https://en.wikipedia.org/wiki/PAL" target="_blank">PAL</a>, sorry.
+        </p>
+        <p>
+          The next few sections are going to walk through how NTSC works, starting with how the original NTSC standard defined its <a href="black-and-white.html">scanline format</a> 
+          and <a href="vsync.html">synchronization</a> from black &amp; white TV up through the addition of <a href="color.html">color</a>, with
+          some notes on the differences between composite video and S-Video and a note on the way many old consoles performed
+          a trick to get progressive rather than interlaced frames.
+        </p>
+        <p>
+          <b>Another note:</b> Sources are inconsistent as to whether, when referring to interlaced fields (a field being half of a full 30hz frame), "even" or "odd" is first. Cathode Retro and these docs
+          have settled on a 1-based count starting from the first <i>full</i> scanline, so "odd" fields are the first field in an interlaced frame, and "even" 
+          fields are the second.
+        </p>
+        <h2>Index</h2>
+        <menu class="index not-code">
+          <li><a href="black-and-white.html">Classic Black &amp; White TV</a></li>
+          <li><a href="vsync.html">V-Sync and Interlacing</a></li>
+          <li><a href="color.html">Adding Color</a></li>
+        </menu>
+      </main>
+    </div>
+  </body>
+</html>

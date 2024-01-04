@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Cathode Retro Docs</title>
+    <link href="../../docs.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../../main-scripts.js"></script>
+    <script>
+      function clamp(val, mn, mx)
+      {
+        return Math.max(mn, Math.min(mx, val));
+      }
+
+      function OnLoadNTSCColor()
+      {
+        OnLoad();
+
+        const phaseDemoElement = document.getElementById("phase-demo");
+        const phaseDemoSine = document.getElementById("demo-sine");
+        const phaseDemoSwatch = document.getElementById("demo-swatch");
+        const phaseDemoLabel = document.getElementById("demo-label");
+        const phaseDemoLabel2 = document.getElementById("demo-label2");
+
+        let wavePhase = 0; // should stay between 0 and 99 inclusive
+        let amplitude = 1.0; // should stay between 0 and 1 inclusive
+        let prevX = 0;
+        let prevY = 0;
+
+        const OnMove = (e) =>
+        {
+          e.preventDefault();
+          const dX = e.offsetX - prevX;
+          const dY = e.offsetY - prevY;
+          prevX = e.offsetX;
+          prevY = e.offsetY;
+          wavePhase = (((wavePhase + dX) % 200) + 200) % 200;
+          amplitude -= dY * 0.01;
+          amplitude = clamp(amplitude, 0, 1);
+
+          let I = 0;
+          let Q = 0;
+
+          for (let i = 0; i < 8; i++)
+          {
+            let u = i / 8;
+            let sig = Math.sin((-wavePhase / 200 + u) * 6.28318531) * Math.pow(amplitude, 2.0 / 2.2);
+            I += sig * Math.sin(u * 6.28318531);
+            Q += sig * -Math.cos(u * 6.28318531);
+          }
+        
+          I /= 8;
+          Q /= 8;
+
+          
+          
+          const Y = 0.5;
+
+          const R = clamp(Math.floor(255 * (Y + I * 0.946882 + Q * 0.623557)), 0, 255);
+          const G = clamp(Math.floor(255 * (Y + I * -0.274788 + Q * -0.635691)), 0, 255);
+          const B = clamp(Math.floor(255 * (Y + I * -1.108545 + Q * 1.7090047)), 0, 255);
+          phaseDemoSine.setAttribute("transform", `translate(${wavePhase}, 0) scale(1, ${Math.max(0.0001, amplitude)})`);
+          phaseDemoSwatch.setAttribute("fill", `rgb(${R}, ${G}, ${B})`);
+          phaseDemoLabel.textContent = `${Math.floor(wavePhase / 200.0 * 360)}${String.fromCodePoint(176)}`;
+          phaseDemoLabel2.textContent = `${(Math.round(amplitude * 100) / 100).toFixed(2)}`;
+        }
+
+        phaseDemoElement.onpointerdown = 
+          (e) =>
+          { 
+            e.preventDefault();
+            prevX = e.offsetX;
+            prevY = e.offsetY;
+            phaseDemoElement.onpointermove = OnMove;
+            phaseDemoElement.setPointerCapture(e.pointerId);
+          };
+
+        phaseDemoElement.onpointerup =
+          (e) =>
+          {
+            e.preventDefault();
+            phaseDemoElement.onpointermove = null;
+            phaseDemoElement.releasePointerCapture(e.pointerId);
+          };
+      }
+    </script>
+  </head>
+  <body onload="OnLoadNTSCColor()" class="page">
+    <header class="header"><button id="sidebar-button"></button></header>
+    <div id="sidebar-container" class="sidebar-container"><iframe class="sidebar-frame" src="../../sidebar.html?page=how-ntsc-color"></iframe></div>
+    <div id="content-outer" class="content-outer">
+      <main>
+        <h1>Adding Color</h1>
+        <p>Previous: <a href="vsync.html">Vertical Sync and Interlacing</a></p>
+        <br />
+
+        <p>
+          Black &amp; white TV is great and all, but citizens demanded color TV! Adding color TV to analog TV broadcasts was a tricky proposition: almost nothing besides the
+          actual addition of color could change (and "almost" is doing a bit of heavy lifting here as you'll see), and any color TV broadcasts still needed to be perfectly
+          visible on existing black &amp; white TVs (backwards-compatibility is a big deal).
+        </p>
+        <h2>Color as a Frequency</h2>
+        <p>
+          It turns out, color can be encoded as a wave with a specific frequency, by encoding the <b>hue</b> of the color as the wave's <b>phase</b> (its side-to-side 
+          positioning relative to a reference wave) and the <b>saturation</b> of the color as the wave's <b>amplitude</b>. Coupled with the existing broadcast's brightness
+          information (now referred to as the <b>luma</b> of the signal), this gives the TV everything it needs to display a full color picture.
+        </p>
+        <p>
+          For an idea of how this encoding works, here is an interactive demo of how the phase (relative to the reference wave, the fainter sine wave) and amplitude of a
+          carrier wave can be turned into a color (here using a constant luma value of 0.5);
+        </p>
+        <div class="ntsc-diagram">
+          <svg class="centered" id="phase-demo" viewBox="0 -56 300 112" width="300">
+            <g>
+              <path class="faint" vector-effect="non-scaling-stroke" id="sine-demo" d="M-350,-50 c 36.42,0 63.58,100 100,100 c 36.42,0 63.58,-100 100,-100 c 36.42,0 63.58,100 100,100 c 36.42,0 63.58,-100 100,-100 c 36.42,0 63.58,100 100,100 c 36.42,0 63.58,-100 100,-100 c 36.42,0 63.58,100 100,100 c 36.42,0 63.58,-100 100,-100  c 36.42,0 63.58,100 100,100 c 36.42,0 63.58,-100 100,-100 c 36.42,0 63.58,100 100,100 c 36.42,0 63.58,-100 100,-100 c 36.42,0 63.58,100 100,100 c 36.42,0 63.58,-100 100,-100 c 36.42,0 63.58,100 100,100 c 36.42,0 63.58,-100 100,-100" />              
+            </g>
+            <g id="demo-sine">
+              <path vector-effect="non-scaling-stroke" id="sine-demo" d="M-350,-50 c 36.42,0 63.58,100 100,100 c 36.42,0 63.58,-100 100,-100 c 36.42,0 63.58,100 100,100 c 36.42,0 63.58,-100 100,-100 c 36.42,0 63.58,100 100,100 c 36.42,0 63.58,-100 100,-100 c 36.42,0 63.58,100 100,100 c 36.42,0 63.58,-100 100,-100  c 36.42,0 63.58,100 100,100 c 36.42,0 63.58,-100 100,-100 c 36.42,0 63.58,100 100,100 c 36.42,0 63.58,-100 100,-100 c 36.42,0 63.58,100 100,100 c 36.42,0 63.58,-100 100,-100 c 36.42,0 63.58,100 100,100 c 36.42,0 63.58,-100 100,-100" />              
+            </g>
+            <circle id="demo-swatch" cx="250" cy="0" r="40" fill="rgb(248, 92, 0)" />
+            <text id="demo-label" x="254" y="-12">0&deg;</text>
+            <text id="demo-label2" x="250" y="12">1.00</text>
+          </svg>
+          <label>
+            Drag left or right to change phase (the hue)
+            <br />
+            Drag up and down to change amplitude (the saturation)
+          </label>
+        </div>
+        <p>
+          Choosing the encoding frequency was problematic, though. Due to some signal processing shenanigans, this wave's frequency really needed to be an integer multiple of
+          both the scanline rate (525 lines times 30 frames = 15,750 lines per second) and the audio carrier frequency which was 4.5MHz above the video signal. Were that
+          not the case, the color carrier would end up causing interference with at least one of those signals, which would distort either the picture or the audio (or both).
+          Additionally, this color carrier frequency wanted to be high enough that it would be minimally visible on existing black &amp; white TVs, and easy to filter out
+          in newer black &amp; white TVs.
+        </p>
+        <p>
+          Ultimately, it was decided that moving the audio carrier frequency was not viable, because it would break old TVs' ability to pick up audio (they were really tuned
+          to that 4.5MHz), so in order to get a color carrier wave to sit nicely against both, they had to, instead, change the frame rate of the video signal slightly: to
+          approximately 29.97 frames per second (30/1.001, to be precise). That's right, if you were wondering why we have these weird 29.97 or 59.94fps video modes, it's
+          the fault of color video.
+        </p>
+        <p>
+          Because of all of the sync pulses in the video signals, TVs could easily adjust to a different line rate, and thus the line rate changed from 14,750 to 
+          an even 1/286th of the audio subcarrier frequency (approximately 15,734.27Hz), and the color carrier was chosen to be roughly 3.58MHz (315/88 MHz), which divides
+          nicely into both rates.
+        </p>
+        <h2>A New Scanline</h2>
+        <p>
+          There were two more issues that needed solving: how could color TVs distinguish between newer color signals vs. black &amp; white signals, and how does the TV
+          know what phase a scanline's color waveform was relative to (i.e. what is the 0&deg; baseline frequency). These were both solved by adding the <b>colorburst</b> to
+          the back porch of a color video signal:
+        </p>
+        <div class="ntsc-diagram">
+          <svg viewBox="0 -60 655 120">
+            <rect class="hsync-pulse"      x="15"  width="47"  y="-60" height="120" />
+            <rect class="visible-scanline" x="109" width="526" y="-60" height="120" />
+            <rect class="hsync-pulse"      x="650" width="47"  y="-60" height="120" />
+
+            <line class="phase-divider" x1="15"  y1="-60" x2="15"  y2="60" />
+            <line class="phase-divider" x1="62"  y1="-60" x2="62"  y2="60" />
+            <line class="phase-divider" x1="109" y1="-60" x2="109" y2="60" />
+            <line class="phase-divider" x1="635" y1="-60" x2="635" y2="60" />
+            <line class="phase-divider" x1="650" y1="-60" x2="650" y2="60" />
+
+            <text x="7.5" y="-40">FP</text>
+            <text x="38.5" y="-40">HSync</text>
+            <text x="85.5" y="-40">BP</text>
+            <text x="372" y="-40">Visible</text>
+            <text class="faint" x="642.5" y="-40">FP</text>
+
+            <path
+              vector-effect="non-scaling-stroke"
+              d="M0,15
+                l 12.5,0 c 1.821,0 3.179,40 5,40 l 42,0 c 1.821,0 3.179,-40 5,-40 l 8.5,0
+
+                c 0.34188,0 0.47012,12.5 0.7,12.5 c 0.50988,0 0.89012,-25 1.4,-25
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25
+                c 0.34188,0 0.40012,12.5 0.7,12.5
+                l 8,0
+                l 1,-35
+
+                c 0.34188,0 0.47012,12.5 0.7,12.5 c 0.50988,0 0.89012,-25 1.4,-25
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25
+                c 0.34188,0 0.40012,12.5 0.7,12.5
+                c 0.10988,0 0.49012,22.5 1.0,22.5 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25
+                c 0.34188,0 0.40012,12.5 0.7,12.5
+                c 0.50988,0 0.89012,-24.5 1.4,-24.5
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25
+                c 0.34188,0 0.40012,12.5 0.7,12.5
+
+                l 42, 0
+                l 2,37
+                l 179,0
+                l 2,-35
+
+                c 0.34188,0 0.47012,12.5 0.7,12.5 c 0.50988,0 0.89012,-25 1.4,-25
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25
+                c 0.34188,0 0.40012,12.5 0.7,12.5
+                c 0.10988,0 0.49012,22.5 1.0,22.5 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25
+                c 0.34188,0 0.40012,12.5 0.7,12.5
+                c 0.50988,0 0.89012,-24.5 1.4,-24.5
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25 c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25
+                c 0.50988,0 0.89012,25 1.4,25 c 0.50988,0 0.89012,-25 1.4,-25
+                c 0.34188,0 0.40012,12.5 0.7,12.5
+              
+                c 1,0 2,37 4,37"
+            />
+
+            <!-- new front porch -->
+            <path
+              vector-effect="non-scaling-stroke"
+              class="faint"
+              d="M 635,15 l 12.5, 0 c 1.821,0 3.179,40 5,40 l 2.5,0"
+            />
+          </svg>
+        </div>
+        <p>
+          In the <b>back porch</b> now, there is a burst of the color carrier frequency (a 3.58MHz wave), which is the reference phase for the color encoding for
+          this scanline (the amplitude of it additionally lets the TV know what the maximum saturation amplitude is), so the TV will synchronize with this pulse
+          and use that synchronization to decode the actual color signal (a process called 
+          <a href="https://en.wikipedia.org/wiki/Quadrature_amplitude_modulation" target="_blank">quadrature amplitude modulation</a>).
+        </p>
+        <p>
+          Additionally, broadcasts that did not contain a colorburst were known to color TVs as being in black &amp; white, and so they could be processed
+          accordingly. And black &amp; white TVs could freely ignore the colorburst, as it would just appear as a little bit of signal wobble to them.
+        </p>
+        <p>
+          This encoding of the <b>luma</b> (brightness) and <b>chroma</b> (the color information) together in one signal is called <b>composite video</b>, which was
+          also what the yellow video jacks from older video products carried.
+        </p>
+
+
+        <h2>Never The Same Color</h2>
+        <p>
+          Some people will refer to NTSC as some variation of "Never The Same Color" because - especially on older TVs - broadcast differences between channels or
+          poor reception could lead to colors appearing different on some channels than others (hence why TVs had a "tint" knob, so the viewer could correct for
+          any weird color tones due to phase issues).
+        </p>
+        <p>
+          When both <a href="https://en.wikipedia.org/wiki/PAL" target="_blank">PAL</a> and <a href="https://en.wikipedia.org/wiki/SECAM" target="_blank">SECAM</a> were
+          standardized, color NTSC had been around for a while, and they both contained signal tricks to help reduce or eliminate these phase issues, and thus are widely
+          considered as having superior picture quality.
+        </p>
+        <p>
+          By the mid- to late-1970s, newer TVs typically had less issues decoding the phases, and most stations were broadcasting properly by then, so the color issues
+          mostly stopped being an issue. But the name stuck, because it was funny.
+        </p>
+        <h2>Color Artifacts</h2>
+        <p>
+          Because the chroma and luma data is all in one big analog signal, information bled between them: for instance, rapid changes in brightness 
+          at roughly the color carrier frequency are indistinguishable from chroma signals. 
+        </p>
+        <p>
+          Systems like the <a href="https://en.wikipedia.org/wiki/Apple_II_graphics" target="_blank">Apple II</a> and 
+          PCs with <a href="https://en.wikipedia.org/wiki/Color_Graphics_Adapter">CGA</a> graphics cards attached to composite monitors intentionally took advantage of this
+          to display more colors than the system supposedly supported.
+        </p>
+        <div class="centered-image-row">
+          <img 
+            src="../../images/artifact-color-cga-bw.png" 
+            alt="A black & white image showing patterns of white and black stripes used by CGA cards to display colors"
+            title="A black & white image showing patterns of white and black stripes used by CGA cards to display colors"
+          />
+          <img 
+            src="../../images/artifact-color-cga-colors.png" 
+            alt="A color image showing the colors produced by the white and black stripes in the left image"
+            title="A color image showing the colors produced by CGA cards for the white and black stripes in the left image"
+          />
+        </div>
+        <p>
+          (The above images are based on ones by <a href="https://int10h.org/blog/2015/04/cga-in-1024-colors-new-mode-illustrated/" target="_blank">the authors of
+          the 8088 MPH demo</a> which uses these artifact colors in masterful ways to get way more colors on-screen at once than CGA was 
+          believed capable of)
+        </p>
+        <p>
+          The left image above shows the various patterns possible with 1-bit-per-pixel color, and the right image shows the colors that a composite screen displays 
+          for those bit patterns when displayed by a CGA graphics card at 640 pixels of horizontal resolution. Apple II had a similar set of colors, but in a different order
+          due to differences in the relative phases of the scanlines.
+        </p>
+        <p>
+          Cathode Retro was explicitly designed to reproduce this (and other related) effect(s) when in composite mode.
+        </p>
+        <h2>S-Video</h2>
+        <p>
+          While the above artifact colors were useful to some, in many other places they could be a nuisance, and so in the late 1970s, a new video connector type 
+          started making the rounds: <a href="https://en.wikipedia.org/wiki/S-Video" target="_blank">S-Video</a>!
+        </p>
+        <p>
+          S-Video has not one but <i>two</i> channels of signal, and it uses them to broadcast the luma and chroma separately (the "S" in S-Video literally stands for 
+          "Separate"). Basically, it just took all of the chroma wiggles and shunted them off into their own wire, so now one component of the signal looks exactly like
+          a black &amp; white video signal (luma only) and the other has just the chroma data in it.
+        </p>
+        <p>
+          This meant that all of those cross-talk artifacts (including artifact colors) were not visible over an S-Video connection, so as long as the thing you were 
+          displaying was not relying on them for the full effect (as many older games did), the picture qualtiy was vastly improved as a result.
+        </p>
+        <h2>~Fin~</h2>
+        <p>
+          That is, effectively, how the NTSC video signal works! If you made it this far, hopefully you have a better understanding of what all goes into a color analog TV 
+          signal. It's a lot.
+        </p>
+      </main>
+    </div>
+  </body>
+</html>
