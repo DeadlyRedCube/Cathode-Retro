@@ -586,10 +586,25 @@ a:active
 {
   display: flex;
   flex-direction: row;
+  flex-flow: row nowrap;
   align-items: center;
   justify-content: center;
   gap: 10px;
+  max-width: 100%;
 }
+
+.centered-image-row .sub
+{
+  display: flex;
+  border: 1px solid var(--foreground-main);
+}
+
+.centered-image-row img
+{
+  max-width: 100%;
+}
+
+
 /* Sidebar stuff */
 
 

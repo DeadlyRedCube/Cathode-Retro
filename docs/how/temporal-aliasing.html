@@ -12,7 +12,62 @@
     <div id="content-outer" class="content-outer">
       <main>
         <h1>Reducing Emulated Temporal Aliasing</h1>
-        (Content coming soon)
+        <p>
+          Some systems (Such as the <a href="https://en.wikipedia.org/wiki/Nintendo_Entertainment_System" target="_blank">NES</a> and
+          <a href="https://en.wikipedia.org/wiki/Super_Nintendo_Entertainment_System" target="_blank">SNES</a>) alternated the generated reference phases
+          every other frame to reduce the aliasing that occurred due to how their scanlines were generated. Here's a slowed-down example (using some <i>definitely
+          real pixel art</i> and not just some garbage made for this demo):
+        </p>
+        <div class="captioned-image">
+          <img src="../images/example-temporal-aliasing.gif" />
+        </div>
+        <p>
+          When this ran at a smooth ~60Hz on the system, the jagged edges and other color artifacts blended together in the player's eye and ended up looking more like:
+        </p>
+        <div class="captioned-image">
+          <img src="../images/example-no-aliasing.png" />
+        </div>
+        <p>
+          This looks better! However, when running from an emulator, it's possible that it doesn't run at a perfect every-other-frame rate. Or, maybe you want to take 
+          screenshots of your retro-styled game and not have them look like a jagged mess. For that reason, when we're generating emulated signals, it is possible to
+          use the power of GPUs to effectively generate two signals for the same frame using two alternating phases then average them together on decode to skip the
+          jigglevision artifacts and go straight to the smooth way that it ended up looking to users anyway.
+        </p>
+        <h2>Multiple Phases</h2>
+        <p>
+          At the beginning of the <a href="generating-signal.html">generation process</a>, we generated a phases texture (for display purposes, it has been rotated 90&deg; 
+          and scaled vertically):
+        </p>
+        <div class="captioned-image">
+          <img src="../images/example-phases.png" />
+        </div>
+        <p>
+          That is a one-channel texture with one reference phase per scanline. If, instead, we were to generate a <b>two-channel</b> texture (note that the red and green
+          channels are distinct):
+        </p>
+        <div class="captioned-image">
+          <img src="../images/example-dual-phase.png" />
+        </div>
+        <p>
+          ...we could use two phases per scanline to generate two carrier waves per scanline and, then, two sets of luma/chroma information per frame (again, if you
+          look closely you'll note that the red and green channels are different):
+        </p>
+        <div class="captioned-image">
+          <img src="../images/example-dual-composite.png" />
+        </div>
+        <p>
+          This, then, can be separated back into two sets of luma/chroma information per frame (a four-channel dual S-Video-like texture instead of a standard 
+          two-channel S-Video texture), and then decoded from there into two RGB images of the same frame.
+        </p>
+        <p>
+          (In practice, we don't decode into two separate RGB images, it just does two decodes and an average in the same shader to save on texture bandwidth, but it has
+          the same effect).
+        </p>
+        <h2>CRTs</h2>
+        <p>
+          However we end up with an RGB image, it can then be fed into an emulation of a CRT TV to complete the effect!
+        </p>
+        <p>Next: <a href="faking-crt.html">Faking a CRT Display</a></p>
       </main>
     </div>
   </body>

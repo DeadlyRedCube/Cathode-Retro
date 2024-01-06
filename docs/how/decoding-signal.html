@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Cathode Retro Docs</title>
+    <link href="../docs.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../main-scripts.js"></script>
+  </head>
+  <body onload="OnLoad()" class="page">
+    <header class="header"><button id="sidebar-button"></button></header>
+    <div id="sidebar-container" class="sidebar-container"><iframe class="sidebar-frame" src="../sidebar.html?page=how-decoding"></iframe></div>
+    <div id="content-outer" class="content-outer">
+      <main>
+        <h1>Decoding A Fake NTSC Signal</h1>
+        <p>Previous: <a href="generating-signal.html">Generating a Fake NTSC Signal</a></p>
+        <br />
+        <p>
+          In the previous step, we took an RGB input image:
+        </p>
+        <div class="captioned-image">
+          <img src="../images/example-src.png" />
+        </div>
+        <p>
+          and turned it into a set of reference phases (left) and an image texture (right):
+          <div class="centered-image-row">
+            <div class="sub">
+              <img src="../images/example-phases-v.png" />
+            </div>
+            <div class="sub">
+              <img src="../images/example-artifacts.png" />
+            </div>
+          </div>
+        </p>
+        <p>
+          Now we want to take this fake NTSC signal and turn it (back) into an RGB signal. Let's get started!
+        </p>
+        <p>
+          <b>A quick aside:</b> the decoder will work with information from a real composite or S-Video signal as well, it doesn't <i>have</i> to be a fake signal!
+          To use a true signal it would just have to be pre-processed to get the colorburst phase, as well as trimming down to just the actual visible scanline portion.
+        </p>
+        <h2>Luma/Chroma Separation</h2>
+        <p>
+          This stage can be skipped for S-Video signals, but if we have a composite signal (like in our example), we need to first separate out the
+          luma and chroma information.
+        </p>
+        <p>
+          There are many ways over the years that various TVs used to separate the chroma and luma information. As electronics got better, TVs got smarter about
+          separating the two, reducing the artifacts introduced by them (even going as far as using neighboring scanlines and successive frames as 2D or 3D 
+          <a href="https://en.wikipedia.org/wiki/Comb_filter" target="_blank">comb filters</a>). However, Cathode Retro is explicitly designed to <i>have</i> these
+          artifacts, so instead, it uses one of the simplest possible filters: a box filter.
+        </p>
+        <p>
+          A <a href="https://en.wikipedia.org/wiki/Box_blur" target="_blank">box filter</a> just means that, for each output texel, do an average of the N input texels 
+          centered on that output texel (where "N" is the size of the filter). If we choose a filter width that equals our color carrier frequency (in our example, this 
+          is 4 texels), running a box filter on our signal gives us the luma (note that this looks effectively like the composite image, but without the chroma stripes):
+        </p>
+        <div class="captioned-image">
+          <img src="../images/example-luma.png" />
+        </div>
+        <p>
+          Why does this work?
+        </p>
+        <div class="ntsc-diagram">
+          <svg class="centered" id="phase-demo" viewBox="0 -56 200 112" width="300">
+            <line class="phase-divider" x1="0" y1="0" x2="200" y2="0" />
+            <line class="phase-divider" x1="25" y1="-60" x2="25" y2="60" />
+            <line class="phase-divider" x1="50" y1="-60" x2="50" y2="60" />
+            <line class="phase-divider" x1="75" y1="-60" x2="75" y2="60" />
+            <line class="phase-divider" x1="100" y1="-60" x2="100" y2="60" />
+            <line class="phase-divider" x1="125" y1="-60" x2="125" y2="60" />
+            <line class="phase-divider" x1="150" y1="-60" x2="150" y2="60" />
+            <line class="phase-divider" x1="175" y1="-60" x2="175" y2="60" />
+            <path vector-effect="non-scaling-stroke" id="sine-demo" d="M-50,-50 c 36.42,0 63.58,100 100,100 c 36.42,0 63.58,-100 100,-100 c 36.42,0 63.58,100 100,100 " />
+            <line x1="12.5" y1="0" x2="12.5" y2="19.13" />
+            <line x1="37.5" y1="0" x2="37.5" y2="46.19" />
+            <line x1="62.5" y1="0" x2="62.5" y2="46.19" />
+            <line x1="87.5" y1="0" x2="87.5" y2="19.13" />
+            <line x1="112.5" y1="0" x2="112.5" y2="-19.13" />
+            <line x1="137.5" y1="0" x2="137.5" y2="-46.19" />
+            <line x1="162.5" y1="0" x2="162.5" y2="-46.19" />
+            <line x1="187.5" y1="0" x2="187.5" y2="-19.13" />
+          </svg>
+        </div>
+        <p>
+          The above diagram has a width of a single wavelength. If we divide it up into 8 sections, find the sine values at each, and then average them, they average to 0.
+          In this example, we have:
+        </p>
+        <p>
+           <code>-0.3826 - 0.9238 - 0.9238 - 0.3826 + 0.3826 + 0.9238 + 0.9238 + 0.3826 == 0</code>
+        </p>
+        <p>This works no matter how the sine wave is positioned:</p>
+        <div class="ntsc-diagram">
+          <svg class="centered" id="phase-demo" viewBox="0 -56 200 112" width="300">
+            <line class="phase-divider" x1="0" y1="0" x2="200" y2="0" />
+            <line class="phase-divider" x1="25" y1="-60" x2="25" y2="60" />
+            <line class="phase-divider" x1="50" y1="-60" x2="50" y2="60" />
+            <line class="phase-divider" x1="75" y1="-60" x2="75" y2="60" />
+            <line class="phase-divider" x1="100" y1="-60" x2="100" y2="60" />
+            <line class="phase-divider" x1="125" y1="-60" x2="125" y2="60" />
+            <line class="phase-divider" x1="150" y1="-60" x2="150" y2="60" />
+            <line class="phase-divider" x1="175" y1="-60" x2="175" y2="60" />
+            <path vector-effect="non-scaling-stroke" id="sine-demo" d="M-10,-50 c 36.42,0 63.58,100 100,100 c 36.42,0 63.58,-100 100,-100 c 36.42,0 63.58,100 100,100 " />
+            <line x1="12.5" y1="0" x2="12.5" y2="-38.02" />
+            <line x1="37.5" y1="0" x2="37.5" y2="-3.923" />
+            <line x1="62.5" y1="0" x2="62.5" y2="32.47" />
+            <line x1="87.5" y1="0" x2="87.5" y2="49.85" />
+            <line x1="112.5" y1="0" x2="112.5" y2="38.02" />
+            <line x1="137.5" y1="0" x2="137.5" y2="3.923" />
+            <line x1="162.5" y1="0" x2="162.5" y2="-32.47" />
+            <line x1="187.5" y1="0" x2="187.5" y2="-49.85" />
+          </svg>
+        </div>
+        <p>
+          This is entirely because the first half and second half samples are perfect opposites of each other no matter the wave positioning.
+        </p>
+        <p>
+          So now that we've pulled the luma out, we can subtract the luma from the original signal to get the chroma (note that the example image has been
+          biased so that 0 is at 0.5, so that the wave is visible at both positive and negative positions):
+        </p>
+        <div class="captioned-image">
+          <img src="../images/example-chroma.png" />
+        </div>
+        <p>
+          This image is pretty subtle, but if you look closely you can see the chroma wave ripples in places where there is color, and none where there is not.
+        </p>
+        <p>
+          In practice, these live in the same texture, with luma as the red channel and chroma as the green channel, so the actual output of this process looks more like
+          (again, with chroma biased by 0.5):
+        </p>
+        <div class="captioned-image">
+          <img src="../images/example-lumachroma.png" />
+        </div>
+        <h2>YIQ Returns</h2>
+        <p>
+          Now that we have separate luma and chroma information, it's time to go back into the <a href="https://en.wikipedia.org/wiki/YIQ" target="_blank">YIQ color 
+          space</a>. We have <b>Y</b> already (it's the luma channel), but we need to get the <b>IQ</b> channels.
+        </p>
+        <p>
+          We'll return once again to <a href="https://en.wikipedia.org/wiki/Quadrature_amplitude_modulation" target="_blank">quadrature amplitude modulation</a>
+          to do this, this time pulling the image back apart.
+        </p>
+        <p>
+          The first step here is to modulate the chroma with the <b>carrier</b> and <b>quadrature</b> waves that we have (which will be exactly the same waves that were used
+          in the generation process, since we use the same reference scanline phases to generate them).
+        </p>
+        <p>
+          If we multiply the carrier and quadrature waves by our chroma (the "modulation" part of "quadrature amplitude modulation"), and then do another box filter (average)
+          of those modulated values (this time at 2x the color wavelength, which helps reduce artifacts at color changes), the average of <code>chroma * carrier</code> becomes the
+          <b>I</b> component, and the average of <code>chroma * quadrature</code> becomes the <b>Q</b> component, in what is a rough inversion of the process of generating the
+          original wave.
+        </p>
+        <p>
+          Now we have our <b>IQ</b> components (and <b>Y</b>, of course), it's time to get the RGB output!
+        </p>
+        <h2>RGB Output</h2>
+        <p>
+          Converting from YIQ back into RGB is as well-documented as going the other way:
+        </p>
+        <div class="code-definition syntax-cpp">
+          <pre>
+            R = Y + 0.9469*I + 0.6236*Q
+            G = Y - 0.2748*I - 0.6357*Q
+            B = Y - 1.1000*I + 1.7000*Q
+          </pre>
+        </div>
+        <p>
+          Once we've done that, and we clip off the extra padding that was added in the generation phase, we end up with our decoded RGB image:
+        </p>
+        <div class="captioned-image">
+          <img src="../images/example-decoded.png" />
+        </div>
+        <p>
+          If you ignore the clearly (and intentionally) wrong aspect ratio, this is very representative of the input, just roughed up a little bit through the 
+          process.
+        </p>
+        <h2>Temporal Aliasing</h2>
+        <p>
+          This is great for a single frame, but for moving images some systems (like the NES and SNES) jittered their per-scanline reference phases every frame to
+          alleviate some of the harshness related to the signal.
+        </p>
+        <p>
+          This jitter was great on a CRT running at a locked ~60fps, but on modern LCDs in emulators that aren't always at a rock-solid framerate, it can be
+          beneficial to reduce that aliasing by leveraging the fact that we're emulating these signals on a GPU.
+        </p>
+        <p>
+          Next: <a href="temporal-aliasing.html">Reducing Emulated Temporal Aliasing</a>
+        </p>
+      </main>
+    </div>
+  </body>
+</html>
