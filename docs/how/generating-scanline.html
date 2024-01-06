@@ -12,7 +12,174 @@
     <div id="content-outer" class="content-outer">
       <main>
         <h1>Generating a Fake NTSC Scanline</h1>
-        (Content coming soon)
+        <p>
+          A key component of Cathode Retro is running an input image through an emulation of an NTSC signal (so that we can decode it back to RGB later, with all of
+          the NTSC artifacts applied).
+        </p>
+        <p>
+          We do not need to generate the entire <a href="ntsc/color.html#Scanline">color NTSC scanline</a>, since we are not emulating a full NTSC signal decode.
+          Instead, we need just two things:
+          <ol>
+            <li>The visible portion of each scanline (a conversion of the input image)</li>
+            <li>
+              A per-scanline value that represents the reference phase for the given scanline (the equivalent of the colorburst in the back porch of an NTSC scanline)
+            </li>
+          </ol>
+        </p>
+        <p>
+          To help illustrate this process, we are going to take the following image through the generation pipeline:
+        </p>
+        <div class="captioned-image">
+          <img src="../images/example-src.png" />
+        </div>
+        <h2>Reference Phase</h2>
+        <p>
+          The process starts by generating the per-scanline phase values. These are generated based on timing values of the hypothetical machine that is being used to
+          generate this faux-NTSC picture (for instance, the timing values of a 
+          <a href="https://en.wikipedia.org/wiki/Super_Nintendo_Entertainment_System" target="_blank">SNES</a> and a
+          <a href="https://en.wikipedia.org/wiki/Sega_Genesis" target="_blank">Sega Genesis</a> are completely different and result in different artifacts).
+        </p>
+        <p>
+          Each phase value is a value in the range of <b>[0..1)</b>, measured in wavelengths of the color carrier frequency. This phase value is used as the baseline for
+          a <b>color carrier wave</b> that is generated along every output scanline with a wavelength of some multiple of the horizontal output resolution.
+        </p>
+        <p>
+          That is, for a given reference phase
+          <code><b>p</b></code>, output texel x coordinate
+          <code><b>x</b></code>, and color cycles per texel value of <code><b>c</b></code>, generating the carrier wave for that texel is:
+          <div class="code-definition syntax-cpp">
+            <pre>
+              sin(2*&#x3C0; * (p + x / c))
+            </pre>
+          </div>
+          <p>
+            Ultimately, you get a texture that looks something like this (this texture has been rotated 90&deg; then expanded vertically for visibility, normally 
+            it's a 1xN texture with one entry per output scanline):
+          </p>
+          <div class="captioned-image">
+            <img src="../images/example-phases.png" />
+          </div>
+          <p>
+            Every element of that texture is a phase value, and is used as a lookup during generation and decode. In this example, the reference phase changes every 
+            scanline in an emulation of the way the SNES outputted its color. These phases would look different on a Genesis, or a
+            <a href="https://en.wikipedia.org/wiki/Apple_II_graphics" target="_blank">Apple II</a>, etc.
+          </p>
+        </p>
+        <h2>The Image Output</h2>
+        <p>
+          Once we have our reference phase texture, we can convert the input image into a scanline texture (a texture where every row of texels is a row of the
+          input encoded as if it were the visible part of an NTSC scanline), which will end up looking like this (you may need to zoom in to see details):
+        </p>
+        <div class="captioned-image">
+          <img src="../images/example-composite.png" />
+        </div>
+        <p>
+          What's going on in this image?
+        </p>
+        <ul>
+          <li>
+            The aspect ratio in this case is stretched because each input texel touches multiple output texels horizontally (in this image, every 4 texels in a row is a
+            single wavelength of the colorburst).
+          </li>
+          <li>
+            The overall brightness at any given point corresponds to the luma of the NTSC signal (which is why this looked fine on black &amp; white TVs, they effectively
+            just showed the scanlines like this directly, or possibly with a <a href="https://en.wikipedia.org/wiki/Low-pass_filter" target="_blank">low-pass filter</a> to
+            minimize the visibility of the color wave).
+          </li>
+          <li>
+            The diagonal stripes are the chroma information (hue and saturation encoded as phase and amplitude, respectively). In this example, they're diagonal because 
+            the reference phase is different per scanline (changing at 1/3rd of a wavelength per), causing the reference point for a given solid color to "slide" every
+            scanline.
+          </li>
+          <li>
+            Note that the areas that had no color (in this image, the areas that were originally black or white) have no visible striping in them: this is because the
+            color saturation there is 0, so there is no wave.
+          </li>
+          <li>
+            Some padding has been added to the left and right side of the image (in this case, it's 8 pixels, or 2 color carrier wavelengths). Because the decoder has to
+            do some filtering to get the chroma information out, this gives a little extra data on the sides for it to sample from so that the filters give nice colors
+            at the visible edges of the output as opposed to having weird colors right at the sides.
+          </li>
+        </ul>
+        <p>
+          Now let's see how this image gets generated!
+        </p>
+        <h2>YIQ</h2>
+        <p>
+          The first step when converting an RGB image is to convert it into the <a href="https://en.wikipedia.org/wiki/YIQ" target="_blank">YIQ color space</a>.
+        </p>
+        <p>
+          YIQ is the color space used by NTSC: <b>Y</b> is the <b>luma</b> component (corresponding to the perceptual brightness of the image, i.e. "how would this color
+          look on a black &amp; white TV</b>), and <b>I</b> and <b>Q</b> together make up the <b>chroma</b> component of the color space.
+        </p>
+        <p>
+          The good news is that going from RGB to (FCC NTSC Standard SMPTE C) YIQ is well documented:
+          <div class="code-definition syntax-cpp">
+            <pre>
+              Y =  0.30*R + 0.59*G + 0.11*B
+              I = -0.27*(B - Y) + 0.74(R - Y)
+              Q =  0.41*(B - Y) + 0.48(R - Y)
+            </pre>
+          </div>
+        </p>
+        <p>
+          Doing that for each texel gives us a YIQ color which can then be turned into a composite (or S-Video) signal.
+        </p>
+        <h2>The Signal</h2>
+        <p>
+          Composite and S-Video signals both work with a luma baseline and a chroma carrier wave. In the composite case, they're simply added together
+          to create the final signal, but they're left separate in S-Video. 
+        </p>
+        <p>
+          Once the color is in YIQ form, we already have the luma component: it's just <b>Y</b>. But we need to take the <b>IQ</b> components and convert them
+          into the chroma signal. We'll use a process called 
+          <a href="https://en.wikipedia.org/wiki/Quadrature_amplitude_modulation" target="_blank">quadrature amplitude modulation</a>.
+          
+          This is done by taking the carrier wave sine equation from above (using reference phase <b>p</b>, texel x coordinate <b>x</b>, and 
+          color carrier wavelength <b>c</b>), and also calculating the (negative) cosine:
+        </p>
+        <div class="code-definition syntax-cpp">
+          <pre>
+            carrier = sin(2*&#x3C0; * (p + x / c))
+            quadrature = -cos(2*&#x3C0; * (p + x / c))
+          </pre>
+        </div>
+        <p>
+          This generates the <b>carrier wave</b> and its <b>quadrature</b> (which is really just a fancy way of saying "same wave as the carrier, delayed 90&deg;). The 
+          generated carrier wave for the output image looks like this (scaled and biased to ensure visibility, quadrature is not displayed):
+        </p>
+        <div class="captioned-image">
+          <img src="../images/example-color-carrier.png" />
+        </div>
+        <p>
+          This looks somewhat uneven as an example, here, but that's mostly a moiré-like effect owing to the way the phase shifts at fractional offsets per scanline, but
+          it's correct.
+        </p>
+        <p>
+          To encode the IQ color as a wave, we multiply the <b>I</b> at each texel times the carrier (pictured above) and add that to <b>Q</b> times the quadrature:
+        </p>
+        <div class="code-definition syntax-cpp">
+          <pre>
+            chroma = carrier * I + quadrature * Q
+          </pre>
+        </div>
+        <p>
+          Now we have our luma (Y) signal and our chroma signal. If we're generating an S-Video output, we write those out as two separate texture channels,
+          otherwise we add them together and write out a single channel texture (which is what was done for the generated signal example image above).
+        </p>
+        <h2>Artifacts</h2>
+        <p>
+          Optionally, at this point, we can decide "this signal is just too clean" and we want to add some noise to it. This is straightforward:
+          we add a little bit of static to each signal texel (may need to zoom in to see details):
+        </p>
+        <div class="captioned-image">
+          <img src="../images/example-artifacts.png" />
+        </div>
+        <h2>Now What?</h2>
+        <p>
+          Now that we have our two outputs from the generator (the reference phase texture and the generated signal texture), we can run it through the decoder!
+        </p>
+        <p>Next: <a href="decoding-scanline.html">Decoding A Fake NTSC Scanline</a></p>
       </main>
     </div>
   </body>
