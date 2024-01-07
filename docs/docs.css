@@ -861,6 +861,10 @@ a:active:not(.img)
 {
   stroke-width: 2px;
   stroke: var(--foreground-emphasis);
+}
+
+.ntsc-diagram svg circle:not(#demo-swatch)
+{
   fill: var(--foreground-emphasis);
 }
 
