@@ -12,7 +12,153 @@
     <div id="content-outer" class="content-outer">
       <main>
         <h1>Faking a CRT Display</h1>
-        (Content coming soon)
+        <p>Previous: <a href="temporal-aliasing.html">Reducing Emulated Temporal Aliasing</a></p>
+        <br />
+        <p>
+          Once we have whatever RGB image we want, it's time to make it appear approximately as if it were displayed on a CRT TV.
+        </p>
+        <p>
+          [<b>Author's Note:</b> This part of the process is a little less scientific than the NTSC section. I've had limited (though not zero) access to a CRT,
+          and while I've done my best to be accurate, some of this is more based on <i>vibes</i> than a physical model of some kind.]
+        </p>
+        <h2>The CRT Mask</h2>
+        <p>
+          Every color CRT has some sort of mask to direct the electron beams from each of the R, G, and B electron guns to the correct phospors, either a
+          <a href="https://en.wikipedia.org/wiki/Shadow_mask" target="_blank">shadow or slot mask</a> or an 
+          <a href="https://en.wikipedia.org/wiki/Aperture_grille" target="_blank">aperture grille</a>.
+        </p>
+        <div class="centered-image-row">
+          <div class="sub">
+            <img src="../images/mask-shadow-mask.png" />
+          </div>
+          <div class="sub">
+            <img src="../images/mask-slot-mask.png" />
+          </div>
+          <div class="sub">
+            <img src="../images/mask-aperture-grille.png" />
+          </div>
+        </div>
+        <p>
+          The first thing that the CRT emulation layer does is generate (or load) a texture that models the desired mask type. For consistency, each of these
+          textures is a 2:1 rectangle containing a single vertical repeat of the pattern (and one or two horizontal repeats, depending on the mask).
+        </p>
+        <p>
+          It is important that the <a href="https://en.wikipedia.org/wiki/Mipmap" target="_blank">mipmaps</a> for this texture are generated nicely, since the
+          actual display of these textures tends to be small (especially at lower resolutions). Cathode Retro by default uses a Lanczos2 downsample to try to keep
+          the right balance of sharpness vs. aliasing.
+        </p>
+        <p>
+          Before we can talk about rendering this mask over the image, we first need to talk about screen curvature.
+        </p>
+
+        <h2>Screen Curvature</h2>
+        <p>
+          Most CRT screens were curved, usually both horizontally and vertically but for some (like Trinitron screens) there was just horizontal curvature.
+          To emulate this, Cathode Retro effectively casts a rectangle of rays against a sphere, where the width and height of the rectangle affects how much curvature
+          the screen has (a narrower rectangle means a smaller slice of the sphere is used and the effective curvature is lower, and a wider rectangle means more 
+          curvature).
+        </p>
+        <p>
+          Some examples, from left to right: The "standard" curvature setting, the "Trin CRT" curvature setting, and an extreme curvature setting:
+        </p>
+        <div class="centered-image-row">
+          <div class="sub">
+            <img src="../images/example-curve-standard.jpg" />
+          </div>
+          <div class="sub">
+            <img src="../images/example-curve-horiz.jpg" />
+          </div>
+          <div class="sub">
+            <img src="../images/example-curve-extreme.jpg" />
+          </div>
+        </div>
+        <p>
+          The image and the CRT mask both need to be properly distorted to build the illusion of the screen curvature, which means we have to be careful about
+          <a href="https://en.wikipedia.org/wiki/Moir%C3%A9_pattern" target="_blank">moiré patterns</a>.
+        </p>
+        <p>
+          In our case, we chose to introduce a bit of noise by using a 64-tap 
+          <a href="https://en.wikipedia.org/wiki/Supersampling#Poisson_disk" target="_blank">Poisson disk</a>, in order to keep as much sharpness of pattern as possible.
+          It's not perfect, but generally when there's an image on-screen the moiré is unnoticeable. Ultimately, we generate a texture that contains a tiling of the
+          CRT mask (left, below, may need to zoom in) as well as the alpha mask of the edges of the screen (right, below).
+        </p>
+        <div class="centered-image-row">
+          <div class="sub">
+            <img src="../images/screen-texture-rgb.jpg" />
+          </div>
+          <div class="sub">
+            <img src="../images/screen-texture-alpha.jpg" />
+          </div>
+        </div>
+        <h2>Scanlines</h2>
+        <p>
+          An individual field of video (one half of an interlaced frame, or a single ~60Hz fake progressive frame) only draws half of the screen's scanlines, which means
+          there are gaps between them. To render these, the shader uses a sine wave that oscillates between 1 and 0, which is not entirely accurate but it looks good. 
+          Additionally, it does some numeric integration of this sine wave to help reduce even more moiré patterning caused by the scanline (expanding the size of the 
+          integration interval for smaller resolutions to reduce moiré further.
+        </p>
+        <p>
+          Here's a close-up of the scanlines on a white screen:
+        </p>
+        <div class="captioned-image">
+          <img src="../images/example-scanlines.jpg" />
+        </div>
+        <p>
+          The scanline gap positions (and, thus, the positioning of each visible scanline) changes based on whether this is an "even" or "odd" frame, to allow
+          interlacing to work.
+        </p>
+        <h2>Diffusion</h2>
+        <p>
+          One more major (but subtle) component of the technique: diffusion! This emulates the way that the photons coming from the glowing CRT phosphors bounce around
+          in the (imperfect) glass on the front of the screen on their way out of the TV. It's mostly visible with bright things on a dark screen.
+        </p>
+        <p>
+          Here's a close-up with diffusion disabled:
+        </p>
+        <div class="captioned-image">
+          <img src="../images/example-diffusion-none.jpg" />
+        </div>
+        <p>
+          Now here's a close-up with diffusion enabled (at its default amount):
+        </p>
+        <div class="captioned-image">
+          <img src="../images/example-diffusion-standard.jpg" />
+        </div>
+        <p>
+          Finally, here's one with diffusion turned up quite high to make it very obvious:
+        </p>
+        <div class="captioned-image">
+          <img src="../images/example-diffusion-extra.jpg" />
+        </div>
+        <p>
+          This is basically a <a href="https://en.wikipedia.org/wiki/Bloom_%28shader_effect%29" target="_blank">bloom effect</a>, where the RGB image itself is
+          <a href="https://en.wikipedia.org/wiki/Tone_mapping" target="_blank">tone-mapped</a>, scaled down and blurred:
+        </p>
+        <div class="captioned-image">
+          <img src="../images/example-diffusion-image.jpg" />
+        </div>
+        <p>
+          This is then blended with the output during final assembly.
+        </p>
+        <h2>Final Assembly</h2>
+        <p>
+          Putting the whole thing together basically requires sampling both the current frame as well as the previous frame (which is blended in based on the amount of
+          <b>phosphor persistence</b> there is, which is the amount of previous frame influence on the current frame), blending them together, blending in the CRT mask
+          (and darkening the borders where there's no screen), then adding the diffusion on top:
+        </p>
+        <div class="captioned-image">
+          <img src="../images/example-final.jpg" />
+        </div>
+        <div class="captioned-image">
+          <img src="../images/example-final-detail.jpg" />
+        </div>
+        <p>
+          Now we have a fully emulated CRT image!
+        </p>
+        <p>
+          For more information on the specifics of how the shaders are set up for this step, check out the 
+          <a href="../start-shaders/crt-emulation.html">CRT Emulation Shaders</a> page.
+        </p>
       </main>
     </div>
   </body>

@@ -12,7 +12,109 @@
     <div id="content-outer" class="content-outer">
       <main>
         <h1>Welcome!</h1>
-        These are the docs. One day they'll be useful.
+        <p>
+          Welcome to the docs for Cathode Retro.
+        </p>
+        <p>
+          The most recent version of Cathode Retro's source code can be found at the 
+          <a href="https://github.com/DeadlyRedCube/Cathode-Retro">Cathode Retro GitHub repository</a>.
+        </p>
+        <h2>Features</h2>
+        <ul>
+          <li>
+            Emulate composite and S-Video NTSC signals
+            <ul>
+              <li>Using any RGB source</li>
+              <li>At arbitrary resolutions (not limited to standard NTSC limitations)</li>
+              <li>Built-in scanline timings to emulate NES/SNES and PC Composite (320- and 640-wide) displays, but flexible enough to emulate any timings</li>
+              <li>Noise, picture instability, and ghosting for that "my TV has bad reception" feel</li>
+              <li>Tint/Saturation/Brightness/Sharpness "knobs" controls, like a TV had!</li>
+              <li>Has correct emulation of NTSC composite artifact colors</li>
+            </ul>
+          </li>
+          <li>
+            Emulate an image being displayed through a CRT monitor
+            <ul>
+              <li>Flat or curved screens, with optional edge and corner rounding</li>
+              <li>Supports emulation of shadow mask, slot mask, and aperture grille TVs</li>
+              <li>With or without visible scanlines</li>
+              <li>Approximation of CRT diffusion (the light from the TV refracting through imperfections in the glass face)</li>
+            </ul>
+          </li>
+          <li>Best at 1080p resolution and higher (great at 4k!)</li>
+        <h2>Screenshots</h2>
+        <div class="centered-image-row">
+          <a class="img" href="https://cathoderetro.com/CathodeRetro-Screen01-Full-MopOfDestiny.jpg" target="_blank">
+            <img src="https://cathoderetro.com/CathodeRetro-Screen01-Small-MopOfDestiny.png" alt="Detail of screenshot from Mop of Destiny" />
+          </a>
+          <a class="img" href="https://cathoderetro.com/CathodeRetro-Screen01-Full-MopOfDestiny.jpg" target="_blank">
+            <img src="https://cathoderetro.com/CathodeRetro-Screen01-Detail-MopOfDestiny.png" alt="Detail of screenshot from Mop of Destiny" />
+          </a>
+        </div>
+        <div class="captioned-image">
+          <label>
+            Screenshot from Mop of Destiny, click for full-sized version
+          </label>
+        </div>
+        <div class="centered-image-row">
+          <a class="img" href="https://cathoderetro.com/CathodeRetro-Screen02-Full-SaltsmanAmarelo.jpg" target="_blank">
+            <img src="https://cathoderetro.com/CathodeRetro-Screen02-Small-SaltsmanAmarelo.png" alt="Detail from preview of Adam Saltsman's Amarelo tile set" />
+          </a>
+          <a class="img" href="https://cathoderetro.com/CathodeRetro-Screen02-Full-SaltsmanAmarelo.jpg" target="_blank">
+            <img src="https://cathoderetro.com/CathodeRetro-Screen02-Detail-SaltsmanAmarelo.png" alt="Detail from preview of Adam Saltsman's Amarelo tile set" />
+          </a>
+        </div>
+        <div class="captioned-image">
+          <label>
+            Image of <a href="https://itch.io/queue/c/376872/public-domain-pixel-art?game_id=560830" target="_blank">Amarelo tileset</a> by Adam Saltsman, click for full-sized version
+          </label>
+        </div>
+        <div class="centered-image-row">
+          <a class="img" href="https://cathoderetro.com/CathodeRetro-Screen03-Full-SaltsmanKyst.jpg" target="_blank">
+            <img src="https://cathoderetro.com/CathodeRetro-Screen03-Small-SaltsmanKyst.png" alt="Detail from preview of Adam Saltsman's Kyst tile set" />
+          </a>
+          <a class="img" href="https://cathoderetro.com/CathodeRetro-Screen03-Full-SaltsmanKyst.jpg" target="_blank">
+            <img src="https://cathoderetro.com/CathodeRetro-Screen03-Detail-SaltsmanKyst.png" alt="Detail from preview of Adam Saltsman's Kyst tile set" />
+          </a>
+        </div>
+        <div class="captioned-image">
+          <label>
+            Image of <a href="https://itch.io/queue/c/376872/public-domain-pixel-art?game_id=329674" target="_blank">Kyst tileset</a> by Adam Saltsman, click for full-sized version
+          </label>
+        </div>
+        <div class="centered-image-row">
+          <a class="img" href="https://cathoderetro.com/CathodeRetro-Screen04-Full-Breakout.jpg" target="_blank">
+            <img src="https://cathoderetro.com/CathodeRetro-Screen04-Small-Breakout.png" alt="Detail of screenshot from an old, unreleased brick-breaking game"/>
+          </a>
+          <a class="img" href="https://cathoderetro.com/CathodeRetro-Screen04-Full-Breakout.jpg" target="_blank">
+            <img src="https://cathoderetro.com/CathodeRetro-Screen04-Detail-Breakout.png" alt="Detail of screenshot from an old, unreleased brick-breaking game"/>
+          </a>
+        </div>
+        <div class="captioned-image">
+          <label>
+            Screenshot from an old, unreleased brick-breaking game, click for full-sized version
+          </label>
+        </div>
+        <h2>Documentation Contents</h2>
+        <p>
+          If you're interested in how the whole thing works at a high level, check the <a href="how/index.html">How It Works</a> page.
+        </p>
+        <p>
+          If you're interested in using the C++ helpers to integrate the Cathode Retro effect into your codebase, here's a 
+          <a href="start-cpp/index.html">guide to getting started with the C++ helpers</a> and the 
+          <a href="cpp-reference/index.html">C++ API reference</a>.
+        </p>
+        <p>
+          If, instead, you want to use the shaders directly, here's a <a href="start-shaders/index.html">guide to getting started
+          with the shaders</a> and the <a href="shader-reference/index.html">shader reference</a>.
+        </p>
+        <menu class="index not-code">
+          <li><a href="how/index.html">How it Works</a></li>
+          <li><a href="start-cpp/index.html">Getting Started: C++ Helpers</a></li>
+          <li><a href="start-shaders/index.html">Getting Started: The Shaders</a></li>
+          <li><a href="cpp-reference/index.html">C++ Reference</a></li>
+          <li><a href="shader-reference/index.html">Shader Reference</a></li>
+        </menu>
       </main>
     </div>
   </body>
