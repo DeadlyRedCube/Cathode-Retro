@@ -273,11 +273,11 @@ main
   position: relative;
 }
 
-a:not(.img),
-a:visited:not(.img),
-a:hover:not(.img),
-a:active:not(.img),
-a:focus:not(.img)
+a,
+a:visited,
+a:hover,
+a:active,
+a:focus
 {
   --transition-time: 80ms;
   text-decoration-color: var(--accent-subtle);
