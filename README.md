@@ -4,7 +4,7 @@
 * [Screenshots](#screenshots)
 * [Features](#features)
 * [Contents and Usage](#contents-and-usage)
-* [Using the C++ Code](#using-the-c-code)
+* [Documentation](#documentation)
 * [Roadmap](#roadmap)
 * [License](#license)
 
@@ -76,15 +76,16 @@ This repository contains:
 		* Compiling for GLSL requires a loader that handles `#include` directives, as well as requires a `#version` directive (at least `#version 330 core`). See `GLHelpers.h` in `Samples/GL-Sample` for an example of this if needed
 * [**Include/CathodeRetro**](https://github.com/DeadlyRedCube/Cathode-Retro/tree/main/Include/CathodeRetro): Header-only C++ code to support a `CathodeRetro::CathodeRetro` class that handles running all of the shader stages for the full effect.
 	* Code requires at least C++14, and has been tested in Visual Studio 2022, and with Clang 9, Clang 17, GCC 8.1, and GCC 13.2
-	* More instructions on how to use the C++ code in the [next section](#using-the-c-code)
+	* Documentation in the  [**docs**](https://github.com/DeadlyRedCube/Cathode-Retro/tree/main/docs) directory. Documentation is also available at [https://cathoderetro.com/docs](https://cathoderetro.com/docs).
 * [**Samples**](https://github.com/DeadlyRedCube/Cathode-Retro/tree/main/Samples): Some C++ samples for how to use `Cathode Retro`
 	* **D3D11-Sample**: A sample Visual Studio 2022 project that runs `Cathode Retro` in Direct3D 11, as HLSL shaders
 	* **GL-Sample**: A sample Visual Studio 2022 project that runs `Cathode Retro` in OpenGL 3.3 core
 		* Sorry, Linux/Mac users: the demo code is rather Windows-specific at the moment, but hopefully it still gives you the gist of how to hook everything up
 
-## Using the C++ Code
+## Documentation
 
-A small overview of using the C++ code can be found [here](/docs/Using-the-C-Code.md). More extensive documentation coming soon!
+The most current documentation can be found [here](https://cathoderetro.com/docs).
+Documentation specific to the version of `Cathode Retro` you have checked out can be found in the [**docs**](https://github.com/DeadlyRedCube/Cathode-Retro/tree/main/docs) directory.
 
 ## Roadmap
 
